@@ -2,6 +2,14 @@
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<h5 class="panel-title">
+                            <a href="{base_url('archivos/ppt/41_FIL_Mineria_BIBLAT_febrero_2020.pptx')}" target="_blank"><span class="fa fa-file-pdf-o"></span></a> XLI Feria Internacional del Libro del Palacio de Minería - <b>Biblat 2.0 : Visibilidad e indización colaborativa para las revistas académicas latinoamericanas</b>
+
+			</h5>
+		</div>
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h5 class="panel-title">
 					<a href="{base_url('archivos/pdf/Aniversario_40_PERIODICA_nov_2018.pdf')}" target="_blank"><span class="fa fa-file-pdf-o"></span></a> PERIODICA - 40 Aniversario
 
 			</h5>

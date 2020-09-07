@@ -1,5 +1,16 @@
 <div class="page_title">
     <hr/>
+    <h4>{_('Procedimiento para incluir la visualización de los indicadores bibliométricos de BIBLAT en el sitio de la revista')}</h4>
+    <hr/>
+</div>
+<div class="row">
+  <div class="col-xs-6 col-md-3">
+    <iframe width="350" height="180" src="https://www.youtube.com/embed/h571rion4vI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  </div>
+</div>
+
+<div class="page_title">
+    <hr/>
     <h4>{_('Poster 2018')}</h4>
     <hr/>
 </div>
