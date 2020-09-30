@@ -65,6 +65,7 @@ $route[$langs.'/revista/solicitud/documento'] = 'revista/solicitudDocumento';
 $route[$langs.'/bibliometria/descripcion-biblat'] = 'main/descripcionBiblat';
 $route[$langs.'/bibliometria/metodologia-biblat'] = 'main/metodologiaBiblat';
 $route[$langs.'/postular-revista/criterios-de-seleccion'] = 'main/criteriosSeleccion';
+$route[$langs.'/postular-revista/preevaluacion'] = 'main/preevaluacion';
 $route[$langs.'/bibliometria/indicadores-scielo'] = 'main/indicadoresScielo';
 $route[$langs.'/bibliometria/indicadores-por-revista(.*)'] = 'main/indicadoresRevista$1';
 $route[$langs.'/manual-de-indizacion'] = 'main/manualIndizacion';

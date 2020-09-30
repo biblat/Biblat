@@ -1,5 +1,9 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+require 'vendor/autoload.php';
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 class Main extends CI_Controller{
 
 	public function __construct(){
@@ -233,12 +237,251 @@ class Main extends CI_Controller{
 
 	public function criteriosSeleccion(){
 		$data = array();
-		$data['page_title'] = _('Criterios de selección');
+		$data['page_title'] = _('Criterios de selección');               
 		$this->template->title(_('Criterios de selección'));
 		$this->template->set_breadcrumb(_('Postular una revista'));
 		$this->template->set_meta('description', _('Criterios de selección'));
 		$this->template->build('main/criterios_seleccion', $data);
 	}
+        
+        function multi_attach_mail($to, $subject, $message, $senderMail, $senderName, $files){
+
+            $from = $senderName." <".$senderMail.">"; 
+            $headers = "From: $from\n";
+            $headers .= " Bcc: eduranm@dgb.unam.mx";
+
+            // boundary 
+            $semi_rand = md5(time()); 
+            $mime_boundary = "==Multipart_Boundary_x{$semi_rand}x"; 
+
+            // headers for attachment 
+            $headers .= "\nMIME-Version: 1.0\n" . "Content-Type: multipart/mixed;\n" . " boundary=\"{$mime_boundary}\""; 
+
+            // multipart boundary 
+            $message = "--{$mime_boundary}\n" . "Content-Type: text/html; charset=\"UTF-8\"\n" .
+            "Content-Transfer-Encoding: 7bit\n\n" . $message . "\n\n"; 
+
+            // preparing attachments
+            if(count($files) > 0){
+                for($i=0;$i<count($files);$i++){
+                    if(is_file($files[$i])){
+                        $message .= "--{$mime_boundary}\n";
+                        $fp =    @fopen($files[$i],"rb");
+                        $data =  @fread($fp,filesize($files[$i]));
+
+                        @fclose($fp);
+                        $data = chunk_split(base64_encode($data));
+                        $message .= "Content-Type: application/octet-stream; name=\"".basename($files[$i])."\"\n" . 
+                        "Content-Description: ".basename($files[$i])."\n" .
+                        "Content-Disposition: attachment;\n" . " filename=\"".basename($files[$i])."\"; size=".filesize($files[$i]).";\n" . 
+                        "Content-Transfer-Encoding: base64\n\n" . $data . "\n\n";
+                    }
+                }
+            }
+
+            $message .= "--{$mime_boundary}--";
+            $returnpath = "-f" . $senderMail;
+
+            //send email
+            $mail = @mail($to, $subject, $message, $headers, $returnpath); 
+
+            //function return true, if email sent, otherwise return fasle
+            if($mail){ return TRUE; } else { return FALSE; }
+
+        }
+        
+        function sendMail(
+            array $fileAttachments,
+            string $mailMessage = MAIL_CONF["mailMessage"],
+            string $subject     = MAIL_CONF["subject"],
+            string $toAddress   = MAIL_CONF["toAddress"],
+            string $fromMail    = MAIL_CONF["fromMail"]
+        ): bool {
+
+            $from           = $fromMail;
+            
+            $headers   = "From: $from";
+            $headers  .= "\nReply-To: $from";
+            
+            foreach ( $fileAttachments as $key => $fileAttachment ) {
+                $fileAttachment = trim($fileAttachment);
+                $pathInfo       = pathinfo($fileAttachment);
+                $attchmentName  .= "attachment_".$fileAttachment.date("YmdHms").(
+                (isset($pathInfo['extension']))? ".".$pathInfo['extension'] : ""
+                );
+
+                $attachment    = chunk_split(base64_encode(file_get_contents($fileAttachment)));
+                $boundary      = "PHP-mixed-".md5(time());
+                $boundWithPre  .= "\n--".$boundary;
+
+                $headers  .= "\nContent-Type: multipart/mixed; boundary=\"".$boundary."\"";
+            }
+
+            $message   = $boundWithPre;
+            $message  .= "\n Content-Type: text/plain; charset=UTF-8\n";
+            $message  .= "\n $mailMessage";
+
+            $message .= $boundWithPre;
+            $message .= "\nContent-Type: application/octet-stream; name=\"".$attchmentName."\"";
+            $message .= "\nContent-Transfer-Encoding: base64\n";
+            $message .= "\nContent-Disposition: attachment\n";
+            $message .= $attachment;
+            $message .= $boundWithPre."--";
+
+            return mail($toAddress, $subject, $message, $headers);
+        }
+        
+        public function preevaluacion(){
+            $data = array();
+            $data['page_title'] = _('Preevaluación');
+            $this->template->js('assets/js/highcharts/phantomjs/highcharts8.js');
+            $this->template->js('assets/js/highcharts/phantomjs/highcharts-more8.js');
+            $this->template->js('assets/js/highcharts/phantomjs/solid-gauge8.js');
+            $this->template->set_partial('main_js','main/preevaluacion.js', array(), TRUE, FALSE);
+            $this->template->title(_('Preevaluación'));
+            $this->template->set_breadcrumb(_('Postular una revista'));
+            $this->template->set_meta('description', _('Preevaluación'));
+            $this->template->build('main/preevaluacion', $data);
+        }
+        
+        public function createPlantilla(){
+        
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load("archivos/Plantilla.xlsx");
+            $spreadsheet->setActiveSheetIndex(0);
+            $sheet = $spreadsheet->getActiveSheet();
+            if(!filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
+                $spreadsheet->removeSheetByIndex(6);
+                $spreadsheet->removeSheetByIndex(5);
+                $spreadsheet->removeSheetByIndex(4);
+                $spreadsheet->removeSheetByIndex(3);
+                $spreadsheet->removeSheetByIndex(2);
+                $spreadsheet->removeSheetByIndex(1);
+                $spreadsheet->removeSheetByIndex(3);
+                $spreadsheet->removeSheetByIndex(2);
+                $spreadsheet->removeSheetByIndex(1);
+                $spreadsheet->removeSheetByIndex(1);
+            }
+            if ( $_POST ) {
+                    foreach ( $_POST['criterio'] as $key2 => $value2 ) {
+                        if(filter_var($value2['cumplo'], FILTER_VALIDATE_BOOLEAN))
+                            $sheet->setCellValue($value2['celda'], 1);
+                        else
+                            $sheet->setCellValue($value2['celda'], 0);
+                    }
+            } 
+            
+            $writer = new Xlsx($spreadsheet);
+            if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN))
+                $writer->save('Preevaluación_'.$_POST['issn'].'.xlsx');
+            else
+                $writer->save('Preevaluación_'.$_POST['correo'].'.xlsx');
+            
+            $name = basename('Carta de Postulación', '.php');
+            $source = "archivos/{$name}.docx";
+            
+            if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
+                $phpWord = \PhpOffice\PhpWord\IOFactory::load($source);
+                $sections = $phpWord->getSections();
+                $documento = new \PhpOffice\PhpWord\PhpWord();
+
+                $paragraphStyleName = 'pStyle';
+                $documento->addParagraphStyle($paragraphStyleName, array(
+                                                                            //'spacing'=> 480,
+                                                                            'lineHeight'=>1.5,
+                                                                            'alignment'=>'both'
+                                                                        ));
+                $meses = array('','enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre');
+                $dia = intval(date("j"));
+                $mes = intval(date("n"));
+                $anio = intval(date("Y"));
+                $mes = $meses[$mes];
+
+                foreach ($sections as $section) {
+                    $seccionw = $documento->addSection();
+                    $elements = $section->getElements();
+                    foreach ($elements as $element) {                                    
+                        if (get_class($element) === 'PhpOffice\PhpWord\Element\Text') {
+                            $uploadedText .= $element->getText();
+                            $uploadedText .= ' ';
+                        } else if (get_class($element) === 'PhpOffice\PhpWord\Element\TextRun') {
+                            $textRunElements = $element->getElements();
+                            $textRun = $seccionw->addTextRun($paragraphStyleName);
+                            foreach ($textRunElements as $textRunElement) {
+                                $uploadedText = $textRunElement->getText();
+                                $uploadedText = str_replace("NOMBRE DE LA REVISTA", mb_strtoupper($_POST['nombre_revista']), $uploadedText);
+                                $uploadedText = str_replace("xxxx-xxxx", mb_strtoupper($_POST['issn']), $uploadedText);
+                                $uploadedText = str_replace("PAÍS", mb_strtoupper($_POST['pais']), $uploadedText);
+                                $uploadedText = str_replace("NOMBRE DE LA ORGANIZACIÓN QUE EDITA", mb_strtoupper($_POST['organizacion']), $uploadedText);
+                                $uploadedText = str_replace("PERIODICIDAD", mb_strtoupper($_POST['periodicidad']), $uploadedText);
+                                if(!filter_var($_POST['autorizo'], FILTER_VALIDATE_BOOLEAN))
+                                    $uploadedText = str_replace("AUTORIZO", "NO AUTORIZO", $uploadedText);
+                                $uploadedText = str_replace("NOMBRE", mb_strtoupper($_POST['nombre']), $uploadedText);
+                                $uploadedText = str_replace("CIUDAD", mb_strtoupper($_POST['ciudad']), $uploadedText);
+                                $uploadedText = str_replace("FECHA", $dia . " DE " . mb_strtoupper($mes) . " DE " . $anio , $uploadedText);
+
+                                $textRun->addText($uploadedText,$textRunElement->getFontStyle());
+                            }
+                        } else if (get_class($element) === 'PhpOffice\PhpWord\Element\TextBreak') {
+                            $uploadedText .= ' ';
+                        } else {
+                            throw new Exception('Unknown class type ' . get_class($e));
+                        }
+                    }
+                }
+                $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($documento, "Word2007");
+                $objWriter->save("Carta de postulación_".$_POST['issn'].".docx");
+            }
+            
+            if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
+                $mensaje = "Estimado(a) editor(a):<br><br>".
+                "De acuerdo con la autoevaluación que realizó el día de hoy en nuestro sitio web biblat.unam.mx, le informamos que su revista cumple con los criterios obligatorios para ingresar a CLASE, PERIÓDICA, portal Biblat y catálogo SERIUNAM.<br><br>".
+                "Adjunto a este mensaje, usted encontrará el resultado de su autoevaluación.<br><br>".
+                "Su postulación será revisada por nuestro Comité de Evaluación y Selección, el dictamen le será enviado al correo electrónico que proporcionó en nuestro portal junto con las instrucciones para enviar los metadatos de los artículos publicados en su revista.<br><br>".
+                "Quedamos atentos a sus comentarios y agradecemos su colaboración.<br><br>".
+                "Saludos.<br>".
+                "Comité de Selección y Evaluación de Publicaciones Periódicas para Clase, Periódica y Catálogo SeriUNAM<br>".
+                "biblat_comite@dgb.unam.mx";
+            }else{
+                $mensaje = "Estimado(a) editor(a):<br><br>".
+                "De acuerdo con la autoevaluación que realizó el día de hoy en nuestro sitio web biblat.unam.mx, lamentamos informarle que su revista no cumple con los criterios obligatorios para ingresar a CLASE, PERIÓDICA, portal Biblat y catálogo SERIUNAM.<br><br>".
+                "Adjunto a este mensaje, usted encontrará el resultado de su autoevaluación.".
+                " Los criterios marcados con el número cero corresponden a aquellos que su revista no cumple, mismos que le recomendamos perfeccionar.<br><br>".
+                "Quedamos atentos a sus comentarios y esperamos contar con su postulación en un momento posterior.<br><br>".
+                "Saludos.<br>".
+                "Comité de Selección y Evaluación de Publicaciones Periódicas para Clase, Periódica y Catálogo SeriUNAM<br>".
+                "biblat_comite@dgb.unam.mx";
+            }
+
+            $mensaje = wordwrap($mensaje, 70, "\r\n");
+            
+            if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
+                $correos = $_POST['correo'].",biblat_comite@dgb.unam.mx";
+                $arraydocs = array(
+                    "Carta de postulación_".$_POST['issn'].".docx",'Preevaluación_'.$_POST['issn'].'.xlsx'
+                );
+            }else{
+                $correos = $_POST['correo'];
+                $arraydocs = array(
+                    'Preevaluación_'.$_POST['correo'].'.xlsx'
+                );
+            }
+            
+            $this->multi_attach_mail($correos,
+                    "Postulación de Revista",
+                    $mensaje,
+                    "biblat_comite@dgb.unam.mx",
+                    "Comité de Selección y Evaluación de Publicaciones Periódicas para Clase, Periódica y Catálogo SeriUNAM",
+                    $arraydocs
+                    );
+            
+            if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
+                unlink("Carta de postulación_".$_POST['issn'].".docx");
+                unlink('Preevaluación_'.$_POST['issn'].'.xlsx');
+            }
+            else
+                unlink('Preevaluación_'.$_POST['correo'].'.xlsx');
+
+        }
 
 	public function sitemap(){
 		$data = array();
