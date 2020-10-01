@@ -21,7 +21,7 @@ class ConditionalStyles
         $this->dxfs = $dxfs;
     }
 
-    public function load(): void
+    public function load()
     {
         $this->setConditionalStyles(
             $this->worksheet,
@@ -49,7 +49,7 @@ class ConditionalStyles
         return $conditionals;
     }
 
-    private function setConditionalStyles(Worksheet $worksheet, array $conditionals): void
+    private function setConditionalStyles(Worksheet $worksheet, array $conditionals)
     {
         foreach ($conditionals as $ref => $cfRules) {
             ksort($cfRules);

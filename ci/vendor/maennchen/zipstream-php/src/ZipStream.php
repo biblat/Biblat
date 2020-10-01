@@ -168,7 +168,7 @@ class ZipStream
      * allow software to send its own headers (including the filename), and
      * still use this library.
      */
-    public function __construct(?string $name = null, ?ArchiveOptions $opt = null)
+    public function __construct($name = null, $opt = null)
     {
         $this->opt = $opt ?: new ArchiveOptions();
 
@@ -207,7 +207,7 @@ class ZipStream
      *   $opt->setComment = 'this is a comment about bar.jpg';
      *   $zip->addFile('bar.jpg', $data, $opt);
      */
-    public function addFile(string $name, string $data, ?FileOptions $options = null): void
+    public function addFile($name, $data, $options = null)
     {
         $options = $options ?: new FileOptions();
         $options->defaultTo($this->opt);
@@ -253,7 +253,7 @@ class ZipStream
      * @throws \ZipStream\Exception\FileNotFoundException
      * @throws \ZipStream\Exception\FileNotReadableException
      */
-    public function addFileFromPath(string $name, string $path, ?FileOptions $options = null): void
+    public function addFileFromPath(string $name, string $path, $options = null)
     {
         $options = $options ?: new FileOptions();
         $options->defaultTo($this->opt);
@@ -287,7 +287,7 @@ class ZipStream
      *
      * @return void
      */
-    public function addFileFromStream(string $name, $stream, ?FileOptions $options = null): void
+    public function addFileFromStream(string $name, $stream, $options = null)
     {
         $options = $options ?: new FileOptions();
         $options->defaultTo($this->opt);
@@ -324,8 +324,8 @@ class ZipStream
     public function addFileFromPsr7Stream(
         string $name,
         StreamInterface $stream,
-        ?FileOptions $options = null
-    ): void {
+        $options = null
+    ) {
         $options = $options ?: new FileOptions();
         $options->defaultTo($this->opt);
 
@@ -351,7 +351,7 @@ class ZipStream
      *
      * @throws OverflowException
      */
-    public function finish(): void
+    public function finish() //void
     {
         // add trailing cdr file records
         foreach ($this->files as $cdrFile) {
@@ -383,7 +383,7 @@ class ZipStream
      *
      * @return void
      */
-    protected function addCdr64Eof(): void
+    protected function addCdr64Eof() //void
     {
         $num_files = count($this->files);
         $cdr_length = $this->cdr_ofs;
@@ -413,28 +413,29 @@ class ZipStream
      * @param array $fields
      * @return string
      */
-    public static function packFields(array $fields): string
+    public static function packFields(array $fields)
     {
         $fmt = '';
         $args = [];
 
         // populate format string and argument list
-        foreach ($fields as [$format, $value]) {
+//        foreach ($fields as [$format, $value]) {
+        foreach ($fields as $val) {
             if ($format === 'P') {
                 $fmt .= 'VV';
                 if ($value instanceof Bigint) {
-                    $args[] = $value->getLow32();
-                    $args[] = $value->getHigh32();
+                    $args[] = $val[1]->getLow32();
+                    $args[] = $val[1]->getHigh32();
                 } else {
-                    $args[] = $value;
+                    $args[] = $val[1];
                     $args[] = 0;
                 }
             } else {
-                if ($value instanceof Bigint) {
-                    $value = $value->getLow32();
+                if ($val[1] instanceof Bigint) {
+                    $val[1] = $val[1]->getLow32();
                 }
-                $fmt .= $format;
-                $args[] = $value;
+                $fmt .= $val[0];
+                $args[] = $val[1];
             }
         }
 
@@ -452,7 +453,7 @@ class ZipStream
      * @param String $str
      * @return void
      */
-    public function send(string $str): void
+    public function send($str)
     {
         if ($this->need_headers) {
             $this->sendHttpHeaders();
@@ -478,7 +479,7 @@ class ZipStream
      *
      * @return void
      */
-    protected function sendHttpHeaders(): void
+    protected function sendHttpHeaders() //void
     {
         // grab content disposition
         $disposition = $this->opt->getContentDisposition();
@@ -511,7 +512,7 @@ class ZipStream
      *
      * @return void
      */
-    protected function addCdr64Locator(): void
+    protected function addCdr64Locator() //void
     {
         $cdr_offset = $this->ofs->add($this->cdr_ofs);
 
@@ -531,7 +532,7 @@ class ZipStream
      *
      * @return void
      */
-    protected function addCdrEof(): void
+    protected function addCdrEof() //void
     {
         $num_files = count($this->files);
         $cdr_length = $this->cdr_ofs;
@@ -561,7 +562,7 @@ class ZipStream
      *
      * @return void
      */
-    protected function clear(): void
+    protected function clear() //void
     {
         $this->files = [];
         $this->ofs = new Bigint();
@@ -575,7 +576,7 @@ class ZipStream
      * @param string $path
      * @return bool
      */
-    public function isLargeFile(string $path): bool
+    public function isLargeFile(string $path)
     {
         if (!$this->opt->isStatFiles()) {
             return false;
@@ -590,7 +591,7 @@ class ZipStream
      * @param File $file
      * @return void
      */
-    public function addToCdr(File $file): void
+    public function addToCdr(File $file)
     {
         $file->ofs = $this->ofs;
         $this->ofs = $this->ofs->add($file->getTotalLength());

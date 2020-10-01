@@ -22,7 +22,7 @@ class File
     const COMPUTE = 1;
     const SEND = 2;
 
-    private const CHUNKED_READ_BLOCK_SIZE = 1048576;
+    const CHUNKED_READ_BLOCK_SIZE = 1048576;
 
     /**
      * @var string
@@ -90,7 +90,7 @@ class File
      */
     private $totalLength;
 
-    public function __construct(ZipStream $zip, string $name, ?FileOptions $opt = null)
+    public function __construct($zip, $name, $opt = null)
     {
         $this->zip = $zip;
 
@@ -101,7 +101,7 @@ class File
         $this->ofs = new Bigint();
     }
 
-    public function processPath(string $path): void
+    public function processPath(string $path)
     {
         if (!is_readable($path)) {
             if (!file_exists($path)) {
@@ -121,7 +121,7 @@ class File
         }
     }
 
-    public function processData(string $data): void
+    public function processData($data)
     {
         $this->len = new Bigint(strlen($data));
         $this->crc = crc32($data);
@@ -143,7 +143,7 @@ class File
      * @return void
      * @throws \ZipStream\Exception\EncodingException
      */
-    public function addFileHeader(): void
+    public function addFileHeader() //void
     {
         $name = static::filterFilename($this->name);
 
@@ -217,7 +217,7 @@ class File
      * @param string $filename Unprocessed filename
      * @return string
      */
-    public static function filterFilename(string $filename): string
+    public static function filterFilename($filename)
     {
         // strip leading slashes from file name
         // (fixes bug in windows archive viewer)
@@ -232,7 +232,7 @@ class File
      * @param int $when
      * @return int DOS Timestamp
      */
-    final protected static function dosTime(int $when): int
+    final protected static function dosTime($when)
     {
         // get date array for timestamp
         $d = getdate($when);
@@ -262,7 +262,7 @@ class File
             ($d['seconds'] >> 1);
     }
 
-    protected function buildZip64ExtraBlock(bool $force = false): string
+    protected function buildZip64ExtraBlock($force = false)
     {
 
         $fields = [];
@@ -300,7 +300,7 @@ class File
      * @return void
      */
 
-    public function addFileFooter(): void
+    public function addFileFooter() //void
     {
 
         if ($this->bits & self::BIT_ZERO_HEADER) {
@@ -325,7 +325,7 @@ class File
         $this->zip->addToCdr($this);
     }
 
-    public function processStream(StreamInterface $stream): void
+    public function processStream(StreamInterface $stream)
     {
         $this->zlen = new Bigint();
         $this->len = new Bigint();
@@ -337,7 +337,7 @@ class File
         }
     }
 
-    protected function processStreamWithZeroHeader(StreamInterface $stream): void
+    protected function processStreamWithZeroHeader(StreamInterface $stream)
     {
         $this->bits |= self::BIT_ZERO_HEADER;
         $this->addFileHeader();
@@ -345,7 +345,7 @@ class File
         $this->addFileFooter();
     }
 
-    protected function readStream(StreamInterface $stream, ?int $options = null): void
+    protected function readStream(StreamInterface $stream, $options = null)
     {
         $this->deflateInit();
         $total = 0;
@@ -364,7 +364,7 @@ class File
         $this->deflateFinish($options);
     }
 
-    protected function deflateInit(): void
+    protected function deflateInit() //void
     {
         $this->hash = hash_init(self::HASH_ALGORITHM);
         if ($this->method->equals(Method::DEFLATE())) {
@@ -375,7 +375,7 @@ class File
         }
     }
 
-    protected function deflateData(StreamInterface $stream, string &$data, ?int $options = null): void
+    protected function deflateData(StreamInterface $stream, string &$data, $options = null)
     {
         if ($options & self::COMPUTE) {
             $this->len = $this->len->add(Bigint::init(strlen($data)));
@@ -395,14 +395,14 @@ class File
         }
     }
 
-    protected function deflateFinish(?int $options = null): void
+    protected function deflateFinish($options = null)
     {
         if ($options & self::COMPUTE) {
             $this->crc = hexdec(hash_final($this->hash));
         }
     }
 
-    protected function processStreamWithComputedHeader(StreamInterface $stream): void
+    protected function processStreamWithComputedHeader(StreamInterface $stream)
     {
         $this->readStream($stream, self::COMPUTE);
         $stream->rewind();
@@ -430,7 +430,7 @@ class File
      *
      * @return string
      */
-    public function getCdrFile(): string
+    public function getCdrFile() //string
     {
         $name = static::filterFilename($this->name);
 
@@ -470,7 +470,7 @@ class File
     /**
      * @return Bigint
      */
-    public function getTotalLength(): Bigint
+    public function getTotalLength() //Bigint
     {
         return $this->totalLength;
     }

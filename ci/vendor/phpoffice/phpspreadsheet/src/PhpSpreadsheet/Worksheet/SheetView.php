@@ -126,7 +126,7 @@ class SheetView
      *
      * @param bool $pValue
      */
-    public function setShowZeros($pValue): void
+    public function setShowZeros($pValue)
     {
         $this->showZeros = $pValue;
     }

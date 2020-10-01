@@ -18,7 +18,7 @@ class SheetViews extends BaseParserClass
         $this->worksheet = $workSheet;
     }
 
-    public function load(): void
+    public function load()
     {
         $this->zoomScale();
         $this->view();
@@ -35,7 +35,7 @@ class SheetViews extends BaseParserClass
         }
     }
 
-    private function zoomScale(): void
+    private function zoomScale()
     {
         if (isset($this->sheetViewXml['zoomScale'])) {
             $zoomScale = (int) ($this->sheetViewXml['zoomScale']);
@@ -60,14 +60,14 @@ class SheetViews extends BaseParserClass
         }
     }
 
-    private function view(): void
+    private function view()
     {
         if (isset($this->sheetViewXml['view'])) {
             $this->worksheet->getSheetView()->setView((string) $this->sheetViewXml['view']);
         }
     }
 
-    private function gridLines(): void
+    private function gridLines()
     {
         if (isset($this->sheetViewXml['showGridLines'])) {
             $this->worksheet->setShowGridLines(
@@ -76,7 +76,7 @@ class SheetViews extends BaseParserClass
         }
     }
 
-    private function headers(): void
+    private function headers()
     {
         if (isset($this->sheetViewXml['showRowColHeaders'])) {
             $this->worksheet->setShowRowColHeaders(
@@ -85,7 +85,7 @@ class SheetViews extends BaseParserClass
         }
     }
 
-    private function direction(): void
+    private function direction()
     {
         if (isset($this->sheetViewXml['rightToLeft'])) {
             $this->worksheet->setRightToLeft(
@@ -94,7 +94,7 @@ class SheetViews extends BaseParserClass
         }
     }
 
-    private function showZeros(): void
+    private function showZeros()
     {
         if (isset($this->sheetViewXml['showZeros'])) {
             $this->worksheet->getSheetView()->setShowZeros(
@@ -103,7 +103,7 @@ class SheetViews extends BaseParserClass
         }
     }
 
-    private function pane(): void
+    private function pane()
     {
         $xSplit = 0;
         $ySplit = 0;
@@ -127,7 +127,7 @@ class SheetViews extends BaseParserClass
         );
     }
 
-    private function selection(): void
+    private function selection()
     {
         $sqref = (string) $this->sheetViewXml->selection['sqref'];
         $sqref = explode(' ', $sqref);

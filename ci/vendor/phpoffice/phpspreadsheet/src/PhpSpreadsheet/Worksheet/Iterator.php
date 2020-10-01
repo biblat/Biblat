@@ -40,7 +40,7 @@ class Iterator implements \Iterator
     /**
      * Rewind iterator.
      */
-    public function rewind(): void
+    public function rewind()
     {
         $this->position = 0;
     }
@@ -68,7 +68,7 @@ class Iterator implements \Iterator
     /**
      * Next value.
      */
-    public function next(): void
+    public function next()
     {
         ++$this->position;
     }

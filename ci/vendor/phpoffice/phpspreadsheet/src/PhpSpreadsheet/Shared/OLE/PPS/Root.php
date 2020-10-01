@@ -160,7 +160,7 @@ class Root extends PPS
      * @param int $iBBcnt
      * @param int $iPPScnt
      */
-    public function _saveHeader($iSBDcnt, $iBBcnt, $iPPScnt): void
+    public function _saveHeader($iSBDcnt, $iBBcnt, $iPPScnt)
     {
         $FILE = $this->fileHandle;
 
@@ -239,7 +239,7 @@ class Root extends PPS
      * @param int $iStBlk
      * @param array &$raList Reference to array of PPS's
      */
-    public function _saveBigData($iStBlk, &$raList): void
+    public function _saveBigData($iStBlk, &$raList)
     {
         $FILE = $this->fileHandle;
 
@@ -321,7 +321,7 @@ class Root extends PPS
      *
      * @param array $raList Reference to an array with all PPS's
      */
-    public function _savePps(&$raList): void
+    public function _savePps(&$raList)
     {
         // Save each PPS WK
         $iC = count($raList);
@@ -343,7 +343,7 @@ class Root extends PPS
      * @param int $iBsize
      * @param int $iPpsCnt
      */
-    public function _saveBbd($iSbdSize, $iBsize, $iPpsCnt): void
+    public function _saveBbd($iSbdSize, $iBsize, $iPpsCnt)
     {
         $FILE = $this->fileHandle;
         // Calculate Basic Setting

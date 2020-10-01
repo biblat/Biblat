@@ -147,7 +147,7 @@ class Chart
      * @param mixed $plotVisibleOnly
      * @param string $displayBlanksAs
      */
-    public function __construct($name, ?Title $title = null, ?Legend $legend = null, ?PlotArea $plotArea = null, $plotVisibleOnly = true, $displayBlanksAs = DataSeries::EMPTY_AS_GAP, ?Title $xAxisLabel = null, ?Title $yAxisLabel = null, ?Axis $xAxis = null, ?Axis $yAxis = null, ?GridLines $majorGridlines = null, ?GridLines $minorGridlines = null)
+    public function __construct($name, $title = null, $legend = null, ?PlotArea $plotArea = null, $plotVisibleOnly = true, $displayBlanksAs = DataSeries::EMPTY_AS_GAP, $xAxisLabel = null, $yAxisLabel = null, $xAxis = null, $yAxis = null, $majorGridlines = null, $minorGridlines = null)
     {
         $this->name = $name;
         $this->title = $title;
@@ -190,7 +190,7 @@ class Chart
      *
      * @return $this
      */
-    public function setWorksheet(?Worksheet $pValue = null)
+    public function setWorksheet($pValue = null)
     {
         $this->worksheet = $pValue;
 
@@ -628,7 +628,7 @@ class Chart
         return $this->bottomRightYOffset;
     }
 
-    public function refresh(): void
+    public function refresh()
     {
         if ($this->worksheet !== null) {
             $this->plotArea->refresh($this->worksheet);

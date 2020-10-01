@@ -86,7 +86,7 @@ class Csv extends BaseReader
     /**
      * Move filepointer past any BOM marker.
      */
-    protected function skipBOM(): void
+    protected function skipBOM()
     {
         rewind($this->fileHandle);
 
@@ -102,7 +102,7 @@ class Csv extends BaseReader
     /**
      * Identify any separator that is explicitly set in the file.
      */
-    protected function checkSeparator(): void
+    protected function checkSeparator()
     {
         $line = fgets($this->fileHandle);
         if ($line === false) {
@@ -121,7 +121,7 @@ class Csv extends BaseReader
     /**
      * Infer the separator if it isn't explicitly set in the file or specified by the user.
      */
-    protected function inferSeparator(): void
+    protected function inferSeparator()
     {
         if ($this->delimiter !== null) {
             return;
@@ -293,7 +293,7 @@ class Csv extends BaseReader
         return $this->loadIntoExisting($pFilename, $spreadsheet);
     }
 
-    private function openFileOrMemory($pFilename): void
+    private function openFileOrMemory($pFilename)
     {
         // Open file
         $fhandle = $this->canRead($pFilename);

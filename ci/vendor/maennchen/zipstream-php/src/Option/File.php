@@ -28,7 +28,7 @@ final class File
      */
     private $size = 0;
 
-    public function defaultTo(Archive $archiveOptions): void
+    public function defaultTo(Archive $archiveOptions)
     {
         $this->deflateLevel = $this->deflateLevel ?: $archiveOptions->getDeflateLevel();
         $this->time = $this->time ?: new DateTime();
@@ -37,7 +37,7 @@ final class File
     /**
      * @return string
      */
-    public function getComment(): string
+    public function getComment() //string
     {
         return $this->comment;
     }
@@ -45,7 +45,7 @@ final class File
     /**
      * @param string $comment
      */
-    public function setComment(string $comment): void
+    public function setComment(string $comment)
     {
         $this->comment = $comment;
     }
@@ -53,7 +53,7 @@ final class File
     /**
      * @return Method
      */
-    public function getMethod(): Method
+    public function getMethod() //Method
     {
         return $this->method ?: Method::DEFLATE();
     }
@@ -61,7 +61,7 @@ final class File
     /**
      * @param Method $method
      */
-    public function setMethod(Method $method): void
+    public function setMethod(Method $method)
     {
         $this->method = $method;
     }
@@ -69,7 +69,7 @@ final class File
     /**
      * @return int
      */
-    public function getDeflateLevel(): int
+    public function getDeflateLevel() //int
     {
         return $this->deflateLevel ?: Archive::DEFAULT_DEFLATE_LEVEL;
     }
@@ -77,7 +77,7 @@ final class File
     /**
      * @param int $deflateLevel
      */
-    public function setDeflateLevel(int $deflateLevel): void
+    public function setDeflateLevel(int $deflateLevel)
     {
         $this->deflateLevel = $deflateLevel;
     }
@@ -85,7 +85,7 @@ final class File
     /**
      * @return DateTime
      */
-    public function getTime(): DateTime
+    public function getTime() //DateTime
     {
         return $this->time;
     }
@@ -93,7 +93,7 @@ final class File
     /**
      * @param DateTime $time
      */
-    public function setTime(DateTime $time): void
+    public function setTime(DateTime $time)
     {
         $this->time = $time;
     }
@@ -101,7 +101,7 @@ final class File
     /**
      * @return int
      */
-    public function getSize(): int
+    public function getSize() //int
     {
         return $this->size;
     }
@@ -109,7 +109,7 @@ final class File
     /**
      * @param int $size
      */
-    public function setSize(int $size): void
+    public function setSize(int $size)
     {
         $this->size = $size;
     }

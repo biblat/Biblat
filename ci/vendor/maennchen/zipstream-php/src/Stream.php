@@ -27,7 +27,7 @@ class Stream implements StreamInterface
      *
      * @return void
      */
-    public function close(): void
+    public function close() //void
     {
         if (is_resource($this->stream)) {
             fclose($this->stream);
@@ -63,7 +63,7 @@ class Stream implements StreamInterface
      * @see http://php.net/manual/en/language.oop5.magic.php#object.tostring
      * @return string
      */
-    public function __toString(): string
+    public function __toString() //string
     {
         try {
             $this->seek(0);
@@ -98,7 +98,7 @@ class Stream implements StreamInterface
      *
      * @return bool
      */
-    public function isSeekable(): bool
+    public function isSeekable() //bool
     {
         return (bool)$this->getMetadata('seekable');
     }
@@ -126,7 +126,7 @@ class Stream implements StreamInterface
      *
      * @return int|null Returns the size in bytes if known, or null if unknown.
      */
-    public function getSize(): ?int
+    public function getSize() //?int
     {
         $stats = fstat($this->stream);
         return $stats['size'];
@@ -138,7 +138,7 @@ class Stream implements StreamInterface
      * @return int Position of the file pointer
      * @throws \RuntimeException on error.
      */
-    public function tell(): int
+    public function tell() //int
     {
         $position = ftell($this->stream);
         if ($position === false) {
@@ -152,7 +152,7 @@ class Stream implements StreamInterface
      *
      * @return bool
      */
-    public function eof(): bool
+    public function eof() //bool
     {
         return feof($this->stream);
     }
@@ -167,7 +167,7 @@ class Stream implements StreamInterface
      * @link http://www.php.net/manual/en/function.fseek.php
      * @throws \RuntimeException on failure.
      */
-    public function rewind(): void
+    public function rewind() //void
     {
         $this->seek(0);
     }
@@ -195,7 +195,7 @@ class Stream implements StreamInterface
      *
      * @return bool
      */
-    public function isWritable(): bool
+    public function isWritable() //bool
     {
         return preg_match('/[waxc+]/', $this->getMetadata('mode')) === 1;
     }
@@ -227,7 +227,7 @@ class Stream implements StreamInterface
      *
      * @return bool
      */
-    public function isReadable(): bool
+    public function isReadable() //bool
     {
         return preg_match('/[r+]/', $this->getMetadata('mode')) === 1;
     }
@@ -239,7 +239,7 @@ class Stream implements StreamInterface
      * @throws \RuntimeException if unable to read or an error occurs while
      *     reading.
      */
-    public function getContents(): string
+    public function getContents() //string
     {
         if (!$this->isReadable()) {
             throw new RuntimeException;

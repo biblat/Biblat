@@ -28,7 +28,7 @@ class Properties
         );
     }
 
-    public function readCoreProperties($propertyData): void
+    public function readCoreProperties($propertyData)
     {
         $xmlCore = $this->extractPropertyData($propertyData);
 
@@ -49,7 +49,7 @@ class Properties
         }
     }
 
-    public function readExtendedProperties($propertyData): void
+    public function readExtendedProperties($propertyData)
     {
         $xmlCore = $this->extractPropertyData($propertyData);
 
@@ -63,7 +63,7 @@ class Properties
         }
     }
 
-    public function readCustomProperties($propertyData): void
+    public function readCustomProperties($propertyData)
     {
         $xmlCore = $this->extractPropertyData($propertyData);
 
@@ -87,6 +87,6 @@ class Properties
 
     private static function getArrayItem(array $array, $key = 0)
     {
-        return $array[$key] ?? null;
+        return isset($array[$key]) ? $array[$key] : null;
     }
 }

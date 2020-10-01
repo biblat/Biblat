@@ -76,12 +76,12 @@ class Cell
         return $this;
     }
 
-    public function detach(): void
+    public function detach()
     {
         $this->parent = null;
     }
 
-    public function attach(Cells $parent): void
+    public function attach(Cells $parent)
     {
         $this->parent = $parent;
     }
@@ -387,7 +387,7 @@ class Cell
      *
      * @return Cell
      */
-    public function setDataValidation(?DataValidation $pDataValidation = null)
+    public function setDataValidation($pDataValidation = null)
     {
         if (!isset($this->parent)) {
             throw new Exception('Cannot set data validation for cell that is not bound to a worksheet');
@@ -445,7 +445,7 @@ class Cell
      *
      * @return Cell
      */
-    public function setHyperlink(?Hyperlink $pHyperlink = null)
+    public function setHyperlink($pHyperlink = null)
     {
         if (!isset($this->parent)) {
             throw new Exception('Cannot set hyperlink for cell that is not bound to a worksheet');
@@ -495,7 +495,7 @@ class Cell
     {
         if ($mergeRange = $this->getMergeRange()) {
             $mergeRange = Coordinate::splitRange($mergeRange);
-            [$startCell] = $mergeRange[0];
+            $startCell = $mergeRange[0][0];
             if ($this->getCoordinate() === $startCell) {
                 return true;
             }
@@ -551,7 +551,8 @@ class Cell
      */
     public function isInRange($pRange)
     {
-        [$rangeStart, $rangeEnd] = Coordinate::rangeBoundaries($pRange);
+        $rangeStart = Coordinate::rangeBoundaries($pRange)[0];
+        $rangeEnd = Coordinate::rangeBoundaries($pRange)[1];
 
         // Translate properties
         $myColumn = Coordinate::columnIndexFromString($this->getColumn());
@@ -600,7 +601,7 @@ class Cell
     /**
      * Set value binder to use.
      */
-    public static function setValueBinder(IValueBinder $binder): void
+    public static function setValueBinder(IValueBinder $binder)
     {
         self::$valueBinder = $binder;
     }

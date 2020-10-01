@@ -122,7 +122,7 @@ class NamedRange
      *
      * @return $this
      */
-    public function setWorksheet(?Worksheet $value = null)
+    public function setWorksheet($value = null)
     {
         if ($value !== null) {
             $this->worksheet = $value;
@@ -197,7 +197,7 @@ class NamedRange
      *
      * @return $this
      */
-    public function setScope(?Worksheet $value = null)
+    public function setScope($value = null)
     {
         $this->scope = $value;
         $this->localOnly = $value != null;

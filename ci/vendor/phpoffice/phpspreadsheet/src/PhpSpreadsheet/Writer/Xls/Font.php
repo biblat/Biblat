@@ -34,7 +34,7 @@ class Font
      *
      * @param int $colorIndex
      */
-    public function setColorIndex($colorIndex): void
+    public function setColorIndex($colorIndex)
     {
         $this->colorIndex = $colorIndex;
     }

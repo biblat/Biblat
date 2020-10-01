@@ -70,7 +70,7 @@ class Comments extends WriterPart
      * @param Comment $pComment Comment
      * @param array $pAuthors Array of authors
      */
-    private function writeComment(XMLWriter $objWriter, $pCellReference, Comment $pComment, array $pAuthors): void
+    private function writeComment(XMLWriter $objWriter, $pCellReference, Comment $pComment, array $pAuthors)
     {
         // comment
         $objWriter->startElement('comment');
@@ -162,10 +162,11 @@ class Comments extends WriterPart
      * @param string $pCellReference Cell reference, eg: 'A1'
      * @param Comment $pComment Comment
      */
-    private function writeVMLComment(XMLWriter $objWriter, $pCellReference, Comment $pComment): void
+    private function writeVMLComment(XMLWriter $objWriter, $pCellReference, Comment $pComment)
     {
         // Metadata
-        [$column, $row] = Coordinate::coordinateFromString($pCellReference);
+        $column = Coordinate::coordinateFromString($pCellReference)[0];
+        $row = Coordinate::coordinateFromString($pCellReference)[1];
         $column = Coordinate::columnIndexFromString($column);
         $id = 1024 + $column + $row;
         $id = substr($id, 0, 4);

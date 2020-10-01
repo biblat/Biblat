@@ -79,7 +79,7 @@ class Csv extends BaseWriter
      *
      * @param resource|string $pFilename
      */
-    public function save($pFilename): void
+    public function save($pFilename)
     {
         // Fetch sheet
         $sheet = $this->spreadsheet->getSheet($this->sheetIndex);
@@ -305,7 +305,7 @@ class Csv extends BaseWriter
         return $this;
     }
 
-    public function getEnclosureRequired(): bool
+    public function getEnclosureRequired()//bool
     {
         return $this->enclosureRequired;
     }
@@ -316,7 +316,7 @@ class Csv extends BaseWriter
      * @param resource $pFileHandle PHP filehandle
      * @param array $pValues Array containing values in a row
      */
-    private function writeLine($pFileHandle, array $pValues): void
+    private function writeLine($pFileHandle, array $pValues)
     {
         // No leading delimiter
         $delimiter = '';

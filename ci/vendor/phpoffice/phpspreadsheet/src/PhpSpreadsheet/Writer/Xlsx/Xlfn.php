@@ -143,7 +143,7 @@ class Xlfn
     /**
      * Prefix function name in string with _xlfn. where required.
      */
-    public static function addXlfn(string $funcstring): string
+    public static function addXlfn($funcstring)
     {
         return preg_replace(self::XLFNREGEXP, '_xlfn.$1', $funcstring);
     }
@@ -152,7 +152,7 @@ class Xlfn
      * Prefix function name in string with _xlfn. where required.
      * Leading character, expected to be equals sign, is stripped.
      */
-    public static function addXlfnStripEquals(string $funcstring): string
+    public static function addXlfnStripEquals($funcstring)
     {
         return self::addXlfn(substr($funcstring, 1));
     }

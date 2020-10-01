@@ -828,7 +828,7 @@ class Parser
      * @param string $name The name of the worksheet being added
      * @param int $index The index of the worksheet being added
      */
-    public function setExtSheet($name, $index): void
+    public function setExtSheet($name, $index)
     {
         $this->externalSheets[$name] = $index;
     }

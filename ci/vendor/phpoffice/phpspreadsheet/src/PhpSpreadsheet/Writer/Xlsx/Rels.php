@@ -271,7 +271,7 @@ class Rels extends WriterPart
         return $objWriter->getData();
     }
 
-    private function writeUnparsedRelationship(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $pWorksheet, XMLWriter $objWriter, $relationship, $type): void
+    private function writeUnparsedRelationship(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $pWorksheet, XMLWriter $objWriter, $relationship, $type)
     {
         $unparsedLoadedData = $pWorksheet->getParent()->getUnparsedLoadedData();
         if (!isset($unparsedLoadedData['sheets'][$pWorksheet->getCodeName()][$relationship])) {
@@ -403,7 +403,7 @@ class Rels extends WriterPart
      * @param string $pTarget Relationship target
      * @param string $pTargetMode Relationship target mode
      */
-    private function writeRelationship(XMLWriter $objWriter, $pId, $pType, $pTarget, $pTargetMode = ''): void
+    private function writeRelationship(XMLWriter $objWriter, $pId, $pType, $pTarget, $pTargetMode = '')
     {
         if ($pType != '' && $pTarget != '') {
             // Write relationship

@@ -17,7 +17,7 @@ class DeflateStream extends Stream
      *
      * @return void
      */
-    public function rewind(): void
+    public function rewind() //void
     {
         // deflate filter needs to be removed before rewind
         if ($this->filter) {
@@ -34,7 +34,7 @@ class DeflateStream extends Stream
      *
      * @return void
      */
-    public function removeDeflateFilter(): void
+    public function removeDeflateFilter() //void
     {
         if (!$this->filter) {
             return;

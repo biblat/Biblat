@@ -55,7 +55,7 @@ class JpGraph implements IRenderer
         $this->chart = $chart;
     }
 
-    private static function init(): void
+    private static function init()
     {
         static $loaded = false;
         if ($loaded) {
@@ -191,7 +191,7 @@ class JpGraph implements IRenderer
         return $caption;
     }
 
-    private function renderTitle(): void
+    private function renderTitle()
     {
         $title = $this->getCaption($this->chart->getTitle());
         if ($title !== null) {
@@ -199,7 +199,7 @@ class JpGraph implements IRenderer
         }
     }
 
-    private function renderLegend(): void
+    private function renderLegend()
     {
         $legend = $this->chart->getLegend();
         if ($legend !== null) {
@@ -234,7 +234,7 @@ class JpGraph implements IRenderer
         }
     }
 
-    private function renderCartesianPlotArea($type = 'textlin'): void
+    private function renderCartesianPlotArea($type = 'textlin')
     {
         $this->graph = new Graph(self::$width, self::$height);
         $this->graph->SetScale($type);
@@ -271,14 +271,14 @@ class JpGraph implements IRenderer
         }
     }
 
-    private function renderPiePlotArea(): void
+    private function renderPiePlotArea()
     {
         $this->graph = new PieGraph(self::$width, self::$height);
 
         $this->renderTitle();
     }
 
-    private function renderRadarPlotArea(): void
+    private function renderRadarPlotArea()
     {
         $this->graph = new RadarGraph(self::$width, self::$height);
         $this->graph->SetScale('lin');
@@ -286,7 +286,7 @@ class JpGraph implements IRenderer
         $this->renderTitle();
     }
 
-    private function renderPlotLine($groupID, $filled = false, $combination = false, $dimensions = '2d'): void
+    private function renderPlotLine($groupID, $filled = false, $combination = false, $dimensions = '2d')
     {
         $grouping = $this->chart->getPlotArea()->getPlotGroupByIndex($groupID)->getPlotGrouping();
 
@@ -349,7 +349,7 @@ class JpGraph implements IRenderer
         $this->graph->Add($groupPlot);
     }
 
-    private function renderPlotBar($groupID, $dimensions = '2d'): void
+    private function renderPlotBar($groupID, $dimensions = '2d')
     {
         $rotation = $this->chart->getPlotArea()->getPlotGroupByIndex($groupID)->getPlotDirection();
         //    Rotate for bar rather than column chart
@@ -433,7 +433,7 @@ class JpGraph implements IRenderer
         $this->graph->Add($groupPlot);
     }
 
-    private function renderPlotScatter($groupID, $bubble): void
+    private function renderPlotScatter($groupID, $bubble)
     {
         $grouping = $this->chart->getPlotArea()->getPlotGroupByIndex($groupID)->getPlotGrouping();
         $scatterStyle = $bubbleSize = $this->chart->getPlotArea()->getPlotGroupByIndex($groupID)->getPlotStyle();
@@ -478,7 +478,7 @@ class JpGraph implements IRenderer
         }
     }
 
-    private function renderPlotRadar($groupID): void
+    private function renderPlotRadar($groupID)
     {
         $radarStyle = $this->chart->getPlotArea()->getPlotGroupByIndex($groupID)->getPlotStyle();
 
@@ -516,7 +516,7 @@ class JpGraph implements IRenderer
         }
     }
 
-    private function renderPlotContour($groupID): void
+    private function renderPlotContour($groupID)
     {
         $contourStyle = $this->chart->getPlotArea()->getPlotGroupByIndex($groupID)->getPlotStyle();
 
@@ -536,7 +536,7 @@ class JpGraph implements IRenderer
         $this->graph->Add($seriesPlot);
     }
 
-    private function renderPlotStock($groupID): void
+    private function renderPlotStock($groupID)
     {
         $seriesCount = $this->chart->getPlotArea()->getPlotGroupByIndex($groupID)->getPlotSeriesCount();
         $plotOrder = $this->chart->getPlotArea()->getPlotGroupByIndex($groupID)->getPlotOrder();
@@ -576,7 +576,7 @@ class JpGraph implements IRenderer
         $this->graph->Add($seriesPlot);
     }
 
-    private function renderAreaChart($groupCount, $dimensions = '2d'): void
+    private function renderAreaChart($groupCount, $dimensions = '2d')
     {
         $this->renderCartesianPlotArea();
 
@@ -585,7 +585,7 @@ class JpGraph implements IRenderer
         }
     }
 
-    private function renderLineChart($groupCount, $dimensions = '2d'): void
+    private function renderLineChart($groupCount, $dimensions = '2d')
     {
         $this->renderCartesianPlotArea();
 
@@ -594,7 +594,7 @@ class JpGraph implements IRenderer
         }
     }
 
-    private function renderBarChart($groupCount, $dimensions = '2d'): void
+    private function renderBarChart($groupCount, $dimensions = '2d')
     {
         $this->renderCartesianPlotArea();
 
@@ -603,7 +603,7 @@ class JpGraph implements IRenderer
         }
     }
 
-    private function renderScatterChart($groupCount): void
+    private function renderScatterChart($groupCount)
     {
         $this->renderCartesianPlotArea('linlin');
 
@@ -612,7 +612,7 @@ class JpGraph implements IRenderer
         }
     }
 
-    private function renderBubbleChart($groupCount): void
+    private function renderBubbleChart($groupCount)
     {
         $this->renderCartesianPlotArea('linlin');
 
@@ -621,7 +621,7 @@ class JpGraph implements IRenderer
         }
     }
 
-    private function renderPieChart($groupCount, $dimensions = '2d', $doughnut = false, $multiplePlots = false): void
+    private function renderPieChart($groupCount, $dimensions = '2d', $doughnut = false, $multiplePlots = false)
     {
         $this->renderPiePlotArea();
 
@@ -693,7 +693,7 @@ class JpGraph implements IRenderer
         }
     }
 
-    private function renderRadarChart($groupCount): void
+    private function renderRadarChart($groupCount)
     {
         $this->renderRadarPlotArea();
 
@@ -702,7 +702,7 @@ class JpGraph implements IRenderer
         }
     }
 
-    private function renderStockChart($groupCount): void
+    private function renderStockChart($groupCount)
     {
         $this->renderCartesianPlotArea('intint');
 
@@ -711,7 +711,7 @@ class JpGraph implements IRenderer
         }
     }
 
-    private function renderContourChart($groupCount, $dimensions): void
+    private function renderContourChart($groupCount, $dimensions)
     {
         $this->renderCartesianPlotArea('intint');
 

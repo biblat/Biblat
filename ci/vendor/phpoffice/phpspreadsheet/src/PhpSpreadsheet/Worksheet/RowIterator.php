@@ -114,7 +114,7 @@ class RowIterator implements Iterator
     /**
      * Rewind the iterator to the starting row.
      */
-    public function rewind(): void
+    public function rewind()
     {
         $this->position = $this->startRow;
     }
@@ -142,7 +142,7 @@ class RowIterator implements Iterator
     /**
      * Set the iterator to its next value.
      */
-    public function next(): void
+    public function next()
     {
         ++$this->position;
     }
@@ -150,7 +150,7 @@ class RowIterator implements Iterator
     /**
      * Set the iterator to its previous value.
      */
-    public function prev(): void
+    public function prev()
     {
         --$this->position;
     }

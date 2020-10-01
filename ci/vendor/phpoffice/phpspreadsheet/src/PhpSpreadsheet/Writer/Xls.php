@@ -116,7 +116,7 @@ class Xls extends BaseWriter
      *
      * @param resource|string $pFilename
      */
-    public function save($pFilename): void
+    public function save($pFilename)
     {
         // garbage collect
         $this->spreadsheet->garbageCollect();
@@ -229,7 +229,7 @@ class Xls extends BaseWriter
     /**
      * Build the Worksheet Escher objects.
      */
-    private function buildWorksheetEschers(): void
+    private function buildWorksheetEschers()
     {
         // 1-based index to BstoreContainer
         $blipIndex = 0;
@@ -388,7 +388,7 @@ class Xls extends BaseWriter
         }
     }
 
-    private function processMemoryDrawing(BstoreContainer &$bstoreContainer, BaseDrawing $drawing, string $renderingFunctionx): void
+    private function processMemoryDrawing(BstoreContainer &$bstoreContainer, BaseDrawing $drawing, string $renderingFunctionx)
     {
         switch ($renderingFunctionx) {
             case MemoryDrawing::RENDERING_JPEG:
@@ -418,7 +418,7 @@ class Xls extends BaseWriter
         $bstoreContainer->addBSE($BSE);
     }
 
-    private function processDrawing(BstoreContainer &$bstoreContainer, BaseDrawing $drawing): void
+    private function processDrawing(BstoreContainer &$bstoreContainer, BaseDrawing $drawing)
     {
         $blipData = '';
         $filename = $drawing->getPath();
@@ -465,7 +465,7 @@ class Xls extends BaseWriter
         }
     }
 
-    private function processBaseDrawing(BstoreContainer &$bstoreContainer, BaseDrawing $drawing): void
+    private function processBaseDrawing(BstoreContainer &$bstoreContainer, BaseDrawing $drawing)
     {
         if ($drawing instanceof Drawing) {
             $this->processDrawing($bstoreContainer, $drawing);
@@ -474,7 +474,7 @@ class Xls extends BaseWriter
         }
     }
 
-    private function checkForDrawings(): bool
+    private function checkForDrawings()//bool
     {
         // any drawings in this workbook?
         $found = false;
@@ -492,7 +492,7 @@ class Xls extends BaseWriter
     /**
      * Build the Escher object corresponding to the MSODRAWINGGROUP record.
      */
-    private function buildWorkbookEscher(): void
+    private function buildWorkbookEscher()
     {
         // nothing to do if there are no drawings
         if (!$this->checkForDrawings()) {
@@ -759,7 +759,7 @@ class Xls extends BaseWriter
         return $data;
     }
 
-    private function writeSummaryPropOle(int $dataProp, int &$dataSection_NumProps, array &$dataSection, int $sumdata, int $typdata): void
+    private function writeSummaryPropOle(int $dataProp, int &$dataSection_NumProps, array &$dataSection, int $sumdata, int $typdata)
     {
         if ($dataProp) {
             $dataSection[] = [
@@ -772,7 +772,7 @@ class Xls extends BaseWriter
         }
     }
 
-    private function writeSummaryProp(string $dataProp, int &$dataSection_NumProps, array &$dataSection, int $sumdata, int $typdata): void
+    private function writeSummaryProp(string $dataProp, int &$dataSection_NumProps, array &$dataSection, int $sumdata, int $typdata)
     {
         if ($dataProp) {
             $dataSection[] = [

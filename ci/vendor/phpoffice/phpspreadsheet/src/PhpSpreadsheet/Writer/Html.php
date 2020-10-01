@@ -152,7 +152,7 @@ class Html extends BaseWriter
      *
      * @param resource|string $pFilename
      */
-    public function save($pFilename): void
+    public function save($pFilename)
     {
         // Open file
         $this->openFileHandle($pFilename);
@@ -214,7 +214,7 @@ class Html extends BaseWriter
      * The callback must accept the HTML as string as first parameter,
      * and it must return the edited HTML as string.
      */
-    public function setEditHtmlCallback(?callable $callback): void
+    public function setEditHtmlCallback(?callable $callback)
     {
         $this->editHtmlCallback = $callback;
     }
@@ -822,7 +822,7 @@ class Html extends BaseWriter
         return $html;
     }
 
-    private function buildCssRowHeights(Worksheet $sheet, array &$css, int $sheetIndex): void
+    private function buildCssRowHeights(Worksheet $sheet, array &$css, int $sheetIndex)
     {
         // Calculate row heights
         foreach ($sheet->getRowDimensions() as $rowDimension) {
@@ -842,7 +842,7 @@ class Html extends BaseWriter
         }
     }
 
-    private function buildCssPerSheet(Worksheet $sheet, array &$css): void
+    private function buildCssPerSheet(Worksheet $sheet, array &$css)
     {
         // Calculate hash code
         $sheetIndex = $sheet->getParent()->getIndex($sheet);
@@ -1151,7 +1151,7 @@ class Html extends BaseWriter
         return $html;
     }
 
-    private function generateTableTag($pSheet, $id, &$html, $sheetIndex): void
+    private function generateTableTag($pSheet, $id, &$html, $sheetIndex)
     {
         if (!$this->useInlineCss) {
             $gridlines = $pSheet->getShowGridlines() ? ' gridlines' : '';
@@ -1277,7 +1277,7 @@ class Html extends BaseWriter
         return [$cell, $cssClass, $coordinate];
     }
 
-    private function generateRowCellDataValueRich($cell, &$cellData): void
+    private function generateRowCellDataValueRich($cell, &$cellData)
     {
         // Loop through rich text elements
         $elements = $cell->getValue()->getRichTextElements();
@@ -1310,7 +1310,7 @@ class Html extends BaseWriter
         }
     }
 
-    private function generateRowCellDataValue($pSheet, $cell, &$cellData): void
+    private function generateRowCellDataValue($pSheet, $cell, &$cellData)
     {
         if ($cell->getValue() instanceof RichText) {
             $this->generateRowCellDataValueRich($cell, $cellData);
@@ -1397,7 +1397,7 @@ class Html extends BaseWriter
         return $html;
     }
 
-    private function generateRowWriteCell(&$html, $pSheet, $coordinate, $cellType, $cellData, $colSpan, $rowSpan, $cssClass, $colNum, $sheetIndex, $pRow): void
+    private function generateRowWriteCell(&$html, $pSheet, $coordinate, $cellType, $cellData, $colSpan, $rowSpan, $cssClass, $colNum, $sheetIndex, $pRow)
     {
         // Image?
         $htmlx = $this->writeImageInCell($pSheet, $coordinate);
@@ -1679,7 +1679,7 @@ class Html extends BaseWriter
     /**
      * Calculate information about HTML colspan and rowspan which is not always the same as Excel's.
      */
-    private function calculateSpans(): void
+    private function calculateSpans()
     {
         if ($this->spansAreCalculated) {
             return;
@@ -1742,7 +1742,7 @@ class Html extends BaseWriter
         $this->spansAreCalculated = true;
     }
 
-    private function calculateSpansOmitRows($sheet, $sheetIndex, $candidateSpannedRow): void
+    private function calculateSpansOmitRows($sheet, $sheetIndex, $candidateSpannedRow)
     {
         // Identify which rows should be omitted in HTML. These are the rows where all the cells
         //   participate in a merge and the where base cells are somewhere above.

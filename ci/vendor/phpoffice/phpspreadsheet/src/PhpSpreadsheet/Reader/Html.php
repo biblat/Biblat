@@ -270,7 +270,7 @@ class Html extends BaseReader
         return array_pop($this->nestedColumn);
     }
 
-    protected function flushCell(Worksheet $sheet, $column, $row, &$cellContent): void
+    protected function flushCell(Worksheet $sheet, $column, $row, &$cellContent)
     {
         if (is_string($cellContent)) {
             //    Simple String content
@@ -294,7 +294,7 @@ class Html extends BaseReader
      * @param string $column
      * @param string $cellContent
      */
-    protected function processDomElement(DOMNode $element, Worksheet $sheet, &$row, &$column, &$cellContent): void
+    protected function processDomElement(DOMNode $element, Worksheet $sheet, &$row, &$column, &$cellContent)
     {
         foreach ($element->childNodes as $child) {
             if ($child instanceof DOMText) {
@@ -676,7 +676,7 @@ class Html extends BaseReader
      * @param string $column
      * @param array $attributeArray
      */
-    private function applyInlineStyle(&$sheet, $row, $column, $attributeArray): void
+    private function applyInlineStyle(&$sheet, $row, $column, $attributeArray)
     {
         if (!isset($attributeArray['style'])) {
             return;
@@ -863,7 +863,7 @@ class Html extends BaseReader
      * @param string    $column
      * @param int       $row
      */
-    private function insertImage(Worksheet $sheet, $column, $row, array $attributes): void
+    private function insertImage(Worksheet $sheet, $column, $row, array $attributes)
     {
         if (!isset($attributes['src'])) {
             return;
@@ -950,7 +950,7 @@ class Html extends BaseReader
      * @param string $styleValue
      * @param string $type
      */
-    private function setBorderStyle(Style $cellStyle, $styleValue, $type): void
+    private function setBorderStyle(Style $cellStyle, $styleValue, $type)
     {
         if (trim($styleValue) === Border::BORDER_NONE) {
             $borderStyle = Border::BORDER_NONE;

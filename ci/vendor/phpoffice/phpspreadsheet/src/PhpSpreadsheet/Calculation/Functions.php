@@ -259,7 +259,8 @@ class Functions
             return str_replace('""""', '""', '=' . $condition);
         }
         preg_match('/(=|<[>=]?|>=?)(.*)/', $condition, $matches);
-        [, $operator, $operand] = $matches;
+        $operator = $matches[1];
+        $operand = $matches[2];
 
         if (is_numeric(trim($operand, '"'))) {
             $operand = trim($operand, '"');
@@ -636,7 +637,7 @@ class Functions
      *
      * @return bool|string
      */
-    public static function isFormula($cellReference = '', ?Cell $pCell = null)
+    public static function isFormula($cellReference = '', $pCell = null)
     {
         if ($pCell === null) {
             return self::REF();

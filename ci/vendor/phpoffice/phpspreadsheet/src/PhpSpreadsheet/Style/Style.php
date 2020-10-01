@@ -204,7 +204,8 @@ class Style extends Supervisor
                 $rangeA = $pRange;
                 $rangeB = $pRange;
             } else {
-                [$rangeA, $rangeB] = explode(':', $pRange);
+                $rangeA = explode(':', $pRange)[0];
+                $rangeB = explode(':', $pRange)[1];
             }
 
             // Calculate range outer borders
@@ -632,7 +633,7 @@ class Style extends Supervisor
      *
      * @param int $pValue
      */
-    public function setIndex($pValue): void
+    public function setIndex($pValue)
     {
         $this->index = $pValue;
     }

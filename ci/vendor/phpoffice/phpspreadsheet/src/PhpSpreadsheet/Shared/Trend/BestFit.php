@@ -341,7 +341,7 @@ class BestFit
         return $this->yBestFitValues;
     }
 
-    protected function calculateGoodnessOfFit($sumX, $sumY, $sumX2, $sumY2, $sumXY, $meanX, $meanY, $const): void
+    protected function calculateGoodnessOfFit($sumX, $sumY, $sumX2, $sumY2, $sumXY, $meanX, $meanY, $const)
     {
         $SSres = $SScov = $SScor = $SStot = $SSsex = 0.0;
         foreach ($this->xValues as $xKey => $xValue) {
@@ -400,7 +400,7 @@ class BestFit
      * @param float[] $xValues
      * @param bool $const
      */
-    protected function leastSquareFit(array $yValues, array $xValues, $const): void
+    protected function leastSquareFit(array $yValues, array $xValues, $const)
     {
         // calculate sums
         $x_sum = array_sum($xValues);

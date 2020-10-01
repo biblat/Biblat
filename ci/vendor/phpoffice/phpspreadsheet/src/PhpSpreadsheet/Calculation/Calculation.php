@@ -2273,7 +2273,8 @@ class Calculation
         ],
     ];
 
-    public function __construct(?Spreadsheet $spreadsheet = null)
+//    public function __construct(?Spreadsheet$spreadsheet = null)
+    public function __construct($spreadsheet = null)
     {
         $this->delta = 1 * 10 ** (0 - ini_get('precision'));
 
@@ -2282,7 +2283,7 @@ class Calculation
         $this->debugLog = new Logger($this->cyclicReferenceStack);
     }
 
-    private static function loadLocales(): void
+    private static function loadLocales()
     {
         $localeFileDirectory = __DIR__ . '/locale/';
         foreach (glob($localeFileDirectory . '*', GLOB_ONLYDIR) as $filename) {
@@ -2301,7 +2302,8 @@ class Calculation
      *
      * @return Calculation
      */
-    public static function getInstance(?Spreadsheet $spreadsheet = null)
+//    public static function getInstance(?Spreadsheet $spreadsheet = null)
+    public static function getInstance($spreadsheet = null)
     {
         if ($spreadsheet !== null) {
             $instance = $spreadsheet->getCalculationEngine();
@@ -2321,7 +2323,7 @@ class Calculation
      * Flush the calculation cache for any existing instance of this class
      *        but only if a Calculation instance exists.
      */
-    public function flushInstance(): void
+    public function flushInstance()
     {
         $this->clearCalculationCache();
         $this->clearBranchStore();
@@ -2410,7 +2412,7 @@ class Calculation
      *
      * @param bool $pValue
      */
-    public function setCalculationCacheEnabled($pValue): void
+    public function setCalculationCacheEnabled($pValue)
     {
         $this->calculationCacheEnabled = $pValue;
         $this->clearCalculationCache();
@@ -2419,7 +2421,7 @@ class Calculation
     /**
      * Enable calculation cache.
      */
-    public function enableCalculationCache(): void
+    public function enableCalculationCache()
     {
         $this->setCalculationCacheEnabled(true);
     }
@@ -2427,7 +2429,7 @@ class Calculation
     /**
      * Disable calculation cache.
      */
-    public function disableCalculationCache(): void
+    public function disableCalculationCache()
     {
         $this->setCalculationCacheEnabled(false);
     }
@@ -2435,7 +2437,7 @@ class Calculation
     /**
      * Clear calculation cache.
      */
-    public function clearCalculationCache(): void
+    public function clearCalculationCache()
     {
         $this->calculationCache = [];
     }
@@ -2445,7 +2447,7 @@ class Calculation
      *
      * @param string $worksheetName
      */
-    public function clearCalculationCacheForWorksheet($worksheetName): void
+    public function clearCalculationCacheForWorksheet($worksheetName)
     {
         if (isset($this->calculationCache[$worksheetName])) {
             unset($this->calculationCache[$worksheetName]);
@@ -2458,7 +2460,7 @@ class Calculation
      * @param string $fromWorksheetName
      * @param string $toWorksheetName
      */
-    public function renameCalculationCacheForWorksheet($fromWorksheetName, $toWorksheetName): void
+    public function renameCalculationCacheForWorksheet($fromWorksheetName, $toWorksheetName)
     {
         if (isset($this->calculationCache[$fromWorksheetName])) {
             $this->calculationCache[$toWorksheetName] = &$this->calculationCache[$fromWorksheetName];
@@ -2471,22 +2473,22 @@ class Calculation
      *
      * @param mixed $enabled
      */
-    public function setBranchPruningEnabled($enabled): void
+    public function setBranchPruningEnabled($enabled)
     {
         $this->branchPruningEnabled = $enabled;
     }
 
-    public function enableBranchPruning(): void
+    public function enableBranchPruning()
     {
         $this->setBranchPruningEnabled(true);
     }
 
-    public function disableBranchPruning(): void
+    public function disableBranchPruning()
     {
         $this->setBranchPruningEnabled(false);
     }
 
-    public function clearBranchStore(): void
+    public function clearBranchStore()
     {
         $this->branchStoreKeyCounter = 0;
     }
@@ -2513,7 +2515,7 @@ class Calculation
         //    Identify our locale and language
         $language = $locale = strtolower($locale);
         if (strpos($locale, '_') !== false) {
-            [$language] = explode('_', $locale);
+            $language = explode('_', $locale)[0];
         }
         if (count(self::$validLocaleLanguages) == 1) {
             self::loadLocales();
@@ -2538,9 +2540,10 @@ class Calculation
                 //    Retrieve the list of locale or language specific function names
                 $localeFunctions = file($functionNamesFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
                 foreach ($localeFunctions as $localeFunction) {
-                    [$localeFunction] = explode('##', $localeFunction); //    Strip out comments
+                    $localeFunction = explode('##', $localeFunction)[0]; //    Strip out comments
                     if (strpos($localeFunction, '=') !== false) {
-                        [$fName, $lfName] = explode('=', $localeFunction);
+                        $fName = explode('=', $localeFunction)[0];
+                        $lfName = explode('=', $localeFunction)[1];
                         $fName = trim($fName);
                         $lfName = trim($lfName);
                         if ((isset(self::$phpSpreadsheetFunctions[$fName])) && ($lfName != '') && ($fName != $lfName)) {
@@ -2563,9 +2566,10 @@ class Calculation
                 if (file_exists($configFile)) {
                     $localeSettings = file($configFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
                     foreach ($localeSettings as $localeSetting) {
-                        [$localeSetting] = explode('##', $localeSetting); //    Strip out comments
+                        $localeSetting = explode('##', $localeSetting)[0]; //    Strip out comments
                         if (strpos($localeSetting, '=') !== false) {
-                            [$settingName, $settingValue] = explode('=', $localeSetting);
+                            $settingName = explode('=', $localeSetting)[0];
+                            $settingValue = explode('=', $localeSetting)[1];
                             $settingName = strtoupper(trim($settingName));
                             switch ($settingName) {
                                 case 'ARGUMENTSEPARATOR':
@@ -2788,7 +2792,8 @@ class Calculation
      *
      * @return mixed
      */
-    public function calculate(?Cell $pCell = null)
+//    public function calculate($pCell = null)
+    public function calculate($pCell = null)
     {
         try {
             return $this->calculateCellValue($pCell);
@@ -2805,7 +2810,8 @@ class Calculation
      *
      * @return mixed
      */
-    public function calculateCellValue(?Cell $pCell = null, $resetLog = true)
+//    public function calculateCellValue($pCell = null, $resetLog = true)
+    public function calculateCellValue($pCell = null, $resetLog = true)
     {
         if ($pCell === null) {
             return null;
@@ -2907,7 +2913,8 @@ class Calculation
      *
      * @return mixed
      */
-    public function calculateFormula($formula, $cellID = null, ?Cell $pCell = null)
+//    public function calculateFormula($formula, $cellID = null, $pCell = null)
+    public function calculateFormula($formula, $cellID = null, $pCell = null)
     {
         //    Initialise the logging settings
         $this->formulaError = null;
@@ -2966,7 +2973,7 @@ class Calculation
      * @param string $cellReference
      * @param mixed $cellValue
      */
-    public function saveValueToCache($cellReference, $cellValue): void
+    public function saveValueToCache($cellReference, $cellValue)
     {
         if ($this->calculationCacheEnabled) {
             $this->calculationCache[$cellReference] = $cellValue;
@@ -2982,7 +2989,8 @@ class Calculation
      *
      * @return mixed
      */
-    public function _calculateFormulaValue($formula, $cellID = null, ?Cell $pCell = null)
+//    public function _calculateFormulaValue($formula, $cellID = null, $pCell = null)
+    public function _calculateFormulaValue($formula, $cellID = null, $pCell = null)
     {
         $cellValue = null;
 
@@ -3067,17 +3075,21 @@ class Calculation
         //    Examine each of the two operands, and turn them into an array if they aren't one already
         //    Note that this function should only be called if one or both of the operand is already an array
         if (!is_array($operand1)) {
-            [$matrixRows, $matrixColumns] = self::getMatrixDimensions($operand2);
+            $matrixRows = self::getMatrixDimensions($operand2)[0];
+            $matrixColumns = self::getMatrixDimensions($operand2)[1];
             $operand1 = array_fill(0, $matrixRows, array_fill(0, $matrixColumns, $operand1));
             $resize = 0;
         } elseif (!is_array($operand2)) {
-            [$matrixRows, $matrixColumns] = self::getMatrixDimensions($operand1);
+            $matrixRows = self::getMatrixDimensions($operand1)[0];
+            $matrixColumns = self::getMatrixDimensions($operand1)[1];
             $operand2 = array_fill(0, $matrixRows, array_fill(0, $matrixColumns, $operand2));
             $resize = 0;
         }
 
-        [$matrix1Rows, $matrix1Columns] = self::getMatrixDimensions($operand1);
-        [$matrix2Rows, $matrix2Columns] = self::getMatrixDimensions($operand2);
+        $matrix1Rows = self::getMatrixDimensions($operand1)[0];
+        $matrix1Columns = self::getMatrixDimensions($operand1)[1];
+        $matrix2Rows = self::getMatrixDimensions($operand2)[0];
+        $matrix2Columns = self::getMatrixDimensions($operand2)[1];
         if (($matrix1Rows == $matrix2Columns) && ($matrix2Rows == $matrix1Columns)) {
             $resize = 1;
         }
@@ -3128,7 +3140,7 @@ class Calculation
      * @param int $matrix2Rows Row size of second matrix operand
      * @param int $matrix2Columns Column size of second matrix operand
      */
-    private static function resizeMatricesShrink(&$matrix1, &$matrix2, $matrix1Rows, $matrix1Columns, $matrix2Rows, $matrix2Columns): void
+    private static function resizeMatricesShrink(&$matrix1, &$matrix2, $matrix1Rows, $matrix1Columns, $matrix2Rows, $matrix2Columns)
     {
         if (($matrix2Columns < $matrix1Columns) || ($matrix2Rows < $matrix1Rows)) {
             if ($matrix2Rows < $matrix1Rows) {
@@ -3171,7 +3183,7 @@ class Calculation
      * @param int $matrix2Rows Row size of second matrix operand
      * @param int $matrix2Columns Column size of second matrix operand
      */
-    private static function resizeMatricesExtend(&$matrix1, &$matrix2, $matrix1Rows, $matrix1Columns, $matrix2Rows, $matrix2Columns): void
+    private static function resizeMatricesExtend(&$matrix1, &$matrix2, $matrix1Rows, $matrix1Columns, $matrix2Rows, $matrix2Columns)
     {
         if (($matrix2Columns < $matrix1Columns) || ($matrix2Rows < $matrix1Rows)) {
             if ($matrix2Columns < $matrix1Columns) {
@@ -3383,7 +3395,8 @@ class Calculation
      *
      * @return bool
      */
-    private function _parseFormula($formula, ?Cell $pCell = null)
+//    private function _parseFormula($formula, $pCell = null)
+    private function _parseFormula($formula, $pCell = null)
     {
         if (($formula = $this->convertMatrixReferences(trim($formula))) === false) {
             return false;
@@ -3611,9 +3624,9 @@ class Calculation
                     return $this->raiseFormulaError('Formula Error: Unexpected ,');
                 }
                 $d = $stack->pop();
-                $itemStoreKey = $d['storeKey'] ?? null;
-                $itemOnlyIf = $d['onlyIf'] ?? null;
-                $itemOnlyIfNot = $d['onlyIfNot'] ?? null;
+                $itemStoreKey = isset($d['storeKey']) ? $d['storeKey'] : null;
+                $itemOnlyIf = isset($d['onlyIf']) ? $d['onlyIf'] : null;
+                $itemOnlyIfNot = isset($d['onlyIfNot']) ? $d['onlyIfNot'] : null;
                 $stack->push($d['type'], ++$d['value'], $d['reference'], $itemStoreKey, $itemOnlyIf, $itemOnlyIfNot); // increment the argument count
                 $stack->push('Brace', '(', null, $itemStoreKey, $itemOnlyIf, $itemOnlyIfNot); // put the ( back on, we'll need to pop back to it again
                 $expectingOperator = false;
@@ -3693,12 +3706,14 @@ class Calculation
                     $testPrevOp = $stack->last(1);
                     if ($testPrevOp !== null && $testPrevOp['value'] === ':') {
                         $startRowColRef = $output[count($output) - 1]['value'];
-                        [$rangeWS1, $startRowColRef] = Worksheet::extractSheetTitle($startRowColRef, true);
+                        $rangeWS1 = Worksheet::extractSheetTitle($startRowColRef, true)[0];
+                        $startRowColRef = Worksheet::extractSheetTitle($startRowColRef, true)[1];
                         $rangeSheetRef = $rangeWS1;
                         if ($rangeWS1 != '') {
                             $rangeWS1 .= '!';
                         }
-                        [$rangeWS2, $val] = Worksheet::extractSheetTitle($val, true);
+                        $rangeWS2 = Worksheet::extractSheetTitle($val, true)[0];
+                        $val = Worksheet::extractSheetTitle($val, true)[1];
                         if ($rangeWS2 != '') {
                             $rangeWS2 .= '!';
                         } else {
@@ -3840,7 +3855,8 @@ class Calculation
      *
      * @return bool
      */
-    private function processTokenStack($tokens, $cellID = null, ?Cell $pCell = null)
+//    private function processTokenStack($tokens, $cellID = null, $pCell = null)
+    private function processTokenStack($tokens, $cellID = null, $pCell = null)
     {
         if ($tokens == false) {
             return false;
@@ -3861,10 +3877,10 @@ class Calculation
             $token = $tokenData['value'];
 
             // Branch pruning: skip useless resolutions
-            $storeKey = $tokenData['storeKey'] ?? null;
+            $storeKey = isset($tokenData['storeKey']) ? $tokenData['storeKey'] : null;
             if ($this->branchPruningEnabled && isset($tokenData['onlyIf'])) {
                 $onlyIfStoreKey = $tokenData['onlyIf'];
-                $storeValue = $branchStore[$onlyIfStoreKey] ?? null;
+                $storeValue = isset($branchStore[$onlyIfStoreKey]) ? $branchStore[$onlyIfStoreKey] : null;
                 $storeValueAsBool = ($storeValue === null) ?
                     true : (bool) Functions::flattenSingleValue($storeValue);
                 if (is_array($storeValue)) {
@@ -3899,7 +3915,7 @@ class Calculation
 
             if ($this->branchPruningEnabled && isset($tokenData['onlyIfNot'])) {
                 $onlyIfNotStoreKey = $tokenData['onlyIfNot'];
-                $storeValue = $branchStore[$onlyIfNotStoreKey] ?? null;
+                $storeValue = isset($branchStore[$onlyIfNotStoreKey]) ? $branchStore[$onlyIfNotStoreKey] : null;
                 $storeValueAsBool = ($storeValue === null) ?
                     true : (bool) Functions::flattenSingleValue($storeValue);
                 if (is_array($storeValue)) {
@@ -3968,12 +3984,14 @@ class Calculation
                     //    Binary Operators
                     case ':':            //    Range
                         if (strpos($operand1Data['reference'], '!') !== false) {
-                            [$sheet1, $operand1Data['reference']] = Worksheet::extractSheetTitle($operand1Data['reference'], true);
+                            $sheet1 = Worksheet::extractSheetTitle($operand1Data['reference'], true)[0];
+                            $operand1Data['reference'] = Worksheet::extractSheetTitle($operand1Data['reference'], true)[1];
                         } else {
                             $sheet1 = ($pCellParent !== null) ? $pCellWorksheet->getTitle() : '';
                         }
 
-                        [$sheet2, $operand2Data['reference']] = Worksheet::extractSheetTitle($operand2Data['reference'], true);
+                        $sheet2 = Worksheet::extractSheetTitle($operand2Data['reference'], true)[0];
+                        $operand2Data['reference'] = Worksheet::extractSheetTitle($operand2Data['reference'], true)[1];
                         if (empty($sheet2)) {
                             $sheet2 = $sheet1;
                         }
@@ -4642,7 +4660,8 @@ class Calculation
      *
      * @return mixed Array of values in range if range contains more than one element. Otherwise, a single value is returned.
      */
-    public function extractCellRange(&$pRange = 'A1', ?Worksheet $pSheet = null, $resetLog = true)
+//    public function extractCellRange(&$pRange = 'A1', $pSheet = null, $resetLog = true)
+    public function extractCellRange(&$pRange = 'A1', $pSheet = null, $resetLog = true)
     {
         // Return value
         $returnValue = [];
@@ -4650,7 +4669,8 @@ class Calculation
         if ($pSheet !== null) {
             $pSheetName = $pSheet->getTitle();
             if (strpos($pRange, '!') !== false) {
-                [$pSheetName, $pRange] = Worksheet::extractSheetTitle($pRange, true);
+                $pSheetName = Worksheet::extractSheetTitle($pRange, true)[0];
+                $pRange = Worksheet::extractSheetTitle($pRange, true)[1];
                 $pSheet = $this->spreadsheet->getSheetByName($pSheetName);
             }
 
@@ -4695,7 +4715,8 @@ class Calculation
      *
      * @return mixed Array of values in range if range contains more than one element. Otherwise, a single value is returned.
      */
-    public function extractNamedRange(&$pRange = 'A1', ?Worksheet $pSheet = null, $resetLog = true)
+//    public function extractNamedRange(&$pRange = 'A1', $pSheet = null, $resetLog = true)
+    public function extractNamedRange(&$pRange = 'A1', $pSheet = null, $resetLog = true)
     {
         // Return value
         $returnValue = [];
@@ -4703,7 +4724,8 @@ class Calculation
         if ($pSheet !== null) {
             $pSheetName = $pSheet->getTitle();
             if (strpos($pRange, '!') !== false) {
-                [$pSheetName, $pRange] = Worksheet::extractSheetTitle($pRange, true);
+                $pSheetName = Worksheet::extractSheetTitle($pRange, true)[0];
+                $pRange = Worksheet::extractSheetTitle($pRange, true)[1];
                 $pSheet = $this->spreadsheet->getSheetByName($pSheetName);
             }
 
@@ -4727,7 +4749,8 @@ class Calculation
             $aReferences = Coordinate::extractAllCellReferencesInRange($pRange);
             if (!isset($aReferences[1])) {
                 //    Single cell (or single column or row) in range
-                [$currentCol, $currentRow] = Coordinate::coordinateFromString($aReferences[0]);
+                $currentCol = Coordinate::coordinateFromString($aReferences[0])[0];
+                $currentRow = Coordinate::coordinateFromString($aReferences[0])[1];
                 if ($pSheet->cellExists($aReferences[0])) {
                     $returnValue[$currentRow][$currentCol] = $pSheet->getCell($aReferences[0])->getCalculatedValue($resetLog);
                 } else {
@@ -4737,7 +4760,8 @@ class Calculation
                 // Extract cell data for all cells in the range
                 foreach ($aReferences as $reference) {
                     // Extract range
-                    [$currentCol, $currentRow] = Coordinate::coordinateFromString($reference);
+                    $currentCol = Coordinate::coordinateFromString($reference)[0];
+                    $currentRow = Coordinate::coordinateFromString($reference)[1];
                     if ($pSheet->cellExists($reference)) {
                         $returnValue[$currentRow][$currentCol] = $pSheet->getCell($reference)->getCalculatedValue($resetLog);
                     } else {
@@ -4800,7 +4824,8 @@ class Calculation
      *
      * @return array
      */
-    private function addCellReference(array $args, $passCellReference, $functionCall, ?Cell $pCell = null)
+//    private function addCellReference(array $args, $passCellReference, $functionCall, $pCell = null)
+    private function addCellReference(array $args, $passCellReference, $functionCall, $pCell = null)
     {
         if ($passCellReference) {
             if (is_array($functionCall)) {
@@ -4831,7 +4856,7 @@ class Calculation
     private function getTokensAsString($tokens)
     {
         $tokensStr = array_map(function ($token) {
-            $value = $token['value'] ?? 'no value';
+            $value = isset($token['value']) ? $token['value'] : 'no value';
             while (is_array($value)) {
                 $value = array_pop($value);
             }

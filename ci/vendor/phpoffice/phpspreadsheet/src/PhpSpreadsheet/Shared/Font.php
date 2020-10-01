@@ -198,7 +198,7 @@ class Font
      *
      * @param string $pValue
      */
-    public static function setTrueTypeFontPath($pValue): void
+    public static function setTrueTypeFontPath($pValue)
     {
         self::$trueTypeFontPath = $pValue;
     }

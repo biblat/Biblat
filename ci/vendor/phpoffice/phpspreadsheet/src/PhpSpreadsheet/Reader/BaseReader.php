@@ -142,7 +142,7 @@ abstract class BaseReader implements IReader
      *
      * @param string $pFilename
      */
-    protected function openFile($pFilename): void
+    protected function openFile($pFilename)
     {
         if ($pFilename) {
             File::assertFile($pFilename);

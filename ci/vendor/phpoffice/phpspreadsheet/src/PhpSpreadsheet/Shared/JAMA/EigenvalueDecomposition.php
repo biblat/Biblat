@@ -73,7 +73,7 @@ class EigenvalueDecomposition
     /**
      * Symmetric Householder reduction to tridiagonal form.
      */
-    private function tred2(): void
+    private function tred2()
     {
         //  This is derived from the Algol procedures tred2 by
         //  Bowdler, Martin, Reinsch, and Wilkinson, Handbook for
@@ -180,7 +180,7 @@ class EigenvalueDecomposition
      *    Auto. Comp., Vol.ii-Linear Algebra, and the corresponding
      * Fortran subroutine in EISPACK.
      */
-    private function tql2(): void
+    private function tql2()
     {
         for ($i = 1; $i < $this->n; ++$i) {
             $this->e[$i - 1] = $this->e[$i];
@@ -287,7 +287,7 @@ class EigenvalueDecomposition
      *    Vol.ii-Linear Algebra, and the corresponding
      * Fortran subroutines in EISPACK.
      */
-    private function orthes(): void
+    private function orthes()
     {
         $low = 0;
         $high = $this->n - 1;
@@ -372,7 +372,7 @@ class EigenvalueDecomposition
      * @param mixed $yr
      * @param mixed $yi
      */
-    private function cdiv($xr, $xi, $yr, $yi): void
+    private function cdiv($xr, $xi, $yr, $yi)
     {
         if (abs($yr) > abs($yi)) {
             $r = $yi / $yr;
@@ -395,7 +395,7 @@ class EigenvalueDecomposition
      *    Vol.ii-Linear Algebra, and the corresponding
      * Fortran subroutine in EISPACK.
      */
-    private function hqr2(): void
+    private function hqr2()
     {
         //  Initialize
         $nn = $this->n;

@@ -439,7 +439,7 @@ class Xls extends BaseReader
         }
     }
 
-    public function setCodepage(string $codepage): void
+    public function setCodepage(string $codepage)
     {
         if (!CodePage::validate($codepage)) {
             throw new PhpSpreadsheetException('Unknown codepage: ' . $codepage);
@@ -1357,7 +1357,7 @@ class Xls extends BaseReader
      *
      * @param string $pFilename
      */
-    private function loadOLE($pFilename): void
+    private function loadOLE($pFilename)
     {
         // OLE reader
         $ole = new OLERead();
@@ -1374,7 +1374,7 @@ class Xls extends BaseReader
     /**
      * Read summary information.
      */
-    private function readSummaryInformation(): void
+    private function readSummaryInformation()
     {
         if (!isset($this->summaryInformation)) {
             return;
@@ -1521,7 +1521,7 @@ class Xls extends BaseReader
     /**
      * Read additional document summary information.
      */
-    private function readDocumentSummaryInformation(): void
+    private function readDocumentSummaryInformation()
     {
         if (!isset($this->documentSummaryInformation)) {
             return;
@@ -1659,7 +1659,7 @@ class Xls extends BaseReader
     /**
      * Reads a general type of BIFF record. Does nothing except for moving stream pointer forward to next record.
      */
-    private function readDefault(): void
+    private function readDefault()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
 
@@ -1671,7 +1671,7 @@ class Xls extends BaseReader
      *    The NOTE record specifies a comment associated with a particular cell. In Excel 95 (BIFF7) and earlier versions,
      *        this record stores a note (cell note). This feature was significantly enhanced in Excel 97.
      */
-    private function readNote(): void
+    private function readNote()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -1724,7 +1724,7 @@ class Xls extends BaseReader
     /**
      * The TEXT Object record contains the text associated with a cell annotation.
      */
-    private function readTextObject(): void
+    private function readTextObject()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -1771,7 +1771,7 @@ class Xls extends BaseReader
     /**
      * Read BOF.
      */
-    private function readBof(): void
+    private function readBof()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = substr($this->data, $this->pos + 4, $length);
@@ -1822,7 +1822,7 @@ class Xls extends BaseReader
      * are based on the source of Spreadsheet-ParseExcel:
      * https://metacpan.org/release/Spreadsheet-ParseExcel
      */
-    private function readFilepass(): void
+    private function readFilepass()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
 
@@ -1972,7 +1972,7 @@ class Xls extends BaseReader
      * --    "OpenOffice.org's Documentation of the Microsoft
      *         Excel File Format"
      */
-    private function readCodepage(): void
+    private function readCodepage()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -1998,7 +1998,7 @@ class Xls extends BaseReader
      * --    "OpenOffice.org's Documentation of the Microsoft
      *         Excel File Format"
      */
-    private function readDateMode(): void
+    private function readDateMode()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -2016,7 +2016,7 @@ class Xls extends BaseReader
     /**
      * Read a FONT record.
      */
-    private function readFont(): void
+    private function readFont()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -2124,7 +2124,7 @@ class Xls extends BaseReader
      * --    "OpenOffice.org's Documentation of the Microsoft
      *         Excel File Format"
      */
-    private function readFormat(): void
+    private function readFormat()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -2161,7 +2161,7 @@ class Xls extends BaseReader
      * --    "OpenOffice.org's Documentation of the Microsoft
      *         Excel File Format"
      */
-    private function readXf(): void
+    private function readXf()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -2458,7 +2458,7 @@ class Xls extends BaseReader
         }
     }
 
-    private function readXfExt(): void
+    private function readXfExt()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -2634,7 +2634,7 @@ class Xls extends BaseReader
     /**
      * Read STYLE record.
      */
-    private function readStyle(): void
+    private function readStyle()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -2671,7 +2671,7 @@ class Xls extends BaseReader
     /**
      * Read PALETTE record.
      */
-    private function readPalette(): void
+    private function readPalette()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -2703,7 +2703,7 @@ class Xls extends BaseReader
      * --    "OpenOffice.org's Documentation of the Microsoft
      *         Excel File Format"
      */
-    private function readSheet(): void
+    private function readSheet()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -2758,7 +2758,7 @@ class Xls extends BaseReader
     /**
      * Read EXTERNALBOOK record.
      */
-    private function readExternalBook(): void
+    private function readExternalBook()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -2820,7 +2820,7 @@ class Xls extends BaseReader
     /**
      * Read EXTERNNAME record.
      */
-    private function readExternName(): void
+    private function readExternName()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -2854,7 +2854,7 @@ class Xls extends BaseReader
     /**
      * Read EXTERNSHEET record.
      */
-    private function readExternSheet(): void
+    private function readExternSheet()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -2890,7 +2890,7 @@ class Xls extends BaseReader
      * --    "OpenOffice.org's Documentation of the Microsoft
      *         Excel File Format"
      */
-    private function readDefinedName(): void
+    private function readDefinedName()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -2944,7 +2944,7 @@ class Xls extends BaseReader
     /**
      * Read MSODRAWINGGROUP record.
      */
-    private function readMsoDrawingGroup(): void
+    private function readMsoDrawingGroup()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
 
@@ -2966,7 +2966,7 @@ class Xls extends BaseReader
      * --    "OpenOffice.org's Documentation of the Microsoft
      *         Excel File Format"
      */
-    private function readSst(): void
+    private function readSst()
     {
         // offset within (spliced) record data
         $pos = 0;
@@ -3147,7 +3147,7 @@ class Xls extends BaseReader
     /**
      * Read PRINTGRIDLINES record.
      */
-    private function readPrintGridlines(): void
+    private function readPrintGridlines()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3165,7 +3165,7 @@ class Xls extends BaseReader
     /**
      * Read DEFAULTROWHEIGHT record.
      */
-    private function readDefaultRowHeight(): void
+    private function readDefaultRowHeight()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3182,7 +3182,7 @@ class Xls extends BaseReader
     /**
      * Read SHEETPR record.
      */
-    private function readSheetPr(): void
+    private function readSheetPr()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3208,7 +3208,7 @@ class Xls extends BaseReader
     /**
      * Read HORIZONTALPAGEBREAKS record.
      */
-    private function readHorizontalPageBreaks(): void
+    private function readHorizontalPageBreaks()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3235,7 +3235,7 @@ class Xls extends BaseReader
     /**
      * Read VERTICALPAGEBREAKS record.
      */
-    private function readVerticalPageBreaks(): void
+    private function readVerticalPageBreaks()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3262,7 +3262,7 @@ class Xls extends BaseReader
     /**
      * Read HEADER record.
      */
-    private function readHeader(): void
+    private function readHeader()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3289,7 +3289,7 @@ class Xls extends BaseReader
     /**
      * Read FOOTER record.
      */
-    private function readFooter(): void
+    private function readFooter()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3315,7 +3315,7 @@ class Xls extends BaseReader
     /**
      * Read HCENTER record.
      */
-    private function readHcenter(): void
+    private function readHcenter()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3334,7 +3334,7 @@ class Xls extends BaseReader
     /**
      * Read VCENTER record.
      */
-    private function readVcenter(): void
+    private function readVcenter()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3353,7 +3353,7 @@ class Xls extends BaseReader
     /**
      * Read LEFTMARGIN record.
      */
-    private function readLeftMargin(): void
+    private function readLeftMargin()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3370,7 +3370,7 @@ class Xls extends BaseReader
     /**
      * Read RIGHTMARGIN record.
      */
-    private function readRightMargin(): void
+    private function readRightMargin()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3387,7 +3387,7 @@ class Xls extends BaseReader
     /**
      * Read TOPMARGIN record.
      */
-    private function readTopMargin(): void
+    private function readTopMargin()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3404,7 +3404,7 @@ class Xls extends BaseReader
     /**
      * Read BOTTOMMARGIN record.
      */
-    private function readBottomMargin(): void
+    private function readBottomMargin()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3421,7 +3421,7 @@ class Xls extends BaseReader
     /**
      * Read PAGESETUP record.
      */
-    private function readPageSetup(): void
+    private function readPageSetup()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3484,7 +3484,7 @@ class Xls extends BaseReader
      * PROTECT - Sheet protection (BIFF2 through BIFF8)
      *   if this record is omitted, then it also means no sheet protection.
      */
-    private function readProtect(): void
+    private function readProtect()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3506,7 +3506,7 @@ class Xls extends BaseReader
     /**
      * SCENPROTECT.
      */
-    private function readScenProtect(): void
+    private function readScenProtect()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3529,7 +3529,7 @@ class Xls extends BaseReader
     /**
      * OBJECTPROTECT.
      */
-    private function readObjectProtect(): void
+    private function readObjectProtect()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3552,7 +3552,7 @@ class Xls extends BaseReader
     /**
      * PASSWORD - Sheet protection (hashed) password (BIFF2 through BIFF8).
      */
-    private function readPassword(): void
+    private function readPassword()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3570,7 +3570,7 @@ class Xls extends BaseReader
     /**
      * Read DEFCOLWIDTH record.
      */
-    private function readDefColWidth(): void
+    private function readDefColWidth()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3588,7 +3588,7 @@ class Xls extends BaseReader
     /**
      * Read COLINFO record.
      */
-    private function readColInfo(): void
+    private function readColInfo()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3648,7 +3648,7 @@ class Xls extends BaseReader
      * --    "OpenOffice.org's Documentation of the Microsoft
      *         Excel File Format"
      */
-    private function readRow(): void
+    private function readRow()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3717,7 +3717,7 @@ class Xls extends BaseReader
      * --    "OpenOffice.org's Documentation of the Microsoft
      *         Excel File Format"
      */
-    private function readRk(): void
+    private function readRk()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3761,7 +3761,7 @@ class Xls extends BaseReader
      * --    "OpenOffice.org's Documentation of the Microsoft
      *         Excel File Format"
      */
-    private function readLabelSst(): void
+    private function readLabelSst()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3845,7 +3845,7 @@ class Xls extends BaseReader
      * --    "OpenOffice.org's Documentation of the Microsoft
      *         Excel File Format"
      */
-    private function readMulRk(): void
+    private function readMulRk()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3898,7 +3898,7 @@ class Xls extends BaseReader
      * --    "OpenOffice.org's Documentation of the Microsoft
      *         Excel File Format"
      */
-    private function readNumber(): void
+    private function readNumber()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -3939,7 +3939,7 @@ class Xls extends BaseReader
      * --    "OpenOffice.org's Documentation of the Microsoft
      *         Excel File Format"
      */
-    private function readFormula(): void
+    private function readFormula()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -4065,7 +4065,7 @@ class Xls extends BaseReader
      * which usually contains relative references.
      * These will be used to construct the formula in each shared formula part after the sheet is read.
      */
-    private function readSharedFmla(): void
+    private function readSharedFmla()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -4123,7 +4123,7 @@ class Xls extends BaseReader
      * --    "OpenOffice.org's Documentation of the Microsoft
      *         Excel File Format"
      */
-    private function readBoolErr(): void
+    private function readBoolErr()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -4182,7 +4182,7 @@ class Xls extends BaseReader
      * --    "OpenOffice.org's Documentation of the Microsoft
      *         Excel File Format"
      */
-    private function readMulBlank(): void
+    private function readMulBlank()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -4225,7 +4225,7 @@ class Xls extends BaseReader
      * --    "OpenOffice.org's Documentation of the Microsoft
      *         Excel File Format"
      */
-    private function readLabel(): void
+    private function readLabel()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -4269,7 +4269,7 @@ class Xls extends BaseReader
     /**
      * Read BLANK record.
      */
-    private function readBlank(): void
+    private function readBlank()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -4299,7 +4299,7 @@ class Xls extends BaseReader
     /**
      * Read MSODRAWING record.
      */
-    private function readMsoDrawing(): void
+    private function readMsoDrawing()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
 
@@ -4313,7 +4313,7 @@ class Xls extends BaseReader
     /**
      * Read OBJ record.
      */
-    private function readObj(): void
+    private function readObj()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -4353,7 +4353,7 @@ class Xls extends BaseReader
     /**
      * Read WINDOW2 record.
      */
-    private function readWindow2(): void
+    private function readWindow2()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -4424,7 +4424,7 @@ class Xls extends BaseReader
     /**
      * Read PLV Record(Created by Excel2007 or upper).
      */
-    private function readPageLayoutView(): void
+    private function readPageLayoutView()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -4461,7 +4461,7 @@ class Xls extends BaseReader
     /**
      * Read SCL record.
      */
-    private function readScl(): void
+    private function readScl()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -4482,7 +4482,7 @@ class Xls extends BaseReader
     /**
      * Read PANE record.
      */
-    private function readPane(): void
+    private function readPane()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -4516,7 +4516,7 @@ class Xls extends BaseReader
     /**
      * Read SELECTION record. There is one such record for each pane in the sheet.
      */
-    private function readSelection(): void
+    private function readSelection()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -4593,7 +4593,7 @@ class Xls extends BaseReader
      * --    "OpenOffice.org's Documentation of the Microsoft
      *         Excel File Format"
      */
-    private function readMergedCells(): void
+    private function readMergedCells()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -4615,7 +4615,7 @@ class Xls extends BaseReader
     /**
      * Read HYPERLINK record.
      */
-    private function readHyperLink(): void
+    private function readHyperLink()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -4788,7 +4788,7 @@ class Xls extends BaseReader
     /**
      * Read DATAVALIDATIONS record.
      */
-    private function readDataValidations(): void
+    private function readDataValidations()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -4800,7 +4800,7 @@ class Xls extends BaseReader
     /**
      * Read DATAVALIDATION record.
      */
-    private function readDataValidation(): void
+    private function readDataValidation()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -5012,7 +5012,7 @@ class Xls extends BaseReader
     /**
      * Read SHEETLAYOUT record. Stores sheet tab color information.
      */
-    private function readSheetLayout(): void
+    private function readSheetLayout()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -5052,7 +5052,7 @@ class Xls extends BaseReader
     /**
      * Read SHEETPROTECTION record (FEATHEADR).
      */
-    private function readSheetProtection(): void
+    private function readSheetProtection()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -5152,7 +5152,7 @@ class Xls extends BaseReader
      * Reading of this record is based on Microsoft Office Excel 97-2000 Binary File Format Specification,
      * where it is referred to as FEAT record.
      */
-    private function readRangeProtection(): void
+    private function readRangeProtection()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);
@@ -5214,7 +5214,7 @@ class Xls extends BaseReader
      * When MSODRAWING data on a sheet exceeds 8224 bytes, CONTINUE records are used instead. Undocumented.
      * In this case, we must treat the CONTINUE record as a MSODRAWING record.
      */
-    private function readContinue(): void
+    private function readContinue()
     {
         $length = self::getUInt2d($this->data, $this->pos + 2);
         $recordData = $this->readRecordData($this->data, $this->pos + 4, $length);

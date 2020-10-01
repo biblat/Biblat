@@ -258,7 +258,7 @@ class Xlsx extends BaseReader
         return isset($c->v) ? (string) $c->v : null;
     }
 
-    private function castToFormula($c, $r, &$cellDataType, &$value, &$calculatedValue, &$sharedFormulas, $castBaseType): void
+    private function castToFormula($c, $r, &$cellDataType, &$value, &$calculatedValue, &$sharedFormulas, $castBaseType)
     {
         $cellDataType = 'f';
         $value = "={$c->f}";
@@ -1318,7 +1318,9 @@ class Xlsx extends BaseReader
                                                 $rangeSets = preg_split("/('?(?:.*?)'?(?:![A-Z0-9]+:[A-Z0-9]+)),?/", $extractedRange, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
                                                 $newRangeSets = [];
                                                 foreach ($rangeSets as $rangeSet) {
-                                                    [$sheetName, $rangeSet] = Worksheet::extractSheetTitle($rangeSet, true);
+                                                    //[$sheetName, $rangeSet] = Worksheet::extractSheetTitle($rangeSet, true);
+													$sheetName = Worksheet::extractSheetTitle($rangeSet, true)[0];
+													$rangeSet = Worksheet::extractSheetTitle($rangeSet, true)[1];
                                                     if (strpos($rangeSet, ':') === false) {
                                                         $rangeSet = $rangeSet . ':' . $rangeSet;
                                                     }
@@ -1392,7 +1394,9 @@ class Xlsx extends BaseReader
                                         $locatedSheet = $excel->getSheetByName($extractedSheetName);
 
                                         // Modify range
-                                        [$worksheetName, $extractedRange] = Worksheet::extractSheetTitle($extractedRange, true);
+                                        //[$worksheetName, $extractedRange] = Worksheet::extractSheetTitle($extractedRange, true);
+										$worksheetName = Worksheet::extractSheetTitle($extractedRange, true)[0];
+										$extractedRange = Worksheet::extractSheetTitle($extractedRange, true)[1];
                                     }
 
                                     if ($locatedSheet !== null) {
@@ -1555,7 +1559,7 @@ class Xlsx extends BaseReader
     /**
      * @param SimpleXMLElement|stdClass $style
      */
-    private static function readStyle(Style $docStyle, $style): void
+    private static function readStyle(Style $docStyle, $style)
     {
         $docStyle->getNumberFormat()->setFormatCode($style->numFmt);
 
@@ -1682,7 +1686,7 @@ class Xlsx extends BaseReader
     /**
      * @param SimpleXMLElement $eleBorder
      */
-    private static function readBorder(Border $docBorder, $eleBorder): void
+    private static function readBorder(Border $docBorder, $eleBorder)
     {
         if (isset($eleBorder['style'])) {
             $docBorder->setBorderStyle((string) $eleBorder['style']);
@@ -1758,7 +1762,7 @@ class Xlsx extends BaseReader
      * @param mixed $customUITarget
      * @param mixed $zip
      */
-    private function readRibbon(Spreadsheet $excel, $customUITarget, $zip): void
+    private function readRibbon(Spreadsheet $excel, $customUITarget, $zip)
     {
         $baseDir = dirname($customUITarget);
         $nameCustomUI = basename($customUITarget);
@@ -1802,7 +1806,8 @@ class Xlsx extends BaseReader
 
     private static function getArrayItem($array, $key = 0)
     {
-        return $array[$key] ?? null;
+        //return $array[$key] ?? null;
+		return isset($array[$key]) ? $array[$key] : null;
     }
 
     private static function dirAdd($base, $add)
@@ -1863,7 +1868,7 @@ class Xlsx extends BaseReader
      * @param SimpleXMLElement $cellAnchor
      * @param array $hyperlinks
      */
-    private function readHyperLinkDrawing($objDrawing, $cellAnchor, $hyperlinks): void
+    private function readHyperLinkDrawing($objDrawing, $cellAnchor, $hyperlinks)
     {
         $hlinkClick = $cellAnchor->pic->nvPicPr->cNvPr->children('http://schemas.openxmlformats.org/drawingml/2006/main')->hlinkClick;
 
@@ -1879,7 +1884,7 @@ class Xlsx extends BaseReader
         $objDrawing->setHyperlink($hyperlink);
     }
 
-    private function readProtection(Spreadsheet $excel, SimpleXMLElement $xmlWorkbook): void
+    private function readProtection(Spreadsheet $excel, SimpleXMLElement $xmlWorkbook)
     {
         if (!$xmlWorkbook->workbookProtection) {
             return;
@@ -1906,7 +1911,7 @@ class Xlsx extends BaseReader
         }
     }
 
-    private function readFormControlProperties(Spreadsheet $excel, ZipArchive $zip, $dir, $fileWorksheet, $docSheet, array &$unparsedLoadedData): void
+    private function readFormControlProperties(Spreadsheet $excel, ZipArchive $zip, $dir, $fileWorksheet, $docSheet, array &$unparsedLoadedData)
     {
         if (!$zip->locateName(dirname("$dir/$fileWorksheet") . '/_rels/' . basename($fileWorksheet) . '.rels')) {
             return;
@@ -1938,7 +1943,7 @@ class Xlsx extends BaseReader
         unset($unparsedCtrlProps);
     }
 
-    private function readPrinterSettings(Spreadsheet $excel, ZipArchive $zip, $dir, $fileWorksheet, $docSheet, array &$unparsedLoadedData): void
+    private function readPrinterSettings(Spreadsheet $excel, ZipArchive $zip, $dir, $fileWorksheet, $docSheet, array &$unparsedLoadedData)
     {
         if (!$zip->locateName(dirname("$dir/$fileWorksheet") . '/_rels/' . basename($fileWorksheet) . '.rels')) {
             return;
@@ -2027,7 +2032,7 @@ class Xlsx extends BaseReader
         return $workbookBasename;
     }
 
-    private function readSheetProtection(Worksheet $docSheet, SimpleXMLElement $xmlSheet): void
+    private function readSheetProtection(Worksheet $docSheet, SimpleXMLElement $xmlSheet)
     {
         if ($this->readDataOnly || !$xmlSheet->sheetProtection) {
             return;

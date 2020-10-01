@@ -210,7 +210,7 @@ class Spreadsheet
      *
      * @param bool $hasMacros true|false
      */
-    public function setHasMacros($hasMacros): void
+    public function setHasMacros($hasMacros)
     {
         $this->hasMacros = (bool) $hasMacros;
     }
@@ -220,7 +220,7 @@ class Spreadsheet
      *
      * @param string $macroCode string|null
      */
-    public function setMacrosCode($macroCode): void
+    public function setMacrosCode($macroCode)
     {
         $this->macrosCode = $macroCode;
         $this->setHasMacros($macroCode !== null);
@@ -241,7 +241,7 @@ class Spreadsheet
      *
      * @param null|string $certificate
      */
-    public function setMacrosCertificate($certificate): void
+    public function setMacrosCertificate($certificate)
     {
         $this->macrosCertificate = $certificate;
     }
@@ -269,7 +269,7 @@ class Spreadsheet
     /**
      * Remove all macros, certificate from spreadsheet.
      */
-    public function discardMacros(): void
+    public function discardMacros()
     {
         $this->hasMacros = false;
         $this->macrosCode = null;
@@ -282,7 +282,7 @@ class Spreadsheet
      * @param null|mixed $target
      * @param null|mixed $xmlData
      */
-    public function setRibbonXMLData($target, $xmlData): void
+    public function setRibbonXMLData($target, $xmlData)
     {
         if ($target !== null && $xmlData !== null) {
             $this->ribbonXMLData = ['target' => $target, 'data' => $xmlData];
@@ -327,7 +327,7 @@ class Spreadsheet
      * @param null|mixed $BinObjectsNames
      * @param null|mixed $BinObjectsData
      */
-    public function setRibbonBinObjects($BinObjectsNames, $BinObjectsData): void
+    public function setRibbonBinObjects($BinObjectsNames, $BinObjectsData)
     {
         if ($BinObjectsNames !== null && $BinObjectsData !== null) {
             $this->ribbonBinObjects = ['names' => $BinObjectsNames, 'data' => $BinObjectsData];
@@ -355,7 +355,7 @@ class Spreadsheet
      *
      * @internal
      */
-    public function setUnparsedLoadedData(array $unparsedLoadedData): void
+    public function setUnparsedLoadedData(array $unparsedLoadedData)
     {
         $this->unparsedLoadedData = $unparsedLoadedData;
     }
@@ -505,7 +505,7 @@ class Spreadsheet
      * Disconnect all worksheets from this PhpSpreadsheet workbook object,
      * typically so that the PhpSpreadsheet object can be unset.
      */
-    public function disconnectWorksheets(): void
+    public function disconnectWorksheets()
     {
         $worksheet = null;
         foreach ($this->workSheetCollection as $k => &$worksheet) {
@@ -539,7 +539,7 @@ class Spreadsheet
     /**
      * Set properties.
      */
-    public function setProperties(Document\Properties $pValue): void
+    public function setProperties(Document\Properties $pValue)
     {
         $this->properties = $pValue;
     }
@@ -557,7 +557,7 @@ class Spreadsheet
     /**
      * Set security.
      */
-    public function setSecurity(Document\Security $pValue): void
+    public function setSecurity(Document\Security $pValue)
     {
         $this->security = $pValue;
     }
@@ -646,7 +646,7 @@ class Spreadsheet
      *
      * @param int $pIndex Active sheet index
      */
-    public function removeSheetByIndex($pIndex): void
+    public function removeSheetByIndex($pIndex)
     {
         $numSheets = count($this->workSheetCollection);
         if ($pIndex > $numSheets - 1) {
@@ -899,7 +899,8 @@ class Spreadsheet
      *
      * @return null|NamedRange
      */
-    public function getNamedRange($namedRange, ?Worksheet $pSheet = null)
+    //public function getNamedRange($namedRange, $pSheet = null)
+    public function getNamedRange($namedRange, $pSheet = null)
     {
         $returnValue = null;
 
@@ -926,7 +927,8 @@ class Spreadsheet
      *
      * @return $this
      */
-    public function removeNamedRange($namedRange, ?Worksheet $pSheet = null)
+//    public function removeNamedRange($namedRange, ?Worksheet$pSheet = null)
+    public function removeNamedRange($namedRange, $pSheet = null)
     {
         if ($pSheet === null) {
             if (isset($this->namedRanges[$namedRange])) {
@@ -1050,7 +1052,7 @@ class Spreadsheet
     /**
      * Add a cellXf to the workbook.
      */
-    public function addCellXf(Style $style): void
+    public function addCellXf(Style $style)
     {
         $this->cellXfCollection[] = $style;
         $style->setIndex(count($this->cellXfCollection) - 1);
@@ -1061,7 +1063,7 @@ class Spreadsheet
      *
      * @param int $pIndex Index to cellXf
      */
-    public function removeCellXfByIndex($pIndex): void
+    public function removeCellXfByIndex($pIndex)
     {
         if ($pIndex > count($this->cellXfCollection) - 1) {
             throw new Exception('CellXf index is out of bounds.');
@@ -1139,7 +1141,7 @@ class Spreadsheet
     /**
      * Add a cellStyleXf to the workbook.
      */
-    public function addCellStyleXf(Style $pStyle): void
+    public function addCellStyleXf(Style $pStyle)
     {
         $this->cellStyleXfCollection[] = $pStyle;
         $pStyle->setIndex(count($this->cellStyleXfCollection) - 1);
@@ -1150,7 +1152,7 @@ class Spreadsheet
      *
      * @param int $pIndex Index to cellXf
      */
-    public function removeCellStyleXfByIndex($pIndex): void
+    public function removeCellStyleXfByIndex($pIndex)
     {
         if ($pIndex > count($this->cellStyleXfCollection) - 1) {
             throw new Exception('CellStyleXf index is out of bounds.');
@@ -1162,7 +1164,7 @@ class Spreadsheet
      * Eliminate all unneeded cellXf and afterwards update the xfIndex for all cells
      * and columns in the workbook.
      */
-    public function garbageCollect(): void
+    public function garbageCollect()
     {
         // how many references are there to each cellXf ?
         $countReferencesCellXf = [];
@@ -1263,7 +1265,7 @@ class Spreadsheet
      *
      * @param bool $showHorizontalScroll True if horizonal scroll bar is visible
      */
-    public function setShowHorizontalScroll($showHorizontalScroll): void
+    public function setShowHorizontalScroll($showHorizontalScroll)
     {
         $this->showHorizontalScroll = (bool) $showHorizontalScroll;
     }
@@ -1283,7 +1285,7 @@ class Spreadsheet
      *
      * @param bool $showVerticalScroll True if vertical scroll bar is visible
      */
-    public function setShowVerticalScroll($showVerticalScroll): void
+    public function setShowVerticalScroll($showVerticalScroll)
     {
         $this->showVerticalScroll = (bool) $showVerticalScroll;
     }
@@ -1303,7 +1305,7 @@ class Spreadsheet
      *
      * @param bool $showSheetTabs True if sheet tabs are visible
      */
-    public function setShowSheetTabs($showSheetTabs): void
+    public function setShowSheetTabs($showSheetTabs)
     {
         $this->showSheetTabs = (bool) $showSheetTabs;
     }
@@ -1323,7 +1325,7 @@ class Spreadsheet
      *
      * @param bool $minimized true if workbook window is minimized
      */
-    public function setMinimized($minimized): void
+    public function setMinimized($minimized)
     {
         $this->minimized = (bool) $minimized;
     }
@@ -1345,7 +1347,7 @@ class Spreadsheet
      *
      * @param bool $autoFilterDateGrouping true if workbook window is minimized
      */
-    public function setAutoFilterDateGrouping($autoFilterDateGrouping): void
+    public function setAutoFilterDateGrouping($autoFilterDateGrouping)
     {
         $this->autoFilterDateGrouping = (bool) $autoFilterDateGrouping;
     }
@@ -1365,7 +1367,7 @@ class Spreadsheet
      *
      * @param int $firstSheetIndex First sheet in book view
      */
-    public function setFirstSheetIndex($firstSheetIndex): void
+    public function setFirstSheetIndex($firstSheetIndex)
     {
         if ($firstSheetIndex >= 0) {
             $this->firstSheetIndex = (int) $firstSheetIndex;
@@ -1402,7 +1404,7 @@ class Spreadsheet
      *
      * @param string $visibility visibility status of the workbook
      */
-    public function setVisibility($visibility): void
+    public function setVisibility($visibility)
     {
         if ($visibility === null) {
             $visibility = self::VISIBILITY_VISIBLE;
@@ -1432,7 +1434,7 @@ class Spreadsheet
      *
      * @param int $tabRatio Ratio between the tabs bar and the horizontal scroll bar
      */
-    public function setTabRatio($tabRatio): void
+    public function setTabRatio($tabRatio)
     {
         if ($tabRatio >= 0 || $tabRatio <= 1000) {
             $this->tabRatio = (int) $tabRatio;

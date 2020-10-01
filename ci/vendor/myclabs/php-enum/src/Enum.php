@@ -103,7 +103,7 @@ abstract class Enum implements \JsonSerializable
      * @psalm-param mixed $variable
      * @return bool
      */
-    final public function equals($variable = null): bool
+    final public function equals($variable = null)//: bool
     {
         return $variable instanceof self
             && $this->getValue() === $variable->getValue()

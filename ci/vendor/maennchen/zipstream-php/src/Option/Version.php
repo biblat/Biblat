@@ -9,9 +9,9 @@ use MyCLabs\Enum\Enum;
  * Class Version
  * @package ZipStream\Option
  *
- * @method static STORE(): Version
- * @method static DEFLATE(): Version
- * @method static ZIP64(): Version
+ * @method static STORE() //Version
+ * @method static DEFLATE() //Version
+ * @method static ZIP64() //Version
  * @psalm-immutable
  */
 class Version extends Enum

@@ -50,7 +50,7 @@ class Logger
      *
      * @param bool $pValue
      */
-    public function setWriteDebugLog($pValue): void
+    public function setWriteDebugLog($pValue)
     {
         $this->writeDebugLog = $pValue;
     }
@@ -70,7 +70,7 @@ class Logger
      *
      * @param bool $pValue
      */
-    public function setEchoDebugLog($pValue): void
+    public function setEchoDebugLog($pValue)
     {
         $this->echoDebugLog = $pValue;
     }
@@ -88,7 +88,7 @@ class Logger
     /**
      * Write an entry to the calculation engine debug log.
      */
-    public function writeDebugLog(...$args): void
+    public function writeDebugLog(...$args)
     {
         //    Only write the debug log if logging is enabled
         if ($this->writeDebugLog) {
@@ -109,7 +109,7 @@ class Logger
     /**
      * Clear the calculation engine debug log.
      */
-    public function clearLog(): void
+    public function clearLog()
     {
         $this->debugLog = [];
     }

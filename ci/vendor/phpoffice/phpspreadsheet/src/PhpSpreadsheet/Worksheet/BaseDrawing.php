@@ -205,7 +205,7 @@ class BaseDrawing implements IComparable
      *
      * @return $this
      */
-    public function setWorksheet(?Worksheet $pValue = null, $pOverrideOld = false)
+    public function setWorksheet($pValue = null, $pOverrideOld = false)
     {
         if ($this->worksheet === null) {
             // Add drawing to \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet
@@ -517,7 +517,7 @@ class BaseDrawing implements IComparable
         }
     }
 
-    public function setHyperlink(?Hyperlink $pHyperlink = null): void
+    public function setHyperlink($pHyperlink = null)
     {
         $this->hyperlink = $pHyperlink;
     }

@@ -117,112 +117,112 @@ final class Archive
         $this->outputStream = fopen('php://output', 'wb');
     }
 
-    public function getComment(): string
+    public function getComment() //string
     {
         return $this->comment;
     }
 
-    public function setComment(string $comment): void
+    public function setComment(string $comment)//: void
     {
         $this->comment = $comment;
     }
 
-    public function getLargeFileSize(): int
+    public function getLargeFileSize() //int
     {
         return $this->largeFileSize;
     }
 
-    public function setLargeFileSize(int $largeFileSize): void
+    public function setLargeFileSize(int $largeFileSize)//: void
     {
         $this->largeFileSize = $largeFileSize;
     }
 
-    public function getLargeFileMethod(): Method
+    public function getLargeFileMethod() //Method
     {
         return $this->largeFileMethod;
     }
 
-    public function setLargeFileMethod(Method $largeFileMethod): void
+    public function setLargeFileMethod(Method $largeFileMethod)//: void
     {
         $this->largeFileMethod = $largeFileMethod;
     }
 
-    public function isSendHttpHeaders(): bool
+    public function isSendHttpHeaders() //bool
     {
         return $this->sendHttpHeaders;
     }
 
-    public function setSendHttpHeaders(bool $sendHttpHeaders): void
+    public function setSendHttpHeaders(bool $sendHttpHeaders)//: void
     {
         $this->sendHttpHeaders = $sendHttpHeaders;
     }
 
-    public function getHttpHeaderCallback(): Callable
+    public function getHttpHeaderCallback() //Callable
     {
         return $this->httpHeaderCallback;
     }
 
-    public function setHttpHeaderCallback(Callable $httpHeaderCallback): void
+    public function setHttpHeaderCallback(Callable $httpHeaderCallback)//: void
     {
         $this->httpHeaderCallback = $httpHeaderCallback;
     }
 
-    public function isEnableZip64(): bool
+    public function isEnableZip64() //bool
     {
         return $this->enableZip64;
     }
 
-    public function setEnableZip64(bool $enableZip64): void
+    public function setEnableZip64($enableZip64)//: void
     {
         $this->enableZip64 = $enableZip64;
     }
 
-    public function isZeroHeader(): bool
+    public function isZeroHeader() //bool
     {
         return $this->zeroHeader;
     }
 
-    public function setZeroHeader(bool $zeroHeader): void
+    public function setZeroHeader(bool $zeroHeader)//: void
     {
         $this->zeroHeader = $zeroHeader;
     }
 
-    public function isFlushOutput(): bool
+    public function isFlushOutput() //bool
     {
         return $this->flushOutput;
     }
 
-    public function setFlushOutput(bool $flushOutput): void
+    public function setFlushOutput(bool $flushOutput)//: void
     {
         $this->flushOutput = $flushOutput;
     }
 
-    public function isStatFiles(): bool
+    public function isStatFiles() //bool
     {
         return $this->statFiles;
     }
 
-    public function setStatFiles(bool $statFiles): void
+    public function setStatFiles(bool $statFiles)//: void
     {
         $this->statFiles = $statFiles;
     }
 
-    public function getContentDisposition(): string
+    public function getContentDisposition() //string
     {
         return $this->contentDisposition;
     }
 
-    public function setContentDisposition(string $contentDisposition): void
+    public function setContentDisposition(string $contentDisposition)//: void
     {
         $this->contentDisposition = $contentDisposition;
     }
 
-    public function getContentType(): string
+    public function getContentType() //string
     {
         return $this->contentType;
     }
 
-    public function setContentType(string $contentType): void
+    public function setContentType(string $contentType)//: void
     {
         $this->contentType = $contentType;
     }
@@ -238,7 +238,7 @@ final class Archive
     /**
      * @param resource $outputStream
      */
-    public function setOutputStream($outputStream): void
+    public function setOutputStream($outputStream)//: void
     {
         $this->outputStream = $outputStream;
     }
@@ -246,7 +246,7 @@ final class Archive
     /**
      * @return int
      */
-    public function getDeflateLevel(): int
+    public function getDeflateLevel() //int
     {
         return $this->deflateLevel;
     }
@@ -254,7 +254,7 @@ final class Archive
     /**
      * @param int $deflateLevel
      */
-    public function setDeflateLevel(int $deflateLevel): void
+    public function setDeflateLevel(int $deflateLevel)//: void
     {
         $this->deflateLevel = $deflateLevel;
     }

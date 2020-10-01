@@ -74,7 +74,7 @@ class PowerBestFit extends BestFit
      * @param float[] $xValues The set of X-values for this regression
      * @param bool $const
      */
-    private function powerRegression($yValues, $xValues, $const): void
+    private function powerRegression($yValues, $xValues, $const)
     {
         foreach ($xValues as &$value) {
             if ($value < 0.0) {

@@ -8,8 +8,8 @@ use MyCLabs\Enum\Enum;
 /**
  * Methods enum
  *
- * @method static STORE(): Method
- * @method static DEFLATE(): Method
+ * @method static STORE() //Method
+ * @method static DEFLATE() //Method
  * @psalm-immutable
  */
 class Method extends Enum

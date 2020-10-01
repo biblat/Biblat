@@ -95,7 +95,7 @@ class OLERead
      *
      * @param $pFilename string Filename
      */
-    public function read($pFilename): void
+    public function read($pFilename)
     {
         File::assertFile($pFilename);
 
@@ -258,7 +258,7 @@ class OLERead
     /**
      * Read entries in the directory stream.
      */
-    private function readPropertySets(): void
+    private function readPropertySets()
     {
         $offset = 0;
 

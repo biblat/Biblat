@@ -18,7 +18,7 @@ class DataValidations
         $this->worksheetXml = $worksheetXml;
     }
 
-    public function load(): void
+    public function load()
     {
         foreach ($this->worksheetXml->dataValidations->dataValidation as $dataValidation) {
             // Uppercase coordinate

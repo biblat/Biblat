@@ -74,7 +74,7 @@ class Settings
      * @param string $rendererClass Class name of the chart renderer
      *    eg: PhpOffice\PhpSpreadsheet\Chart\Renderer\JpGraph
      */
-    public static function setChartRenderer($rendererClass): void
+    public static function setChartRenderer($rendererClass)
     {
         if (!is_a($rendererClass, IRenderer::class, true)) {
             throw new Exception('Chart renderer must implement ' . IRenderer::class);
@@ -99,7 +99,7 @@ class Settings
      *
      * @param int $options Default options for libxml loader
      */
-    public static function setLibXmlLoaderOptions($options): void
+    public static function setLibXmlLoaderOptions($options)
     {
         if ($options === null && defined('LIBXML_DTDLOAD')) {
             $options = LIBXML_DTDLOAD | LIBXML_DTDATTR;
@@ -134,7 +134,7 @@ class Settings
      *
      * @param bool $state
      */
-    public static function setLibXmlDisableEntityLoader($state): void
+    public static function setLibXmlDisableEntityLoader($state)
     {
         self::$libXmlDisableEntityLoader = (bool) $state;
     }
@@ -152,7 +152,7 @@ class Settings
     /**
      * Sets the implementation of cache that should be used for cell collection.
      */
-    public static function setCache(CacheInterface $cache): void
+    public static function setCache(CacheInterface $cache)
     {
         self::$cache = $cache;
     }
@@ -174,7 +174,7 @@ class Settings
     /**
      * Set the HTTP client implementation to be used for network request.
      */
-    public static function setHttpClient(ClientInterface $httpClient, RequestFactoryInterface $requestFactory): void
+    public static function setHttpClient(ClientInterface $httpClient, RequestFactoryInterface $requestFactory)
     {
         self::$httpClient = $httpClient;
         self::$requestFactory = $requestFactory;
@@ -183,7 +183,7 @@ class Settings
     /**
      * Unset the HTTP client configuration.
      */
-    public static function unsetHttpClient(): void
+    public static function unsetHttpClient()
     {
         self::$httpClient = null;
         self::$requestFactory = null;
@@ -192,7 +192,7 @@ class Settings
     /**
      * Get the HTTP client implementation to be used for network request.
      */
-    public static function getHttpClient(): ClientInterface
+    public static function getHttpClient()
     {
         self::assertHttpClient();
 
@@ -202,14 +202,14 @@ class Settings
     /**
      * Get the HTTP request factory.
      */
-    public static function getRequestFactory(): RequestFactoryInterface
+    public static function getRequestFactory()//RequestFactoryInterface
     {
         self::assertHttpClient();
 
         return self::$requestFactory;
     }
 
-    private static function assertHttpClient(): void
+    private static function assertHttpClient()
     {
         if (!self::$httpClient || !self::$requestFactory) {
             throw new Exception('HTTP client must be configured via Settings::setHttpClient() to be able to use WEBSERVICE function.');

@@ -529,7 +529,7 @@ class Chart
     /**
      * @param mixed $plotAttributes
      */
-    private static function setChartAttributes(Layout $plotArea, $plotAttributes): void
+    private static function setChartAttributes(Layout $plotArea, $plotAttributes)
     {
         foreach ($plotAttributes as $plotAttributeKey => $plotAttributeValue) {
             switch ($plotAttributeKey) {

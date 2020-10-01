@@ -254,12 +254,12 @@ class Gnumeric extends BaseReader
         ],
     ];
 
-    public static function gnumericMappings(): array
+    public static function gnumericMappings()//array
     {
         return self::$mappings;
     }
 
-    private function docPropertiesOld(SimpleXMLElement $gnmXML): void
+    private function docPropertiesOld(SimpleXMLElement $gnmXML)
     {
         $docProps = $this->spreadsheet->getProperties();
         foreach ($gnmXML->Summary->Item as $summaryItem) {
@@ -299,7 +299,7 @@ class Gnumeric extends BaseReader
         }
     }
 
-    private function docPropertiesDC(SimpleXMLElement $officePropertyDC): void
+    private function docPropertiesDC(SimpleXMLElement $officePropertyDC)
     {
         $docProps = $this->spreadsheet->getProperties();
         foreach ($officePropertyDC as $propertyName => $propertyValue) {
@@ -332,7 +332,7 @@ class Gnumeric extends BaseReader
         }
     }
 
-    private function docPropertiesMeta(SimpleXMLElement $officePropertyMeta, array $namespacesMeta): void
+    private function docPropertiesMeta(SimpleXMLElement $officePropertyMeta, array $namespacesMeta)
     {
         $docProps = $this->spreadsheet->getProperties();
         foreach ($officePropertyMeta as $propertyName => $propertyValue) {
@@ -376,7 +376,7 @@ class Gnumeric extends BaseReader
         }
     }
 
-    private function docProperties(SimpleXMLElement $xml, SimpleXMLElement $gnmXML, array $namespacesMeta): void
+    private function docProperties(SimpleXMLElement $xml, SimpleXMLElement $gnmXML, array $namespacesMeta)
     {
         if (isset($namespacesMeta['office'])) {
             $officeXML = $xml->children($namespacesMeta['office']);
@@ -401,7 +401,7 @@ class Gnumeric extends BaseReader
         }
     }
 
-    private function sheetMargin(string $key, float $marginSize): void
+    private function sheetMargin(string $key, float $marginSize)
     {
         switch ($key) {
             case 'top':
@@ -431,7 +431,7 @@ class Gnumeric extends BaseReader
         }
     }
 
-    private function sheetMargins(SimpleXMLElement $sheet): void
+    private function sheetMargins(SimpleXMLElement $sheet)
     {
         if (!$this->readDataOnly && isset($sheet->PrintInformation, $sheet->PrintInformation->Margins)) {
             foreach ($sheet->PrintInformation->Margins->children($this->gnm, true) as $key => $margin) {
@@ -448,7 +448,7 @@ class Gnumeric extends BaseReader
         }
     }
 
-    private function processComments(SimpleXMLElement $sheet): void
+    private function processComments(SimpleXMLElement $sheet)
     {
         if ((!$this->readDataOnly) && (isset($sheet->Objects))) {
             foreach ($sheet->Objects->children($this->gnm, true) as $key => $comment) {
@@ -654,7 +654,7 @@ class Gnumeric extends BaseReader
         return $this->spreadsheet;
     }
 
-    private function addBorderDiagonal(SimpleXMLElement $srssb, array &$styleArray): void
+    private function addBorderDiagonal(SimpleXMLElement $srssb, array &$styleArray)
     {
         if (isset($srssb->Diagonal, $srssb->{'Rev-Diagonal'})) {
             $styleArray['borders']['diagonal'] = self::parseBorderAttributes($srssb->Diagonal->attributes());
@@ -668,7 +668,7 @@ class Gnumeric extends BaseReader
         }
     }
 
-    private function addBorderStyle(SimpleXMLElement $srssb, array &$styleArray, string $direction): void
+    private function addBorderStyle(SimpleXMLElement $srssb, array &$styleArray, string $direction)
     {
         $ucDirection = ucfirst($direction);
         if (isset($srssb->$ucDirection)) {
@@ -676,7 +676,7 @@ class Gnumeric extends BaseReader
         }
     }
 
-    private function processMergedCells(SimpleXMLElement $sheet): void
+    private function processMergedCells(SimpleXMLElement $sheet)
     {
         //    Handle Merged Cells in this worksheet
         if (isset($sheet->MergedRegions)) {
@@ -710,7 +710,7 @@ class Gnumeric extends BaseReader
         return $c;
     }
 
-    private function processColumnWidths(SimpleXMLElement $sheet, int $maxCol): void
+    private function processColumnWidths(SimpleXMLElement $sheet, int $maxCol)
     {
         if ((!$this->readDataOnly) && (isset($sheet->Cols))) {
             //    Column Widths
@@ -749,7 +749,7 @@ class Gnumeric extends BaseReader
         return $r;
     }
 
-    private function processRowHeights(SimpleXMLElement $sheet, int $maxRow): void
+    private function processRowHeights(SimpleXMLElement $sheet, int $maxRow)
     {
         if ((!$this->readDataOnly) && (isset($sheet->Rows))) {
             //    Row Heights
@@ -770,7 +770,7 @@ class Gnumeric extends BaseReader
         }
     }
 
-    private function processDefinedNames(SimpleXMLElement $gnmXML): void
+    private function processDefinedNames(SimpleXMLElement $gnmXML)
     {
         //    Loop through definedNames (global named ranges)
         if (isset($gnmXML->Names)) {
@@ -802,14 +802,14 @@ class Gnumeric extends BaseReader
         return $rotation;
     }
 
-    private static function addStyle(array &$styleArray, string $key, string $value): void
+    private static function addStyle(array &$styleArray, string $key, string $value)
     {
         if (array_key_exists($value, self::$mappings[$key])) {
             $styleArray[$key] = self::$mappings[$key][$value];
         }
     }
 
-    private static function addStyle2(array &$styleArray, string $key1, string $key, string $value): void
+    private static function addStyle2(array &$styleArray, string $key1, string $key, string $value)
     {
         if (array_key_exists($value, self::$mappings[$key])) {
             $styleArray[$key1][$key] = self::$mappings[$key][$value];
@@ -846,7 +846,7 @@ class Gnumeric extends BaseReader
         return $gnmR . $gnmG . $gnmB;
     }
 
-    private function addColors(array &$styleArray, SimpleXMLElement $styleAttributes): void
+    private function addColors(array &$styleArray, SimpleXMLElement $styleAttributes)
     {
         $RGB = self::parseGnumericColour($styleAttributes['Fore']);
         $styleArray['font']['color']['rgb'] = $RGB;

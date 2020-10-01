@@ -36,7 +36,7 @@ class HashTable
      *
      * @param IComparable[] $pSource Source array to create HashTable from
      */
-    public function addFromSource(?array $pSource = null): void
+    public function addFromSource($pSource = null)
     {
         // Check if an array was passed
         if ($pSource == null) {
@@ -53,7 +53,7 @@ class HashTable
      *
      * @param IComparable $pSource Item to add
      */
-    public function add(IComparable $pSource): void
+    public function add(IComparable $pSource)
     {
         $hash = $pSource->getHashCode();
         if (!isset($this->items[$hash])) {
@@ -67,7 +67,7 @@ class HashTable
      *
      * @param IComparable $pSource Item to remove
      */
-    public function remove(IComparable $pSource): void
+    public function remove(IComparable $pSource)
     {
         $hash = $pSource->getHashCode();
         if (isset($this->items[$hash])) {
@@ -90,7 +90,7 @@ class HashTable
     /**
      * Clear HashTable.
      */
-    public function clear(): void
+    public function clear()
     {
         $this->items = [];
         $this->keyMap = [];

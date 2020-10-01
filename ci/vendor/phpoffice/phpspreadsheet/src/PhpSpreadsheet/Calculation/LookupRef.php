@@ -98,9 +98,11 @@ class LookupRef
                 return (int) Coordinate::columnIndexFromString($columnKey);
             }
         } else {
-            [$sheet, $cellAddress] = Worksheet::extractSheetTitle($cellAddress, true);
+            $sheet = Worksheet::extractSheetTitle($cellAddress, true)[0];
+            $cellAddress = Worksheet::extractSheetTitle($cellAddress, true)[1];
             if (strpos($cellAddress, ':') !== false) {
-                [$startAddress, $endAddress] = explode(':', $cellAddress);
+                $startAddress = explode(':', $cellAddress)[0];
+                $endAddress = explode(':', $cellAddress)[1];
                 $startAddress = preg_replace('/[^a-z]/i', '', $startAddress);
                 $endAddress = preg_replace('/[^a-z]/i', '', $endAddress);
                 $returnValue = [];
@@ -138,7 +140,8 @@ class LookupRef
 
         reset($cellAddress);
         $isMatrix = (is_numeric(key($cellAddress)));
-        [$columns, $rows] = Calculation::getMatrixDimensions($cellAddress);
+        $columns = Calculation::getMatrixDimensions($cellAddress)[0];
+        $rows = Calculation::getMatrixDimensions($cellAddress)[1];
 
         if ($isMatrix) {
             return $rows;
@@ -175,9 +178,11 @@ class LookupRef
                 }
             }
         } else {
-            [$sheet, $cellAddress] = Worksheet::extractSheetTitle($cellAddress, true);
+            $sheet = Worksheet::extractSheetTitle($cellAddress, true)[0];
+            $cellAddress = Worksheet::extractSheetTitle($cellAddress, true)[1];
             if (strpos($cellAddress, ':') !== false) {
-                [$startAddress, $endAddress] = explode(':', $cellAddress);
+                $startAddress = explode(':', $cellAddress)[0];
+                $endAddress = explode(':', $cellAddress)[1];
                 $startAddress = preg_replace('/\D/', '', $startAddress);
                 $endAddress = preg_replace('/\D/', '', $endAddress);
                 $returnValue = [];
@@ -187,7 +192,7 @@ class LookupRef
 
                 return $returnValue;
             }
-            [$cellAddress] = explode(':', $cellAddress);
+            $cellAddress = explode(':', $cellAddress)[0];
 
             return (int) preg_replace('/\D/', '', $cellAddress);
         }
@@ -215,7 +220,8 @@ class LookupRef
 
         reset($cellAddress);
         $isMatrix = (is_numeric(key($cellAddress)));
-        [$columns, $rows] = Calculation::getMatrixDimensions($cellAddress);
+        $columns = Calculation::getMatrixDimensions($cellAddress)[0];
+        $rows = Calculation::getMatrixDimensions($cellAddress)[1];
 
         if ($isMatrix) {
             return $columns;
@@ -236,7 +242,7 @@ class LookupRef
      *
      * @return mixed The value of $displayName (or $linkURL if $displayName was blank)
      */
-    public static function HYPERLINK($linkURL = '', $displayName = null, ?Cell $pCell = null)
+    public static function HYPERLINK($linkURL = '', $displayName = null, $pCell = null)
     {
         $linkURL = ($linkURL === null) ? '' : Functions::flattenSingleValue($linkURL);
         $displayName = ($displayName === null) ? '' : Functions::flattenSingleValue($displayName);
@@ -273,7 +279,7 @@ class LookupRef
      *
      * @TODO    Support for the optional a1 parameter introduced in Excel 2010
      */
-    public static function INDIRECT($cellAddress = null, ?Cell $pCell = null)
+    public static function INDIRECT($cellAddress = null, $pCell = null)
     {
         $cellAddress = Functions::flattenSingleValue($cellAddress);
         if ($cellAddress === null || $cellAddress === '') {
@@ -283,7 +289,8 @@ class LookupRef
         $cellAddress1 = $cellAddress;
         $cellAddress2 = null;
         if (strpos($cellAddress, ':') !== false) {
-            [$cellAddress1, $cellAddress2] = explode(':', $cellAddress);
+            $cellAddress1 = explode(':', $cellAddress)[0];
+            $cellAddress2 = explode(':', $cellAddress)[1];
         }
 
         if ((!preg_match('/^' . Calculation::CALCULATION_REGEXP_CELLREF . '$/i', $cellAddress1, $matches)) ||
@@ -293,7 +300,8 @@ class LookupRef
             }
 
             if (strpos($cellAddress, '!') !== false) {
-                [$sheetName, $cellAddress] = Worksheet::extractSheetTitle($cellAddress, true);
+                $sheetName = Worksheet::extractSheetTitle($cellAddress, true)[0];
+                $cellAddress = Worksheet::extractSheetTitle($cellAddress, true)[1];
                 $sheetName = trim($sheetName, "'");
                 $pSheet = $pCell->getWorksheet()->getParent()->getSheetByName($sheetName);
             } else {
@@ -304,7 +312,8 @@ class LookupRef
         }
 
         if (strpos($cellAddress, '!') !== false) {
-            [$sheetName, $cellAddress] = Worksheet::extractSheetTitle($cellAddress, true);
+            $sheetName = Worksheet::extractSheetTitle($cellAddress, true)[0];
+            $cellAddress = Worksheet::extractSheetTitle($cellAddress, true)[1];
             $sheetName = trim($sheetName, "'");
             $pSheet = $pCell->getWorksheet()->getParent()->getSheetByName($sheetName);
         } else {
@@ -340,7 +349,7 @@ class LookupRef
      *
      * @return string A reference to a cell or range of cells
      */
-    public static function OFFSET($cellAddress = null, $rows = 0, $columns = 0, $height = null, $width = null, ?Cell $pCell = null)
+    public static function OFFSET($cellAddress = null, $rows = 0, $columns = 0, $height = null, $width = null, $pCell = null)
     {
         $rows = Functions::flattenSingleValue($rows);
         $columns = Functions::flattenSingleValue($columns);
@@ -356,16 +365,20 @@ class LookupRef
 
         $sheetName = null;
         if (strpos($cellAddress, '!')) {
-            [$sheetName, $cellAddress] = Worksheet::extractSheetTitle($cellAddress, true);
+            $sheetName = Worksheet::extractSheetTitle($cellAddress, true)[0];
+            $cellAddress = Worksheet::extractSheetTitle($cellAddress, true)[1];
             $sheetName = trim($sheetName, "'");
         }
         if (strpos($cellAddress, ':')) {
-            [$startCell, $endCell] = explode(':', $cellAddress);
+            $startCell = explode(':', $cellAddress)[0];
+            $endCell = explode(':', $cellAddress)[1];
         } else {
             $startCell = $endCell = $cellAddress;
         }
-        [$startCellColumn, $startCellRow] = Coordinate::coordinateFromString($startCell);
-        [$endCellColumn, $endCellRow] = Coordinate::coordinateFromString($endCell);
+        $startCellColumn = Coordinate::coordinateFromString($startCell)[0];
+        $startCellRow = Coordinate::coordinateFromString($startCell)[1];
+        $endCellColumn = Coordinate::coordinateFromString($endCell)[0];
+        $endCellRow = Coordinate::coordinateFromString($endCell)[1];
 
         $startCellRow += $rows;
         $startCellColumn = Coordinate::columnIndexFromString($startCellColumn) - 1;
@@ -934,7 +947,7 @@ class LookupRef
      *
      * @return string
      */
-    public static function FORMULATEXT($cellReference = '', ?Cell $pCell = null)
+    public static function FORMULATEXT($cellReference = '', $pCell = null)
     {
         if ($pCell === null) {
             return Functions::REF();

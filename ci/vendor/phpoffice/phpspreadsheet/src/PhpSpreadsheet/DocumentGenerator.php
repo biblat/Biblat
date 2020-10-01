@@ -33,20 +33,21 @@ class DocumentGenerator
         return $result;
     }
 
-    private static function getCategories(): array
+    private static function getCategories()//array
     {
         return (new ReflectionClass(Category::class))->getConstants();
     }
 
-    private static function tableRow(array $lengths, ?array $values = null): string
+    private static function tableRow(array $lengths, $values = null): string
     {
         $result = '';
-        foreach (array_map(null, $lengths, $values ?? []) as $i => [$length, $value]) {
-            $pad = $value === null ? '-' : ' ';
+//        foreach (array_map(null, $lengths, (isset($values)? $values : [])) as $i => [$length, $value]) {
+        foreach (array_map(null, $lengths, (isset($values)? $values : [])) as $i => $val) {
+            $pad = $val[1] === null ? '-' : ' ';
             if ($i > 0) {
                 $result .= '|' . $pad;
             }
-            $result .= str_pad($value ?? '', $length, $pad);
+            $result .= str_pad(isset($val[1]) ? $val[1] : '', $val[0], $pad);
         }
 
         return rtrim($result, ' ');

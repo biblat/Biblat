@@ -17,7 +17,7 @@ class Hyperlinks
         $this->worksheet = $workSheet;
     }
 
-    public function readHyperlinks(SimpleXMLElement $relsWorksheet): void
+    public function readHyperlinks(SimpleXMLElement $relsWorksheet)
     {
         foreach ($relsWorksheet->Relationship as $element) {
             if ($element['Type'] == 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink') {
@@ -26,14 +26,14 @@ class Hyperlinks
         }
     }
 
-    public function setHyperlinks(SimpleXMLElement $worksheetXml): void
+    public function setHyperlinks(SimpleXMLElement $worksheetXml)
     {
         foreach ($worksheetXml->hyperlink as $hyperlink) {
             $this->setHyperlink($hyperlink, $this->worksheet);
         }
     }
 
-    private function setHyperlink(SimpleXMLElement $hyperlink, Worksheet $worksheet): void
+    private function setHyperlink(SimpleXMLElement $hyperlink, Worksheet $worksheet)
     {
         // Link url
         $linkRel = $hyperlink->attributes('http://schemas.openxmlformats.org/officeDocument/2006/relationships');

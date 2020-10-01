@@ -17,7 +17,7 @@ class Bigint
      *
      * @param int $value
      */
-    public function __construct(int $value = 0)
+    public function __construct($value = 0)
     {
         $this->fillBytes($value, 0, 8);
     }
@@ -30,7 +30,7 @@ class Bigint
      * @param int $count
      * @return void
      */
-    protected function fillBytes(int $value, int $start, int $count): void
+    protected function fillBytes($value, $start, $count)
     {
         for ($i = 0; $i < $count; $i++) {
             $this->bytes[$start + $i] = $i >= PHP_INT_SIZE ? 0 : $value & 0xFF;
@@ -44,7 +44,7 @@ class Bigint
      * @param int $value
      * @return Bigint
      */
-    public static function init(int $value = 0): self
+    public static function init($value = 0)
     {
         return new self($value);
     }
@@ -56,7 +56,7 @@ class Bigint
      * @param int $high
      * @return Bigint
      */
-    public static function fromLowHigh(int $low, int $high): self
+    public static function fromLowHigh(int $low, int $high)
     {
         $bigint = new Bigint();
         $bigint->fillBytes($low, 0, 4);
@@ -69,7 +69,7 @@ class Bigint
      *
      * @return int
      */
-    public function getHigh32(): int
+    public function getHigh32() //int
     {
         return $this->getValue(4, 4);
     }
@@ -81,7 +81,7 @@ class Bigint
      * @param int $length
      * @return int
      */
-    public function getValue(int $end = 0, int $length = 8): int
+    public function getValue($end = 0,$length = 8)
     {
         $result = 0;
         for ($i = $end + $length - 1; $i >= $end; $i--) {
@@ -97,7 +97,7 @@ class Bigint
      * @param bool $force
      * @return float
      */
-    public function getLowFF(bool $force = false): float
+    public function getLowFF($force = false)
     {
         if ($force || $this->isOver32()) {
             return (float)0xFFFFFFFF;
@@ -111,7 +111,7 @@ class Bigint
      * @param bool $force
      * @return bool
      */
-    public function isOver32(bool $force = false): bool
+    public function isOver32($force = false)
     {
         // value 0xFFFFFFFF already needs a Zip64 header
         return $force ||
@@ -124,7 +124,7 @@ class Bigint
      *
      * @return int
      */
-    public function getLow32(): int
+    public function getLow32() //int
     {
         return $this->getValue(0, 4);
     }
@@ -134,7 +134,7 @@ class Bigint
      *
      * @return string
      */
-    public function getHex64(): string
+    public function getHex64() //string
     {
         $result = '0x';
         for ($i = 7; $i >= 0; $i--) {
@@ -149,7 +149,7 @@ class Bigint
      * @param Bigint $other
      * @return Bigint
      */
-    public function add(Bigint $other): Bigint
+    public function add(Bigint $other)
     {
         $result = clone $this;
         $overflow = false;

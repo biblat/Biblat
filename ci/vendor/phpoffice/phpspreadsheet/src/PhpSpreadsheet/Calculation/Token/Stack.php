@@ -49,7 +49,7 @@ class Stack
         $storeKey = null,
         $onlyIf = null,
         $onlyIfNot = null
-    ): void {
+    ) {
         $stackItem = $this->getStackItem($type, $value, $reference, $storeKey, $onlyIf, $onlyIfNot);
 
         $this->stack[$this->count++] = $stackItem;
@@ -124,7 +124,7 @@ class Stack
     /**
      * Clear the stack.
      */
-    public function clear(): void
+    public function clear()
     {
         $this->stack = [];
         $this->count = 0;
@@ -137,7 +137,7 @@ class Stack
             if ($index > $this->count - 1) {
                 break;
             }
-            $value = $item['value'] ?? 'no value';
+            $value = isset($item['value']) ? $item['value'] : 'no value';
             while (is_array($value)) {
                 $value = array_pop($value);
             }

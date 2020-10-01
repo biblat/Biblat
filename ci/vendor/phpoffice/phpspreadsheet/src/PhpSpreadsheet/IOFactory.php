@@ -191,7 +191,7 @@ abstract class IOFactory
      * @param string $writerType
      * @param string $writerClass
      */
-    public static function registerWriter($writerType, $writerClass): void
+    public static function registerWriter($writerType, $writerClass)
     {
         if (!is_a($writerClass, Writer\IWriter::class, true)) {
             throw new Writer\Exception('Registered writers must implement ' . Writer\IWriter::class);
@@ -206,7 +206,7 @@ abstract class IOFactory
      * @param string $readerType
      * @param string $readerClass
      */
-    public static function registerReader($readerType, $readerClass): void
+    public static function registerReader($readerType, $readerClass)
     {
         if (!is_a($readerClass, Reader\IReader::class, true)) {
             throw new Reader\Exception('Registered readers must implement ' . Reader\IReader::class);

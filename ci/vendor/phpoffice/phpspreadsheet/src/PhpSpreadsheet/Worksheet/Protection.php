@@ -614,7 +614,7 @@ class Protection
     /**
      * Create a pseudorandom string.
      */
-    private function generateSalt(): string
+    private function generateSalt()//string
     {
         return base64_encode(random_bytes(16));
     }
@@ -622,7 +622,7 @@ class Protection
     /**
      * Get algorithm name.
      */
-    public function getAlgorithm(): string
+    public function getAlgorithm()//string
     {
         return $this->algorithm;
     }
@@ -630,7 +630,7 @@ class Protection
     /**
      * Set algorithm name.
      */
-    public function setAlgorithm(string $algorithm): void
+    public function setAlgorithm(string $algorithm)
     {
         $this->algorithm = $algorithm;
     }
@@ -638,7 +638,7 @@ class Protection
     /**
      * Get salt value.
      */
-    public function getSalt(): string
+    public function getSalt()//string
     {
         return $this->salt;
     }
@@ -646,7 +646,7 @@ class Protection
     /**
      * Set salt value.
      */
-    public function setSalt(string $salt): void
+    public function setSalt(string $salt)
     {
         $this->salt = $salt;
     }
@@ -654,7 +654,7 @@ class Protection
     /**
      * Get spin count.
      */
-    public function getSpinCount(): int
+    public function getSpinCount()//int
     {
         return $this->spinCount;
     }
@@ -662,7 +662,7 @@ class Protection
     /**
      * Set spin count.
      */
-    public function setSpinCount(int $spinCount): void
+    public function setSpinCount(int $spinCount)
     {
         $this->spinCount = $spinCount;
     }
@@ -670,7 +670,7 @@ class Protection
     /**
      * Verify that the given non-hashed password can "unlock" the protection.
      */
-    public function verify(string $password): bool
+    public function verify(string $password)
     {
         if (!$this->isProtectionEnabled()) {
             return true;

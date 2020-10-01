@@ -205,7 +205,7 @@ class ContentTypes extends WriterPart
      * @param string $pPartname Part name
      * @param string $pContentType Content type
      */
-    private function writeDefaultContentType(XMLWriter $objWriter, $pPartname, $pContentType): void
+    private function writeDefaultContentType(XMLWriter $objWriter, $pPartname, $pContentType)
     {
         if ($pPartname != '' && $pContentType != '') {
             // Write content type
@@ -225,7 +225,7 @@ class ContentTypes extends WriterPart
      * @param string $pPartname Part name
      * @param string $pContentType Content type
      */
-    private function writeOverrideContentType(XMLWriter $objWriter, $pPartname, $pContentType): void
+    private function writeOverrideContentType(XMLWriter $objWriter, $pPartname, $pContentType)
     {
         if ($pPartname != '' && $pContentType != '') {
             // Write content type

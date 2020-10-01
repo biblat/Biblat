@@ -13,7 +13,7 @@ class ColumnAndRowAttributes extends BaseParserClass
 
     private $worksheetXml;
 
-    public function __construct(Worksheet $workSheet, ?SimpleXMLElement $worksheetXml = null)
+    public function __construct(Worksheet $workSheet, $worksheetXml = null)
     {
         $this->worksheet = $workSheet;
         $this->worksheetXml = $worksheetXml;
@@ -26,7 +26,7 @@ class ColumnAndRowAttributes extends BaseParserClass
      * @param array $columnAttributes array of attributes (indexes are attribute name, values are value)
      *                               'xfIndex', 'visible', 'collapsed', 'outlineLevel', 'width', ... ?
      */
-    private function setColumnAttributes($columnAddress, array $columnAttributes): void
+    private function setColumnAttributes($columnAddress, array $columnAttributes)
     {
         if (isset($columnAttributes['xfIndex'])) {
             $this->worksheet->getColumnDimension($columnAddress)->setXfIndex($columnAttributes['xfIndex']);
@@ -52,7 +52,7 @@ class ColumnAndRowAttributes extends BaseParserClass
      * @param array $rowAttributes array of attributes (indexes are attribute name, values are value)
      *                               'xfIndex', 'visible', 'collapsed', 'outlineLevel', 'rowHeight', ... ?
      */
-    private function setRowAttributes($rowNumber, array $rowAttributes): void
+    private function setRowAttributes($rowNumber, array $rowAttributes)
     {
         if (isset($rowAttributes['xfIndex'])) {
             $this->worksheet->getRowDimension($rowNumber)->setXfIndex($rowAttributes['xfIndex']);
@@ -75,7 +75,7 @@ class ColumnAndRowAttributes extends BaseParserClass
      * @param IReadFilter $readFilter
      * @param bool $readDataOnly
      */
-    public function load(?IReadFilter $readFilter = null, $readDataOnly = false): void
+    public function load($readFilter = null, $readDataOnly = false)
     {
         if ($this->worksheetXml === null) {
             return;

@@ -373,7 +373,7 @@ class DataSeries
         return $this;
     }
 
-    public function refresh(Worksheet $worksheet): void
+    public function refresh(Worksheet $worksheet)
     {
         foreach ($this->plotValues as $plotValues) {
             if ($plotValues !== null) {

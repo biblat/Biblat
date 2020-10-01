@@ -290,7 +290,7 @@ class Main extends CI_Controller{
 
         }
         
-        function sendMail(
+        /*function sendMail(
             array $fileAttachments,
             string $mailMessage = MAIL_CONF["mailMessage"],
             string $subject     = MAIL_CONF["subject"],
@@ -329,7 +329,7 @@ class Main extends CI_Controller{
             $message .= $boundWithPre."--";
 
             return mail($toAddress, $subject, $message, $headers);
-        }
+        }*/
         
         public function preevaluacion(){
             $data = array();
@@ -372,11 +372,11 @@ class Main extends CI_Controller{
             
             $writer = new Xlsx($spreadsheet);
             if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN))
-                $writer->save('Preevaluación_'.$_POST['issn'].'.xlsx');
+                $writer->save('Preevaluacion_'.$_POST['issn'].'.xlsx');
             else
-                $writer->save('Preevaluación_'.$_POST['correo'].'.xlsx');
+                $writer->save('Preevaluacion_'.$_POST['correo'].'.xlsx');
             
-            $name = basename('Carta de Postulación', '.php');
+            $name = basename('Carta de Postulacion', '.php');
             $source = "archivos/{$name}.docx";
             
             if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
@@ -429,7 +429,7 @@ class Main extends CI_Controller{
                     }
                 }
                 $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($documento, "Word2007");
-                $objWriter->save("Carta de postulación_".$_POST['issn'].".docx");
+                $objWriter->save("Carta de postulacion_".$_POST['issn'].".docx");
             }
             
             if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
@@ -455,14 +455,14 @@ class Main extends CI_Controller{
             $mensaje = wordwrap($mensaje, 70, "\r\n");
             
             if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
-                $correos = $_POST['correo'].",biblat_comite@dgb.unam.mx";
+                $correos = $_POST['correo'].",eduranm@dgb.unam.mx";
                 $arraydocs = array(
-                    "Carta de postulación_".$_POST['issn'].".docx",'Preevaluación_'.$_POST['issn'].'.xlsx'
+                    "Carta de postulación_".$_POST['issn'].".docx",'Preevaluacion_'.$_POST['issn'].'.xlsx'
                 );
             }else{
                 $correos = $_POST['correo'];
                 $arraydocs = array(
-                    'Preevaluación_'.$_POST['correo'].'.xlsx'
+                    'Preevaluacion_'.$_POST['correo'].'.xlsx'
                 );
             }
             
@@ -476,10 +476,10 @@ class Main extends CI_Controller{
             
             if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
                 unlink("Carta de postulación_".$_POST['issn'].".docx");
-                unlink('Preevaluación_'.$_POST['issn'].'.xlsx');
+                unlink('Preevaluacion_'.$_POST['issn'].'.xlsx');
             }
             else
-                unlink('Preevaluación_'.$_POST['correo'].'.xlsx');
+                unlink('Preevaluacion_'.$_POST['correo'].'.xlsx');
 
         }
 

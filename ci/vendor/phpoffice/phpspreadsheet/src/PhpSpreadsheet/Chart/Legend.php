@@ -54,7 +54,7 @@ class Legend
      * @param string $position
      * @param bool $overlay
      */
-    public function __construct($position = self::POSITION_RIGHT, ?Layout $layout = null, $overlay = false)
+    public function __construct($position = self::POSITION_RIGHT, $layout = null, $overlay = false)
     {
         $this->setPosition($position);
         $this->layout = $layout;

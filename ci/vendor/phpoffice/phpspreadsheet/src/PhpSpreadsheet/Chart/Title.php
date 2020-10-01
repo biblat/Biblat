@@ -23,7 +23,7 @@ class Title
      *
      * @param null|mixed $caption
      */
-    public function __construct($caption = null, ?Layout $layout = null)
+    public function __construct($caption = null, $layout = null)
     {
         $this->caption = $caption;
         $this->layout = $layout;

@@ -60,7 +60,7 @@ class Trend
             $nX = $nY;
         } elseif ($nY != $nX) {
             //    Ensure both arrays of points are the same size
-            trigger_error('Trend(): Number of elements in coordinate arrays do not match.', E_USER_ERROR);
+            trigger_error('Trend()//Number of elements in coordinate arrays do not match.', E_USER_ERROR);
         }
 
         $key = md5($trendType . $const . serialize($yValues) . serialize($xValues));

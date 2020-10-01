@@ -33,14 +33,14 @@ class Styles extends BaseParserClass
         $this->styleXml = $styleXml;
     }
 
-    public function setStyleBaseData(?Theme $theme = null, $styles = [], $cellStyles = []): void
+    public function setStyleBaseData($theme = null, $styles = [], $cellStyles = [])
     {
         self::$theme = $theme;
         $this->styles = $styles;
         $this->cellStyles = $cellStyles;
     }
 
-    private static function readFontStyle(Font $fontStyle, SimpleXMLElement $fontStyleXml): void
+    private static function readFontStyle(Font $fontStyle, SimpleXMLElement $fontStyleXml)
     {
         $fontStyle->setName((string) $fontStyleXml->name['val']);
         $fontStyle->setSize((float) $fontStyleXml->sz['val']);
@@ -73,7 +73,7 @@ class Styles extends BaseParserClass
         }
     }
 
-    private static function readNumberFormat(NumberFormat $numfmtStyle, SimpleXMLElement $numfmtStyleXml): void
+    private static function readNumberFormat(NumberFormat $numfmtStyle, SimpleXMLElement $numfmtStyleXml)
     {
         if ($numfmtStyleXml->count() === 0) {
             return;
@@ -84,7 +84,7 @@ class Styles extends BaseParserClass
         }
     }
 
-    private static function readFillStyle(Fill $fillStyle, SimpleXMLElement $fillStyleXml): void
+    private static function readFillStyle(Fill $fillStyle, SimpleXMLElement $fillStyleXml)
     {
         if ($fillStyleXml->gradientFill) {
             /** @var SimpleXMLElement $gradientFill */
@@ -110,7 +110,7 @@ class Styles extends BaseParserClass
         }
     }
 
-    private static function readBorderStyle(Borders $borderStyle, SimpleXMLElement $borderStyleXml): void
+    private static function readBorderStyle(Borders $borderStyle, SimpleXMLElement $borderStyleXml)
     {
         $diagonalUp = self::boolean((string) $borderStyleXml['diagonalUp']);
         $diagonalDown = self::boolean((string) $borderStyleXml['diagonalDown']);
@@ -131,7 +131,7 @@ class Styles extends BaseParserClass
         self::readBorder($borderStyle->getDiagonal(), $borderStyleXml->diagonal);
     }
 
-    private static function readBorder(Border $border, SimpleXMLElement $borderXml): void
+    private static function readBorder(Border $border, SimpleXMLElement $borderXml)
     {
         if (isset($borderXml['style'])) {
             $border->setBorderStyle((string) $borderXml['style']);
@@ -141,7 +141,7 @@ class Styles extends BaseParserClass
         }
     }
 
-    private static function readAlignmentStyle(Alignment $alignment, SimpleXMLElement $alignmentXml): void
+    private static function readAlignmentStyle(Alignment $alignment, SimpleXMLElement $alignmentXml)
     {
         $alignment->setHorizontal((string) $alignmentXml->alignment['horizontal']);
         $alignment->setVertical((string) $alignmentXml->alignment['vertical']);
@@ -160,7 +160,7 @@ class Styles extends BaseParserClass
         $alignment->setReadOrder((int) ((string) $alignmentXml->alignment['readingOrder']) > 0 ? (int) ((string) $alignmentXml->alignment['readingOrder']) : 0);
     }
 
-    private function readStyle(Style $docStyle, $style): void
+    private function readStyle(Style $docStyle, $style)
     {
         if ($style->numFmt instanceof SimpleXMLElement) {
             self::readNumberFormat($docStyle->getNumberFormat(), $style->numFmt);
@@ -196,7 +196,7 @@ class Styles extends BaseParserClass
         }
     }
 
-    private function readProtectionLocked(Style $docStyle, $style): void
+    private function readProtectionLocked(Style $docStyle, $style)
     {
         if (isset($style->protection['locked'])) {
             if (self::boolean((string) $style->protection['locked'])) {
@@ -207,7 +207,7 @@ class Styles extends BaseParserClass
         }
     }
 
-    private function readProtectionHidden(Style $docStyle, $style): void
+    private function readProtectionHidden(Style $docStyle, $style)
     {
         if (isset($style->protection['hidden'])) {
             if (self::boolean((string) $style->protection['hidden'])) {
@@ -277,6 +277,6 @@ class Styles extends BaseParserClass
 
     private static function getArrayItem($array, $key = 0)
     {
-        return $array[$key] ?? null;
+        return isset($array[$key]) ? $array[$key] : null;
     }
 }

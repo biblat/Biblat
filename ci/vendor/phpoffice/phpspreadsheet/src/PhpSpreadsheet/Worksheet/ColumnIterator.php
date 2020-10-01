@@ -119,7 +119,7 @@ class ColumnIterator implements Iterator
     /**
      * Rewind the iterator to the starting column.
      */
-    public function rewind(): void
+    public function rewind()
     {
         $this->currentColumnIndex = $this->startColumnIndex;
     }
@@ -147,7 +147,7 @@ class ColumnIterator implements Iterator
     /**
      * Set the iterator to its next value.
      */
-    public function next(): void
+    public function next()
     {
         ++$this->currentColumnIndex;
     }
@@ -155,7 +155,7 @@ class ColumnIterator implements Iterator
     /**
      * Set the iterator to its previous value.
      */
-    public function prev(): void
+    public function prev()
     {
         --$this->currentColumnIndex;
     }

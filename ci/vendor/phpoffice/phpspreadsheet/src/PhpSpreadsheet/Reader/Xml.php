@@ -652,7 +652,7 @@ class Xml extends BaseReader
         return $value;
     }
 
-    private function parseStyles(SimpleXMLElement $xml, array $namespaces): void
+    private function parseStyles(SimpleXMLElement $xml, array $namespaces)
     {
         if (!isset($xml->Styles)) {
             return;
@@ -693,7 +693,7 @@ class Xml extends BaseReader
     /**
      * @param string $styleID
      */
-    private function parseStyleAlignment($styleID, SimpleXMLElement $styleAttributes): void
+    private function parseStyleAlignment($styleID, SimpleXMLElement $styleAttributes)
     {
         $verticalAlignmentStyles = [
             Alignment::VERTICAL_BOTTOM,
@@ -736,7 +736,7 @@ class Xml extends BaseReader
     /**
      * @param $styleID
      */
-    private function parseStyleBorders($styleID, SimpleXMLElement $styleData, array $namespaces): void
+    private function parseStyleBorders($styleID, SimpleXMLElement $styleData, array $namespaces)
     {
         foreach ($styleData->Border as $borderStyle) {
             $borderAttributes = $borderStyle->attributes($namespaces['ss']);
@@ -771,7 +771,7 @@ class Xml extends BaseReader
     /**
      * @param $styleID
      */
-    private function parseStyleFont($styleID, SimpleXMLElement $styleAttributes): void
+    private function parseStyleFont($styleID, SimpleXMLElement $styleAttributes)
     {
         $underlineStyles = [
             Font::UNDERLINE_NONE,
@@ -817,7 +817,7 @@ class Xml extends BaseReader
     /**
      * @param $styleID
      */
-    private function parseStyleInterior($styleID, SimpleXMLElement $styleAttributes): void
+    private function parseStyleInterior($styleID, SimpleXMLElement $styleAttributes)
     {
         foreach ($styleAttributes as $styleAttributeKey => $styleAttributeValue) {
             switch ($styleAttributeKey) {
@@ -836,7 +836,7 @@ class Xml extends BaseReader
     /**
      * @param $styleID
      */
-    private function parseStyleNumberFormat($styleID, SimpleXMLElement $styleAttributes): void
+    private function parseStyleNumberFormat($styleID, SimpleXMLElement $styleAttributes)
     {
         $fromFormats = ['\-', '\ '];
         $toFormats = ['-', ' '];

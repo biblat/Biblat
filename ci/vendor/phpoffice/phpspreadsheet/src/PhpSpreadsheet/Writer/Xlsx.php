@@ -176,7 +176,7 @@ class Xlsx extends BaseWriter
      *
      * @param resource|string $pFilename
      */
-    public function save($pFilename): void
+    public function save($pFilename)
     {
         if ($this->spreadSheet !== null) {
             // garbage collect
@@ -546,7 +546,7 @@ class Xlsx extends BaseWriter
 
     private $pathNames = [];
 
-    private function addZipFile(string $path, string $content): void
+    private function addZipFile($path, $content)
     {
         if (!in_array($path, $this->pathNames)) {
             $this->pathNames[] = $path;

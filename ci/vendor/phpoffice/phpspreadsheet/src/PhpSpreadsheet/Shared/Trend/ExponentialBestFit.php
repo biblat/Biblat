@@ -90,7 +90,7 @@ class ExponentialBestFit extends BestFit
      * @param float[] $xValues The set of X-values for this regression
      * @param bool $const
      */
-    private function exponentialRegression($yValues, $xValues, $const): void
+    private function exponentialRegression($yValues, $xValues, $const)
     {
         foreach ($yValues as &$value) {
             if ($value < 0.0) {

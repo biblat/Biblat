@@ -234,7 +234,7 @@ class Conditional implements IComparable
      *
      * @return $this
      */
-    public function setStyle(?Style $pValue = null)
+    public function setStyle($pValue = null)
     {
         $this->style = $pValue;
 

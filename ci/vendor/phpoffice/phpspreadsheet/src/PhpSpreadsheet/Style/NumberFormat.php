@@ -228,7 +228,7 @@ class NumberFormat extends Supervisor
     /**
      * Fill built-in format codes.
      */
-    private static function fillBuiltInFormatCodes(): void
+    private static function fillBuiltInFormatCodes()
     {
         //  [MS-OI29500: Microsoft Office Implementation Information for ISO/IEC-29500 Standard Compliance]
         //  18.8.30. numFmt (Number Format)
@@ -463,7 +463,7 @@ class NumberFormat extends Supervisor
         return '\\' . implode('\\', str_split($matches[1]));
     }
 
-    private static function formatAsDate(&$value, &$format): void
+    private static function formatAsDate(&$value, &$format)
     {
         // strip off first part containing e.g. [$-F800] or [$USD-409]
         // general syntax: [$<Currency string>-<language info>]
@@ -505,7 +505,7 @@ class NumberFormat extends Supervisor
         $value = $dateObj->format($format);
     }
 
-    private static function formatAsPercentage(&$value, &$format): void
+    private static function formatAsPercentage(&$value, &$format)
     {
         if ($format === self::FORMAT_PERCENTAGE) {
             $value = round((100 * $value), 0) . '%';
@@ -523,7 +523,7 @@ class NumberFormat extends Supervisor
         }
     }
 
-    private static function formatAsFraction(&$value, &$format): void
+    private static function formatAsFraction(&$value, &$format)
     {
         $sign = ($value < 0) ? '-' : '';
 
@@ -718,7 +718,7 @@ class NumberFormat extends Supervisor
         if (preg_match('/\[\$(.*)\]/u', $format, $m)) {
             //  Currency or Accounting
             $currencyCode = $m[1];
-            [$currencyCode] = explode('-', $currencyCode);
+            $currencyCode = explode('-', $currencyCode)[0];
             if ($currencyCode == '') {
                 $currencyCode = StringHelper::getCurrencyCode();
             }
@@ -839,7 +839,9 @@ class NumberFormat extends Supervisor
         // Get the sections, there can be up to four sections, separated with a semi-colon (but only if not a quoted literal)
         $sections = preg_split('/(;)(?=(?:[^"]|"[^"]*")*$)/u', $format);
 
-        [$colors, $format, $value] = self::splitFormat($sections, $value);
+        $colors = self::splitFormat($sections, $value)[0];
+        $format = self::splitFormat($sections, $value)[1];
+        $value = self::splitFormat($sections, $value)[2];
 
         // In Excel formats, "_" is used to add spacing,
         //    The following character indicates the size of the spacing, which we can't do in HTML, so we just use a standard space
@@ -864,7 +866,8 @@ class NumberFormat extends Supervisor
 
         // Additional formatting provided by callback function
         if ($callBack !== null) {
-            [$writerInstance, $function] = $callBack;
+            $writerInstance = $callBack[0];
+            $function = $callBack[1];
             $value = $writerInstance->$function($value, $colors);
         }
 

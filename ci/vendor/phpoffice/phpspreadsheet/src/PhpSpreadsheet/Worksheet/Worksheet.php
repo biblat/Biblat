@@ -344,7 +344,7 @@ class Worksheet implements IComparable
      * @param Spreadsheet $parent
      * @param string $pTitle
      */
-    public function __construct(?Spreadsheet $parent = null, $pTitle = 'Worksheet')
+    public function __construct( $parent = null, $pTitle = 'Worksheet')
     {
         // Set parent and title
         $this->parent = $parent;
@@ -379,7 +379,7 @@ class Worksheet implements IComparable
      * Disconnect all cells from this Worksheet object,
      * typically so that the worksheet object can be unset.
      */
-    public function disconnectCells(): void
+    public function disconnectCells()
     {
         if ($this->cellCollection !== null) {
             $this->cellCollection->unsetWorksheetCells();
@@ -1536,7 +1536,8 @@ class Worksheet implements IComparable
         }
 
         // Calculate range outer borders
-        [$rangeStart, $rangeEnd] = Coordinate::rangeBoundaries($pRange . ':' . $pRange);
+        $rangeStart = Coordinate::rangeBoundaries($pRange . ':' . $pRange)[0];
+        $rangeEnd = Coordinate::rangeBoundaries($pRange . ':' . $pRange)[1];
 
         // Make sure we can loop upwards on rows and columns
         if ($rangeStart[0] > $rangeEnd[0] && $rangeStart[1] > $rangeEnd[1]) {
@@ -1574,7 +1575,8 @@ class Worksheet implements IComparable
         }
 
         // Calculate range outer borders
-        [$rangeStart, $rangeEnd] = Coordinate::rangeBoundaries($pRange . ':' . $pRange);
+        $rangeStart = Coordinate::rangeBoundaries($pRange . ':' . $pRange)[0];
+        $rangeEnd = Coordinate::rangeBoundaries($pRange . ':' . $pRange)[1];
 
         // Make sure we can loop upwards on rows and columns
         if ($rangeStart[0] > $rangeEnd[0] && $rangeStart[1] > $rangeEnd[1]) {
@@ -2384,7 +2386,7 @@ class Worksheet implements IComparable
         $pCoordinate = preg_replace('/^(\d+):(\d+)$/', 'A${1}:XFD${2}', $pCoordinate);
 
         if (Coordinate::coordinateIsRange($pCoordinate)) {
-            [$first] = Coordinate::splitRange($pCoordinate);
+            $first = Coordinate::splitRange($pCoordinate)[0];
             $this->activeCell = $first[0];
         } else {
             $this->activeCell = $pCoordinate;
@@ -2449,7 +2451,8 @@ class Worksheet implements IComparable
         }
 
         // start coordinate
-        [$startColumn, $startRow] = Coordinate::coordinateFromString($startCell);
+        $startColumn = Coordinate::coordinateFromString($startCell)[0];
+        $startRow = Coordinate::coordinateFromString($startCell)[1];
 
         // Loop through $source
         foreach ($source as $rowData) {
@@ -2491,7 +2494,8 @@ class Worksheet implements IComparable
         // Returnvalue
         $returnValue = [];
         //    Identify the range that we need to extract from the worksheet
-        [$rangeStart, $rangeEnd] = Coordinate::rangeBoundaries($pRange);
+        $rangeStart = Coordinate::rangeBoundaries($pRange)[0];
+        $rangeEnd = Coordinate::rangeBoundaries($pRange)[1];
         $minCol = Coordinate::stringFromColumnIndex($rangeStart[0]);
         $minRow = $rangeStart[1];
         $maxCol = Coordinate::stringFromColumnIndex($rangeEnd[0]);
@@ -2723,7 +2727,7 @@ class Worksheet implements IComparable
      *
      * @return $this
      */
-    public function setHyperlink($pCellCoordinate, ?Hyperlink $pHyperlink = null)
+    public function setHyperlink($pCellCoordinate, $pHyperlink = null)
     {
         if ($pHyperlink === null) {
             unset($this->hyperlinkCollection[$pCellCoordinate]);
@@ -2783,7 +2787,7 @@ class Worksheet implements IComparable
      *
      * @return $this
      */
-    public function setDataValidation($pCellCoordinate, ?DataValidation $pDataValidation = null)
+    public function setDataValidation($pCellCoordinate, $pDataValidation = null)
     {
         if ($pDataValidation === null) {
             unset($this->dataValidationCollection[$pCellCoordinate]);
