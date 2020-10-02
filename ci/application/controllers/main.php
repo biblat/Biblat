@@ -1,8 +1,6 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 require 'vendor/autoload.php';
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class Main extends CI_Controller{
 
@@ -290,47 +288,6 @@ class Main extends CI_Controller{
 
         }
         
-        /*function sendMail(
-            array $fileAttachments,
-            string $mailMessage = MAIL_CONF["mailMessage"],
-            string $subject     = MAIL_CONF["subject"],
-            string $toAddress   = MAIL_CONF["toAddress"],
-            string $fromMail    = MAIL_CONF["fromMail"]
-        ): bool {
-
-            $from           = $fromMail;
-            
-            $headers   = "From: $from";
-            $headers  .= "\nReply-To: $from";
-            
-            foreach ( $fileAttachments as $key => $fileAttachment ) {
-                $fileAttachment = trim($fileAttachment);
-                $pathInfo       = pathinfo($fileAttachment);
-                $attchmentName  .= "attachment_".$fileAttachment.date("YmdHms").(
-                (isset($pathInfo['extension']))? ".".$pathInfo['extension'] : ""
-                );
-
-                $attachment    = chunk_split(base64_encode(file_get_contents($fileAttachment)));
-                $boundary      = "PHP-mixed-".md5(time());
-                $boundWithPre  .= "\n--".$boundary;
-
-                $headers  .= "\nContent-Type: multipart/mixed; boundary=\"".$boundary."\"";
-            }
-
-            $message   = $boundWithPre;
-            $message  .= "\n Content-Type: text/plain; charset=UTF-8\n";
-            $message  .= "\n $mailMessage";
-
-            $message .= $boundWithPre;
-            $message .= "\nContent-Type: application/octet-stream; name=\"".$attchmentName."\"";
-            $message .= "\nContent-Transfer-Encoding: base64\n";
-            $message .= "\nContent-Disposition: attachment\n";
-            $message .= $attachment;
-            $message .= $boundWithPre."--";
-
-            return mail($toAddress, $subject, $message, $headers);
-        }*/
-        
         public function preevaluacion(){
             $data = array();
             $data['page_title'] = _('Preevaluación');
@@ -345,8 +302,8 @@ class Main extends CI_Controller{
         }
         
         public function createPlantilla(){
-        
-            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load("archivos/Plantilla.xlsx");
+            $spreadsheet = PHPExcel_IOFactory::load("archivos/Plantilla.xlsx");
+           
             $spreadsheet->setActiveSheetIndex(0);
             $sheet = $spreadsheet->getActiveSheet();
             if(!filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
@@ -370,7 +327,7 @@ class Main extends CI_Controller{
                     }
             } 
             
-            $writer = new Xlsx($spreadsheet);
+            $writer = PHPExcel_IOFactory::createWriter($spreadsheet, 'Excel2007');
             if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN))
                 $writer->save('Preevaluacion_'.$_POST['issn'].'.xlsx');
             else
@@ -455,9 +412,9 @@ class Main extends CI_Controller{
             $mensaje = wordwrap($mensaje, 70, "\r\n");
             
             if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
-                $correos = $_POST['correo'].",eduranm@dgb.unam.mx";
+                $correos = $_POST['correo']/*.",biblat_comite@dgb.unam.mx"*/;
                 $arraydocs = array(
-                    "Carta de postulación_".$_POST['issn'].".docx",'Preevaluacion_'.$_POST['issn'].'.xlsx'
+                    "Carta de postulacion_".$_POST['issn'].".docx",'Preevaluacion_'.$_POST['issn'].'.xlsx'
                 );
             }else{
                 $correos = $_POST['correo'];
@@ -475,7 +432,7 @@ class Main extends CI_Controller{
                     );
             
             if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
-                unlink("Carta de postulación_".$_POST['issn'].".docx");
+                unlink("Carta de postulacion_".$_POST['issn'].".docx");
                 unlink('Preevaluacion_'.$_POST['issn'].'.xlsx');
             }
             else
