@@ -333,7 +333,7 @@ class Main extends CI_Controller{
             else
                 $writer->save('Preevaluacion_'.$_POST['correo'].'.xlsx');
             
-            $name = basename('Carta de Postulacion', '.php');
+            $name = basename('CartaDePostulacion', '.php');
             $source = "archivos/{$name}.docx";
             
             if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
@@ -386,7 +386,7 @@ class Main extends CI_Controller{
                     }
                 }
                 $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($documento, "Word2007");
-                $objWriter->save("Carta de postulacion_".$_POST['issn'].".docx");
+                $objWriter->save("CartaDePostulacion_".$_POST['issn'].".docx");
             }
             
             if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
@@ -414,7 +414,7 @@ class Main extends CI_Controller{
             if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
                 $correos = $_POST['correo']/*.",biblat_comite@dgb.unam.mx"*/;
                 $arraydocs = array(
-                    "Carta de postulacion_".$_POST['issn'].".docx",'Preevaluacion_'.$_POST['issn'].'.xlsx'
+                    "CartaDePostulacion_".$_POST['issn'].".docx",'Preevaluacion_'.$_POST['issn'].'.xlsx'
                 );
             }else{
                 $correos = $_POST['correo'];
@@ -432,7 +432,7 @@ class Main extends CI_Controller{
                     );
             
             if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
-                unlink("Carta de postulacion_".$_POST['issn'].".docx");
+                unlink("CartaDePostulacion_".$_POST['issn'].".docx");
                 unlink('Preevaluacion_'.$_POST['issn'].'.xlsx');
             }
             else
