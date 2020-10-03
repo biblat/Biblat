@@ -360,6 +360,5 @@ $config['proxy_ips'] = '';
 $config['enable_profiler'] = ENVIRONMENT === "production" ? FALSE : TRUE;
 $config['valitation_email'] = '';
 
-
 /* End of file config.php */
 /* Location: ./application/config/config.php */
