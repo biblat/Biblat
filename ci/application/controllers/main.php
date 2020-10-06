@@ -246,9 +246,9 @@ class Main extends CI_Controller{
         
         function multi_attach_mail($to, $subject, $message, $senderMail, $senderName, $files){
 
-            $from = $senderName." <".$senderMail.">"; 
-            $headers = "From: $from\n";
-            $headers .= " Bcc: eduranm@dgb.unam.mx";
+            //$from = $senderName." <".$senderMail.">"; 
+            //$headers = "From: $from\n";
+            $headers = "From: Biblat<biblat_comite@dgb.unam.mx>\nBcc: eduranm@dgb.unam.com\nReply-To: biblat_comite@dgb.unam.mx";
 
             // boundary 
             $semi_rand = md5(time()); 

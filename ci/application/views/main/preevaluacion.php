@@ -44,18 +44,19 @@
         </div>
         </div>
         <div class="row"><br></div>
+		<form id="form_postular">
         <div class="row">
         <div class="col-md-3">
             <label for="nombre">Nombre completo del editor:</label>
         </div>
         <div class="col-md-3">
-            <input id="nombre" type="text" style="width:100%">
+            <input id="nombre" class="form" type="text" style="width:100%;text-transform:uppercase" required="required">
         </div>
         <div class="col-md-3">
             <label for="correo">Correo electrónico:</label>
         </div>
         <div class="col-md-3">
-            <input id="correo" type="text" style="width:100%">
+            <input id="correo" class="form" type="email" style="width:100%" required="required">
         </div>
         </div>
         <div class="row"><br></div>
@@ -64,7 +65,7 @@
             <label for="nombre_revista">Título de la revista:</label>
         </div>
         <div class="col-md-9">
-            <input id="nombre_revista" type="text" style="width:100%">
+            <input id="nombre_revista" class="form" type="text" style="width:100%;text-transform:uppercase" required="required">
         </div>
         </div>
         <div class="row"><br></div>
@@ -73,13 +74,13 @@
             <label for="issn">ISSN:</label>
         </div>
         <div class="col-md-3">
-            <input id="issn" type="text" style="width:100%">
+            <input id="issn" class="form" type="text" style="width:100%;text-transform:uppercase" required="required" pattern="[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9A-Za-z]$" title="Formato XXXX-XXXX">
         </div>
         <div class="col-md-3">
             <label for="pais">País de edición:</label>
         </div>
         <div class="col-md-3">
-            <input id="pais" type="text" style="width:100%">
+            <input id="pais" class="form" type="text" style="width:100%;text-transform:uppercase" required="required">
         </div>
         </div>
         <div class="row"><br></div>
@@ -88,7 +89,7 @@
             <label for="organizacion">Organización que edita:</label>
         </div>
         <div class="col-md-9">
-            <input id="organizacion" type="text" style="width:100%">
+            <input id="organizacion" class="form" type="text" style="width:100%;text-transform:uppercase" required="required">
         </div>
         </div>
         <div class="row"><br></div>
@@ -97,10 +98,20 @@
             <label for="periodicidad">Periodicidad:</label>
         </div>
         <div class="col-md-3">
-            <input id="periodicidad" type="text" style="width:100%">
+            <select id="periodicidad" class="form" type="text" style="width:100%;height:25px" required="required">
+                <option value="">Seleccione</option>
+                <option value="MENSUAL">Mensual (doce veces al año)</option>
+                <option value="BIMESTRAL">Bimestral (seis veces al año)</option>
+                <option value="TRIMESTRAL">Trimestral (cuatro veces al año)</option>
+                <option value="CUATRIMESTRAL">Cuatrimestral (tres veces al año)</option>
+                <option value="SEMESTRAL">SEMESTRAL (dos veces por año)</option>
+                <option value="ANUAL">Anual (una vez al año)</option>
+                <option value="IRREGULAR">Irregular</option>
+                <option value="PUBLICACIÓN CONTINUA">Publicación continua</option>
+            </select>
         </div>
         <div class="col-md-3">
-            <label for="ciudad">Ciudad:</label>
+            <input id="ciudad" class="form" type="text" style="width:100%;text-transform:uppercase" required="required">
         </div>
         <div class="col-md-3">
             <input id="ciudad" type="text" style="width:100%">
@@ -109,16 +120,17 @@
         <div class="row"><br></div>
         <div class="row">
         <div class="col-md-12">
-            <input id="autorizo" type="checkbox">&nbsp;
+            <input id="autorizo" class="form" type="checkbox">&nbsp;
             <b>AUTORIZO</b> que los archivos PDF de mi revista sean alojados en la colección Hemeroteca Virtual Latinoamericana (HEVILA).
         </div>
         </div>
         <div class="row"><br></div>
         <div id="div_btn_postular">
         <center>
-            <button type="button" class="btn btn-warning" id="btn_postular">Postular revista</button>
+            <button type="submit" class="btn btn-warning" id="btn_postular">Postular revista</button>
         </center>
         </div>
+		</form>
         <div class="row"><br><br><br></div>
         </div>
         <br>
@@ -129,18 +141,20 @@
             </div>
             </div>
             <div class="row"><br></div>
+			<form id="form_enviar">
             <div class="row">
                 <div class="col-md-3">
                     <label for="correo2">Correo electrónico:</label>
                 </div>
                 <div class="col-md-3">
-                    <input id="correo2" type="text" style="width:100%">
+                    <input id="correo2" class="form" type="email" style="width:100%" required="required">
                 </div>
             </div>
             <div class="row"><br></div>
             <center>
-                <button type="button" class="btn btn-warning" id="btn_enviar">Enviar avance</button>
+                <button type="submit" class="btn btn-warning" id="btn_enviar" >Enviar avance</button>
             </center>
+			</form>
             <div class="row"><br><br><br></div>
         </div>
     </div>

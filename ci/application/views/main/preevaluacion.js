@@ -531,7 +531,8 @@ class_pre = {
             $('#row_preevaluacion').show();            
         });
         
-        $('#btn_postular').on('click',function(){
+        $('#form_postular').on('submit',function(e){
+            e.preventDefault();
             var form = {};
             form.nombre = $('#nombre').val();
             form.correo = $('#correo').val();
@@ -550,10 +551,12 @@ class_pre = {
                 $('#btn_postular').text('Enviado!');
                 $('#div_enviar').html('');
                 $('#div_criterios').html('');
+				$('.form').prop('disabled',true);
               });
         });
         
-        $('#btn_enviar').on('click',function(){
+        $('#form_enviar').on('submit',function(e){
+            e.preventDefault();
             var form = {};
             form.correo = $('#correo2').val();
             loading.start();
@@ -564,6 +567,7 @@ class_pre = {
                 $('#btn_enviar').text('Enviado!');
                 $('#div_postular').html('');
                 $('#div_criterios').html('');
+				$('.form').prop('disabled',true);
               });
         });
     },
