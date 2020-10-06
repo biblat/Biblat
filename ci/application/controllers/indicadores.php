@@ -19,7 +19,7 @@ class Indicadores extends CI_Controller {
 					\"autoresJSON\",
 					\"institucionesJSON\"";
 
-	public $soloPaisRevista = array('indice-coautoria', 'tasa-documentos-coautorados', 'grado-colaboracion', 'modelo-elitismo', 'indice-colaboracion');
+	public $soloPaisRevista = array('indice-coautoria', 'tasa-documentos-coautorados', 'grado-colaboracion', 'modelo-elitismo', 'indice-colaboracion', 'frecuencias-institucion-documento');
 	public $soloPaisAutor = array('indice-coautoria', 'tasa-documentos-coautorados', 'indice-colaboracion');
 	public $revistaHidden = array('indice-concentracion', 'productividad-exogena');
 	public $colors = array(
@@ -102,6 +102,66 @@ class Indicadores extends CI_Controller {
 		$this->highcharts['areaspline']['plotOptions']['series']['dataLabels']['enabled'] = FALSE;
 		$this->highcharts['areaspline']['plotOptions']['series']['marker']['enabled'] = FALSE;
 		$this->highcharts['areaspline']['plotOptions']['series']['trackByArea'] = TRUE;
+		$this->highcharts['treemap'] = $this->highcharts['line'];
+		unset($this->highcharts['treemap']['chart']);
+		unset($this->highcharts['treemap']['yAxis']);
+		unset($this->highcharts['treemap']['xAxis']);
+		unset($this->highcharts['treemap']['plotOptions']);
+		unset($this->highcharts['treemap']['legend']);
+		unset($this->highcharts['treemap']['tooltip']);
+		/*v2*/
+		$this->highcharts['treemap']['colorAxis'] =
+			array(
+				'minColor' => '#FFFFFF',
+				'maxColor' => '#'.substr(md5(rand(1,1000)), 0, 6)
+			);
+		$this->highcharts['treemap']['series'] = 
+		[array(
+			'type' => 'treemap',
+			#v1'layoutAlgorithm' => 'stripes',
+			'layoutAlgorithm' => 'squarified',
+			#v1'alternateStartingDirection' => true,
+			'data' => [], 
+			/*v1
+			'levels' => [array(
+				'level' => 1,
+				'layoutAlgorithm' => 'sliceAndDice',
+				'dataLabels' => array(
+					'enabled' => true,
+					'align' => 'left',
+					'verticalAlign' => 'top',
+					'style' => array(
+						'fontSize' => '10px',
+						'fontWeight' => 'bold'
+					)
+				)
+			)]*/
+		)];
+		$this->highcharts['donut'] = $this->highcharts['line'];
+		unset($this->highcharts['donut']['legend']);
+		unset($this->highcharts['donut']['chart']);
+		unset($this->highcharts['donut']['tooltip']);
+		$this->highcharts['donut']['chart'] = array(
+			'type' => 'pie',
+			'width' => 1000,
+                        'height' => 550,
+                        'backgroundColor' => 'transparent',
+			'options3d' => array(
+				'enabled' => true,
+				'alpha' => 45
+			)
+		);
+		$this->highcharts['donut']['plotOptions'] = array(
+			'pie' => array(
+				'innerSize' => 100,
+				'depth' => 45,
+				'dataLabels' => array(
+					'style' => array(
+						'fontSize' => '10px'
+					)
+				)
+			)
+		);
 		/*Lista de indicadores*/
 		$this->indicadores = array(
 								'indice-coautoria' => _('Índice de coautoría'),
@@ -113,7 +173,8 @@ class Indicadores extends CI_Controller {
 								'indice-concentracion' => _('Índice de concentración (Índice Pratt)'),
 								'modelo-bradford-revista' => _('Modelo de Bradford por revista'),
 								'modelo-bradford-institucion' => _('Modelo de Bradford por institución (Afiliación del autor)'),
-								'productividad-exogena' => _('Tasa de autoría exógena')
+								'productividad-exogena' => _('Tasa de autoría exógena'),
+								'frecuencias-institucion-documento' => _('Representación institucional')
 							);
 		/*Disciplinas*/
 		$this->load->database();
@@ -157,7 +218,15 @@ class Indicadores extends CI_Controller {
 		$this->template->js('assets/js/html2canvas.js');
 		$this->template->js('//www.google.com/jsapi');
 		$this->template->js('assets/js/jquery.table2excel.min.js');
-		$this->template->js('assets/js/highcharts/highcharts.js');
+		if( in_array($data['indicador'],array('frecuencias-institucion-documento')) )
+			$this->template->js('assets/js/highcharts/phantomjs/highcharts8.js');
+		else
+			$this->template->js('assets/js/highcharts/highcharts.js');
+		$this->template->js('assets/js/highcharts/phantomjs/treemap.js');
+		if( in_array($data['indicador'],array('frecuencias-institucion-documento')) )
+			$this->template->js('assets/js/highcharts/phantomjs/highcharts-3d8.js');
+		else
+			$this->template->js('assets/js/highcharts/phantomjs/highcharts-3d.js');
 		$this->template->js('assets/js/highcharts-legend-highlighter.src.js');
 		$this->template->js('assets/js/rgbcolor.js');
 		$this->template->js('assets/js/StackBlur.js');
@@ -177,6 +246,9 @@ class Indicadores extends CI_Controller {
 			case 'indice-concentracion':
 			case 'productividad-exogena':
 				return $this->getChartDataPrattExogena();
+				break;
+			case 'frecuencias-institucion-documento':
+                        	return $this->getChartFrecuencias();
 				break;
 			default:
 				return $this->getChartDataLine();
@@ -603,17 +675,19 @@ class Indicadores extends CI_Controller {
 			);
 		$query = $indicador[$_POST['indicador']]['sql'];
 		if (isset($_POST['revista'])):
-			$query .= " AND \"revistaSlug\" IN (";
-			$revistaOffset=1;
 			$revistaTotal= count($_POST['revista']);
-			foreach ($_POST['revista'] as $revista):
-				$query .= "'{$revista}'";
-				if($revistaOffset < $revistaTotal):
-					$query .=",";
-				endif;
-				$revistaOffset++;
-			endforeach;
-			$query .= ")";
+			if( $revistaTotal > 1 ):
+				$query .= " AND \"revistaSlug\" IN (";
+				$revistaOffset=1;
+				foreach ($_POST['revista'] as $revista):
+					$query .= "'{$revista}'";
+					if($revistaOffset < $revistaTotal):
+						$query .=",";
+					endif;
+					$revistaOffset++;
+				endforeach;
+				$query .= ")";
+			endif;
 		endif;
 		$query .= " ORDER BY indicador DESC";
 		$query = $this->db->query($query);
@@ -627,17 +701,30 @@ class Indicadores extends CI_Controller {
 		$data['table']['cols'][] = array('id' => '','label' => _('Título de revista'),'type' => 'string');
 		$data['table']['cols'][] = array('id' => '','label' => $indicador[$_POST['indicador']]['title'],'type' => 'number');
 		$series = array();
-		foreach ($query->result_array() as $row):
+		foreach ($query->result_array() as $key => $row):
 			if(!isset($data['highchart'][$grupo])):
 				$data['highchart'][$grupo] = $this->highcharts['column'];
 				$data['highchart'][$grupo]['tooltip']['pointFormat'] = $indicador[$_POST['indicador']]['tooltip'];
 				$data['highchart'][$grupo]['yAxis']['max'] = $vAxisMax;
 			endif;
-			$data['highchart'][$grupo]['series'][0]['data'][] = array(
+			if ( count($_POST['revista']) == 1 and $row['revistaSlug'] == $_POST['revista'][0] ):
+				$data['highchart'][$grupo]['series'][0]['data'][] = array(
+					'id' => $row['revistaSlug'],
+					'name' => $row['revista'],
+					'y' => round($row['indicador'], 4),
+					'dataLabels' => array(
+						'borderColor' => 'blue',
+						'borderWidth' => 2
+						)
+				);			
+				$data['highchart'][$grupo]['selected'] = true;
+			else:
+				$data['highchart'][$grupo]['series'][0]['data'][] = array(
 					'id' => $row['revistaSlug'],
 					'name' => $row['revista'],
 					'y' => round($row['indicador'], 4)
 				);
+			endif;
 			$data['journal'][$grupo][] = $row['revistaSlug'];
 			$offset++;
 			/*Filas de la tabla*/
@@ -733,6 +820,7 @@ class Indicadores extends CI_Controller {
 		$indicadorTabla['modelo-bradford-revista']="";
 		$indicadorTabla['modelo-bradford-institucion']="";
 		$indicadorTabla['productividad-exogena']="mvProductividadExogena";
+		$indicadorTabla['frecuencias-institucion-documento']="CoautoriaPriceZakutina";
 
 		$this->load->database();
 		if(in_array($_POST['indicador'], $this->revistaHidden)):
@@ -799,6 +887,7 @@ class Indicadores extends CI_Controller {
 		$indicadorTabla['modelo-bradford-revista']="";
 		$indicadorTabla['modelo-bradford-institucion']="";
 		$indicadorTabla['productividad-exogena']="";
+		$indicadorTabla['frecuencias-institucion-documento']="mvIndiceCoautoriaPrice";
 
 
 		if (isset($_POST['revista'])):
@@ -1000,7 +1089,7 @@ class Indicadores extends CI_Controller {
 			endif;
 			$this->preview = TRUE;
 		endif;
-		if(!isset($_POST['periodo']) && !preg_match('/(modelo-bradford-revista|modelo-bradford-institucion|indice-concentracion|productividad-exogena)/', $_POST['indicador'])):
+		if(!isset($_POST['periodo']) && !preg_match('/(modelo-bradford-revista|modelo-bradford-institucion|indice-concentracion|productividad-exogena|frecuencias-institucion-documento)/', $_POST['indicador'])):
 			$periodos = $this->getPeriodos();
 			$_POST['periodo'] = "{$periodos['anioBase']};{$periodos['anioFinal']}";
 		endif;
@@ -1011,22 +1100,44 @@ class Indicadores extends CI_Controller {
 			$chartData = $chartData['bradford'];
 		/* Ajustando valores de la gráfica para la vista previa*/
 		unset($chartData['subtitle'], $chartData['xAxis']['title']);
+		if(isset($chartData['series']))
 		foreach ($chartData['series'] as $key => $value):
 			$chartData['series'][$key]['showInLegend'] = FALSE;
 		endforeach;
 		$chartData['subtitle'] = array('text' => $this->indicadores[$_POST['indicador']]);
 		$chartData['yAxis']['title'] = '';
-		$chartData['chart']['width'] = 400;
-		$chartData['chart']['height'] = 250;
+		$chartData['chart']['width'] = 1000;
+		$chartData['chart']['height'] = 550;
+		$valsize = 50;
+		$chartData['title']['style']['fontSize'] = "{$valsize}px";
+		$chartData['subtitle']['style']['fontSize'] = "{$valsize}px";
 		if(isset($_GET['width'])):
 			$wpercent = $_GET['width']/$chartData['chart']['width'];
 			$chartData['chart']['width'] = $chartData['chart']['width']*$wpercent;
 			$chartData['chart']['height'] = $chartData['chart']['height']*$wpercent;
+			$chartData['title']['style']['fontSize'] = ($valsize*$wpercent)."px";
+			$chartData['subtitle']['style']['fontSize'] = ($valsize*$wpercent)."px";
 		endif;
 		$chartData['colors'] = $this->colors;
+		if(preg_match('/frecuencias-institucion-documento/', $_POST['indicador'])):
+			if(isset($_GET['width']))
+				$chartData['chart']['plotOptions']['pie']['innerSize'] = $chartData['chart']['width']/10;	
+			unset($chartData['subtitle']);
+			unset($chartData['yAxis']);
+			unset($chartData['xAxis']);
+			#treemap
+			#unset($chartData['chart']);
+			unset($chartData['colors']);
+			#unset($chartData['title']);
+			#$chartData['title']='Titulo';
+			#unset($chartData['credits']);
+			unset($chartData['series'][0]['showInLegend']);
+		endif;
+		#echo json_encode($chartData);exit(0);
 		$hostname = gethostbyaddr($_SERVER['REMOTE_ADDR']);
 		$request = array(
 				'infile' => json_encode($chartData),
+				#'infile' => $cadena,
 				'type' => 'png',
 				'rhost' => "{$_SERVER['REMOTE_ADDR']} ({$hostname})",
 				'rurl'	=> $uri_string
@@ -1048,6 +1159,142 @@ class Indicadores extends CI_Controller {
 
 	}
 
+	public function getChartFrecuencias(){
+		$series = array();
+		$this->load->database();
+		/*Convirtiendo el periodo en dos fechas*/
+		$_POST['periodo'] = explode(";", $_POST['periodo']);
+		/*Generamos el arreglo de periodos*/
+		$periodos = $this->getPeriodos($_POST);
+		/*Consulta para cada indicador*/
+		$indicador['frecuencias-institucion-documento'] = array(
+			'campoTabla' => "coautoria AS valor FROM \"mvIndiceCoautoriaPrice",
+			'title' => array(
+					'revista' => '<div class="text-center nowrap"><h4>'._('Representación institucional').'</h4><br/>'._('Número de documentos por institución de afiliación del autor').'</div>'
+				),
+			'vTitle' => _('Índice de representación'),
+			'hTitle' => _('Año'),
+			'tooltip' => array(
+					'revista' => _('<b>{series.name}</b><br/>Cantidad de documentos por inatitución en el año {point.category}: <b>{point.y}</b>'),
+				)
+			);
+		$selection = 'revista';
+		if (isset($_POST['revista'])):
+			$data['dataTable']['cols'][] = array('id' => '','label' => _('Institución'),'type' => 'string');
+                        $data['dataTable']['cols'][] = array('id' => '','label' => _('No. de participaciones'),'type' => 'number');
+			$query = " with consulta as (
+					select 
+						institucion, documentos, \"revistaSlug\" revista
+					from 
+						\"mvFrecuenciaRevistaInstitucion\" 
+					where 
+						documentos > 5
+					union
+					select 
+						'Instituciones con máximo 5 participaciones', 5, \"revistaSlug\" revista 
+					from 
+						\"mvFrecuenciaRevistaInstitucion\" 
+					where 
+						documentos <= 5
+					)	
+					select 
+						institucion, documentos 
+					from 
+						consulta 
+					where 
+						revista in (";
+			$revistaOffset=1;
+			$revistaTotal= count($_POST['revista']);
+			foreach ($_POST['revista'] as $revista):
+				$query .= "'{$revista}'";
+				if($revistaOffset < $revistaTotal):
+					$query .=",";
+				endif;
+				$revistaOffset++;
+			endforeach;
+			$query .=") order by documentos desc";
+		endif;
+
+		$data['highchart'] = $this->highcharts['donut'];
+
+		$query = $this->db->query($query);
+		$indicadores = array();
+		$values= [];
+		foreach ($query->result_array() as $key => $row ):
+			/*v1	
+			array_push($values,
+                                array(
+                                        'parent' => slug($key),
+                                        'name' => $row['institucion'],
+                                        'value' => intval($row['documentos']),
+                                        'color' => '#'.substr(md5(rand(1,1000)), 0, 6)
+                                )
+			);*/
+			array_push($values,
+                                /**treemap
+				array(
+                                        'name' => $row['institucion'],
+                                        'value' => intval($row['documentos']),
+                                        'colorValue' => intval($row['documentos'])
+                                )
+				**/
+				[$row['institucion'], intval($row['documentos'])]
+                        );
+			/*Filas de la tabla*/
+			$cc = array();
+			$cc[] = array('v' => $row['institucion']);
+			$cc[] = array('v' => intval($row['documentos']));
+			$data['dataTable']['rows'][]['c'] = $cc;
+		endforeach;
+		/**treemap
+		$data['highchart']['series'][0]['data'] = $values;
+		**/
+		$data['highchart']['title'] = array(
+			'text' => 'Representación Institucional',
+			'style' => array(
+				'fontSize' => '12px'
+			)
+		);
+		$data['highchart']['series'][0] = array(
+			'name' => 'Documentos',
+			'data' => $values
+		);
+		
+		/*Generando filas para gráfica y columnas para la tabla*/
+		$setDataTableRows = false;
+		#$data['highchart']['yAxis']['title'] = array('text' => $indicador[$_POST['indicador']]['vTitle']);
+		#$data['highchart']['tooltip']['pointFormat'] = $indicador[$_POST['indicador']]['tooltip'][$selection];
+	       /*	
+		foreach ($series as $key => $value):
+			#$data['highchart']['series']['data'][] = array(
+			array_push($data['highchart']['series']['data'],
+				array(
+					'id' => slug($key),
+					'name' => $key,
+					'data' => $value
+				));
+		endforeach;*/
+
+		/*Opciones para la tabla*/
+		$data['tableOptions'] = array(
+				'allowHtml' => true,
+				'showRowNumber' => false,
+				'cssClassNames' => array(
+					'headerCell' => 'text-center',
+					'tableCell' => 'text-left nowrap'
+					)
+			);
+		#echo json_encode($data['highchart']);
+		#exit(0);
+		/*Titulo de la gráfica*/
+		$data['chartTitle'] = $indicador[$_POST['indicador']]['title'][$selection];
+		$data['tableTitle'] = "<h4 class=\"text-center\">{$this->indicadores[$_POST['indicador']]}</h4>";
+		if($this->preview)
+			return $data['highchart'];
+		$data['highchart']['title']=null;
+		header('Content-Type: application/json');
+		echo json_encode($data, true);
+	}
 }
 /* End of file indicadores.php */
 /* Location: ./application/controllers/indicadores.php */

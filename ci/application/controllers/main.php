@@ -226,6 +226,8 @@ class Main extends CI_Controller{
 		$data['alpha_links'] = $this->pagination->create_alpha_links();
 		$data['alpha'] = strtoupper($alpha);
 		$data['page_title'] = _('Indicadores por revista');
+		$this->template->css('assets/css/colorbox.css');
+		$this->template->js('assets/js/colorbox.js');
 		$this->template->set_partial('view_js', 'main/indicadores_por_revista_js', array(), TRUE);
 		$this->template->title(_('Indicadores por revista'));
 		$this->template->set_breadcrumb(_('Bibliometría'));

@@ -145,6 +145,7 @@
                                                                 <li><a href="{site_url('indicadores/modelo-bradford-revista')}">{_('Modelo de Bradford por revista')}</a></li>
                                                                 <li><a href="{site_url('indicadores/modelo-bradford-institucion')}">{_('Modelo de Bradford por institución')}</a></li>
                                                                 <li><a href="{site_url('indicadores/productividad-exogena')}">{_('Tasa de autoría exógena')}</a></li>
+								<li><a href="{site_url('indicadores/frecuencias-institucion-documento')}">{_('Representación institucional')}</a></li>
                                                             </ul>
                                                         </li>
                                                         <li class="divider"></li>
