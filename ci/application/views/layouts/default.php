@@ -167,7 +167,7 @@
                                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">{_('Postular una revista')}<span class="caret"></span></a>
                                                     <ul class="dropdown-menu" role="menu">
                                                         <li><a href="{site_url('postular-revista/criterios-de-seleccion')}">{_('Criterios de selección de revistas')}</a></li>
-<!--                                                        <li><a href="{site_url('postular-revista/preevaluacion')}">{_('Preevaluacion')}</a></li>-->
+                                                        <li><a href="{site_url('postular-revista/preevaluacion')}">{_('Preevaluacion')}</a></li>
                                                     </ul>
                                                 </li>
                                                 <li><a href="#">{_('Políticas de acceso')}</a></li>

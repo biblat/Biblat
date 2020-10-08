@@ -104,17 +104,17 @@
                 <option value="BIMESTRAL">Bimestral (seis veces al año)</option>
                 <option value="TRIMESTRAL">Trimestral (cuatro veces al año)</option>
                 <option value="CUATRIMESTRAL">Cuatrimestral (tres veces al año)</option>
-                <option value="SEMESTRAL">SEMESTRAL (dos veces por año)</option>
+                <option value="SEMESTRAL">Semestral (dos veces por año)</option>
                 <option value="ANUAL">Anual (una vez al año)</option>
                 <option value="IRREGULAR">Irregular</option>
                 <option value="PUBLICACIÓN CONTINUA">Publicación continua</option>
             </select>
         </div>
         <div class="col-md-3">
-            <input id="ciudad" class="form" type="text" style="width:100%;text-transform:uppercase" required="required">
+            <label for="ciudad">Ciudad:</label>
         </div>
         <div class="col-md-3">
-            <input id="ciudad" type="text" style="width:100%">
+            <input id="ciudad" class="form" type="text" style="width:100%;text-transform:uppercase" required="required">
         </div>
         </div>
         <div class="row"><br></div>

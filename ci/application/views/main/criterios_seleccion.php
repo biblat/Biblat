@@ -11,12 +11,12 @@
                 <p>{_('Para incorporarse a Biblat, su revista debe cumplir un mínimo de 33 criterios editoriales, proporcionar los datos de identificación y de comité científico, y enviar los metadatos de los artículos que se hayan publicado en los últimos 3 fascículos. El procedimiento es el siguiente:')}</p><br>                
                 
                 <ol>
-                    <li>{_('El editor debe completar el ')} {_('formulario de preevaluación')} {_(', si la revista cumple con los 33 criterios obligatorios del formulario, estará en posibilidad de enviar su postulación al Comité de Evaluación y Selección a través de esta interfaz y recibirá una notificación del resultado a través de su correo electrónico. De lo contrario, podrá conservar la autoevaluación y realizar una nueva postulación cuando haya solventado los criterios no cumplidos.')}</li>
-                    <!--<li>{_('El editor debe completar el ')} <a href="{site_url('postular-revista/preevaluacion')}">{_('formulario de preevaluación')}</a> {_(', si la revista cumple con los 33 criterios obligatorios del formulario, estará en posibilidad de enviar su postulación al Comité de Evaluación y Selección a través de esta interfaz y recibirá una notificación del resultado a través de su correo electrónico. De lo contrario, podrá conservar la autoevaluación y realizar una nueva postulación cuando haya solventado los criterios no cumplidos.')}</li>-->
+            
+                    <li>{_('El editor debe completar el ')} <a href="{site_url('postular-revista/preevaluacion')}">{_('formulario de preevaluación')}</a> {_(', si la revista cumple con los 33 criterios obligatorios del formulario, estará en posibilidad de enviar su postulación al Comité de Evaluación y Selección a través de esta interfaz y recibirá una notificación del resultado a través de su correo electrónico. De lo contrario, podrá conservar la autoevaluación y realizar una nueva postulación cuando haya solventado los criterios no cumplidos.')}</li>
                         
-                        <li>{_('El Comité de Evaluación y Selección valida el resultado de la autoevaluación. Si el Comité determina que la autoevaluación del editor es correcta, se le enviará por correo electrónico una carta de aceptación y se le solicitarán los metadatos de los artículos publicados en los últimos 3 fascículos de la revista. De lo contrario, el Comité emitirá las recomendaciones que considere pertinentes para realizar una nueva postulación cuando haya solventado los criterios no cumplidos.')}</li>
-                        
-                        <li>{_('El editor completa la plantilla que se le solicitó y la regresa al Comité.')}</li>
+						<li>{_('El editor deberá enviar los metadatos de sus artículos  y su carta de postulación de acuerdo con las instrucciones proporcionadas en  la notificación que recibirá en su correo.')}</li>
+						
+                        <li>{_('El Comité de Evaluación y Selección valida el resultado de la autoevaluación. Si el Comité determina que la autoevaluación del editor es correcta, se le enviará por correo electrónico una carta de aceptación y su revista será indizada. De lo contrario, el Comité emitirá las recomendaciones que considere pertinentes para realizar una nueva postulación cuando haya solventado los criterios no cumplidos.')}</li>                        
                         
                         <li>{_('El equipo de analistas de Biblat valida, convierte y normaliza los metadatos recibidos y los carga a las bases de datos CLASE, PERIÓDICA y portal Biblat.')}</li>
                 </ol><br>
@@ -72,7 +72,7 @@
 		
                 <p>{_('Para ser aprobada la revista debe cumplir con los requisitos obligatorios que se describen a continuación: ')}</p>
                 
-                <!--<p>{_('Para ir directamente al proceso de preevaluación, haga clic en este ')} <a href="{site_url('postular-revista/preevaluacion')}">{_('enlace')}</a></p>-->
+                <p>{_('Para ir directamente al proceso de preevaluación, haga clic en este ')} <a href="{site_url('postular-revista/preevaluacion')}">{_('enlace')}</a></p>
                 <br>
                 
 		<table class="table table-striped table-bordered table-hover">
@@ -253,7 +253,7 @@
                                 <td id="40">40</td>
                                 <td>
                                     <p><b>{_('Periodicidad y número de artículos publicados por año aceptables:')}</b> {_('La periodicidad y el número de artículos publicados al año son indicadores del flujo de producción editorial de la revista y de la producción científica del área temática correspondiente. Los valores de referencia requeridos dependen del área temática en la que la revista está clasificada.')}</p>                                
-                                    <p>{_('Se valora como la mejor práctica editorial la publicación continua de artículos, esto es, que los documentos se publiquen en línea tan pronto como sean aprobados y editados. En este caso, los artículos quedan reunidos en un volumen anual con o sin ediciones periódicas (números). Cuando no se adoptan ediciones (números), la publicación de los artículos debe ocurrir a lo largo del año (ver punto 38). Cuando los artículos se reúnen en ediciones periódicas, éstas deben estar finalizadas preferentemente al inicio del período. Para las revistas que no adoptan la publicación continua, la Tabla a continuación indica los valores mínimos y recomendados para la periodicidad.')}</p>
+                                    <p>{_('Se valora como la mejor práctica editorial la publicación continua de artículos, esto es, que los documentos se publiquen en línea tan pronto como sean aprobados y editados. En este caso, los artículos quedan reunidos en un volumen anual con o sin ediciones periódicas (números). Cuando no se adoptan ediciones (números), la publicación de los artículos debe ocurrir a lo largo del año (ver punto 38). Cuando los artículos se reúnen en ediciones periódicas, éstas deben estar finalizadas preferentemente al inicio del período.')}</p>
                                 </td>
                             </tr>
                             <tr>
@@ -273,13 +273,13 @@
                                 <td>
                                     <p><b>{_('Cuerpo de editores asociados o de sección:')}</b> {_('La gestión editorial debe contar preferentemente con uno o más grupos definidos de editores que colaboran activa y sistemáticamente con el editor jefe en la gestión del flujo de evaluación de manuscritos, con énfasis en la selección e interacción con los evaluadores y autores. En general, estos editores se agrupan bajo la denominación de editores asociados o editores de sección, son parte formal del equipo editorial y contribuyen sistemáticamente a la evaluación de manuscritos. Bajo la denominación de editores asociados o de sección, deben ser listados solamente investigadores que contribuyen sistemáticamente con la evaluación de manuscritos. Los editores ad hoc que colaboran en la evaluación esporádica de manuscritos, después de la solicitud del editor jefe o incluso de un editor asociado, deben ser listados por separado.')}</b></p>
                                     <p>{_('Las revistas pueden adoptar diferentes estructuras y denominaciones de instancias de gestión editorial. Estas estructuras y las funciones que realizan deben estar documentadas formalmente y actualizadas periódicamente/anualmente.')}</p>
-                                    <p>{_('Las revistas deben maximizar la internacionalización del cuerpo de editores: En la tabla a continuación se especifican los porcentajes mínimos e idealmente recomendados de editores asociados activos con afiliación institucional extranjera, según el área temática')}</p>
+                                    <p>{_('Las revistas deben maximizar la internacionalización del cuerpo de editores.')}</p>
                                 </td>    
                             </tr>
                             <tr>
                                 <td id="43">43</td>
                                 <td>
-                                    <b>{_('Internacionalidad de los dictaminadores/árbitros:')}</b> {_('Los expertos encargados de la dictaminación de los artículos deben ser investigadores nacionales y extranjeros reconocidos en el tema de los manuscritos que evalúan. Debe maximizarse la participación de árbitros afiliados a instituciones extranjeras. La Tabla a continuación es una referencia para evaluar el número de árbitros con afiliación extranjera que evalúan al menos un manuscrito. La tabla a continuación establece los porcentajes anuales mínimos esperados y los recomendados que los conjuntos de revistas deben obedecer, según las áreas temáticas.')}
+                                    <b>{_('Internacionalidad de los dictaminadores/árbitros:')}</b> {_('Los expertos encargados de la dictaminación de los artículos deben ser investigadores nacionales y extranjeros reconocidos en el tema de los manuscritos que evalúan. Debe maximizarse la participación de árbitros afiliados a instituciones extranjeras.')}
                                 </td>    
                             </tr>
                             <tr>
@@ -302,7 +302,7 @@
                                             <li>{_('Los nombres de los autores deben venir acompañados de los respectivos números de registro del ORCID.')}</li>                                            
                                         </ul>
                                     </p>
-                                    <p>{_('Las revistas deben maximizar la internacionalización de la afiliación de los autores con base en la Tabla que se muestra a consideración, en la que se describen porcentajes anuales mínimos esperados y recomendados de autores con afiliación institucional extranjera por área temática:')}</p>
+                                    <p>{_('Las revistas deben maximizar la internacionalización de la afiliación.')}</p>
                                 </td>    
                             </tr>
                             <tr>

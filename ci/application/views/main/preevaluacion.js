@@ -311,7 +311,7 @@ class_pre = {
         },
         {
             texto:'43. Internacionalidad de los dictaminadores/árbitros',
-            descripcion:'Los expertos encargados de la dictaminación de los artículos deben ser investigadores nacionales y extranjeros reconocidos en el tema de los manuscritos que evalúan. Debe maximizarse la participación de árbitros afiliados a instituciones extranjeras. La Tabla a continuación es una referencia para evaluar el número de árbitros con afiliación extranjera que evalúan al menos un manuscrito. La tabla a continuación establece los porcentajes anuales mínimos esperados y los recomendados que los conjuntos de revistas deben obedecer, según las áreas temáticas.',
+            descripcion:'Los expertos encargados de la dictaminación de los artículos deben ser investigadores nacionales y extranjeros reconocidos en el tema de los manuscritos que evalúan. Debe maximizarse la participación de árbitros afiliados a instituciones extranjeras.',
             cumplo:false,
             celda:'D59',
             obligatorio:false

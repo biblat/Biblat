@@ -248,7 +248,7 @@ class Main extends CI_Controller{
 
             //$from = $senderName." <".$senderMail.">"; 
             //$headers = "From: $from\n";
-            $headers = "From: Biblat<biblat_comite@dgb.unam.mx>\nBcc: eduranm@dgb.unam.com\nReply-To: biblat_comite@dgb.unam.mx";
+            $headers = "From: Biblat<biblat_comite@dgb.unam.mx>\nBcc: biblat_comite@dgb.unam.mx\nReply-To: biblat_comite@dgb.unam.mx";
 
             // boundary 
             $semi_rand = md5(time()); 
@@ -394,12 +394,14 @@ class Main extends CI_Controller{
             if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
                 $mensaje = "Estimado(a) editor(a):<br><br>".
                 "De acuerdo con la autoevaluación que realizó el día de hoy en nuestro sitio web biblat.unam.mx, le informamos que su revista cumple con los criterios obligatorios para ingresar a CLASE, PERIÓDICA, portal Biblat y catálogo SERIUNAM.<br><br>".
-                "Adjunto a este mensaje, usted encontrará el resultado de su autoevaluación.<br><br>".
-                "Su postulación será revisada por nuestro Comité de Evaluación y Selección, el dictamen le será enviado al correo electrónico que proporcionó en nuestro portal junto con las instrucciones para enviar los metadatos de los artículos publicados en su revista.<br><br>".
+                "Adjunto a este mensaje, usted encontrará su carta de postulación y un archivo con los resultados de su postulación. En este último, le hacemos llegar las plantillas donde deberá vaciar los metadatos de los artículos publicados en los 3 fascículos más recientes de su revista. ".
+                "Una vez completados, favor de enviarlos a esta misma dirección de correo electrónico.<br><br>".
+				"Le recordamos que su autoevaluación será analizada por nuestro Comité de Selección, y que este, podrá emitir recomendaciones previa indización de su revista.".
                 "Quedamos atentos a sus comentarios y agradecemos su colaboración.<br><br>".
                 "Saludos.<br>".
                 "Comité de Selección y Evaluación de Publicaciones Periódicas para Clase, Periódica y Catálogo SeriUNAM<br>".
                 "biblat_comite@dgb.unam.mx";
+            }
             }else{
                 $mensaje = "Estimado(a) editor(a):<br><br>".
                 "De acuerdo con la autoevaluación que realizó el día de hoy en nuestro sitio web biblat.unam.mx, lamentamos informarle que su revista no cumple con los criterios obligatorios para ingresar a CLASE, PERIÓDICA, portal Biblat y catálogo SERIUNAM.<br><br>".
