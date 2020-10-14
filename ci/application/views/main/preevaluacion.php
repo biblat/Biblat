@@ -1,9 +1,9 @@
 <div class="row" id="row_comenzar">
     <div class="col-md-12">
     ¡Postule su revista ahora!<br>
-    Le presentaremos 44 criterios que tomamos en consideración, 33 son obligatorios.<br>
+    Le presentamos 48 criterios que se consideran para su ingreso; 33 son obligatorios y 15 opcionales. Para aprobar, requiere cumplir 40 criterios; 33 obligatorios y al menos 7 opcionales.<br>
     Navegue a través de ellos con ayuda de la barra de números que se encontrará en la parte inferior, para cada criterio cumplido haga clic en el botón "Cumplo este criterio", de lo contrario, déjelo en blanco. Podrá bservar su progreso en la gráfica del lado derecho.<br>
-    Si reúne los criterios obligatorios, podrá decidir postular su revista y enviarnos la información que le solicitaremos, de no cumplir con dichos criterios, le proporcionaremos un resumen de su preevaluación, cuando esté seguro de cumplir con los criterios faltantes podrá realizarla nuevamente.
+    Si reúne los criterios obligatorios, podrá decidir postular su revista, de no cumplir con dichos criterios, le proporcionaremos un resumen de su preevaluación, cuando cumpla con los criterios faltantes podrá realizarla nuevamente.
     <div class="row"><br></div>
         <center>
             <button type="button" class="btn btn-warning" id="btn_comenzar">Comenzar</button>
@@ -44,7 +44,7 @@
         </div>
         </div>
         <div class="row"><br></div>
-		<form id="form_postular">
+        <form id="form_postular">
         <div class="row">
         <div class="col-md-3">
             <label for="nombre">Nombre completo del editor:</label>
@@ -130,7 +130,7 @@
             <button type="submit" class="btn btn-warning" id="btn_postular">Postular revista</button>
         </center>
         </div>
-		</form>
+        </form>
         <div class="row"><br><br><br></div>
         </div>
         <br>
@@ -141,7 +141,7 @@
             </div>
             </div>
             <div class="row"><br></div>
-			<form id="form_enviar">
+            <form id="form_enviar">
             <div class="row">
                 <div class="col-md-3">
                     <label for="correo2">Correo electrónico:</label>
@@ -154,7 +154,7 @@
             <center>
                 <button type="submit" class="btn btn-warning" id="btn_enviar" >Enviar avance</button>
             </center>
-			</form>
+            </form>
             <div class="row"><br><br><br></div>
         </div>
     </div>

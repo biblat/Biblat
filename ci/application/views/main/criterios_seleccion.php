@@ -1,32 +1,35 @@
-		<p><b>{_('Información General')}</b></p>
+                <p><b>{_('Información General')}</b></p><br>
 
-                <p>{_('¡Gracias por su interés en Biblat! Al elegirnos, usted estará contribuyendo al desarrollo de indicadores y productos bibliométricos que impulsen la toma de decisiones en el entorno editorial académico; además, su revista será incluida en los resultados de búsqueda de Google y formará parte de CLASE o PERIÓDICA, dos de las bases de datos pioneras en América Latina.')}</p><br>
+                <p>{$clase=_('Citas Latinoamericanas en Ciencias Sociales y Humanidades') $periodica=_('Índice de Revistas Latinoamericanas en Ciencias') _sprintf('¡Gracias por su interés en Biblat! Al elegirnos, usted estará contribuyendo al desarrollo de indicadores y productos bibliométricos que impulsen la toma de decisiones en el entorno editorial académico; además, su revista será incluida en los resultados de búsqueda de Google y formará parte de %s o %s, dos de las bases de datos pioneras en América Latina, portal %s y catálogo %s.','<a href="http://clase.unam.mx" target="_blank"><acronym title="$clase">CLASE</acronym></a>','<a href="http://periodica.unam.mx" target="_blank"><acronym title="$periodica">PERIÓDICA</acronym></a>','<a href="http://biblat.unam.mx" target="_blank">BIBLAT</a>','<a href="http://132.248.9.4:8991/F" target="_blank">SeriUNAM</a>')}</p><br>
                 
-                <p>{$clase=_('Citas Latinoamericanas en Ciencias Sociales y Humanidades') $periodica=_('Índice de Revistas Latinoamericanas en Ciencias') _sprintf('%s y %s son las dos bases de datos fuente constitutivas de Biblat. CLASE está especializada en revistas de ciencias sociales y humanidades, y PERIÓDICA en ciencias exactas y naturales, incluyendo medicina.','<a href="http://clase.unam.mx" target="_blank"><acronym title="$clase">CLASE</acronym></a>','<a href="http://periodica.unam.mx" target="_blank"><acronym title="$periodica">PERIÓDICA</acronym></a>')}</p><br>
+                <p>{_('CLASE y PERIÓDICA son las dos bases de datos fuente constitutivas de Biblat. CLASE está especializada en revistas de ciencias sociales y humanidades, y PERIÓDICA en ciencias exactas y naturales, incluyendo medicina.')}</p><br>
                 
-                <p>{_('Al postular una revista, podrá unirse a la Hemeroteca Virtual Latinoamericana (HEVILA), un proyecto estrictamente académico y sin costo para la difusión de los textos completos. Si desea participar, deberá aceptar el resguardo de una copia de los archivos PDF con nosotros y que estos se enlacen a la colección HEVILA, sin que ello suponga ninguna cesión de derechos ni de exclusividad.')}</p><br>
+                <p>{_('Por su parte, SeriUNAM es el catálogo de todas las revistas disponibles en el Sistema Bibliotecario y de Información de la UNAM.')}</p><br>
                 
-                <p><b>{_('Proceso de Evaluación y Selección')}</b></p>
+                <p>{_('Al postular una revista, podrá unirse a la Hemeroteca Virtual Latinoamericana (HEVILA), un proyecto estrictamente académico y sin costo para la difusión de los textos completos. Si desea participar, deberá aceptar el resguardo de una copia de los archivos PDF en la Hemeroteca y que los registros de su revista incluyan un enlace a HEVILA, sin que ello suponga ninguna cesión de derechos ni de exclusividad.')}</p><br>
                 
-                <p>{_('Para incorporarse a Biblat, su revista debe cumplir un mínimo de 33 criterios editoriales, proporcionar los datos de identificación y de comité científico, y enviar los metadatos de los artículos que se hayan publicado en los últimos 3 fascículos. El procedimiento es el siguiente:')}</p><br>                
+                <p>{_('Para más información')} <a href="#contacto">{_(' contáctenos.')}</a></p><br><br>
                 
-                <ol>
-            
-                    <li>{_('El editor debe completar el ')} <a href="{site_url('postular-revista/preevaluacion')}">{_('formulario de preevaluación')}</a> {_(', si la revista cumple con los 33 criterios obligatorios del formulario, estará en posibilidad de enviar su postulación al Comité de Evaluación y Selección a través de esta interfaz y recibirá una notificación del resultado a través de su correo electrónico. De lo contrario, podrá conservar la autoevaluación y realizar una nueva postulación cuando haya solventado los criterios no cumplidos.')}</li>
+                <p><b>{_('Proceso de Evaluación y Selección')}</b></p><br>
+                
+                <p>{_('Para incorporarse a Biblat, su revista debe cumplir un mínimo de 40 criterios editoriales, proporcionar los datos de identificación y de comité científico, y enviar los metadatos de los artículos que se hayan publicado en los últimos 3 fascículos. El procedimiento es el siguiente:')}</p><br>                
+                
+                <ol>                    
+                        <li>{_('El editor debe completar el ')} <a href="{site_url('postular-revista/preevaluacion')}">{_('formulario de pre-evaluación')}</a> {_(' siguiendo las instrucciones que allí mismo se proporcionan.')}</li>
                         
-						<li>{_('El editor deberá enviar los metadatos de sus artículos  y su carta de postulación de acuerdo con las instrucciones proporcionadas en  la notificación que recibirá en su correo.')}</li>
-						
-                        <li>{_('El Comité de Evaluación y Selección valida el resultado de la autoevaluación. Si el Comité determina que la autoevaluación del editor es correcta, se le enviará por correo electrónico una carta de aceptación y su revista será indizada. De lo contrario, el Comité emitirá las recomendaciones que considere pertinentes para realizar una nueva postulación cuando haya solventado los criterios no cumplidos.')}</li>                        
+                        <li>{_('El editor deberá enviar los metadatos de sus artículos  y su carta de postulación de acuerdo con las instrucciones que obtendrá al finalizar el proceso de pre-evaluación.')}</li>
+                        
+                        <li>{_('El Comité de Evaluación y Selección validará el resultado de la pre-evaluación. Si el Comité determina que esta es correcta, se le enviará por correo electrónico una carta de aceptación y su revista será indizada en CLASE o PERIÓDICA, BIBLAT y catálogo SeriUNAM. De lo contrario, el Comité emitirá las recomendaciones que considere pertinentes para realizar una nueva postulación cuando haya solventado los criterios no cumplidos.')}</li>                                               
                         
                         <li>{_('El equipo de analistas de Biblat valida, convierte y normaliza los metadatos recibidos y los carga a las bases de datos CLASE, PERIÓDICA y portal Biblat.')}</li>
                 </ol><br>
                 
-                <p>{_('Biblat recibe solicitudes todos los días y el tiempo estimado de dictaminación es de cuatro semanas, según la carga de trabajo que se tenga. Sin embargo, usted puede contactarnos en cualquier momento para pedir información sobre su proceso de postulación.')}</p><br>
+                <p>{_('Biblat recibe solicitudes todos los días y el tiempo estimado de dictaminación es de cuatro semanas, según la carga de trabajo que se tenga. Sin embargo, usted puede contactarnos en cualquier momento para pedir información sobre su proceso de postulación.')}</p><br><br>
                 
-                <p><b>{_('¿Qué evaluamos?')}</b></p>
+                <p><b>{_('¿Qué evaluamos?')}</b></p><br>
                 
-                <p>{_('Biblat incluye revistas académicas de investigación, técnico-profesionales y de divulgación científica o cultural. Se aceptan preferentemente publicaciones electrónicas; también incluimos revistas impresas con la recomendación de compartir la versión PDF de sus artículos con objeto de posibilitar la mayor difusión y disponibilidad de los documentos para los usuarios.')}</p><br>
-                
+                <p>{_('Se evalúan 48 criterios editoriales, de los cuales, del 1 al 33 son obligatorios y deben ser cumplidos para que las revistas sean consideradas en el proceso de postulación. Los criterios 34 al 48 son un referente de calidad editorial y se exige un mínimo de 7 criterios.')}</p><br>
+                                
                 <p>{_('Todas las revistas son evaluadas por nuestro Comité de Evaluación y Selección a partir de 3 clases de criterios.')}</p><br>                    
                 
                 <ol type=a>
@@ -35,9 +38,9 @@
 			<li>{_('Gestión y visibilidad: Se refiere a la existencia de un equipo editorial formal que trabaja para la revista. Además, se valora que la publicación ya esté indizada en otros sistemas (salvo que sea una revista con menos de 1 año de existencia).')}</li>
 
 			<li>{_('Metadatos de indización: En cada artículo publicado deben constar los metadatos necesarios: título, autor(es) con su afiliación institucional, resúmenes y palabras clave en al menos dos idiomas.')}</li>
-		</ol><br>
+                </ol><br><br>
                 
-                <p><b>{_('Contáctenos')}</b></p>
+                <p id="contacto"><b>{_('Contáctenos')}</b></p><br>
                 
                 <p><b>{_('Información general')}</b></p>
                 
@@ -53,14 +56,21 @@
                     <a href="mailto:biblat_gestion@dgb.unam.mx">biblat_gestion@dgb.unam.mx</a>
                 </p>
                 
-                <p><b>{_('Certificados de indización')}</b></p>
+                <p><b>{_('Certificados de indización Biblat, CLASE y PERIÓDICA')}</b></p>
                 
                 <p>
                     Blanca Estela Aguilar Rocha<br>
                     <a href="mailto:baguilar@dgb.unam.mx">baguilar@dgb.unam.mx</a>
                 </p>
                 
-                <p>{_('Para cualquier otra consulta escriba a <a href="mailto:biblat_comite@dgb.unam.mx">biblat_comite@dgb.unam.mx</a>.')}</p><br>
+                <p><b>{_('Certificados de indización SeriUNAM')}</b></p>
+                
+                <p>
+                    Luis Javier Felix Acosta<br>
+                    <a href="mailto:ljfelixa@dgb.unam.mx">ljfelixa@dgb.unam.mx</a>
+                </p>
+                
+                <p>{_('Para cualquier otra consulta escriba a <a href="mailto:biblat_comite@dgb.unam.mx">biblat_comite@dgb.unam.mx</a>.')}</p><br><br>
                 
                 
 
@@ -70,8 +80,6 @@
             <hr/>
         </div>
 		
-                <p>{_('Para ser aprobada la revista debe cumplir con los requisitos obligatorios que se describen a continuación: ')}</p>
-                
                 <p>{_('Para ir directamente al proceso de preevaluación, haga clic en este ')} <a href="{site_url('postular-revista/preevaluacion')}">{_('enlace')}</a></p>
                 <br>
                 
@@ -302,7 +310,7 @@
                                             <li>{_('Los nombres de los autores deben venir acompañados de los respectivos números de registro del ORCID.')}</li>                                            
                                         </ul>
                                     </p>
-                                    <p>{_('Las revistas deben maximizar la internacionalización de la afiliación.')}</p>
+                                    <p>{_('Las revistas deben maximizar la internacionalización de la afiliación de los autores.')}</p>
                                 </td>    
                             </tr>
                             <tr>
