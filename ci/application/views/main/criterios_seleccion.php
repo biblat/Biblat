@@ -24,7 +24,7 @@
                         <li>{_('El equipo de analistas de Biblat valida, convierte y normaliza los metadatos recibidos y los carga a las bases de datos CLASE, PERIÓDICA y portal Biblat.')}</li>
                 </ol><br>
                 
-                <p>{_('Biblat recibe solicitudes todos los días y el tiempo estimado de dictaminación es de cuatro semanas, según la carga de trabajo que se tenga. Sin embargo, usted puede contactarnos en cualquier momento para pedir información sobre su proceso de postulación.')}</p><br><br>
+                <p>{_('Biblat recibe solicitudes todos los días y el tiempo estimado de dictaminación es de cuatro semanas, según la carga de trabajo que se tenga.')}</p><br><br>
                 
                 <p><b>{_('¿Qué evaluamos?')}</b></p><br>
                 
@@ -40,40 +40,6 @@
 			<li>{_('Metadatos de indización: En cada artículo publicado deben constar los metadatos necesarios: título, autor(es) con su afiliación institucional, resúmenes y palabras clave en al menos dos idiomas.')}</li>
                 </ol><br><br>
                 
-                <p id="contacto"><b>{_('Contáctenos')}</b></p><br>
-                
-                <p><b>{_('Información general')}</b></p>
-                
-                <p>
-                    Manuel Alejandro Flores Chávez<br>
-                    <a href="mailto:biblat_comite@dgb.unam.mx">biblat_comite@dgb.unam.mx</a>
-                </p>
-                
-                <p><b>{_('Dudas acerca del estatus de su revista en Biblat, CLASE o PERIÓDICA')}</b></p>
-                
-                <p>
-                    Guadalupe Argüello Mendoza<br>
-                    <a href="mailto:biblat_gestion@dgb.unam.mx">biblat_gestion@dgb.unam.mx</a>
-                </p>
-                
-                <p><b>{_('Certificados de indización Biblat, CLASE y PERIÓDICA')}</b></p>
-                
-                <p>
-                    Blanca Estela Aguilar Rocha<br>
-                    <a href="mailto:baguilar@dgb.unam.mx">baguilar@dgb.unam.mx</a>
-                </p>
-                
-                <p><b>{_('Certificados de indización SeriUNAM')}</b></p>
-                
-                <p>
-                    Luis Javier Felix Acosta<br>
-                    <a href="mailto:ljfelixa@dgb.unam.mx">ljfelixa@dgb.unam.mx</a>
-                </p>
-                
-                <p>{_('Para cualquier otra consulta escriba a <a href="mailto:biblat_comite@dgb.unam.mx">biblat_comite@dgb.unam.mx</a>.')}</p><br><br>
-                
-                
-
 		<div class="page_title">
             <hr/>
             <h4>{_('Plantilla de evaluación del Comité de Selección de Revistas para las bases de datos CLASE, PERIÓDICA y Catálogo SERIUNAM')}</h4>
@@ -86,8 +52,8 @@
 		<table class="table table-striped table-bordered table-hover">
 			<thead>
 				<tr class="encabezado">
-                                    <td><b>{_('No.')}</b></td>
-                                    <td><b>{_('Requisitos obligatorios')}</b></td>
+                                    <td style="background-color: #ff800040"><b>{_('No.')}</b></td>
+                                    <td style="background-color: #ff800040"><b>{_('Requisitos obligatorios')}</b></td>
 					<!--<td>{_('Puntos')}</td>-->
 				</tr>
 			</thead>
@@ -228,8 +194,8 @@
 			</tbody>
                         <thead>
 				<tr class="encabezado">
-					<td></td>
-                                        <td><b>{_('Requisitos no obligatorios:')}</b> {_('Son un referente de calidad para las revistas y agregan puntajes extras en la presente evaluación.')}</td>
+                                    <td style="background-color: #ff800040"></td>
+                                        <td style="background-color: #ff800040"><b>{_('Requisitos no obligatorios:')}</b> {_('Son un referente de calidad para las revistas y agregan puntajes extras en la presente evaluación.')}</td>
 				</tr>
                         </thead>
                         <tbody>
@@ -374,5 +340,37 @@
                 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{_('SciELO-Brasil:')}</b> {_('http://www.scielo.br/avaliacao/Criterios_SciELO_Brasil_versao_revisada_atualizada_outubro_20171206_EN.pdf')}</p>
                 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{_('Latindex - Características del Catálogo 2.0:')}</b> {_('http://www.latindex.org/latindex/meto2')}</p>
                 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{_('RedALyC:')}</b> {_('https://www.redalyc.org/redalyc/editores/evaluacionCriterios.html')}</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{_('DOAJ:')}</b> {_('https://www.doaj.org/application/new')}</p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{_('DOAJ:')}</b> {_('https://www.doaj.org/application/new')}</p><br><br>
+                
+                <p id="contacto"><b>{_('Contáctenos')}</b></p><br>
+                
+                <p><b>{_('Información general')}</b></p>
+                
+                <p>
+                    Manuel Alejandro Flores Chávez<br>
+                    <a href="mailto:biblat_comite@dgb.unam.mx">biblat_comite@dgb.unam.mx</a>
+                </p>
+                
+                <p><b>{_('Dudas acerca del estatus de su revista en Biblat, CLASE o PERIÓDICA')}</b></p>
+                
+                <p>
+                    Guadalupe Argüello Mendoza<br>
+                    <a href="mailto:biblat_gestion@dgb.unam.mx">biblat_gestion@dgb.unam.mx</a>
+                </p>
+                
+                <p><b>{_('Certificados de indización Biblat, CLASE y PERIÓDICA')}</b></p>
+                
+                <p>
+                    Blanca Estela Aguilar Rocha<br>
+                    <a href="mailto:baguilar@dgb.unam.mx">baguilar@dgb.unam.mx</a>
+                </p>
+                
+                <p><b>{_('Certificados de indización SeriUNAM')}</b></p>
+                
+                <p>
+                    Luis Javier Felix Acosta<br>
+                    <a href="mailto:ljfelixa@dgb.unam.mx">ljfelixa@dgb.unam.mx</a>
+                </p>
+                
+                <p>{_('Para cualquier otra consulta escriba a <a href="mailto:biblat_comite@dgb.unam.mx">biblat_comite@dgb.unam.mx</a>.')}</p><br><br>
 		

@@ -2,7 +2,7 @@
     <div class="col-md-12">
     ¡Postule su revista ahora!<br>
     Le presentamos 48 criterios que se consideran para su ingreso; 33 son obligatorios y 15 opcionales. Para aprobar, requiere cumplir 40 criterios; 33 obligatorios y al menos 7 opcionales.<br>
-    Navegue a través de ellos con ayuda de la barra de números que se encontrará en la parte inferior, para cada criterio cumplido haga clic en el botón "Cumplo este criterio", de lo contrario, déjelo en blanco. Podrá bservar su progreso en la gráfica del lado derecho.<br>
+    Navegue a través de ellos con ayuda de la barra de números que se encontrará en la parte inferior, para cada criterio cumplido haga clic en el botón "Cumplo este criterio", de lo contrario, déjelo en blanco. Podrá observar su progreso en la gráfica del lado derecho.<br>
     Si reúne los criterios obligatorios, podrá decidir postular su revista, de no cumplir con dichos criterios, le proporcionaremos un resumen de su preevaluación, cuando cumpla con los criterios faltantes podrá realizarla nuevamente.
     <div class="row"><br></div>
         <center>
