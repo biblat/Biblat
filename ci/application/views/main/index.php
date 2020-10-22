@@ -9,13 +9,13 @@
 
   <!-- Wrapper for slides -->
   <div class="carousel-inner" role="listbox">
-    <div class="item active">
+<!--    <div class="item active">
         {$svg}
-    </div>
+    </div>-->
     <div class="item">
       <img class="img-responsive center-block" src="{base_url('img/slides/banners_02.jpg')}"/>
     </div>
-    <div class="item">
+    <div class="item active">
       <a href="{site_url('indicadores')}"><img class="img-responsive center-block" src="{base_url('img/slides/banners_03.jpg')}"/></a>
     </div>
     <div class="item">
