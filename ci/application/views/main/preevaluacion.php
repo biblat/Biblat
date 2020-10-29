@@ -1,9 +1,10 @@
 <div class="row" id="row_comenzar">
     <div class="col-md-12">
     ¡Postule su revista ahora!<br>
-    Le presentamos 48 criterios que se consideran para su ingreso; 33 son obligatorios y 15 opcionales. Para aprobar, requiere cumplir 40 criterios; 33 obligatorios y al menos 7 opcionales.<br>
-    Navegue a través de ellos con ayuda de la barra de números que se encontrará en la parte inferior, para cada criterio cumplido haga clic en el botón "Cumplo este criterio", de lo contrario, déjelo en blanco. Podrá observar su progreso en la gráfica del lado derecho.<br>
-    Si reúne los criterios obligatorios, podrá decidir postular su revista, de no cumplir con dichos criterios, le proporcionaremos un resumen de su preevaluación, cuando cumpla con los criterios faltantes podrá realizarla nuevamente.
+    La evaluación de las revistas consta de 48 criterios: 33 de los cuales son obligatorios y 15 opcionales. Para aprobar se requiere el cumplimiento de 40 criterios: los 33 obligatorios y, al menos, 7 opcionales.<br>
+    Inicie la pre-evaluación dando clic en el botón de "Comenzar". Posteriormente, los criterios se desplegarán consecutivamente y podrá navegar a través de ellos mediante la barra de números que se encontrará en la parte inferior. Para cada criterio cumplido, haga clic en el botón "Cumplo este criterio"; de lo contrario, déjelo en blanco. Podrá observar el cumplimiento alcanzado en la gráfica del lado derecho.<br>
+    Si reúne los criterios obligatorios, podrá enviar la postulación de la revista. En caso de no cumplir con dichos criterios, le proporcionaremos un resumen de la pre-evaluación, misma que será de utilidad para procurar el cumplimiento de los criterios faltantes y realizar posteriormente la postulación.<br>
+    Los resultados obtenidos en esta pre-evaluación deberán ser revisados y validados por el Comité Evaluación para emitir el dictamen definitivo de aprobación.
     <div class="row"><br></div>
         <center>
             <button type="button" class="btn btn-warning" id="btn_comenzar">Comenzar</button>

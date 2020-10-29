@@ -89,7 +89,7 @@
                         <div class="row">
                             <div id="dgb-unam" class="col-md-12 text-right hidden-xs hidden-sm">
                                 {if $uri->segment(2) == "scielo"}<a href="http://scielo.org" title="Scientific Electronic Library Online" target="_blank"><span class="bl-scielo fa-5x"></span></a>{/if}
-                                <a href="http://dgb.unam.mx" title="{_('Dirección General de Bibliotecas')}" target="_blank"><!--span class="bl-dgb fa-5x"></span--><span><img style="width:100px;position:absolute;top:10px;right:100px " src="{base_url('img/logo_dgbsdi.png')}"></span></a>
+                                <a href="http://dgb.unam.mx" title="{_('Dirección General de Bibliotecas')}" target="_blank"><!--span class="bl-dgb fa-5x"></span--><span><img style="width:100px;position:absolute;top:10px;right:100px " src="{base_url('img/logo_dgbsdi.svg')}"></span></a>
                                 <a href="http://www.unam.mx" title="{_('Universidad Nacional Autónoma de México')}" target="_blank"><span class="bl-unam fa-5x"></span></a>
                             </div>
                             <div class="col-md-12 navbar-main">
@@ -170,7 +170,7 @@
                                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">{_('Postular una revista')}<span class="caret"></span></a>
                                                     <ul class="dropdown-menu" role="menu">
                                                         <li><a href="{site_url('postular-revista/criterios-de-seleccion')}">{_('Criterios de selección de revistas')}</a></li>
-<!--                                                        <li><a href="{site_url('postular-revista/preevaluacion')}">{_('Preevaluacion')}</a></li>-->
+                                                        <li><a href="{site_url('postular-revista/preevaluacion')}">{_('Preevaluacion')}</a></li>
                                                     </ul>
                                                 </li>
                                                 <li><a href="#">{_('Políticas de acceso')}</a></li>

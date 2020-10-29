@@ -1,36 +1,36 @@
                 <p><b>{_('Información General')}</b></p><br>
 
-                <p>{$clase=_('Citas Latinoamericanas en Ciencias Sociales y Humanidades') $periodica=_('Índice de Revistas Latinoamericanas en Ciencias') _sprintf('¡Gracias por su interés en Biblat! Al elegirnos, usted estará contribuyendo al desarrollo de indicadores y productos bibliométricos que impulsen la toma de decisiones en el entorno editorial académico; además, su revista será incluida en los resultados de búsqueda de Google y formará parte de %s o %s, dos de las bases de datos pioneras en América Latina, portal %s y catálogo %s.','<a href="http://clase.unam.mx" target="_blank"><acronym title="$clase">CLASE</acronym></a>','<a href="http://periodica.unam.mx" target="_blank"><acronym title="$periodica">PERIÓDICA</acronym></a>','<a href="http://biblat.unam.mx" target="_blank">BIBLAT</a>','<a href="http://132.248.9.4:8991/F" target="_blank">SeriUNAM</a>')}</p><br>
+                <p>{$clase=_('Citas Latinoamericanas en Ciencias Sociales y Humanidades') $periodica=_('Índice de Revistas Latinoamericanas en Ciencias') _sprintf('¡Gracias por su interés en BIBLAT! Al elegirnos, usted estará contribuyendo al desarrollo de indicadores y productos bibliométricos que impulsen la toma de decisiones en el entorno editorial académico; además, su revista será incluida en los resultados de búsqueda de los metabuscadores en internet y formará parte de %s o %s, dos de las bases de datos pioneras en América Latina, portal %s y catálogo %s.','<a href="http://clase.unam.mx" target="_blank"><acronym title="$clase">CLASE</acronym></a>','<a href="http://periodica.unam.mx" target="_blank"><acronym title="$periodica">PERIÓDICA</acronym></a>','<a href="http://biblat.unam.mx" target="_blank">BIBLAT</a>','<a href="http://132.248.9.4:8991/F" target="_blank">SERIUNAM</a>')}</p><br>
                 
-                <p>{_('CLASE y PERIÓDICA son las dos bases de datos fuente constitutivas de Biblat. CLASE está especializada en revistas de ciencias sociales y humanidades, y PERIÓDICA en ciencias exactas y naturales, incluyendo medicina.')}</p><br>
+                <p>{_('CLASE y PERIÓDICA son las dos bases de datos fuente constitutivas de BIBLAT. CLASE está especializada en revistas de ciencias sociales y humanidades, y PERIÓDICA en ciencias exactas y naturales, incluyendo medicina.')}</p><br>
                 
-                <p>{_('Por su parte, SeriUNAM es el catálogo de todas las revistas disponibles en el Sistema Bibliotecario y de Información de la UNAM.')}</p><br>
+                <p>{_('Por su parte, SERIUNAM es el catálogo de todas las revistas disponibles en el Sistema Bibliotecario y de Información de la UNAM.')}</p><br>
                 
                 <p>{_('Al postular una revista, podrá unirse a la Hemeroteca Virtual Latinoamericana (HEVILA), un proyecto estrictamente académico y sin costo para la difusión de los textos completos. Si desea participar, deberá aceptar el resguardo de una copia de los archivos PDF en la Hemeroteca y que los registros de su revista incluyan un enlace a HEVILA, sin que ello suponga ninguna cesión de derechos ni de exclusividad.')}</p><br>
                 
                 <p>{_('Para más información')} <a href="#contacto">{_(' contáctenos.')}</a></p><br><br>
                 
-                <p><b>{_('Proceso de Evaluación y Selección')}</b></p><br>
+                <p><b>{_('Proceso de Evaluación')}</b></p><br>
                 
-                <p>{_('Para incorporarse a Biblat, su revista debe cumplir un mínimo de 40 criterios editoriales, proporcionar los datos de identificación y de comité científico, y enviar los metadatos de los artículos que se hayan publicado en los últimos 3 fascículos. El procedimiento es el siguiente:')}</p><br>                
+                <p>{_('Para incorporarse a BIBLAT, su revista debe cumplir un mínimo de 40 criterios editoriales, proporcionar los datos de identificación y del comité científico, y enviar los metadatos de los artículos publicados en los últimos 3 fascículos. El procedimiento es el siguiente:')}</p><br>                
                 
                 <ol>                    
                         <li>{_('El editor debe completar el ')} <a href="{site_url('postular-revista/preevaluacion')}">{_('formulario de pre-evaluación')}</a> {_(' siguiendo las instrucciones que allí mismo se proporcionan.')}</li>
                         
                         <li>{_('El editor deberá enviar los metadatos de sus artículos  y su carta de postulación de acuerdo con las instrucciones que obtendrá al finalizar el proceso de pre-evaluación.')}</li>
                         
-                        <li>{_('El Comité de Evaluación y Selección validará el resultado de la pre-evaluación. Si el Comité determina que esta es correcta, se le enviará por correo electrónico una carta de aceptación y su revista será indizada en CLASE o PERIÓDICA, BIBLAT y catálogo SeriUNAM. De lo contrario, el Comité emitirá las recomendaciones que considere pertinentes para realizar una nueva postulación cuando haya solventado los criterios no cumplidos.')}</li>                                               
+                        <li>{_('El Comité de Evaluación validará el resultado de la pre-evaluación. Si el Comité determina que ésta es correcta, se le enviará por correo electrónico una carta de aceptación y su revista será indizada en CLASE o PERIÓDICA, BIBLAT y catálogo SERIUNAM. De lo contrario, el Comité emitirá las recomendaciones que considere pertinentes para realizar una nueva postulación cuando haya solventado los criterios no cumplidos.')}</li>                                               
                         
-                        <li>{_('El equipo de analistas de Biblat valida, convierte y normaliza los metadatos recibidos y los carga a las bases de datos CLASE, PERIÓDICA y portal Biblat.')}</li>
+                        <li>{_('El equipo de analistas de BIBLAT valida, convierte y normaliza los metadatos recibidos y los carga a las bases de datos CLASE, PERIÓDICA y portal BIBLAT.')}</li>
                 </ol><br>
                 
-                <p>{_('Biblat recibe solicitudes todos los días y el tiempo estimado de dictaminación es de cuatro semanas, según la carga de trabajo que se tenga.')}</p><br><br>
+                <p>{_('BIBLAT recibe solicitudes todos los días y el tiempo estimado de dictaminación es de cuatro semanas, dependiendo de la cantidad de solicitudes recibida.')}</p><br><br>
                 
                 <p><b>{_('¿Qué evaluamos?')}</b></p><br>
                 
                 <p>{_('Se evalúan 48 criterios editoriales, de los cuales, del 1 al 33 son obligatorios y deben ser cumplidos para que las revistas sean consideradas en el proceso de postulación. Los criterios 34 al 48 son un referente de calidad editorial y se exige un mínimo de 7 criterios.')}</p><br>
                                 
-                <p>{_('Todas las revistas son evaluadas por nuestro Comité de Evaluación y Selección a partir de 3 clases de criterios.')}</p><br>                    
+                <p>{_('Todas las revistas son evaluadas por nuestro Comité de Evaluación a partir de 3 tipos de criterios.')}</p><br>                    
                 
                 <ol type=a>
 			<li>{_('Normalización editorial: Aseguran la correcta identificación de la revista. Un título, el ISSN y una periodicidad regular al inicio de cada período, son parte de estos criterios. ')}</li>
@@ -42,11 +42,11 @@
                 
 		<div class="page_title">
             <hr/>
-            <h4>{_('Plantilla de evaluación del Comité de Selección de Revistas para las bases de datos CLASE, PERIÓDICA y Catálogo SERIUNAM')}</h4>
+            <h4>{_('Plantilla de evaluación del Comité de Evaluación de Revistas de CLASE, PERIÓDICA y Catálogo SERIUNAM')}</h4>
             <hr/>
         </div>
 		
-                <p>{_('Para ir directamente al proceso de preevaluación, haga clic en este ')} <a href="{site_url('postular-revista/preevaluacion')}">{_('enlace')}</a></p>
+                <p>{_('Para ir directamente al proceso de pree-valuación, haga clic en este ')} <a href="{site_url('postular-revista/preevaluacion')}">{_('enlace')}</a></p>
                 <br>
                 
 		<table class="table table-striped table-bordered table-hover">
@@ -337,10 +337,10 @@
                 
                 <p><b>{_('Fuentes')}</b></p>
                 <p>{_('La actualización de la plantilla de evaluación de CLASE, PERIÓDICA y SERIUNAM retomó (en algunos puntos con las mismas palabras incluso) los criterios adoptados por:')}</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{_('SciELO-Brasil:')}</b> {_('http://www.scielo.br/avaliacao/Criterios_SciELO_Brasil_versao_revisada_atualizada_outubro_20171206_EN.pdf')}</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{_('Latindex - Características del Catálogo 2.0:')}</b> {_('http://www.latindex.org/latindex/meto2')}</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{_('RedALyC:')}</b> {_('https://www.redalyc.org/redalyc/editores/evaluacionCriterios.html')}</p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{_('DOAJ:')}</b> {_('https://www.doaj.org/application/new')}</p><br><br>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{_('SciELO-Brasil:')}</b> <a target="_blank" href="http://www.scielo.br/avaliacao/Criterios_SciELO_Brasil_versao_revisada_atualizada_outubro_20171206_EN.pdf"> {_('http://www.scielo.br/avaliacao/Criterios_SciELO_Brasil_versao_revisada_atualizada_outubro_20171206_EN.pdf')} </a></p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{_('Latindex - Características del Catálogo 2.0:')}</b> <a target="_blank" href="http://www.latindex.org/latindex/meto2"> {_('http://www.latindex.org/latindex/meto2')}</a></p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{_('RedALyC:')}</b> <a target="_blank" href="https://www.redalyc.org/redalyc/editores/evaluacionCriterios.html"> {_('https://www.redalyc.org/redalyc/editores/evaluacionCriterios.html')}</a></p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{_('DOAJ:')}</b> <a target="_blank" href="https://www.doaj.org/application/new"> {_('https://www.doaj.org/application/new')}</a></p><br><br>
                 
                 <p id="contacto"><b>{_('Contáctenos')}</b></p><br>
                 
@@ -351,21 +351,21 @@
                     <a href="mailto:biblat_comite@dgb.unam.mx">biblat_comite@dgb.unam.mx</a>
                 </p>
                 
-                <p><b>{_('Dudas acerca del estatus de su revista en Biblat, CLASE o PERIÓDICA')}</b></p>
+                <p><b>{_('Dudas acerca del estatus de su revista en BIBLAT, CLASE o PERIÓDICA')}</b></p>
                 
                 <p>
                     Guadalupe Argüello Mendoza<br>
                     <a href="mailto:biblat_gestion@dgb.unam.mx">biblat_gestion@dgb.unam.mx</a>
                 </p>
                 
-                <p><b>{_('Certificados de indización Biblat, CLASE y PERIÓDICA')}</b></p>
+                <p><b>{_('Certificados de indización BIBLAT, CLASE y PERIÓDICA')}</b></p>
                 
                 <p>
                     Blanca Estela Aguilar Rocha<br>
                     <a href="mailto:baguilar@dgb.unam.mx">baguilar@dgb.unam.mx</a>
                 </p>
                 
-                <p><b>{_('Certificados de indización SeriUNAM')}</b></p>
+                <p><b>{_('Certificados de indización SERIUNAM')}</b></p>
                 
                 <p>
                     Luis Javier Felix Acosta<br>
