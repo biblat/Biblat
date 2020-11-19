@@ -114,8 +114,12 @@
             <a class="list-group-item"href="{site_url('indicadores/modelo-bradford-revista')}"><span class="fa fa-line-chart"></span> {_('Modelo de Bradford por revista')}</a>
             <a class="list-group-item"href="{site_url('indicadores/modelo-bradford-institucion')}"><span class="fa fa-line-chart"></span> {_('Modelo de Bradford (Productividad institucional)')}</a>
             <a class="list-group-item"href="{site_url('indicadores/productividad-exogena')}"><span class="fa fa-line-chart"></span> {_('Productividad exógena por título de revista')}</a>
-            <a class="list-group-item"href="javascript:;"><span class="fa fa-line-chart"></span> {_('Regionalización de la producción institucional')}</a>
-            <a class="list-group-item"href="javascript:;"><span class="fa fa-line-chart"></span> {_('Coautoría según país de la institución de afiliación del autor')}</a>
+			<a class="list-group-item"href="{site_url('indicadores/productividad-exogenah')}"><span class="fa fa-line-chart"></span> {_('Productividad exógena anual de una revista dividida por país')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></a>
+            <a class="list-group-item"href="{site_url('indicadores/frecuencias-institucion-documento')}"><span class="fa fa-line-chart"></span> {_('Documentos de una revista por institución de afiliación del autor')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></a>
+            <a class="list-group-item"href="{site_url('indicadores/frecuencias-institucion-documentoh')}"><span class="fa fa-line-chart"></span> {_('Documentos anuales de una revista por institución de afiliación del autor')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></a>
+            <a class="list-group-item"href="{site_url('indicadores/coautoria-pais')}"><span class="fa fa-line-chart"></span> {_('Representación de coautorías entre países')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></a>
+            <!--<a class="list-group-item"href="javascript:;"><span class="fa fa-line-chart"></span> {_('Regionalización de la producción institucional')}</a>-->
+            <!--<a class="list-group-item"href="javascript:;"><span class="fa fa-line-chart"></span> {_('Coautoría según país de la institución de afiliación del autor')}</a>-->
         </div>
     </div><!-- Indicadores bibliometricos -->
     <div class="clearfix"></div>

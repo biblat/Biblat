@@ -13,11 +13,12 @@ var revistaHidden =  ['indice-concentracion', 'productividad-exogena'];
 var revistaHidden =  [];
 <?php 	endif;?>
 var soloDisciplina = ['modelo-bradford-revista', 'modelo-bradford-institucion', 'indice-concentracion', 'productividad-exogena'];
-var soloPaisAutor = ['indice-coautoria', 'tasa-documentos-coautorados', 'indice-colaboracion', 'frecuencias-institucion-documento'];
+var soloPaisAutor = ['indice-coautoria', 'tasa-documentos-coautorados', 'indice-colaboracion', 'frecuencias-institucion-documento', 'coautoria-pais'];
+var agregaPeriodo = ['productividad-exogena'];
 var cloneToolTip = {};
 Highcharts.setOptions({
 	colors: ['#3366CC', '#DC3912', '#FF9900', '#109618', '#990099', '#0099C6', '#DD4477', '#66AA00', '#B82E2E', '#316395', '#22AA99', '#AAAA11', '#6633CC', '#E67300', '#8B0707', '#651067'],
-	lang: {decimalPoint: '.', thousandsSep: ','}
+	lang: {decimalPoint: '.', thousandsSep: ',', drillUpText:'< Regresar' }
 });
 $(document).ready(function(){
 	$('.carousel').carousel({
@@ -29,6 +30,8 @@ $(document).ready(function(){
 
 	$("#indicador").on("change", function(e){
 		value = $(this).val();
+		if(window.location.href.indexOf(value)===-1)
+            window.location.replace(window.location.protocol+'//'+window.location.hostname+'/indicadores/'+ value);
 		$("#paisRevistaDiv, #periodos, #tabs, #chartContainer, #bradfodContainer, #prattContainer").hide("slow");
 		$("#disciplina").select2("val", "");
 		$("#sliderPeriodo").prop('disabled', true);
@@ -96,7 +99,8 @@ $(document).ready(function(){
 				dataType: 'json',
 				data: $("#generarIndicador").serialize(),
 				async: asyncAjax,
-				success: function(data) {
+				complete: function(data) {
+                                        data = JSON.parse(data.responseText);
 					console.log(data);
 					controlsTotal = 0;
 					$("#revista, #paisRevista, #paisAutor").empty().append('<option></option>');
@@ -140,10 +144,11 @@ $(document).ready(function(){
 							sticker: false
 						});
 					}
-				},
-				complete: function(){
-					loading.end();
-				}
+                                        loading.end();
+				}//,
+				//complete: function(){
+				//	loading.end();
+				//}
 			});
 		}
 		if(typeof history.pushState === "function" && !popState.disciplina){
@@ -170,7 +175,7 @@ $(document).ready(function(){
 		if (value != "" && value != null) {
 			$("#paisRevista").select2("enable", false);
 			$("#paisAutor").select2("enable", false);
-			if($.inArray(indicadorValue, revistaHidden) == -1){
+			if($.inArray(indicadorValue, revistaHidden) == -1 || $.inArray(indicadorValue, agregaPeriodo) > -1){
 				setPeridos();
 			}else{
 				$("#generarIndicador").submit();
@@ -292,7 +297,8 @@ $(document).ready(function(){
 		  type: 'POST',
 		  dataType: 'json',
 		  data: $(this).serialize(),
-		  success: function(data) {
+		  complete: function(data) {
+                        data = JSON.parse(data.responseText);
 		  	console.log(data);
 		  	$("#tabs").tabs("option", "active", 0);
 			switch(indicadorValue){
@@ -417,10 +423,11 @@ $(document).ready(function(){
 					google.visualization.events.addListener(tables.normal , 'sort', changeTableClass);
 					break;
 			}
-		  },
-		  complete: function(){
-		  	loading.end();
-		  }
+                        loading.end();
+		  }//,
+		  //complete: function(){
+		  //	loading.end();
+		  //}
 		});
 		console.log(chart);	
 		return false;
@@ -473,7 +480,8 @@ setPeridos = function(){
 		dataType: 'json',
 		data: $("#generarIndicador").serialize(),
 		async: asyncAjax,
-		success: function(data) {
+		complete: function(data) {
+                        data = JSON.parse(data.responseText);
 			console.log(data);
 			console.log($.parseJSON(data.scale));
 			console.log($.parseJSON(data.heterogeneity));
@@ -517,10 +525,11 @@ setPeridos = function(){
 				$("#generate").prop('disabled', true);
 				console.log(data.error);
 			}
-		},
-		complete: function(){
-			loading.end();
-		}
+                        loading.end();
+		}//,
+		//complete: function(){
+		//	loading.end();
+		//}
 	});
 };
 
@@ -614,7 +623,8 @@ choosePoint = function (revistaPais, anio) {
 		type: 'POST',
 		dataType: 'json',
 		data: $("#generarIndicador").serialize(),
-		success: function(data){
+		complete: function(data){
+                        data = JSON.parse(data.responseText);
 			console.log(data);
 			var tableData = new google.visualization.DataTable(data.table);
 			var table = new google.visualization.Table(document.getElementById('floatTable'));
@@ -641,7 +651,8 @@ getFrecuencias = function (key) {
 		type: 'POST',
 		dataType: 'json',
 		data: $("#generarIndicador").serialize(),
-		success: function(data){
+		complete: function(data){
+                        data = JSON.parse(data.responseText);
 			console.log(data);
 			var tableData = new google.visualization.DataTable(data.table);
 			var table = new google.visualization.Table(document.getElementById('floatTable'));
