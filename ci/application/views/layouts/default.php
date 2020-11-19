@@ -149,6 +149,10 @@
                                                                 <li><a href="{site_url('indicadores/modelo-bradford-revista')}">{_('Modelo de Bradford por revista')}</a></li>
                                                                 <li><a href="{site_url('indicadores/modelo-bradford-institucion')}">{_('Modelo de Bradford por institución')}</a></li>
                                                                 <li><a href="{site_url('indicadores/productividad-exogena')}">{_('Tasa de autoría exógena')}</a></li>
+																<li><a href="{site_url('indicadores/productividad-exogenah')}">{_('Tasa anual de autoría exógena por país')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></sup> </a></li>
+																<li><a href="{site_url('indicadores/frecuencias-institucion-documento')}">{_('Representación institucional')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></sup> </a></li>
+                                                                <li><a href="{site_url('indicadores/frecuencias-institucion-documentoh')}">{_('Evolución de representación institucional')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></sup> </a></li>
+                                                                <li><a href="{site_url('indicadores/coautoria-pais')}">{_('Coautoría por país')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></sup></a></li>																																																																 
                                                             </ul>
                                                         </li>
                                                         <li class="divider"></li>

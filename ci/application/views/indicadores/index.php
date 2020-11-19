@@ -337,6 +337,63 @@
 							d	= {_('Total de documentos')}
 						</p>
 					</div>
+                                    
+                                        <div id="info-frecuencias-institucion-documento" class="infoBox">
+						<h4 class="text-center">{_('Representación Institucional')}</h4>
+						<p class="text-justify">
+							{_('Es el número de documentos producidos de acuerdo a la institución de afiliación del autor.')}<br/>
+						</p>
+						<p class="text-left ident1">{_('La formulación matemática es:')}</p>
+						<div class="formula ident2">
+								<i>RI</i> =
+                                                                <span class="fup">&sum;<i>d<sub>i</sub></i></span>
+						</div>
+						<p class="text-left ident1">{_('Donde:')}</p>
+						<p class="text-left ident2">
+							RI = {_('Representación institucional')}<br/>
+							<i>d<sub>i</sub></i>  = {_('Total de documentos que pertenecen a la institución de afiliación del autor')}
+						</p>
+					</div>
+                                        
+                                        <div id="info-frecuencias-institucion-documentoh" class="infoBox">
+						<h4 class="text-center">{_('Evolución de representación institucional')}</h4>
+						<p class="text-justify">
+							{_('Es el número de documentos producidos anualmente de acuerdo a la institución de afiliación del autor.')}<br/>
+						</p>
+						<p class="text-left ident1">{_('La formulación matemática es:')}</p>
+						<div class="formula ident2">
+								<i>RI</i> =
+                                                                <span class="fup">&sum;<i>da<sub>i</sub></i></span>
+						</div>
+						<p class="text-left ident1">{_('Donde:')}</p>
+						<p class="text-left ident2">
+							RI = {_('Representación institucional')}<br/>
+							<i>da<sub>i</sub></i>  = {_('Total de documentos anuales que pertenecen a la institución de afiliación del autor')}
+						</p>
+					</div>
+                                    
+                                        <div id="info-productividad-exogenah" class="infoBox">
+						<h4 class="text-center">{_('Tasa anual de autoría exógena por país')}</h4>
+						<p class="text-justify">
+							{_('Indicador que mide el grado de internacionalización de las revistas, considerando la proporción de autores cuya institución de afiliación es de una nacionalidad distinta a la de la revista. Proporciona la tasa de productividad exógena por revista y la frecuencia de nacionalidad de sus autores.')}<br/>
+							{_('El valor numérico indica la proporción de autores por país extranjero que han publicado en la revista.')}<br/>
+						</p>
+						<p class="text-left ident1">{_('La formulación matemática es:')}</p>
+						<div class="formula ident2">
+								<i>TAE</i> =
+								<div class="fraction">
+									<span class="fup">&sum;<i>ae<sub>p</sub></i></span>
+									<span class="bar">/</span>
+									<span class="fdn">&sum;<i>d<sub>p</sub></i></span>
+								</div>
+						</div>
+						<p class="text-left ident1">{_('Donde:')}</p>
+						<p class="text-left ident2">
+							TAE = {_('Tasa de autoría exógena')}<br/>
+							<i>ae<sub>p</sub></i>	= {_('Autores extranjeros por país')}<br/>
+							<i>d<sub>p</sub></i>	= {_('Total de documentos por país')}
+						</p>
+					</div>
 				</div>
 			</div>
 		</div>
