@@ -88,10 +88,10 @@ $route[$langs.'/buscar/(.*)'] = 'buscar/index/null/null/$1';
 $route[$langs.'/revista/(.+)/articulo/(.+)'] = "revista/articulo/revista/$1/articulo/$2";
 $route[$langs.'/revista/(.*)'] = "revista/index/$1";
 /*≠≠≠≠≠≠≠≠ Indicadores Biblat ≠≠≠≠≠≠≠≠*/
-$route[$langs.'/indicadores/(indice-coautoria|tasa-documentos-coautorados|grado-colaboracion|modelo-elitismo|indice-colaboracion|indice-densidad-documentos|indice-concentracion|modelo-bradford-revista|modelo-bradford-institucion|productividad-exogena|frecuencias-institucion-documento)(.*)/preview\.png$'] = "indicadores/preview/$1";
+$route[$langs.'/indicadores/(indice-coautoria|tasa-documentos-coautorados|grado-colaboracion|modelo-elitismo|indice-colaboracion|indice-densidad-documentos|indice-concentracion|modelo-bradford-revista|modelo-bradford-institucion|productividad-exogena|frecuencias-institucion-documento|coautoria-pais)(.*)/preview\.png$'] = "indicadores/preview/$1";
 
 $route[$langs.'/indicadores/modelo-bradford-revista/disciplina/(.*)/revista/(.*)/documentos(.*)'] = "indicadores/bradfordDocumentos/$1$2";
-$route[$langs.'/indicadores/(indice-coautoria|tasa-documentos-coautorados|grado-colaboracion|modelo-elitismo|indice-colaboracion|indice-densidad-documentos|indice-concentracion|modelo-bradford-revista|modelo-bradford-institucion|productividad-exogena|frecuencias-institucion-documento)(.*)'] = "indicadores/index/$1";
+$route[$langs.'/indicadores/(indice-coautoria|tasa-documentos-coautorados|grado-colaboracion|modelo-elitismo|indice-colaboracion|indice-densidad-documentos|indice-concentracion|modelo-bradford-revista|modelo-bradford-institucion|productividad-exogena|frecuencias-institucion-documento|coautoria-pais)(.*)'] = "indicadores/index/$1";
 
 /*≠≠≠≠≠≠≠≠ Indicadores SciELO ≠≠≠≠≠≠≠≠*/
 $route[$langs.'/scielo/indicadores/((distribucion|citacion)-(articulos|revista|articulos-area|articulos-afiliacion)-(coleccion|area-revista|edad|tipo))(.*)/preview\.png$'] = "scielo/indicadores/preview/$1";
