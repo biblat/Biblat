@@ -13,7 +13,7 @@ var revistaHidden =  ['indice-concentracion', 'productividad-exogena'];
 var revistaHidden =  [];
 <?php 	endif;?>
 var soloDisciplina = ['modelo-bradford-revista', 'modelo-bradford-institucion', 'indice-concentracion', 'productividad-exogena'];
-var soloPaisAutor = ['indice-coautoria', 'tasa-documentos-coautorados', 'indice-colaboracion'];
+var soloPaisAutor = ['indice-coautoria', 'tasa-documentos-coautorados', 'indice-colaboracion', 'frecuencias-institucion-documento'];
 var cloneToolTip = {};
 Highcharts.setOptions({
 	colors: ['#3366CC', '#DC3912', '#FF9900', '#109618', '#990099', '#0099C6', '#DD4477', '#66AA00', '#B82E2E', '#316395', '#22AA99', '#AAAA11', '#6633CC', '#E67300', '#8B0707', '#651067'],
@@ -359,8 +359,15 @@ $(document).ready(function(){
 					chart.pratt = new Array();
 					$.each(data.highchart, function(key, grupo) {
 						active='';
-						if(key == 0){
+						if(key==0){
 							active='active';
+						}
+						if(data.highchart[key].selected != undefined){
+							active='active';
+							if(key > 0){
+								$("#carousel-pratt .carousel-inner div")[0].className="item";
+								$("#carousel-pratt .carousel-indicators li")[0].className="";
+							}
 						}
 						$("#carousel-pratt .carousel-indicators").append('<li data-target="#carousel-pratt" data-slide-to="' + key + '" class="' + active + '"></li>');
 						$("#carousel-pratt .carousel-inner").append('<div class="item ' + active + '">' + data.chartTitle + ' <div id="chartPratt' + key +'" class="chart_data"></div></div>');
@@ -383,6 +390,7 @@ $(document).ready(function(){
 				default:
 					cloneToolTip['normal'] = {};
 					$("#tabs, #chartContainer").show("slow");
+					if(data.highchart.plotOptions.series !== undefined)
 					data.highchart.plotOptions.series.point.events = {click: function(){
 						if(indicadorValue === "modelo-elitismo")
 							choosePoint(this.series.options.id, this.category);
@@ -390,6 +398,7 @@ $(document).ready(function(){
 							cloneToolTipFn(this, 'normal')
 
 					}};
+					if(data.highchart.plotOptions.series !== undefined)
 					data.highchart.plotOptions.series.events = {legendItemClick: function(e){
 								e.preventDefault();
 							}
@@ -397,7 +406,7 @@ $(document).ready(function(){
 					$('#chart').highcharts(data.highchart);
 					chart.normal = $('#chart').highcharts();
 					$("#chartTitle").html(data.chartTitle);
-
+										console.log(data.dataTable);
 					var tableData = new google.visualization.DataTable(data.dataTable);
 					$("#gridContainer").empty();
 					$("#gridContainer").append(data.tableTitle);

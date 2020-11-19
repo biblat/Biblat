@@ -76,16 +76,20 @@
                 <div class="row">   
                     <div id="biblat-logo" class="col-md-4 hidden-xs hidden-sm{if $class_method == "mainindex"} biblat-logo-main{/if}">
                         <a href="{site_url('/')}" title="{_('Bibliografía Latinoamericana')}">
-                            <span class="bl-single"></span><br/>
-                            <span class="bl-large"></span><br/>
-                            <span class="bl-sub"></span><br/>
+                            <!--<span class="bl-single"></span><br/>-->
+                            <!--<span class="bl-large"></span><br/>-->
+                            <!--<span class="bl-sub"></span><br/>-->
+                            <span class="Biblat" style="letter-spacing: 5px; font-size: 15px;line-height: 50px;font-weight: bold;">BIBLAT</span><br/>
+                            <span class="Biblat" style="letter-spacing: 0px; font-size: 15px">Bibliografía Latinoamericana en</span><br/>
+                            <span class="Biblat" style="letter-spacing: 0px; font-size: 15px">revistas de investigación científica y social</span><br/>
+                            <span></span><br/>
                         </a>
                     </div>
                     <div id="menu" class="col-md-8">
                         <div class="row">
                             <div id="dgb-unam" class="col-md-12 text-right hidden-xs hidden-sm">
                                 {if $uri->segment(2) == "scielo"}<a href="http://scielo.org" title="Scientific Electronic Library Online" target="_blank"><span class="bl-scielo fa-5x"></span></a>{/if}
-                                <a href="http://dgb.unam.mx" title="{_('Dirección General de Bibliotecas')}" target="_blank"><span class="bl-dgb fa-5x"></span></a>
+                                <a href="http://dgb.unam.mx" title="{_('Dirección General de Bibliotecas')}" target="_blank"><!--span class="bl-dgb fa-5x"></span--><span><img style="width:100px;position:absolute;top:10px;right:100px " src="{base_url('img/logo_dgbsdi.svg')}"></span></a>
                                 <a href="http://www.unam.mx" title="{_('Universidad Nacional Autónoma de México')}" target="_blank"><span class="bl-unam fa-5x"></span></a>
                             </div>
                             <div class="col-md-12 navbar-main">
@@ -98,7 +102,7 @@
                                                 <span class="icon-bar"></span>
                                                 <span class="icon-bar"></span>
                                             </button>
-                                            <a class="navbar-brand" href="{base_url()}" title="{_('Bibliografía Latinoamericana')}"><span class="bl-single"></span></a>
+                                            <a class="navbar-brand" href="{base_url()}" title="{_('Bibliografía Latinoamericana')}"><!--span class="bl-single"></span--><span class="Biblat" style="letter-spacing: 5px; font-size: 15px;line-height: 50px;font-weight: bold;position:absolute;top:2px;left:10px">BIBLAT</span></a>
                                         </div>
                                         <div class="collapse navbar-collapse navbar-right" id="bs-navbar-collapse-1">
                                             <ul class="nav navbar-nav">
@@ -166,6 +170,7 @@
                                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">{_('Postular una revista')}<span class="caret"></span></a>
                                                     <ul class="dropdown-menu" role="menu">
                                                         <li><a href="{site_url('postular-revista/criterios-de-seleccion')}">{_('Criterios de selección de revistas')}</a></li>
+                                                        <li><a href="{site_url('postular-revista/preevaluacion')}">{_('Preevaluacion')}</a></li>
                                                     </ul>
                                                 </li>
                                                 <li><a href="#">{_('Políticas de acceso')}</a></li>
@@ -293,5 +298,10 @@
             {$template.partials.view_js}
 {/if}
         </script>
+<script>
+    {if $template.partials.main_js}
+        {$template.partials.main_js}
+    {/if}
+</script>
     </body>
 </html>
