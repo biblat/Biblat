@@ -1307,6 +1307,334 @@ class Indicadores extends CI_Controller {
                             'sql2' => "select \"institucionSlug\" nombre, anio, documentos val from \"mvFrecuenciaInstitucionAnioRevista\" where \"anio\" in ". $queryPeriodos . " and \"revistaSlug\" in " . $queryRevistas,
                             'sql3' => "select anio, sum(documentos) val from \"mvFrecuenciaInstitucionAnioRevista\" where \"anio\" in ". $queryPeriodos . " and \"revistaSlug\" in " . $queryRevistas . " group by anio",
                             'sql4' => "select institucion nombre, anio, documentos val from \"mvFrecuenciaInstitucionAnioRevista\" where \"anio\" in ". $queryPeriodos . " and \"revistaSlug\" in " . $queryRevistas . " order by anio asc, nombre asc",
+                            'sql5' => "select anio, count(distinct \"institucionSlug\") val from \"mvFrecuenciaInstitucionAnioRevista\" where anio in ". $queryPeriodos . " and \"revistaSlug\" in " . $queryRevistas . " group by anio order by anio asc",
+                            'yAxis' => array('allowDecimals' => FALSE, 'title' => array('text' => 'Institución')),
+                            'tableCols' => [
+                                            array('id' => '','label' => _('Año'),'type' => 'string'),
+                                            array('id' => '','label' => _('Institución'),'type' => 'string'),
+                                            array('id' => '','label' => _('No. de participaciones'),'type' => 'number')
+                                        ]
+                        );
+                        
+                        $indicador['productividad-exogenah'] = array(
+                            'title' => array(
+					'revista' => '<div class="text-center nowrap"><h4>'._('Tasa anual de autoría exógena por país').'</h4><br/></div>'
+				),
+                            'sql' => "select
+                                                    distinct \"paisAutorSlug\" slug, (array_agg(\"paisAutor\"))[1] nombre 
+                                                from 
+                                                    \"mvProductividadExogenaAnioPaisRevista\" 
+                                                where 
+                                                    \"revistaSlug\" in " . $queryRevistas ."
+                                                and 
+                                                    anio in ". $queryPeriodos . "
+                                                group by 
+                                                    \"paisAutorSlug\" 
+                                                order by nombre desc",
+                            'sql2' =>  "select \"paisAutorSlug\" slug, \"paisAutor\" nombre,anio, exogena val from \"mvProductividadExogenaAnioPaisRevista\" where \"anio\" in ". $queryPeriodos . " and \"revistaSlug\" in " . $queryRevistas,
+                            'yAxis' => array('allowDecimals' => TRUE, 'title' => array('text' => 'País'), 'stackLabels' => array('enabled' => TRUE)),
+                            'tableCols' => [
+                                            array('id' => '','label' => _('Año'),'type' => 'string'),
+                                            array('id' => '','label' => _('País'),'type' => 'string'),
+                                            array('id' => '','label' => _('Proporción de autoría exógena'),'type' => 'number')
+                                        ]
+                        );
+                        
+                        if($args['drill']){
+                            $query = $indicador[$_POST['indicador']]['sql3'];
+                            $query = $this->db->query($query);
+                            
+                            $data['highchart']['series'][0]['name']="Documentos";
+                            $data['highchart']['series'][0]['colorByPoint']=true;
+                            $data['highchart']['yAxis']['title']['text']='Documentos / Instituciones';
+                            $data['highchart']['series'][0]['headerFormat']='<span style="font-size:11px">{point.y} Documentos</span><br>';
+                            //$data['highchart']['tooltip']['headerFormat']='<span style="font-size:11px">{point.y} Documentos</span><br>';
+                            //$data['highchart']['tooltip']['pointFormat']='<span style="font-size:12px">{point.name}</span><br>';
+                            
+                            $cont=0;
+                            foreach ($query->result_array() as $key => $row ):
+                                $data['highchart']['series'][0]['data'][$cont]['name']=$row['anio'];
+                                $data['highchart']['series'][0]['data'][$cont]['y']=intval($row['val']);
+                                $data['highchart']['series'][0]['data'][$cont]['drilldown']=$row['anio'];
+                                $cont++;
+                            endforeach;
+                            
+                            $data['highchart']['series'][1]['name']="Instituciones";
+                            $data['highchart']['series'][1]['type']="spline";
+                            $data['highchart']['series'][1]['color']="#021b4f";
+                            $data['highchart']['series'][1]['headerFormat']='<span style="font-size:11px">{point.y} Instituciones</span><br>';
+                            
+                            $query = $indicador[$_POST['indicador']]['sql5'];
+                            $query = $this->db->query($query);
+                            
+                            $cont=0;
+                            foreach ($query->result_array() as $key => $row ):
+                                $data['highchart']['series'][1]['data'][$cont]=intval($row['val']);
+                                $cont++;
+                            endforeach;
+                            
+                            $query = $indicador[$_POST['indicador']]['sql4'];
+                        }
+                        elseif($args['h']){
+                            $queryInstituciones = $indicador[$_POST['indicador']]['sql'];
+                        
+                            $queryInstituciones = $this->db->query($queryInstituciones);
+                        
+                            $cont=0;
+                            foreach ($queryInstituciones->result_array() as $key => $row ):
+                                $data['highchart']['series'][$cont]['name']=$row['nombre'];
+                                $data['highchart']['aux'][$row['slug']]=$cont;
+                                foreach ($periodos as $p):
+                                    $data['highchart']['series'][$cont]['data'][$p - $anioMin] = null;
+                                endforeach;
+                                $cont++;
+                            endforeach;
+                            
+                            $query = $indicador[$_POST['indicador']]['sql2'];
+                            $data['highchart']['yAxis'] = $indicador[$_POST['indicador']]['yAxis'];
+                        }    
+                        else{
+                            $query = " with consulta as (
+					select 
+						institucion, \"revistaSlug\" revista, sum(documentos) documentos
+					from 
+						\"mvFrecuenciaInstitucionAnioRevista\"
+                                        where
+                                                \"anio\" in ". $queryPeriodos . "
+                                        group by 
+                                                (institucion, \"revistaSlug\") 
+					/*having 
+						sum(documentos) > 5
+					union
+					select 
+						'Instituciones con máximo 5 participaciones', \"revistaSlug\" revista, 5 
+					from 
+						\"mvFrecuenciaInstitucionAnioRevista\"
+                                        where
+                                                \"anio\" in ". $queryPeriodos . "
+                                        group by 
+                                                (institucion, \"revistaSlug\")
+					having 
+						sum(documentos) <= 5*/
+					)	
+					select 
+						institucion, documentos 
+					from 
+						consulta 
+					where 
+						revista in (" . $queryRevistas . ") order by institucion desc";
+                        }    
+		endif;
+                
+                $data['dataTable']['cols'] = $indicador[$_POST['indicador']]['tableCols'];
+                
+                $data['query'] = $query;
+                if($args['h'] && !$args['drill'])
+                    $data['highchart']['xAxis']['categories'] = $periodos;
+                
+		$query = $this->db->query($query);
+		$indicadores = array();
+		$values= [];
+                $cont=0;
+                $valAnt=0;
+                if($args['drill'])
+                    $data['highchart']['drilldown']['series']=[];
+		foreach ($query->result_array() as $key => $row ):
+                        if($args['drill']){
+                            if($valAnt != $row['anio'] && $valAnt != 0){
+                                array_push(
+                                    $data['highchart']['drilldown']['series'], 
+                                    array(
+                                        'tooltip' => array( 
+                                                            'headerFormat' => '<span style="font-size:11px">{point.y} Documentos</span><br>',
+                                                            'pointFormat' => '<span style="font-size:12px">{point.name}</span><br>'
+                                                    ),
+                                        'name' => $valAnt,
+                                        'id' => $valAnt,
+                                        'data' => $obj
+                                    )
+                                );
+                                $cont = 0;
+                                $obj=[];
+                            }
+                            $obj[$cont]=[$row['nombre'],intval($row['val'])];
+                            $valAnt = $row['anio'];
+                            $cont++;
+                            if ($row['val'] === end($query->result_array())['val'] && $row['nombre'] === end($query->result_array())['nombre']) {
+                                array_push(
+                                    $data['highchart']['drilldown']['series'], 
+                                    array(
+                                        'tooltip' => array( 
+                                                            'headerFormat' => '<span style="font-size:11px">{point.y} Documentos</span><br>',
+                                                            'pointFormat' => '<span style="font-size:12px">{point.name}</span><br>'
+                                                    ),
+                                        'name' => $valAnt,
+                                        'id' => $valAnt,
+                                        'data' => $obj
+                                    )
+                                );
+                            }
+                            $cc = array();
+                            $cc[] = array('v' => $row['anio']);
+                            $cc[] = array('v' => $row['nombre']);
+                            $cc[] = array('v' => intval($row['val']));
+                            $data['dataTable']['rows'][]['c'] = $cc;
+                        }elseif($args['h']){
+                            if($_POST['indicador'] == 'productividad-exogenah')
+                                $rowval = floatval(number_format(floatval($row['val']),2));
+                            else
+                                $rowval = intval($row['val']);
+                            
+                            $data['highchart']['series'][$data['highchart']['aux'][$row['slug']]]['data'][$row['anio']-$anioMin] = $rowval;
+                            $cc = array();
+                            $cc[] = array('v' => $row['anio']);
+                            $cc[] = array('v' => $row['nombre']);
+                            $cc[] = array('v' => floatval(number_format(floatval($row['val']),2)));
+                            $data['dataTable']['rows'][]['c'] = $cc;
+                        }   
+                        else{
+                            array_push($values,
+				[$row['institucion'], intval($row['documentos'])]);
+                            /*Filas de la tabla*/
+                            $cc = array();
+                            $cc[] = array('v' => $row['institucion']);
+                            $cc[] = array('v' => intval($row['documentos']));
+                            $data['dataTable']['rows'][]['c'] = $cc;
+                        }
+                        
+                        /*if(ord($row['institucionSlug']) == 117)
+                            $data['highchart']['series'][$data['highchart']['aux'][$row['institucionSlug']]]['stack'] = 'U';
+                        else
+                            $data['highchart']['series'][$data['highchart']['aux'][$row['institucionSlug']]]['stack'] = 'Z';
+			*/
+                        
+		endforeach;
+		$data['highchart']['title'] = array(
+			'text' => 'Representación Institucional',
+			'style' => array(
+				'fontSize' => '12px'
+			)
+		);
+                
+                if(!$args['h'])
+                    $data['highchart']['series'][0] = array(
+			'name' => 'Documentos',
+			'data' => $values
+                    );
+                   
+		/*Generando filas para gráfica y columnas para la tabla*/
+		$setDataTableRows = false;
+		#$data['highchart']['yAxis']['title'] = array('text' => $indicador[$_POST['indicador']]['vTitle']);
+		#$data['highchart']['tooltip']['pointFormat'] = $indicador[$_POST['indicador']]['tooltip'][$selection];
+	       /*	
+		foreach ($series as $key => $value):
+			#$data['highchart']['series']['data'][] = array(
+			array_push($data['highchart']['series']['data'],
+				array(
+					'id' => slug($key),
+					'name' => $key,
+					'data' => $value
+				));
+		endforeach;*/
+
+		/*Opciones para la tabla*/
+		$data['tableOptions'] = array(
+				'allowHtml' => true,
+				'showRowNumber' => false,
+				'cssClassNames' => array(
+					'headerCell' => 'text-center',
+					'tableCell' => 'text-left nowrap'
+					)
+			);
+		#echo json_encode($data['highchart']);
+		#exit(0);
+		/*Titulo de la gráfica*/
+		$data['chartTitle'] = $indicador[$_POST['indicador']]['title'][$selection];
+		$data['tableTitle'] = "<h4 class=\"text-center\">{$this->indicadores[$_POST['indicador']]}</h4>";
+		if($this->preview)
+			return $data['highchart'];
+		$data['highchart']['title']=null;
+		header('Content-Type: application/json');
+		echo json_encode($data, true);
+	}
+		$series = array();
+		$this->load->database();
+		/*Convirtiendo el periodo en dos fechas*/
+		$_POST['periodo'] = explode(";", $_POST['periodo']);
+		/*Generamos el arreglo de periodos*/
+		$periodos = $this->getPeriodos($_POST);
+                $data['periodo'] = $periodos;               
+		/*Consulta para cada indicador*/
+		$indicador['frecuencias-institucion-documento'] = array(
+			'campoTabla' => "coautoria AS valor FROM \"mvIndiceCoautoriaPrice",
+			'title' => array(
+					'revista' => '<div class="text-center nowrap"><h4>'._('Representación institucional').'</h4><br/>'._('Número de documentos por institución de afiliación del autor').'</div>'
+				),
+			'vTitle' => _('Índice de representación'),
+			'hTitle' => _('Año'),
+			'tooltip' => array(
+					'revista' => _('<b>{series.name}</b><br/>Cantidad de documentos por institución en el año {point.category}: <b>{point.y}</b>'),
+				),
+                        'tableCols' => [
+                                            array('id' => '','label' => _('Institución'),'type' => 'string'),
+                                            array('id' => '','label' => _('No. de participaciones'),'type' => 'number')
+                                        ]
+			);
+                
+		$selection = 'revista';
+		if (isset($_POST['revista'])):
+			//$data['dataTable']['cols'][] = array('id' => '','label' => _('Institución'),'type' => 'string');
+                        //$data['dataTable']['cols'][] = array('id' => '','label' => _('No. de participaciones'),'type' => 'number');                                               
+                        if($args['drill'])
+                            $data['highchart'] = $this->highcharts['columnDrillDown'];
+                        elseif($args['h'])
+                            $data['highchart'] = $this->highcharts['stackColumn'];
+                        else
+                            $data['highchart'] = $this->highcharts['donut'];
+                        $offset=1;
+                        $total=count($periodos);
+                        
+                        $anioMin=$periodos[0];
+			$queryPeriodos .="(";
+                        foreach ($periodos as $p):
+				$queryPeriodos .= "'{$p}'";
+				if($offset < $total):
+					$queryPeriodos .=",";
+				endif;
+				$offset++;
+			endforeach;
+                        $queryPeriodos .=")";
+                        
+                        $queryRevistas .="(";
+                        $revistaOffset=1;
+			$revistaTotal=count($_POST['revista']);
+			foreach ($_POST['revista'] as $revista):
+				$queryRevistas .= "'{$revista}'";
+				if($revistaOffset < $revistaTotal):
+					$queryRevistas .=",";
+				endif;
+				$revistaOffset++;
+			endforeach;
+                        $queryRevistas .=")";
+                        
+                        $indicador['frecuencias-institucion-documentoh'] = array(
+                            'title' => array(
+					'revista' => '<div class="text-center nowrap"><h4>'._('Evolución de representación institucional').'</h4><br/>'._('Número de documentos anuales por institución de afiliación del autor').'</div>'
+				),
+                            'sql' => "select
+                                                    distinct \"institucionSlug\" slug, (array_agg(institucion))[1] nombre 
+                                                from 
+                                                    \"mvFrecuenciaInstitucionAnioRevista\" 
+                                                where 
+                                                    \"revistaSlug\" in " . $queryRevistas ."
+                                                and 
+                                                    anio in ". $queryPeriodos . "
+                                                group by 
+                                                    \"institucionSlug\" 
+                                                order by nombre desc",
+                            'sql2' => "select \"institucionSlug\" nombre, anio, documentos val from \"mvFrecuenciaInstitucionAnioRevista\" where \"anio\" in ". $queryPeriodos . " and \"revistaSlug\" in " . $queryRevistas,
+                            'sql3' => "select anio, sum(documentos) val from \"mvFrecuenciaInstitucionAnioRevista\" where \"anio\" in ". $queryPeriodos . " and \"revistaSlug\" in " . $queryRevistas . " group by anio",
+                            'sql4' => "select institucion nombre, anio, documentos val from \"mvFrecuenciaInstitucionAnioRevista\" where \"anio\" in ". $queryPeriodos . " and \"revistaSlug\" in " . $queryRevistas . " order by anio asc, nombre asc",
                             'yAxis' => array('allowDecimals' => FALSE, 'title' => array('text' => 'Institución')),
                             'tableCols' => [
                                             array('id' => '','label' => _('Año'),'type' => 'string'),
