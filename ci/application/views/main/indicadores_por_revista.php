@@ -65,12 +65,18 @@
 				<li class="list-group-item"><a href="{site_url('indicadores/productividad-exogena/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Tasa de autoría exógena')}</a>&nbsp;
                                     <a class="manual" href="#tae-{$revista.revistaSlug}"><span class="fa fa fa-code"></span><b>Ver</b> enlace</a>
                                 </li>
+								<li class="list-group-item"><a href="{site_url('indicadores/productividad-exogenah/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Tasa anual de autoría exógena por país')}</a>&nbsp;
+                                    <a class="manual" href="#taeh-{$revista.revistaSlug}"><span class="fa fa fa-code"></span><b>Ver</b> enlace</a>
+                                </li>																																																																																																		  									 
 				<li class="list-group-item"><a href="{site_url('indicadores/indice-concentracion/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Índice de concentración (Índice Pratt)')}</a>&nbsp;
                                     <a class="manual" href="#ic-{$revista.revistaSlug}"><span class="fa fa fa-code"></span><b>Ver</b> enlace</a>
                                 </li>
 				<li class="list-group-item"><a href="{site_url('indicadores/frecuencias-institucion-documento/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Representación institucional')}</a>&nbsp;
                                     <a class="manual" href="#fid-{$revista.revistaSlug}"><span class="fa fa fa-code"></span><b>Ver</b> enlace</a>
                                 </li>
+								<li class="list-group-item"><a href="{site_url('indicadores/frecuencias-institucion-documentoh/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Evolución de representación institucional')}</a>&nbsp;
+                                    <a class="manual" href="#fidh-{$revista.revistaSlug}"><span class="fa fa fa-code"></span><b>Ver</b> enlace</a>
+                                </li>																																																																	  																																				  									 
                                 <div style="display:none">
                                     <div id="fid-{$revista.revistaSlug}">
                                     <div class="page_title">
@@ -87,6 +93,22 @@
                                     </button>
                                     </div>
                                 </div>
+								<div style="display:none">
+                                    <div id="fidh-{$revista.revistaSlug}">
+                                    <div class="page_title">
+                                      <hr/>
+                                      <h4>{_('Evolución de representación institucional')}</h4>
+                                      <hr/>
+                                    </div>
+				    <div class="form-group">
+  					<label for="comment">{_('Código HTML')}</label>
+					<textarea class="form-control codehtml" rows="10" readonly style="resize: none; height: 50px"><div style="width:200px"><a href="{site_url('indicadores/frecuencias-institucion-documentoh/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><img src="{site_url('indicadores/frecuencias-institucion-documentoh/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug/preview.png')}"></a></div></textarea>
+				    </div>
+                                    <button class="btn copy-code">
+                                    <div id="code">Copiar código</div>
+                                    </button>
+                                    </div>
+                                </div>										   
 				<div style="display:none">
                                     <div id="tae-{$revista.revistaSlug}">
                                     <div class="page_title">
@@ -103,6 +125,22 @@
                                     </button>
                                     </div>
                                 </div>
+								<div style="display:none">
+                                    <div id="taeh-{$revista.revistaSlug}">
+                                    <div class="page_title">
+                                      <hr/>
+                                      <h4>{_('Tasa anual de autoría exógena por país')}</h4>
+                                      <hr/>
+                                    </div>
+				    <div class="form-group">
+  					<label for="comment">{_('Código HTML')}</label>
+					<textarea class="form-control codehtml" rows="10" readonly style="resize: none; height: 50px"><div style="width:200px"><a href="{site_url('indicadores/productividad-exogenah/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><img src="{site_url('indicadores/productividad-exogenah/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug/preview.png')}"></a></div></textarea>
+				    </div>
+                                    <button class="btn copy-code">
+                                    <div id="code">Copiar código</div>
+                                    </button>
+                                    </div>
+                                </div>						  
 				<div style="display:none">
                                     <div id="ic-{$revista.revistaSlug}">
                                     <div class="page_title">

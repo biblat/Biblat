@@ -47,10 +47,12 @@ $(document).ready(function(){
 			if($.inArray(value, revistaHidden) > -1)
 				$("#revista").select2({allowClear: true, closeOnSelect: true});
 			updateInfo(value);
+			updateInter(value);							   
 		}else{
 			$("#revista, #paisRevista, #paisAutor").select2({allowClear: true, closeOnSelect: true});
 			$("#disciplina").select2("enable", true);
 			updateInfo(value);
+			updateInter(value);							   
 		}
 
 		if(typeof history.pushState === "function" && !popState.indicador){
@@ -538,6 +540,14 @@ updateInfo = function(indicador){
 	$("#info-" + indicador).show();
 }
 
+updateInter = function(indicador){
+	$("#inter").children(".interBox").hide();
+	$("#inter-" + indicador).show();
+        if(['frecuencias-institucion-documento','frecuencias-institucion-documentoh','productividad-exogenah','coautoria-pais'].indexOf(indicador) !== -1)
+            $("#tab-inter").show();
+        else
+            $("#tab-inter").hide();
+}								  
 updateData = function(data){
 	console.log(data);
 	asyncAjax=false;
@@ -547,6 +557,7 @@ updateData = function(data){
 	}
 	if(typeof data.indicador !== "undefined"){
 		updateInfo(data.indicador);
+		updateInter(data.indicador);									
 	}
 	if(typeof data.indicador !== "undefined"){
 		popState.indicador=true;
