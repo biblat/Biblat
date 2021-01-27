@@ -1158,11 +1158,16 @@ class Indicadores extends CI_Controller {
 			endif;
 			$this->preview = TRUE;
 		endif;
-		if(!isset($_POST['periodo']) && !preg_match('/(modelo-bradford-revista|modelo-bradford-institucion|indice-concentracion|productividad-exogena|frecuencias-institucion-documento|frecuencias-institucion-documentoh|productividad-exogenah|coautoria-pais)/', $_POST['indicador'])):
+		if(!isset($_POST['periodo']) && preg_match('/(productividad-exogenah)/', $_POST['indicador'])):
 			$periodos = $this->getPeriodos();
 			$_POST['periodo'] = "{$periodos['anioBase']};{$periodos['anioFinal']}";
 		endif;
+		if(!isset($_POST['periodo']) && !preg_match('/(modelo-bradford-revista|modelo-bradford-institucion|indice-concentracion|productividad-exogena)/', $_POST['indicador'])):
+			$periodos = $this->getPeriodos();
+			$_POST['periodo'] = "{$periodos['anioBase']};{$periodos['anioFinal']}";
+		endif;																																								  
 		$chartData = $this->getChartData();
+		if(!preg_match('/(productividad-exogenah)/', $_POST['indicador']))																		  
 		if(preg_match('/(indice-concentracion|productividad-exogena)/', $_POST['indicador']))
 			$chartData = $chartData[0];
 		if(preg_match('/modelo-bradford-(revista|institucion)/', $_POST['indicador']))
@@ -1188,12 +1193,21 @@ class Indicadores extends CI_Controller {
 			$chartData['subtitle']['style']['fontSize'] = ($valsize*$wpercent)."px";
 		endif;
 		$chartData['colors'] = $this->colors;
-		if(preg_match('/frecuencias-institucion-documento/', $_POST['indicador'])):
+		if(preg_match('/(productividad-exogenah|coautoria-pais)/', $_POST['indicador'])):
+			unset($chartData['subtitle']);
+			unset($chartData['series'][0]['showInLegend']);
+			unset($chartData['colors']);
+			#unset($chartData['yAxis']);
+			#unset($chartData['tooltip']);
+			#unset($chartData['plotOptions']);
+			#unset($chartData['chart']);
+		endif;		
+		if(preg_match('/(frecuencias-institucion-documento)/', $_POST['indicador'])):
 			if(isset($_GET['width']))
 				$chartData['chart']['plotOptions']['pie']['innerSize'] = $chartData['chart']['width']/10;	
 			unset($chartData['subtitle']);
-			unset($chartData['yAxis']);
-			unset($chartData['xAxis']);
+			#unset($chartData['yAxis']);
+			#unset($chartData['xAxis']);
 			#treemap
 			#unset($chartData['chart']);
 			unset($chartData['colors']);
@@ -1291,7 +1305,7 @@ class Indicadores extends CI_Controller {
                         
                         $indicador['frecuencias-institucion-documentoh'] = array(
                             'title' => array(
-					'revista' => '<div class="text-center nowrap"><h4>'._('Evolución de representación institucional').'</h4><br/>'._('Número de documentos anuales por institución de afiliación del autor').'</div>'
+					'revista' => '<div class="text-center nowrap"><h4>'._('Evolución de representación institucional').'</h4><br/>'._('Participación institucional anual en los documentos publicados por la revista').'</div>'
 				),
                             'sql' => "select
                                                     distinct \"institucionSlug\" slug, (array_agg(institucion))[1] nombre 
@@ -1307,6 +1321,7 @@ class Indicadores extends CI_Controller {
                             'sql2' => "select \"institucionSlug\" nombre, anio, documentos val from \"mvFrecuenciaInstitucionAnioRevista\" where \"anio\" in ". $queryPeriodos . " and \"revistaSlug\" in " . $queryRevistas,
                             'sql3' => "select anio, sum(documentos) val from \"mvFrecuenciaInstitucionAnioRevista\" where \"anio\" in ". $queryPeriodos . " and \"revistaSlug\" in " . $queryRevistas . " group by anio",
                             'sql4' => "select institucion nombre, anio, documentos val from \"mvFrecuenciaInstitucionAnioRevista\" where \"anio\" in ". $queryPeriodos . " and \"revistaSlug\" in " . $queryRevistas . " order by anio asc, nombre asc",
+							'sql5' => "select anio, count(distinct \"institucionSlug\") val from \"mvFrecuenciaInstitucionAnioRevista\" where anio in ". $queryPeriodos . " and \"revistaSlug\" in " . $queryRevistas . " group by anio order by anio asc",																																																							   
                             'yAxis' => array('allowDecimals' => FALSE, 'title' => array('text' => 'Institución')),
                             'tableCols' => [
                                             array('id' => '','label' => _('Año'),'type' => 'string'),
@@ -1343,11 +1358,12 @@ class Indicadores extends CI_Controller {
                             $query = $indicador[$_POST['indicador']]['sql3'];
                             $query = $this->db->query($query);
                             
-                            $data['highchart']['series'][0]['name']="Años";
+                            $data['highchart']['series'][0]['name']="Instituciones totales";
                             $data['highchart']['series'][0]['colorByPoint']=true;
-                            $data['highchart']['yAxis']['title']['text']='Documentos';
-                            $data['highchart']['tooltip']['headerFormat']='<span style="font-size:11px">{point.y} Documentos</span><br>';
-                            $data['highchart']['tooltip']['pointFormat']='<span style="font-size:12px">{point.name}</span><br>';
+                            $data['highchart']['yAxis']['title']['text']='Instituciones / Documentos';
+							$data['highchart']['series'][0]['headerFormat']='<span style="font-size:11px">{point.y} Documentos</span><br>';																											   
+                            //$data['highchart']['tooltip']['headerFormat']='<span style="font-size:11px">{point.y} Documentos</span><br>';
+                            //$data['highchart']['tooltip']['pointFormat']='<span style="font-size:12px">{point.name}</span><br>';
                             
                             $cont=0;
                             foreach ($query->result_array() as $key => $row ):
@@ -1357,6 +1373,19 @@ class Indicadores extends CI_Controller {
                                 $cont++;
                             endforeach;
                             
+							$data['highchart']['series'][1]['name']="Instituciones diferentes";
+                            $data['highchart']['series'][1]['type']="spline";
+                            $data['highchart']['series'][1]['color']="#021b4f";
+                            $data['highchart']['series'][1]['headerFormat']='<span style="font-size:11px">{point.y} Instituciones</span><br>';
+                            
+                            $query = $indicador[$_POST['indicador']]['sql5'];
+                            $query = $this->db->query($query);
+                            
+                            $cont=0;
+                            foreach ($query->result_array() as $key => $row ):
+                                $data['highchart']['series'][1]['data'][$cont]=intval($row['val']);
+                                $cont++;
+                            endforeach;																   
                             $query = $indicador[$_POST['indicador']]['sql4'];
                         }
                         elseif($args['h']){
@@ -1438,6 +1467,9 @@ class Indicadores extends CI_Controller {
                                 array_push(
                                     $data['highchart']['drilldown']['series'], 
                                     array(
+                                                            'headerFormat' => '<span style="font-size:11px">{point.y} Documentos</span><br>',
+                                                            'pointFormat' => '<span style="font-size:12px">{point.name}</span><br>'
+                                                    ),
                                         'name' => $valAnt,
                                         'id' => $valAnt,
                                         'data' => $obj
@@ -1453,6 +1485,9 @@ class Indicadores extends CI_Controller {
                                 array_push(
                                     $data['highchart']['drilldown']['series'], 
                                     array(
+                                                            'headerFormat' => '<span style="font-size:11px">{point.y} Documentos</span><br>',
+                                                            'pointFormat' => '<span style="font-size:12px">{point.name}</span><br>'
+                                                    ),
                                         'name' => $valAnt,
                                         'id' => $valAnt,
                                         'data' => $obj
@@ -1496,15 +1531,28 @@ class Indicadores extends CI_Controller {
                         
 		endforeach;
 			
-													
-	 
-		$data['highchart']['title'] = array(
-			'text' => 'Representación Institucional',
-			'style' => array(
-				'fontSize' => '12px'
-			)
-		);
-                
+		if($args['drill']){
+                    $data['highchart']['title'] = array(
+                            'text' => 'Evolución de representación institucional',
+                            'style' => array(
+                                    'fontSize' => '12px'
+                            )
+                    );
+                }elseif($args['h']){
+                    $data['highchart']['title'] = array(
+                            'text' => 'Tasa anual de autoría exógena por país',
+                            'style' => array(
+                                    'fontSize' => '12px'
+                            )
+                    );
+                }else{
+                    $data['highchart']['title'] = array(
+                            'text' => 'Representación institucional',
+                            'style' => array(
+                                    'fontSize' => '12px'
+                            )
+                    );
+                }
                 if(!$args['h'])
                     $data['highchart']['series'][0] = array(
 			'name' => 'Documentos',
@@ -1651,7 +1699,7 @@ class Indicadores extends CI_Controller {
                         endforeach;
                         
 		$data['highchart']['title'] = array(
-			'text' => 'Representación Institucional',
+			'text' => 'Coautoría por país',
 			'style' => array(
 				'fontSize' => '12px'
 			)

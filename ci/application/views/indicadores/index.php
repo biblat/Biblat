@@ -46,6 +46,7 @@
 					<li><a href="#charts"><i class="fa fa-line-chart"></i> {_('Gráfica')}</a><a href="" title="{_('Descargar gráfica')}" class="download-chart"><i class="fa fa-download"></i></a></li>
 					<li><a href="#grid"><i class="fa fa-table"></i> {_('Tabla')}</a></li>
 					<li><a href="#info"><i class="fa fa-cogs"></i> {_('Metodología')}</a></li>
+					<li><a href="#inter" id='tab-inter'><i class="fa fa-pencil-square-o"></i> {_('Interpretación')}</a></li>																															 
 				</ul>
 				<div id="charts">
 					<div id="chartContainer">
@@ -395,6 +396,82 @@
 						</p>
 					</div>
 				</div>
+				<div id="inter">
+					<div id="inter-frecuencias-institucion-documento" class="interBox">
+						<h4 class="text-center">{_('Representación Institucional')}</h4>
+							<p class="text-justify">
+									{_('Muestra el nivel de apertura institucional que tiene la revista en un periodo específico de tiempo, el tamaño del arco muestra el número de documentos por institución de afiliación del autor.')}
+									<br/>
+									<img class="img-responsive center-block" src="{base_url('img/ri.png')}"/>
+							</p>
+					</div>
+					<div id="inter-frecuencias-institucion-documentoh" class="interBox">
+						<h4 class="text-center">{_('Evolución de representación institucional')}</h4>
+							<p class="text-justify">
+									{_('Muestra la evolución en el tiempo de la representación institucional de una revista de acuerdo a la afiliación de sus autores.')}
+									<br/><br/>
+									{_('La gráfica muestra en el tope el número total de las participaciones por las distintas instituciones para la elaboración de los documentos en ese año, el número al interior de estas corresponde a la cantidad de instituciones de afiliación diferentes contenidas en los documentos.')}
+							</p>
+							<img class="img-responsive center-block" src="{base_url('img/rih.png')}"/>
+							<p class="text-justify">
+									{_('Seleccionando un año se conoce el nombre de las instituciones y la cantidad de documentos en los que participa.')}
+							</p>
+							<img class="img-responsive center-block" src="{base_url('img/rih2.png')}"/>
+					</div>
+					<div id="inter-productividad-exogenah" class="interBox">
+						<h4 class="text-center">{_('Tasa anual de autoría exógena por país')}</h4>
+							<p class="text-justify">
+									{_('Este indicador es la relación entre la cantidad de autorías extranjeras de acuerdo a la nacionalidad de la revista y el total de documentos publicados en un año específico. Cuanto más cercano sea el valor a 0 significa que la revista tiene menor participación extranjera.')}<br/>
+							</p>
+							<img class="img-responsive center-block" src="{base_url('img/taep.png')}"/>
+							<p class="text-justify">
+									{_('Si el valor obtenido es 0 significa que en ese año la revista no publicó ningún documento de autoría extranjera.')}
+									<br/><br/>
+									{_('Cuanto más alto sea el valor obtenido es mayor la participación extranjera.')}
+									<br/><br/>
+									El valor anual del indicador aparece en el tope de cada barra de la gráfica, para cada año se muestran los países extranjeros y la proporción de su participación.
+							</p>
+							
+					</div>
+					<div id="inter-coautoria-pais" class="interBox">
+						<h4 class="text-center">{_('Representación de coautoría entre países')}</h4>
+							<p class="text-justify">
+									{_('Representación gráfica de la colaboración entre autores según el país de afiliación institucional en una revista y en un periodo de tiempo determinado.')}
+									<br/><br/>
+									{_('Este indicador toma las afiliaciones institucionales de los autores para determinar el país de procedencia y formar conjuntos, los cuales se grafican en círculos (conjuntos) similares a un diagrama de Venn-Euler. Posicionándose en los conjuntos o en sus intersecciones se puede ver la cantidad de documentos que forman parte de esos conjuntos.')}
+									<br/><br/>
+									{_('La información que podemos obtener de este indicador es:')}
+									<br/><br/>
+							</p>
+							<div class="row">
+								<div class="col-xs-4">
+									<img class="img-responsive center-block" src="{base_url('img/cp.png')}"/>
+								</div>
+								<div class="col-xs-8 text-justify">
+									{_('Países cuyos autores publican en una revista pero sin colaboración con otros países. En la gráfica corresponde a un conjunto de un solo color que no está unido a otro ni contiene conjuntos más pequeños en su interior. Su posición cercana a otro conjunto no implica ninguna colaboración.')}
+								</div>
+							</div>
+							<br><br>
+							<div class="row">
+								<div class="col-xs-4">
+									<img class="img-responsive center-block" src="{base_url('img/cp2.png')}"/>
+								</div>
+								<div class="col-xs-8 text-justify">
+									{_('Países cuyos autores publican en una revista y colaboran con otros países. Este caso corresponde a los conjuntos que se intersectan entre sí. Al posicionar el cursor sobre el área de intersección se obtiene el total de documentos en los que colaboraron los países que forman parte del conjunto.')}
+								</div>
+							</div>
+							<br><br>
+							<div class="row">
+								<div class="col-xs-4">
+									<img class="img-responsive center-block" src="{base_url('img/cp3.png')}"/>
+								</div>
+								<div class="col-xs-8 text-justify">
+									{_('Países cuyo conjunto se encuentra dentro de otro conjunto más grande. Indica que existe una colaboración entre ambos conjuntos.')}
+								</div>
+							</div>
+							<br>
+					</div>
+				</div>														  
 			</div>
 		</div>
 	</form>
