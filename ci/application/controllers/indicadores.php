@@ -1467,6 +1467,7 @@ class Indicadores extends CI_Controller {
                                 array_push(
                                     $data['highchart']['drilldown']['series'], 
                                     array(
+										'tooltip' => array( 
                                                             'headerFormat' => '<span style="font-size:11px">{point.y} Documentos</span><br>',
                                                             'pointFormat' => '<span style="font-size:12px">{point.name}</span><br>'
                                                     ),
@@ -1485,6 +1486,7 @@ class Indicadores extends CI_Controller {
                                 array_push(
                                     $data['highchart']['drilldown']['series'], 
                                     array(
+										'tooltip' => array( 
                                                             'headerFormat' => '<span style="font-size:11px">{point.y} Documentos</span><br>',
                                                             'pointFormat' => '<span style="font-size:12px">{point.name}</span><br>'
                                                     ),

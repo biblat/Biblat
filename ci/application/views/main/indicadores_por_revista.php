@@ -9,13 +9,20 @@
 	</nav>
 </div>
 <div class="panel-group" id="accordion">
-{foreach $revistas revista}
+	<div class="panel panel-default">
+        <div class="panel-heading">
+          <h5 class="panel-title">
+              <div style="display:inline-block;width:70px;"><b>No.</b></div><b>Revista</b><span style="float:right;"><b>Documentos</b></span>
+          </h5>
+        </div>
+    </div>								 		  
+{foreach $revistas key revista}
 	<div class="panel panel-default">
 	    <div class="panel-heading">
 	      <h5 class="panel-title">
-	        <a data-toggle="collapse" data-parent="#accordion" href="#{$revista.revistaSlug}">
-	        	<span class="fa fa-book"></span> {$revista.revista}
-	        </a>
+	        {if $revista.disciplinaSlug}<a data-toggle="collapse" data-parent="#accordion" href="#{$revista.revistaSlug}">{/if}
+                    <div style="display:inline-block;width:70px;">{$key + 1}</div> {$revista.revista} {if $revista.disciplinaSlug}<sup><span class="fa fa-pie-chart"></span></sup>{/if} <a class="enlace" style="float:right;color:#ff8000" href="{site_url('revista/$revista.revistaSlug')}" title="{$revista.revista}">{number_format($revista.articulos)}</a>
+	        {if $revista.disciplinaSlug}</a>{/if}
 	      </h5>
 	    </div>
 	    <div id="{$revista.revistaSlug}" class="panel-collapse collapse">
@@ -62,6 +69,7 @@
 {foreach $revista.doctypejournalcitation tipok tipov}
 				<!--li class="list-group-item"><a href="{site_url('scielo/indicadores/citacion-articulos-tipo/tipo-documento/$tipok/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span><span class="bl-scielo"></span> {_sprintf('Distribución de artículos done el tipo de documento citado es %s y revista citante', '<b>$tipok</b>')}</a></li-->
 {/foreach}
+{if $revista.disciplinaSlug}							
 				<li class="list-group-item"><a href="{site_url('indicadores/productividad-exogena/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Tasa de autoría exógena')}</a>&nbsp;
                                     <a class="manual" href="#tae-{$revista.revistaSlug}"><span class="fa fa fa-code"></span><b>Ver</b> enlace</a>
                                 </li>
@@ -157,9 +165,13 @@
                                     </button>
                                     </div>
                                 </div>
+{/if}	 
 			</ul>
 		</div>
 	</div>
 {/foreach}
 </div>
+<span style="float:right; font-size:16px">Total:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{number_format($registrosTotalArticulos)}</span>
+<br/>
+<br/>																																							
 <br/>

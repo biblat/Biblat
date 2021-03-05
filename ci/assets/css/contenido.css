@@ -1,0 +1,18 @@
+.td_tabla{
+    height:35px !important;
+    padding:2px !important;
+    padding-top:0px !important;
+    padding-bottom:0px !important;
+}
+.td_tabla_ins{
+    font-size: 12px;
+    height:43px !important;
+    padding:2px !important;
+    padding-top:0px !important;
+    padding-bottom:0px !important;
+    cursor:pointer;
+}
+.td_select{
+    border: solid !important;
+    border-color: #ff8000 !important;
+}

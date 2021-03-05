@@ -26,6 +26,8 @@
         <link rel="stylesheet" href="{base_url('assets/js/pnotify/jquery.pnotify.default.css')}" type="text/css" />
         <link rel="stylesheet" href="{base_url('assets/js/select2/select2.css')}" />
         <link rel="stylesheet" href="{base_url('assets/js/select2/select2-bootstrap.css')}" />
+		<link rel="stylesheet" href="{base_url('assets/css/contenido.css')}" />
+        <link rel="stylesheet" href="{base_url('assets/js/datatables/datatables.min.css')}" />																	   																							  
 {if $canonical}
         <link rel="canonical" href="{$canonical}" />
 {/if}
@@ -301,11 +303,9 @@
 {if $template.partials.view_js}
             {$template.partials.view_js}
 {/if}
-        </script>
-<script>
-    {if $template.partials.main_js}
-        {$template.partials.main_js}
-    {/if}
+{if $template.partials.main_js}
+			{$template.partials.main_js}
+{/if}
 </script>
     </body>
 </html>
