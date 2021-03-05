@@ -25,6 +25,7 @@ class Main extends CI_Controller{
 		$data['index']['maxDisciplina'] = $query->row_array();
 		$data['index']['maxDisciplina'] = $data['index']['maxDisciplina']['total'];
 		$query->free_result();
+		*/		   
 		/*Disciplinas*/
 		$query = "SELECT * FROM \"mvDisciplina\" WHERE id_disciplina <> '23'";
 		$query = $this->db->query($query);
@@ -33,11 +34,13 @@ class Main extends CI_Controller{
 			$data['index']['disciplinas'][] = $row;
 		endforeach;
 		$query->free_result();
+		*/		   
 		/*Obtención de totales*/
 		$query = "SELECT * FROM \"mvTotales\"";
 		$query = $this->db->query($query);
 		$data['index']['totales'] = $query->row_array();
 		$query->free_result();
+		*/		   
 		/*Obteniendo lista de paises*/
 		$query = "SELECT * FROM \"mvPais\" WHERE \"paisRevistaSlug\" <> 'internacional'";
 		$query = $this->db->query($query);
@@ -45,6 +48,7 @@ class Main extends CI_Controller{
 		$query->free_result();
 		$this->db->close();
 		$data['index']['paises'] = $paises;
+		*/		   
 		/*Banner con cantidades*/
 		$data['index']['svg'] = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 				<svg class="img-responsive center-block" version="1.1" id="banners_01" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 235.2 69.6" enable-background="new 0 0 235.2 69.6" xml:space="preserve" width="980" height="290">
@@ -54,12 +58,22 @@ class Main extends CI_Controller{
 		            <text transform="matrix(4.489659e-11 -1 1 4.489659e-11 159.557 63.3335)" fill="#FFFFFF" font-family="\'MyriadPro-Regular\'" font-size="3.6">'._sprintf('%s documentos', number_format($data['index']['totales']['documentos'], 0, '.', ',')).'</text>
 		            <text transform="matrix(4.489659e-11 -1 1 4.489659e-11 170.3335 63.3335)" fill="#FFFFFF" font-family="\'MyriadPro-Regular\'" font-size="3.6">'._sprintf('%s revistas', number_format($data['index']['totales']['revistas'], 0, '.', ',')).'</text>
 		        </svg>';
+		*/		   
 		/*Vistas*/
 		$this->template->set_partial('view_js', 'main/header', array(), TRUE, FALSE);
 		$this->template->set_partial('frecuencias_accordion', 'frecuencias/index', array(), TRUE);
 		$this->template->title(_('Biblat - Bibliografía latinoamericana'));
 		$this->template->js('js/d3.js');
 		$this->template->js('js/d3.layout.cloud.js');
+		$this->template->js('assets/js/highcharts/phantomjs/highcharts8.js');
+		$this->template->js('assets/js/highcharts/phantomjs/map8.js');
+		$this->template->js('assets/js/highcharts/phantomjs/sunburst.js');
+		$this->template->js('assets/js/highcharts/mapdata/latinoamerica.js');    
+		$this->template->js('assets/js/highcharts/phantomjs/treemap8.js');
+		$this->template->js('assets/js/datatables/datatables.min.js');
+		$this->template->js('assets/js/datatables/input.js');
+		$this->template->js('assets/js/utils/utils.js');
+		$this->template->set_partial('main_js','main/mapa.js', array(), TRUE, FALSE);																			 
 		$this->template->set_breadcrumb(_('Sobre Biblat'));
 		$this->template->set_meta('description', _('Bibliografía latinoamericana'));
 		$this->template->build('main/index', $data['index']);
@@ -213,19 +227,31 @@ class Main extends CI_Controller{
 		$this->pagination->initialize($config);
 
 		$this->load->database();
-		$query = "SELECT * FROM \"vIndicadoresRevistaGeneral\" WHERE substr(\"revistaSlug\", 1 , 1)='{$alpha}'";
+		$query = ' SELECT '. 
+                            ' v.revista, v."revistaSlug", v.articulos, "revistaISSN","revistaSiglum","disciplinaSlug",coautoriapricezakutina,subramayan,tasalawani,pratt,exogena '.
+                            ' from '.
+                            ' (SELECT v.revista, v."revistaSlug", count(v.revista) AS articulos FROM "vSearchFull" v GROUP BY v.revista, v."revistaSlug") v '.
+                            ' LEFT JOIN (SELECT distinct "revistaSlug", "revistaISSN","revistaSiglum","disciplinaSlug",coautoriapricezakutina,subramayan,tasalawani,pratt,exogena '.
+                            ' FROM "vIndicadoresRevistaGeneral" WHERE substr("revistaSlug", 1 , 1)=\''.$alpha.'\')a '.
+                            ' ON a."revistaSlug" = v."revistaSlug" '.
+                            ' WHERE SUBSTRING(LOWER(v.revista), 1, 1)=\''.$alpha.'\'' .
+                            ' ORDER BY v.revista; ';							 
+		
 		$query = $this->db->query($query);
 		$this->db->close();
 
+		$data['registrosTotalArticulos'] = 0;											 
 		$data = array();
 		foreach ($query->result_array() as $row):
 			$row['agedocjournalcitation'] = json_decode($row['agedocjournalcitation'], TRUE);
 			$row['doctypejournalcitation'] = json_decode($row['doctypejournalcitation'], TRUE);
 			$data['revistas'][] = $row;
+		$data['registrosTotalArticulos'] += $row['articulos'];																	  
 		endforeach;
 		$data['alpha_links'] = $this->pagination->create_alpha_links();
 		$data['alpha'] = strtoupper($alpha);
-		$data['page_title'] = _('Indicadores por revista');
+		
+		$data['page_title'] = sprintf('Revistas por orden alfabético con sus indicadores: %s', strtoupper($alpha));																									  
 		$this->template->css('assets/css/colorbox.css');
 		$this->template->js('assets/js/colorbox.js');
 		$this->template->set_partial('view_js', 'main/indicadores_por_revista_js', array(), TRUE);

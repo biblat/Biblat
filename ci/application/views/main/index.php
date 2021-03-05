@@ -1,25 +1,19 @@
 <div id="carousel-biblat" class="carousel slide" data-ride="carousel">
   <!-- Indicators -->
-  <ol class="carousel-indicators">
-    <li data-target="#carousel-biblat" data-slide-to="0" class="active"></li>
-    <li data-target="#carousel-biblat" data-slide-to="1"></li>
-    <li data-target="#carousel-biblat" data-slide-to="2"></li>
-    <li data-target="#carousel-biblat" data-slide-to="3"></li>
-  </ol>
+  <!--<ol class="carousel-indicators">-->
+    <!--<li data-target="#carousel-biblat" data-slide-to="0" class="active"></li>-->
+    <!--<li data-target="#carousel-biblat" data-slide-to="1"></li>-->
+    <!--<li data-target="#carousel-biblat" data-slide-to="2"></li>-->
+    <!--<li data-target="#carousel-biblat" data-slide-to="3"></li>-->
+  <!--</ol>-->
 
   <!-- Wrapper for slides -->
   <div class="carousel-inner" role="listbox">
-<!--    <div class="item active">
-        {$svg}
-    </div>-->
-    <div class="item">
-      <img class="img-responsive center-block" src="{base_url('img/slides/banners_02.jpg')}"/>
+	<div style="height:80px" class="item active">
+       <a target="_blank" href="{site_url('documentos/multimedia#indicadores')}"><img class="img-responsive center-block" src="{base_url('img/slides/Indicadores-BIBLAT2.jpg')}"/></a>
     </div>
-    <div class="item active">
-      <a href="{site_url('indicadores')}"><img class="img-responsive center-block" src="{base_url('img/slides/banners_03.jpg')}"/></a>
-    </div>
-    <div class="item">
-      <a href="{site_url('frecuencias')}"><img class="img-responsive center-block" src="{base_url('img/slides/banners_04.jpg')}"/></a>
+    <div style="height:80px" class="item">
+        <a target="_blank" href="{site_url('postular-revista/preevaluacion')}"><img class="img-responsive center-block" src="{base_url('img/slides/banner-biblat-2.svg')}"/></a>
     </div>
   </div>
 
@@ -32,13 +26,22 @@
     <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
     <span class="sr-only">Next</span>
   </a>
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
 </div><!-- carousel-biblat -->
 
 <div class="row" id="main-search">
-    <div class="col-md-8 col-md-offset-2">{$template.partials.search}</div>
+    <div class="col-md-10 col-md-offset-1">{$template.partials.search}</div>
 </div>
 <div class="row" id="main-sections">
-    <div class="col-md-6">
+    <div class="col-md-6" hidden>
         <h3>{_('UN POCO DE NOSOTROS')}</h3>
         <p>{$biblat=_('Bibliografía Latinoamericana') _sprintf('%s es un portal especializado en revistas científicas y académicas publicadas en América Latina y el Caribe, que ofrece los siguientes servicios:','<span class="biblat"><acronym title="$biblat">Biblat</acronym></span>')}</p>
         <ul>
@@ -50,24 +53,45 @@
         <p></p>
         <p class="text-right"><a class="leer_mas" href="{site_url('sobre-biblat')}">{_('Leer más')} <i class="fa fa-angle-double-right"></i></a></p>
     </div><!-- Un poco de nosotros -->
-    <div class="col-md-6">
+    <div class="col-md-6" hidden>
         <h3>{_('REVISTAS POR DISCIPLINA')}</h3>
         <div class="tagCloud"></div>
     </div><!-- Revistas por disciplina -->
     <div class="clearfix hidden-sm"></div>
-    <div class="col-md-6">
+	<!-- Mapa -->
+    <div class="row">
+    <div class="col-md-8" style="">
+        <br>
+        <br>
+        <div id="mapa-biblat" class="chart_data"></div>
+    </div>
+    <div class="col-md-4" style="" id="div_tabla">
+        <center><br><br><div class="fa-2x" style="color:#ff8000"><i class="fa fa-refresh fa-spin"></i></div></center>
+    </div>
+    <!--<div class="col-md-3" style="">Documentos</div>-->
+    </div>
+    <div class="row">
+        <div class="col-md-6" id="div_charttreemap">
+
+        </div>
+        <div class="col-md-6" id="div_chartcolumn">
+
+        </div>
+    </div>
+    
+    <div class="col-md-12">
         <h3>{_('REVISTA POR ORDEN ALFABÉTICO')}</h3>
         <div id="alfabetico">
             <p></p>
             <p class="text-center">
 {foreach range('A', 'Z') i}
-                <a class="abc" href="{$il=lower($i) site_url('indice/alfabetico/$il')}">{$i}</a>
+                <a target="_blank" class="abc" href="{$il=lower($i) site_url('bibliometria/indicadores-por-revista/$il')}">{$i}</a>
 {/foreach}
             </p>
             <p></p>
         </div>
     </div><!-- Revistas por ordern alfabético -->
-    <div class="col-md-6">
+    <div class="col-md-6" hidden>
         <h3>{_('REVISTAS POR PAÍS')}</h3>
 
         <div id="carousel-pais" class="carousel slide" data-ride="carousel">
@@ -97,33 +121,82 @@
         </div>
     </div><!-- Revistas por país -->
     <div class="clearfix hidden-sm"></div>
+
+
+
+
+    <div class="col-md-12">
+        <h3>{_('INDICADORES BIBLIOMÉTRICOS')}</h3>
+	</div>	  
+	<div class="col-md-6">					  
+        <div class="list-group list-main">
+            <a target="_blank" class="list-group-item"href="{site_url('indicadores/indice-coautoria')}"><span class="fa fa-line-chart"></span> {_('Índice de coautoría')}</a>
+            <a target="_blank" class="list-group-item"href="{site_url('indicadores/modelo-elitismo')}"><span class="fa fa-line-chart"></span> {_('Modelo de Elitismo (Price)')}</a>
+            <a target="_blank" class="list-group-item"href="{site_url('indicadores/indice-densidad-documentos')}"><span class="fa fa-line-chart"></span> {_('Índice de densidad de documentos de Zakutina y Priyenikova')}</a>
+            <a target="_blank" class="list-group-item"href="{site_url('indicadores/indice-concentracion')}"><span class="fa fa-line-chart"></span> {_('Índice de concentración temática (Pratt)')}</a>
+            <a target="_blank" class="list-group-item"href="{site_url('indicadores/modelo-bradford-institucion')}"><span class="fa fa-line-chart"></span> {_('Modelo de Bradford (Productividad institucional)')}</a>
+		</div>																																						   
+	</div>
     <div class="col-md-6">
+		<div class="list-group list-main">
+            <a target="_blank" class="list-group-item"href="{site_url('indicadores/productividad-exogena')}"><span class="fa fa-line-chart"></span> {_('Productividad exógena por título de revista')}</a>
+			<a target="_blank" class="list-group-item"href="{site_url('indicadores/productividad-exogenah')}"><span class="fa fa-line-chart"></span> {_('Productividad exógena anual de una revista dividida por país')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></a>
+            <a target="_blank" class="list-group-item"href="{site_url('indicadores/frecuencias-institucion-documento')}"><span class="fa fa-line-chart"></span> {_('Documentos de una revista por institución de afiliación del autor')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></a>
+            <a target="_blank" class="list-group-item"href="{site_url('indicadores/frecuencias-institucion-documentoh')}"><span class="fa fa-line-chart"></span> {_('Documentos anuales de una revista por institución de afiliación del autor')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></a>
+            <a target="_blank" class="list-group-item"href="{site_url('indicadores/coautoria-pais')}"><span class="fa fa-line-chart"></span> {_('Representación de coautorías entre países')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></a>
+        </div>
+    </div><!-- Indicadores bibliometricos -->
+	
+	
+	
+	
+	
+	
+	
+	<div class="col-md-6" hidden="">
         <h3>{_('FRECUENCIAS (CLASE y PERIÓDICA)')}</h3>
         {$template.partials.frecuencias_accordion} 
     </div><!-- Frecuencias CLAPER -->
-    <div class="col-md-6">
-        <h3>{_('INDICADORES BIBLIOMÉTRICOS')}</h3>
-        <div class="list-group list-main">
-            <a class="list-group-item"href="{site_url('indicadores/indice-coautoria')}"><span class="fa fa-line-chart"></span> {_('Índice de coautoría')}</a>
-            <a class="list-group-item"href="{site_url('indicadores/tasa-documentos-coautorados')}"><span class="fa fa-line-chart"></span> {_('Tasa de documentos coautorados')}</a>
-            <a class="list-group-item"href="{site_url('indicadores/grado-colaboracion')}"><span class="fa fa-line-chart"></span> {_('Grado de colaboración (Índice de Subramanyan)')}</a>
-            <a class="list-group-item"href="{site_url('indicadores/indice-colaboracion')}"><span class="fa fa-line-chart"></span> {_('Índice de colaboración (Índice de Lawani)')}</a>
-            <a class="list-group-item"href="{site_url('indicadores/modelo-elitismo')}"><span class="fa fa-line-chart"></span> {_('Modelo de Elitismo (Price)')}</a>
-            <a class="list-group-item"href="{site_url('indicadores/indice-densidad-documentos')}"><span class="fa fa-line-chart"></span> {_('Índice de densidad de documentos de Zakutina y Priyenikova')}</a>
-            <a class="list-group-item"href="{site_url('indicadores/indice-concentracion')}"><span class="fa fa-line-chart"></span> {_('Índice de concentración temática (Pratt)')}</a>
-            <a class="list-group-item"href="{site_url('indicadores/modelo-bradford-revista')}"><span class="fa fa-line-chart"></span> {_('Modelo de Bradford por revista')}</a>
-            <a class="list-group-item"href="{site_url('indicadores/modelo-bradford-institucion')}"><span class="fa fa-line-chart"></span> {_('Modelo de Bradford (Productividad institucional)')}</a>
-            <a class="list-group-item"href="{site_url('indicadores/productividad-exogena')}"><span class="fa fa-line-chart"></span> {_('Productividad exógena por título de revista')}</a>
-			<a class="list-group-item"href="{site_url('indicadores/productividad-exogenah')}"><span class="fa fa-line-chart"></span> {_('Productividad exógena anual de una revista dividida por país')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></a>
-            <a class="list-group-item"href="{site_url('indicadores/frecuencias-institucion-documento')}"><span class="fa fa-line-chart"></span> {_('Documentos de una revista por institución de afiliación del autor')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></a>
-            <a class="list-group-item"href="{site_url('indicadores/frecuencias-institucion-documentoh')}"><span class="fa fa-line-chart"></span> {_('Documentos anuales de una revista por institución de afiliación del autor')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></a>
-            <a class="list-group-item"href="{site_url('indicadores/coautoria-pais')}"><span class="fa fa-line-chart"></span> {_('Representación de coautorías entre países')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></a>
-            <!--<a class="list-group-item"href="javascript:;"><span class="fa fa-line-chart"></span> {_('Regionalización de la producción institucional')}</a>-->
-            <!--<a class="list-group-item"href="javascript:;"><span class="fa fa-line-chart"></span> {_('Coautoría según país de la institución de afiliación del autor')}</a>-->
+    
+    <div class="col-md-12">
+        <h3>{_('FRECUENCIAS POR INSTITUCIÓN')}</h3>
+    </div><!-- Frecuencias CLAPER -->
+    
+    <!--Tabla de frecuencias-->
+        <div class="row" id="gridTable">
+            <div class="col-md-4" style="padding-left: 30px" >
+                <div id="div_tabla_frec"></div>
+            </div>
+
+            <div class="col-md-8">
+
+                <div class="col-md-12 page_title" style="height:100px" id="subtitulo">
+
+                </div>
+
+                <div class="col-md-6" style="">
+                    <div id="div_tabla_autor"></div>
+                </div>
+
+                <div class="col-md-6" style="">
+                    <div id="div_tabla_coautoria"></div>
+                </div>
+
+            </div>
+
+            <div class="col-md-8"></div>
         </div>
-    </div><!-- Indicadores bibliometricos -->
-    <div class="clearfix"></div>
-    <div class="col-md-6">
+        <div class="row">
+            <br>
+        </div>
+        <div class="row">
+            <div class="col-md-2" style="font-size:11px;padding-left: 30px" id="div_tablasun"></div>
+            <div class="col-md-5" style="height: 400px" id="div_chartcolumn_pais"></div>
+            <div class="col-md-5" style="" id="div_chartsun"></div>
+        </div>
+    <!--Tabla de frecuencias-->													
+    <div class="clearfix" hidden></div>
+    <div class="col-md-6" hidden>
         <h3>{_('INDICADORES SCIELO')}</h3>
         <div class="list-group list-main">
             <a class="list-group-item"href="{site_url('scielo/indicadores/distribucion-articulos-coleccion')}"><span class="fa fa-line-chart"></span> {_('Distribución de artículos por colección')}</a>
@@ -133,7 +206,7 @@
             <a class="list-group-item"href="{site_url('scielo/indicadores/citacion-articulos-tipo')}"><span class="fa fa-line-chart"></span> {_('Distribución de artículos por tipo del documento citado')}</a>
         </div>
     </div><!-- Indicadore SciELO -->
-    <div class="col-md-6">
+    <div class="col-md-6" hidden>
         <h3>{_('OTROS INDICADORES')}</h3>
         <img class="img-responsive center-block" src="{base_url('/img/indicadores.jpg')}" usemap="#Map" height="299" width="416">
             <map name="Map">
