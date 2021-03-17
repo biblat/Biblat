@@ -19,46 +19,7 @@ class Main extends CI_Controller{
 		$data['header']['description'] = _('Biblat ofrece: referencias bibliográficas de documentos publicados en revistas científicas y académicas latinoamericanas indizadas en CLASE y PERIÓDICA, acceso al texto completo de revistas en acceso abierto, indicadores bibliométricos e información sobre los políticas de acceso de las revistas.');
 		/*Consultas*/
 		$this->load->database();
-		/*Max disciplina*/
-		$query = "SELECT total FROM \"mvDisciplina\" WHERE id_disciplina <> '23' ORDER BY total DESC LIMIT 1";
-		$query = $this->db->query($query);
-		$data['index']['maxDisciplina'] = $query->row_array();
-		$data['index']['maxDisciplina'] = $data['index']['maxDisciplina']['total'];
-		$query->free_result();
-		*/		   
-		/*Disciplinas*/
-		$query = "SELECT * FROM \"mvDisciplina\" WHERE id_disciplina <> '23'";
-		$query = $this->db->query($query);
-		foreach ($query->result_array() as $row):
-			$row['size'] = round(($row['total']/ $data['index']['maxDisciplina']) * 20);
-			$data['index']['disciplinas'][] = $row;
-		endforeach;
-		$query->free_result();
-		*/		   
-		/*Obtención de totales*/
-		$query = "SELECT * FROM \"mvTotales\"";
-		$query = $this->db->query($query);
-		$data['index']['totales'] = $query->row_array();
-		$query->free_result();
-		*/		   
-		/*Obteniendo lista de paises*/
-		$query = "SELECT * FROM \"mvPais\" WHERE \"paisRevistaSlug\" <> 'internacional'";
-		$query = $this->db->query($query);
-		$paises = $query->result_array();
-		$query->free_result();
-		$this->db->close();
-		$data['index']['paises'] = $paises;
-		*/		   
-		/*Banner con cantidades*/
-		$data['index']['svg'] = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-				<svg class="img-responsive center-block" version="1.1" id="banners_01" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 235.2 69.6" enable-background="new 0 0 235.2 69.6" xml:space="preserve" width="980" height="290">
-		            <image overflow="visible" width="980" height="290" xlink:href="'.base_url('img/slides/banners_01.jpg').'"  transform="matrix(0.24 0 0 0.24 0 0)"></image>
-		            <text transform="matrix(4.489659e-11 -1 1 4.489659e-11 138.3335 63.3335)" fill="#FFFFFF" font-family="\'MyriadPro-Regular\'" font-size="3.7">'._sprintf('%s textos completos en HEVILA', number_format($data['index']['totales']['hevila'], 0, '.', ',')).'</text>
-		            <text transform="matrix(4.489659e-11 -1 1 4.489659e-11 148.8335 63.3335)" fill="#FFFFFF" font-family="\'MyriadPro-Regular\'" font-size="3.6">'._sprintf('%s textos completos', number_format($data['index']['totales']['enlaces'], 0, '.', ',')).'</text>
-		            <text transform="matrix(4.489659e-11 -1 1 4.489659e-11 159.557 63.3335)" fill="#FFFFFF" font-family="\'MyriadPro-Regular\'" font-size="3.6">'._sprintf('%s documentos', number_format($data['index']['totales']['documentos'], 0, '.', ',')).'</text>
-		            <text transform="matrix(4.489659e-11 -1 1 4.489659e-11 170.3335 63.3335)" fill="#FFFFFF" font-family="\'MyriadPro-Regular\'" font-size="3.6">'._sprintf('%s revistas', number_format($data['index']['totales']['revistas'], 0, '.', ',')).'</text>
-		        </svg>';
-		*/		   
+		
 		/*Vistas*/
 		$this->template->set_partial('view_js', 'main/header', array(), TRUE, FALSE);
 		$this->template->set_partial('frecuencias_accordion', 'frecuencias/index', array(), TRUE);

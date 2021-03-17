@@ -79,11 +79,9 @@
                     <div id="biblat-logo" class="col-md-4 hidden-xs hidden-sm{if $class_method == "mainindex"} biblat-logo-main{/if}">
                         <a href="{site_url('/')}" title="{_('Bibliografía Latinoamericana')}">
                             <!--<span class="bl-single"></span><br/>-->
-                            <!--<span class="bl-large"></span><br/>-->
-                            <!--<span class="bl-sub"></span><br/>-->
-                            <span class="Biblat" style="letter-spacing: 5px; font-size: 15px;line-height: 50px;font-weight: bold;">BIBLAT</span><br/>
-                            <span class="Biblat" style="letter-spacing: 0px; font-size: 15px">Bibliografía Latinoamericana en</span><br/>
-                            <span class="Biblat" style="letter-spacing: 0px; font-size: 15px">revistas de investigación científica y social</span><br/>
+							<img src="/img/biblat.png"/><br/>
+                            <span class="bl-large"></span><br/>
+                            <span class="bl-sub"></span><br/>
                             <span></span><br/>
                         </a>
                     </div>
@@ -104,7 +102,7 @@
                                                 <span class="icon-bar"></span>
                                                 <span class="icon-bar"></span>
                                             </button>
-                                            <a class="navbar-brand" href="{base_url()}" title="{_('Bibliografía Latinoamericana')}"><!--span class="bl-single"></span--><span class="Biblat" style="letter-spacing: 5px; font-size: 15px;line-height: 50px;font-weight: bold;position:absolute;top:2px;left:10px">BIBLAT</span></a>
+                                            <a class="navbar-brand" href="{base_url()}" title="{_('Bibliografía Latinoamericana')}"><!--span class="bl-single"></span--><img height="30px" src="/img/biblat_min.png"/></a>
                                         </div>
                                         <div class="collapse navbar-collapse navbar-right" id="bs-navbar-collapse-1">
                                             <ul class="nav navbar-nav">
