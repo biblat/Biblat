@@ -190,19 +190,19 @@ class Indicadores extends CI_Controller {
 		/*Lista de indicadores*/
 		$this->indicadores = array(
 								'indice-coautoria' => _('Índice de coautoría'),
-								'tasa-documentos-coautorados' => _('Tasa de documentos coautorados'),
-								'grado-colaboracion' => _('Grado de colaboración (Índice Subramanyan)'),
-								'modelo-elitismo' => _('Modelo de elitismo (Price)'),
-								'indice-colaboracion' => _('Índice de colaboración (Índice de Lawani)'),
-								'indice-densidad-documentos' => _('Índice de densidad de documentos Zakutina y Priyenikova'),
+								//'tasa-documentos-coautorados' => _('Tasa de documentos coautorados'),
+								//'grado-colaboracion' => _('Grado de colaboración (Índice Subramanyan)'),
+								'modelo-elitismo' => _('Modelo de Elitismo (Price)'),
+								//'indice-colaboracion' => _('Índice de colaboración (Índice de Lawani)'),
+								'indice-densidad-documentos' => _('Índice de densidad de documentos (Zakutina y Priyenikova)'),
 								'indice-concentracion' => _('Índice de concentración (Índice Pratt)'),
-								'modelo-bradford-revista' => _('Modelo de Bradford por revista'),
-								'modelo-bradford-institucion' => _('Modelo de Bradford por institución (Afiliación del autor)'),
-								'productividad-exogena' => _('Tasa de autoría exógena'),
-								'productividad-exogenah' => _('Tasa anual de autoría exógena por país'),
-								'frecuencias-institucion-documento' => _('Representación institucional'),
-                                                                'frecuencias-institucion-documentoh' => _('Evolución de representación institucional'),
-                                                                'coautoria-pais' => _('Coautoría por país')
+								'modelo-bradford-revista' => _('Modelo de Bradford (Revista)'),
+								'modelo-bradford-institucion' => _('Modelo de Bradford (Institucional)'),
+								'productividad-exogena' => _('Tasa de autoría exógena por revista'),
+								'productividad-exogenah' => _('Tasa anual de autoría exógena dividida por país'),
+								'frecuencias-institucion-documento' => _('Documentos de una revista por institución'),
+                                                                'frecuencias-institucion-documentoh' => _('Documentos anuales de una revista por institución'),
+                                                                'coautoria-pais' => _('Coautoría entre países')
 							);
 		/*Disciplinas*/
 		$this->load->database();
@@ -382,9 +382,9 @@ class Indicadores extends CI_Controller {
 		$indicador['indice-densidad-documentos'] = array(
 			'campoTabla' => "zakutina AS valor FROM \"mvZakutina",
 			'title' => array(
-					'revista' => '<div class="text-center nowrap"><h4>'._('Índice de Densidad de Documentos Zakutina y Priyenikova').'</h4><br/>'._('Títulos con mayor cantidad de artículos').'</div>'
+					'revista' => '<div class="text-center nowrap"><h4>'._('Índice de densidad de documentos (Zakutina y Priyenikova)').'</h4><br/>'._('Títulos con mayor cantidad de artículos').'</div>'
 				),
-			'vTitle' => _('Índice de densidad'),
+			'vTitle' => _('Índice de densidad de documentos (Zakutina y Priyenikova)'),
 			'hTitle' => _('Año'),
 			'tooltip' => array(
 					'revista' => _('<b>{series.name}</b><br/>Cantidad de documentos por revista en el año {point.category}: <b>{point.y}</b>'),
@@ -496,22 +496,22 @@ class Indicadores extends CI_Controller {
 	public function getChartDataBradford(){
 		$indicador['modelo-bradford-revista'] = array(
 				'sufix' => "Revista",
-				'title' => '<div class="text-center nowrap"><h4>'._('Modelo matemático de Bradford').'</h4><br/>'._('Distribución de artículos por revista').'</div>',
-				'tableTitle' => '<h3>'._('Modelo matemático de Bradford').'</h3>',
+				'title' => '<div class="text-center nowrap"><h4>'._('Modelo de Bradford (Revista)').'</h4><br/>'._('Distribución de artículos por revista').'</div>',
+				'tableTitle' => '<h3>'._('Modelo de Bradford (Revista)').'</h3>',
 				'hAxisTitle' => _('Logaritmo de la cantidad acumulada de títulos de revista'),
 				'hAxisTitleGroup' => _('Títulos de revista'),
-				'titleGroup' => '<div class="text-center nowrap"><h4>'._('Modelo matemático de Bradford').'</h4><br/>'._('Zona %s de revistas más productivas').'</div>',
+				'titleGroup' => '<div class="text-center nowrap"><h4>'._('Modelo de Bradford (Revista)').'</h4><br/>'._('Zona %s de revistas más productivas').'</div>',
 				'tableTitleGroup' => '<h3>'._('Zona %s de revistas más productivas').'</h3>',
 				'tooltip' => "<b>{series.name}</b><br/>Artículos: <b>{series.options.articles}</b><br/>Títulos de revista: <b>{series.options.titles}</b>",
 				'tooltipGroup' => "<b>{point.name}</b><br/>Cantidad de artículos: <b>{point.y}</b>"
 			);
 		$indicador['modelo-bradford-institucion'] = array(
 				'sufix' => "Institucion",
-				'title' => '<div class="text-center nowrap"><h4>'._('Modelo matemático de Bradford').'</h4><br/>'._('Distribución de artículos por instituciones.').'</div>',
-				'tableTitle' => '<h3>'._('Modelo matemático de Bradford por institución (afiliación del autor)').'</h3>',
+				'title' => '<div class="text-center nowrap"><h4>'._('Modelo de Bradford (Institucional)').'</h4><br/>'._('Distribución de artículos por instituciones.').'</div>',
+				'tableTitle' => '<h3>'._('Modelo de Bradford (Institucional)').'</h3>',
 				'hAxisTitle' => _('Logaritmo de la cantidad acumulada de instituciones'),
 				'hAxisTitleGroup' => _('Institución'),
-				'titleGroup' => '<div class="text-center nowrap"><h4>'._('Modelo matemático de Bradford por institución (afiliación del autor)').'</h4><br/>'._('Zona %s de instituciones más productivas por disciplina').'</div>',
+				'titleGroup' => '<div class="text-center nowrap"><h4>'._('Modelo de Bradford (Institucional)').'</h4><br/>'._('Zona %s de instituciones más productivas por disciplina').'</div>',
 				'tableTitleGroup' => '<h4>'._('Zona %s de instituciones más productivas por disciplina').'</h4>',
 				'tooltip' => "<b>{series.name}</b><br/>Artículos: <b>{series.options.articles}</b><br/>Instituciones: <b>{series.options.titles}</b>",
 				'tooltipGroup' => "<b>{point.name}</b><br/>Cantidad de artículos: <b>{point.y}</b>"
@@ -726,14 +726,14 @@ class Indicadores extends CI_Controller {
 		$idDisciplina=$this->disciplinas[$_POST['disciplina']]['id_disciplina'];
 		$indicador['indice-concentracion'] = array(
 				'sql' => "SELECT revista, \"revistaSlug\", pratt AS indicador FROM \"mvPratt\" WHERE id_disciplina={$idDisciplina}",
-				'title' => _('Índice de concentración temática'),
-				'chartTitle' => '<div id="chartTitle"><div class="text-center nowrap"><h4>'._('Índice de concentración (Índice de Pratt)').'</h4><br/>'._('Distribución decreciente de las revistas considerando su grado de concentración temática').'</div></div>',
+				'title' => _('Índice de concentración temática (Índice Pratt)'),
+				'chartTitle' => '<div id="chartTitle"><div class="text-center nowrap"><h4>'._('Índice de concentración temática (Índice Pratt)').'</h4><br/>'._('Distribución decreciente de las revistas considerando su grado de concentración temática').'</div></div>',
 				'tooltip' => "<b>{point.name}</b><br/>Nivel de especialización de la revista: <b>{point.y}</b>"
 			);
 		$indicador['productividad-exogena'] = array(
 				'sql' => "SELECT revista, \"revistaSlug\", sum(autores)/sum(documentos) AS indicador FROM \"mvProductividadExogenaAnioRevista\" WHERE id_disciplina={$idDisciplina} {$queryPeriodos} group by revista, \"revistaSlug\"",
 				'title' => _('Proporción de autoría exógena'),
-				'chartTitle' => '<div id="chartTitle" class="text-center nowrap"><h4>'._('Tasa de autoría exógena').'</h4><br/>'._('Distribución decreciente de las revistas considerando la proporción de autoría exógena').'</div>',
+				'chartTitle' => '<div id="chartTitle" class="text-center nowrap"><h4>'._('Tasa de autoría exógena por revista').'</h4><br/>'._('Distribución decreciente de las revistas considerando la proporción de autores extranjeros').'</div>',
 				'tooltip' => "<b>{point.name}</b><br/>Proporción de autores extranjeros: <b>{point.y}</b>"
 			);
 		$query = $indicador[$_POST['indicador']]['sql'];
@@ -1085,7 +1085,7 @@ class Indicadores extends CI_Controller {
 		$queryRevista = $this->db->query($queryRevista);
 		$this->db->close();
 		$queryRevista = $queryRevista->row_array();
-		$args['breadcrumb'][] = array('title' => _('Modelo de Bradford por revista'), 'link' => 'indicadores/modelo-bradford-revista');
+		$args['breadcrumb'][] = array('title' => _('Modelo de Bradford (Revista)'), 'link' => 'indicadores/modelo-bradford-revista');
 		$args['breadcrumb'][] = array('title' => $this->disciplinas[$uri_args['disciplina']]['disciplina'], 'link' => "indicadores/modelo-bradford-revista/disciplina/{$uri_args['disciplina']}");
 		$args['page_title'] = sprintf('%s (%%d documentos)', $queryRevista['revista']);
 		$args['title'] = _sprintf('%s (%%d documentos)', $queryRevista['revista']);
@@ -1305,7 +1305,7 @@ class Indicadores extends CI_Controller {
                         
                         $indicador['frecuencias-institucion-documentoh'] = array(
                             'title' => array(
-					'revista' => '<div class="text-center nowrap"><h4>'._('Evolución de representación institucional').'</h4><br/>'._('Participación institucional anual en los documentos publicados por la revista').'</div>'
+					'revista' => '<div class="text-center nowrap"><h4>'._('Documentos anuales de una revista por institución').'</h4><br/>'._('Participación institucional anual en los documentos publicados por la revista').'</div>'
 				),
                             'sql' => "select
                                                     distinct \"institucionSlug\" slug, (array_agg(institucion))[1] nombre 
@@ -1332,7 +1332,7 @@ class Indicadores extends CI_Controller {
                         
                         $indicador['productividad-exogenah'] = array(
                             'title' => array(
-					'revista' => '<div class="text-center nowrap"><h4>'._('Tasa anual de autoría exógena por país').'</h4><br/></div>'
+					'revista' => '<div class="text-center nowrap"><h4>'._('Tasa anual de autoría exógena dividida por país').'</h4><br/>'._('Proporción anual total de autores extranjeros dividida por país').'</div>'
 				),
                             'sql' => "select
                                                     distinct \"paisAutorSlug\" slug, (array_agg(\"paisAutor\"))[1] nombre 
@@ -1542,7 +1542,7 @@ class Indicadores extends CI_Controller {
                     );
                 }elseif($args['h']){
                     $data['highchart']['title'] = array(
-                            'text' => 'Tasa anual de autoría exógena por país',
+                            'text' => 'Tasa anual de autoría exógena dividida por país',
                             'style' => array(
                                     'fontSize' => '12px'
                             )
@@ -1634,7 +1634,7 @@ class Indicadores extends CI_Controller {
                         
                     $indicador['coautoria-pais'] = array(
                             'title' => array(
-					'revista' => '<div class="text-center nowrap"><h4>'._('Coautoría por país').'</h4><br/></div>'
+					'revista' => '<div class="text-center nowrap"><h4>'._('Coautoría entre países').'</h4><br/>'._('Colaboración entre autores según el país de afiliación institucional en una revista').'</div>'
 				),
                             'sql' => "select
                                                     paises, replace(replace(replace(replace(paises,'\"','') ,'\','') ,',{',',') ,'}}','}') paisesrep, count(1) documentos 
@@ -1701,7 +1701,7 @@ class Indicadores extends CI_Controller {
                         endforeach;
                         
 		$data['highchart']['title'] = array(
-			'text' => 'Coautoría por país',
+			'text' => 'Coautoría entre países',
 			'style' => array(
 				'fontSize' => '12px'
 			)
