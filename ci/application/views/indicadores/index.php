@@ -230,10 +230,10 @@
 					</div>
 
 					<div id="info-indice-densidad-documentos" class="infoBox">
-						<h4 class="text-center">{_('Índice de Densidad de Documentos Zakutina y Priyenikova')}</h4>
+						<h4 class="text-center">{_('Índice de densidad de documentos (Zakutina y Priyenikova)')}</h4>
 						<p class="text-left">
-							{_('Índice que identifica los títulos con mayor densidad de información.')}<br/>
-							{_('El valor numérico proporciona la cantidad de artículos por revista.')}
+							{_('Índice que muestra el promedio de artículos por cada número publicado por la revista en un año específico.')}<br/>
+							
 						</p>
 						<p class="text-left ident1">{_('La formulación matemática es:')}</p>
 						<div class="text-left ident2 formula">
@@ -246,13 +246,13 @@
 						</div>
 						<p class="text-left ident1">
 							{_('Donde')}:<br/>
-							<i>Rn</i> = &sum; {_('Artículos')}.<br/>
-							<i>N</i> = &sum; {_('Títulos de revistas')}.
+							<i>Rn</i> = &sum; {_('Artículos publicados en un año específico')}.<br/>
+							<i>N</i> = &sum; {_('Números publicados por la revista en ese año')}.
 						</p>
 					</div>
 
 					<div id="info-indice-concentracion" class="infoBox">
-						<h4 class="text-center">{_('Índice de concentración (Índice de Pratt)')}</h4>
+						<h4 class="text-center">{_('Índice de concentración temática(Índice Pratt)')}</h4>
 						<p class="text-justify">
 							{_('Indica el grado de concentración temática de las revistas.')}<br/>
 							{_('El valor numérico representa el nivel de concentración temática basándose en sus descriptores.')}<br/>
@@ -279,7 +279,7 @@
 					</div>
 
 					<div id="info-modelo-bradford-revista" class="infoBox">
-						<h4 class="text-center"><b>{_('Modelo matemático de Bradford')}</b><br/>{_('Distribución de artículos por revista')}</h4>
+						<h4 class="text-center"><b>{_('Modelo de Bradford (Revista)')}</b><br/>{_('Distribución de artículos por revista.')}</h4>
 						<p class="text-left">
 							{_('Modelo matemático que identifica el núcleo de revistas con mayor cantidad de información por temática.')}<br/>
 							{_('Se identifican tres zonas según la cantidad de artículos por revista en la  disciplina:')}<br/>
@@ -298,7 +298,7 @@
 					</div>
 
 					<div id="info-modelo-bradford-institucion" class="infoBox">
-						<h4 class="text-center"><b>{_('Modelo matemático de Bradford')}</b><br/>{_('Distribución de artículos por instituciones.')}</h4>
+						<h4 class="text-center"><b>{_('Modelo de Bradford (Institucional)')}</b><br/>{_('Distribución de artículos por instituciones.')}</h4>
 						<p class="text-left">
 							{_('Modelo matemático que identifica el núcleo de instituciones con mayor cantidad de información por temática.')}<br/>
 							{_('Se identifican tres zonas según la cantidad de artículos por institución en la  disciplina:')}<br/>
@@ -317,7 +317,7 @@
 					</div>
 
 					<div id="info-productividad-exogena" class="infoBox">
-						<h4 class="text-center">{_('Tasa de autoría exógena')}</h4>
+						<h4 class="text-center">{_('Tasa de autoría exógena por revista')}</h4>
 						<p class="text-justify">
 							{_('Indicador que mide el grado de internacionalización de las revistas, considerando la proporción de autores cuya institución de afiliación es de una nacionalidad distinta a la de la revista. Proporciona la tasa de productividad exógena por revista y la frecuencia de nacionalidad de sus autores.')}<br/>
 							{_('El valor numérico indica la proporción de autores extranjeros que han publicado en la revista.')}<br/>
@@ -340,7 +340,7 @@
 					</div>
                                     
                                         <div id="info-frecuencias-institucion-documento" class="infoBox">
-						<h4 class="text-center">{_('Representación Institucional')}</h4>
+						<h4 class="text-center">{_('Documentos de una revista por institución')}</h4>
 						<p class="text-justify">
 							{_('Es el número de documentos producidos de acuerdo a la institución de afiliación del autor.')}<br/>
 						</p>
@@ -357,7 +357,7 @@
 					</div>
                                         
                                         <div id="info-frecuencias-institucion-documentoh" class="infoBox">
-						<h4 class="text-center">{_('Evolución de representación institucional')}</h4>
+						<h4 class="text-center">{_('Documentos anuales de una revista por institución')}</h4>
 						<p class="text-justify">
 							{_('Es el número de documentos producidos anualmente de acuerdo a la institución de afiliación del autor.')}<br/>
 						</p>
@@ -374,7 +374,7 @@
 					</div>
                                     
                                         <div id="info-productividad-exogenah" class="infoBox">
-						<h4 class="text-center">{_('Tasa anual de autoría exógena por país')}</h4>
+						<h4 class="text-center">{_('Tasa anual de autoría exógena dividida por país')}</h4>
 						<p class="text-justify">
 							{_('Indicador que mide el grado de internacionalización de las revistas, considerando la proporción de autores cuya institución de afiliación es de una nacionalidad distinta a la de la revista. Proporciona la tasa de productividad exógena por revista y la frecuencia de nacionalidad de sus autores.')}<br/>
 							{_('El valor numérico indica la proporción de autores por país extranjero que han publicado en la revista.')}<br/>
@@ -398,7 +398,7 @@
 				</div>
 				<div id="inter">
 					<div id="inter-frecuencias-institucion-documento" class="interBox">
-						<h4 class="text-center">{_('Representación Institucional')}</h4>
+						<h4 class="text-center">{_('Documentos de una revista por institución')}</h4>
 							<p class="text-justify">
 									{_('Muestra el nivel de apertura institucional que tiene la revista en un periodo específico de tiempo, el tamaño del arco muestra el número de documentos por institución de afiliación del autor.')}
 									<br/>
@@ -406,7 +406,7 @@
 							</p>
 					</div>
 					<div id="inter-frecuencias-institucion-documentoh" class="interBox">
-						<h4 class="text-center">{_('Evolución de representación institucional')}</h4>
+						<h4 class="text-center">{_('Documentos anuales de una revista por institución')}</h4>
 							<p class="text-justify">
 									{_('Muestra la evolución en el tiempo de la representación institucional de una revista de acuerdo a la afiliación de sus autores.')}
 									<br/><br/>
@@ -419,7 +419,7 @@
 							<img class="img-responsive center-block" src="{base_url('img/rih2.png')}"/>
 					</div>
 					<div id="inter-productividad-exogenah" class="interBox">
-						<h4 class="text-center">{_('Tasa anual de autoría exógena por país')}</h4>
+						<h4 class="text-center">{_('Tasa anual de autoría exógena dividida por país')}</h4>
 							<p class="text-justify">
 									{_('Este indicador es la relación entre la cantidad de autorías extranjeras de acuerdo a la nacionalidad de la revista y el total de documentos publicados en un año específico. Cuanto más cercano sea el valor a 0 significa que la revista tiene menor participación extranjera.')}<br/>
 							</p>
@@ -434,7 +434,7 @@
 							
 					</div>
 					<div id="inter-coautoria-pais" class="interBox">
-						<h4 class="text-center">{_('Representación de coautoría entre países')}</h4>
+						<h4 class="text-center">{_('Coautoría entre países')}</h4>
 							<p class="text-justify">
 									{_('Representación gráfica de la colaboración entre autores según el país de afiliación institucional en una revista y en un periodo de tiempo determinado.')}
 									<br/><br/>

@@ -88,7 +88,7 @@
                     <div id="menu" class="col-md-8">
                         <div class="row">
                             <div id="dgb-unam" class="col-md-12 text-right hidden-xs hidden-sm">
-                                {if $uri->segment(2) == "scielo"}<a href="http://scielo.org" title="Scientific Electronic Library Online" target="_blank"><span class="bl-scielo fa-5x"></span></a>{/if}
+                                {if $uri->segment(2) == "scielo"}<a href="http://scielo.org" title="Scientific Electronic Library Online" target="_blank"><span style="position:absolute;right:200px" class="bl-scielo fa-5x"></span></a>{/if}
                                 <a href="http://dgb.unam.mx" title="{_('Dirección General de Bibliotecas')}" target="_blank"><!--span class="bl-dgb fa-5x"></span--><span><img style="width:100px;position:absolute;top:10px;right:100px " src="{base_url('img/logo_dgbsdi.svg')}"></span></a>
                                 <a href="http://www.unam.mx" title="{_('Universidad Nacional Autónoma de México')}" target="_blank"><span class="bl-unam fa-5x"></span></a>
                             </div>
@@ -140,19 +140,19 @@
                                                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">{_('Indicadores')}<span class="caret"></span></a>
                                                             <ul class="dropdown-menu" role="menu">
                                                                 <li><a href="{site_url('indicadores/indice-coautoria')}">{_('Índice de coautoría')}</a></li>
-                                                                <li><a href="{site_url('indicadores/tasa-documentos-coautorados')}">{_('Tasa de documentos coautorados')}</a></li>
-                                                                <li><a href="{site_url('indicadores/grado-colaboracion')}">{_('Grado de colaboración')}</a></li>
-                                                                <li><a href="{site_url('indicadores/indice-colaboracion')}">{_('Índice de colaboración')}</a></li>
+                                                                <!--<li><a href="{site_url('indicadores/tasa-documentos-coautorados')}">{_('Tasa de documentos coautorados')}</a></li>-->
+                                                                <!--<li><a href="{site_url('indicadores/grado-colaboracion')}">{_('Grado de colaboración')}</a></li>-->
+                                                                <!--<li><a href="{site_url('indicadores/indice-colaboracion')}">{_('Índice de colaboración')}</a></li>-->
                                                                 <li><a href="{site_url('indicadores/modelo-elitismo')}">{_('Modelo de elitismo')}</a></li>
                                                                 <li><a href="{site_url('indicadores/indice-densidad-documentos')}">{_('Índice de densidad de documentos')}</a></li>
-                                                                <li><a href="{site_url('indicadores/indice-concentracion')}">{_('Índice de concentración')}</a></li>
-                                                                <li><a href="{site_url('indicadores/modelo-bradford-revista')}">{_('Modelo de Bradford por revista')}</a></li>
-                                                                <li><a href="{site_url('indicadores/modelo-bradford-institucion')}">{_('Modelo de Bradford por institución')}</a></li>
-                                                                <li><a href="{site_url('indicadores/productividad-exogena')}">{_('Tasa de autoría exógena')}</a></li>
-																<li><a href="{site_url('indicadores/productividad-exogenah')}">{_('Tasa anual de autoría exógena por país')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></sup> </a></li>
-																<li><a href="{site_url('indicadores/frecuencias-institucion-documento')}">{_('Representación institucional')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></sup> </a></li>
-                                                                <li><a href="{site_url('indicadores/frecuencias-institucion-documentoh')}">{_('Evolución de representación institucional')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></sup> </a></li>
-                                                                <li><a href="{site_url('indicadores/coautoria-pais')}">{_('Coautoría por país')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></sup></a></li>																																																																 
+                                                                <li><a href="{site_url('indicadores/indice-concentracion')}">{_('Índice de concentración temática')}</a></li>
+                                                                <li><a href="{site_url('indicadores/modelo-bradford-revista')}">{_('Modelo de Bradford (Revista)')}</a></li>
+                                                                <li><a href="{site_url('indicadores/modelo-bradford-institucion')}">{_('Modelo de Bradford (Institucional)')}</a></li>
+                                                                <li><a href="{site_url('indicadores/productividad-exogena')}">{_('Tasa de autoría exógena por revista')}</a></li>
+                                                                <li><a href="{site_url('indicadores/productividad-exogenah')}">{_('Tasa anual de autoría exógena dividida por país')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></sup> </a></li>
+																<li><a href="{site_url('indicadores/frecuencias-institucion-documento')}">{_('Documentos de una revista por institución')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></sup> </a></li>
+                                                                <li><a href="{site_url('indicadores/frecuencias-institucion-documentoh')}">{_('Documentos anuales de una revista por institución')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></sup> </a></li>
+                                                                <li><a href="{site_url('indicadores/coautoria-pais')}">{_('Coautoría entre países')} <sup><span id="search-type" style="font-size: 10px" class="fa fa-certificate"> </span> <span style="font-size: 10px">Nuevo</span></sup></a></li>
                                                             </ul>
                                                         </li>
                                                         <li class="divider"></li>

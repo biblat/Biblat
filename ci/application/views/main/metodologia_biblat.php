@@ -1,6 +1,6 @@
 
 		<p>{_('La base de datos de')} <span class="biblat"><acronym title="{_('Bibliografía Latinoamericana')}">Biblat</acronym></span> {$clase=_('Citas Latinoamericanas en Ciencias Sociales y Humanidades') $periodica=_('Índice de Revistas Latinoamericanas en Ciencias') _sprintf('está conformada por %s y %s, dos bases de datos de alcance latinoamericano y multidisciplinar. En la primera, se almacenan y recuperan los registros bibliográficos de artículos de revistas especializadas en Ciencias Sociales y Humanidades, mientras que en la segunda, los artículos de las revistas especializadas en Ciencia y Tecnología.','<a href="http://alephv23.cichcu.unam.mx:8991/F/?func=find-b-0&local_base=cla01" target="_blank"><acronym title="$clase">CLASE</acronym></a>','<a href="http://alephv23.cichcu.unam.mx:8991/F/?func=find-b-0&local_base=per01" target="_blank"><acronym title="$periodica">PERIÓDICA</acronym></a>')}</p>
-		<p>{$biblat=_('Bibliografía Latinoamericana') _sprintf('Para la generación de las frecuencias e indicadores bibliométricos se %s se basa en una muestra con las características siguientes:','<span class="biblat"><acronym title="$biblat">Biblat</acronym></span>')}</p>
+		<p>{$biblat=_('Bibliografía Latinoamericana') _sprintf('Para la generación de las frecuencias e indicadores bibliométricos %s se basa en una muestra con las características siguientes:','<span class="biblat"><acronym title="$biblat">Biblat</acronym></span>')}</p>
 		<p>{_('De ambas bases se consideraron:')}</p>
 		<ul>
 			<li>{_('Sólo el tipo de documento “artículo”.')}</li>
@@ -106,9 +106,9 @@
             <hr/>
         </div>
 			
-		<p>{_('El módulo de Indicadores proporciona 13 indicadores bibliométricos agrupados, de acuerdo con su especificidad, en tres rubros:')}
+		<p>{_('El módulo de Indicadores proporciona 11 indicadores bibliométricos agrupados, de acuerdo con su especificidad, en tres rubros:')}
 		<ul>
-			<li><b>{_('De autoría y colaboración entre autores')}</b> {_('(4 indicadores)')}</li>
+			<li><b>{_('De autoría y colaboración entre autores')}</b> {_('(2 indicadores)')}</li>
 			<li><b>{_('De productividad de los autores')}</b> {_('(2 indicadores)')}</li>
 			<li><b>{_('De Concentración – Dispersión, Núcleo básico de revistas y densidad de la información')}</b> {_('(4 indicadores)')}</li>
 			<li><b>{_('Coautorías')}</b> {_('(3 indicadores)')}</li>
@@ -137,7 +137,7 @@
 			<i>Cd</i> = {_('Cantidad de documentos')}
 		</p>
 		<p>{_('El resultado del indicador da cuenta del número promedio de autores por artículo por revista, país de publicación de la revista o país de la institución de afiliación de los autores, así como su evolución temporal.')}</p>
-		<div class="page_title">
+		<!--div class="page_title">
             <hr/>
             <h4><a href="{site_url("indicadores/tasa-documentos-coautorados")}" target="_blank">{_('Tasa de Documentos Coautorados')}</a><span class"supIndice"><a class="referencia" href="#ref2"><sup>2</sup></a></span></h4>
             <hr/>
@@ -158,8 +158,8 @@
 			<i>Ctd</i> = {_('Cantidad total de documentos')}
 		</p>
 		<p>{_('Brinda información sobre la proporción de artículos con autoría múltiple por título de la revista, país de publicación de la revista o país de la institución de afiliación de los autores, así como su evolución temporal. Se interpreta que valores cercanos a 1 muestran mayor cantidad de documentos en coautoría.')}</p>
-		
-		<div class="page_title">
+		-->
+		<!--div class="page_title">
             <hr/>
             <h4><a href="{site_url("indicadores/grado-colaboracion")}" target="_blank">{_('Grado de Colaboración (Índice de Subramanyan)')}</a><a class="referencia" href="#ref3"><sup>3</sup></a></h4>
             <hr/>
@@ -181,8 +181,8 @@
 			<i>N<sub>s</sub></i> = {_('Total de documentos escritos por un solo autor.')}
 		</p>
 		<p>{_('El valor numérico indica la proporción de documentos escritos en colaboración y los documentos con autoría simple, indicado el grado de colaboración por título de revista o país de publicación de la revista. Se interpreta que valores cercanos a 0 muestran un fuerte componente de autoría simple, mientras que los cercanos a 1 denotan una fuerte proporción de autoría múltiple.')}</p>
-
-		<div class="page_title">
+        -->
+		<!--div class="page_title">
             <hr/>
             <h4><a href="{site_url("indicadores/indice-colaboracion")}" target="_blank">{_('Índice de Colaboración (Índice de Lawani)')}</a><a class="referencia" href="#ref4"><sup>4</sup></a></h4>
             <hr/>
@@ -211,7 +211,7 @@
 			{_('Proporciona el peso promedio del número de autores por documento.')}<br/>
 			{_('El valor numérico representa el promedio de autores por documento.')}<br/>
 		</p>				
-
+		-->
 		<div class="page_title">
             <hr/>
             <h4><a href="{site_url("indicadores/modelo-elitismo")}" target="_blank">{_('Modelo de Elitismo (Price)')}</a><a class="referencia" href="#ref5"><sup>5</sup></a></h4>
@@ -230,7 +230,7 @@
 		<p>{_('Es uno de los indicadores más importantes para medir la productividad científica de los autores ya que identifica la elite de autores más productivos por título de revista o país de publicación de la revista.')}</p>				
 		<div class="page_title">
             <hr/>
-            <h4><a href="{site_url("indicadores/indice-densidad-documentos")}" target="_blank">{_('Índice de Densidad de Documentos Zakutina y Priyenikova')}</a><a class="referencia" href="#ref6"><sup>6</sup></a></h4>
+            <h4><a href="{site_url("indicadores/indice-densidad-documentos")}" target="_blank">{_('Índice de Densidad de Documentos (Zakutina y Priyenikova)')}</a><a class="referencia" href="#ref6"><sup>6</sup></a></h4>
             <hr/>
         </div>
 		<p>{_('La formulación matemática es:')}</p>
@@ -254,7 +254,7 @@
 
 		<div class="page_title">
             <hr/>
-            <h4><a href="{site_url("indicadores/indice-concentracion")}" target="_blank">{_('Índice de concentración temática (Índice de Pratt)')}</a><a class="referencia" href="#ref7"><sup>7</sup></a></h4>
+            <h4><a href="{site_url("indicadores/indice-concentracion")}" target="_blank">{_('Índice de concentración temática (Índice Pratt)')}</a><a class="referencia" href="#ref7"><sup>7</sup></a></h4>
             <hr/>
         </div>
 		<p>{_('La formulación matemática es:')}</p>
@@ -276,7 +276,7 @@
 
 		<div class="page_title">
             <hr/>
-            <h4><a href="{site_url("indicadores/modelo-bradford-revista")}" target="_blank">{_('Modelo de Bradford por revista')}</a><a class="referencia" href="#ref8"><sup>8</sup></a></h4>
+            <h4><a href="{site_url("indicadores/modelo-bradford-revista")}" target="_blank">{_('Modelo de Bradford (Revista)')}</a><a class="referencia" href="#ref8"><sup>8</sup></a></h4>
             <hr/>
         </div>
 		<p>{_('La formulación matemática es:')}</p>
@@ -292,7 +292,7 @@
 
 		<div class="page_title">
             <hr/>
-            <h4><a href="{site_url("indicadores/indice-concentracion")}" target="_blank">{_('Modelo de Bradford (Productividad institucional)')}</a></h4>
+            <h4><a href="{site_url("indicadores/indice-concentracion")}" target="_blank">{_('Modelo de Bradford (Institucional)')}</a></h4>
             <hr/>
         </div>
 		<p>{_('La formulación matemática es:')}</p>
@@ -308,7 +308,7 @@
 			
 		<div class="page_title">
             <hr/>
-            <h4><a href="{site_url("indicadores/productividad-exogena")}" target="_blank">{_('Productividad exógena por título de revista')}</a></h4>
+            <h4><a href="{site_url("indicadores/productividad-exogena")}" target="_blank">{_('Tasa de autoría exógena por revista')}</a></h4>
             <hr/>
         </div>
 		<p>{_('Es un indicador que se utiliza para medir el grado de internacionalización de las revistas, considerando la proporción de autores cuya institución de afiliación es de una nacionalidad distinta a la de la revista. Proporciona la tasa de productividad exógena por revista y la frecuencia de nacionalidad de sus autores.')}</p>
