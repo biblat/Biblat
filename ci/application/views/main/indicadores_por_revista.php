@@ -47,15 +47,15 @@
                                     </button>
 				    </div>
                                 </div>
-				<li class="list-group-item"><a href="{site_url('indicadores/modelo-elitismo/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Modelo de elitismo (Price)')}</a></li>
-				<li class="list-group-item"><a href="{site_url('indicadores/indice-densidad-documentos/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Índice de densidad de documentos Zakutina y Priyenikova')}</a></li>
+				<li class="list-group-item"><a href="{site_url('indicadores/modelo-elitismo/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Modelo de Elitismo')}</a></li>
+				<li class="list-group-item"><a href="{site_url('indicadores/indice-densidad-documentos/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Índice de densidad de documentos')}</a></li>
 {/if}
 {if $revista.subramayan}
-				<li class="list-group-item"><a href="{site_url('indicadores/grado-colaboracion/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Grado de colaboración (Índice Subramanyan)')}</a></li>
+				<!--li class="list-group-item"><a href="{site_url('indicadores/grado-colaboracion/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Grado de colaboración (Índice Subramanyan)')}</a></li-->
 {/if}
 {if $revista.tasalawani}
-				<li class="list-group-item"><a href="{site_url('indicadores/tasa-documentos-coautorados/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Tasa de documentos coautorados')}</a></li>
-				<li class="list-group-item"><a href="{site_url('indicadores/indice-colaboracion/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Índice de colaboración (Índice de Lawani)')}</a></li>
+				<!--li class="list-group-item"><a href="{site_url('indicadores/tasa-documentos-coautorados/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Tasa de documentos coautorados')}</a></li-->
+				<!--li class="list-group-item"><a href="{site_url('indicadores/indice-colaboracion/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Índice de colaboración (Índice de Lawani)')}</a></li-->
 {/if}
 {if $revista.generalesrevista}
 				<!--li class="list-group-item"><a href="{site_url('scielo/indicadores/indicadores-generales-revista/coleccion/$revista.networkSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span><span class="bl-scielo"></span> {_('Indicadores generales por revista')}</a></li-->
@@ -70,26 +70,26 @@
 				<!--li class="list-group-item"><a href="{site_url('scielo/indicadores/citacion-articulos-tipo/tipo-documento/$tipok/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span><span class="bl-scielo"></span> {_sprintf('Distribución de artículos done el tipo de documento citado es %s y revista citante', '<b>$tipok</b>')}</a></li-->
 {/foreach}
 {if $revista.disciplinaSlug}							
-				<li class="list-group-item"><a href="{site_url('indicadores/productividad-exogena/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Tasa de autoría exógena')}</a>&nbsp;
+				<li class="list-group-item"><a href="{site_url('indicadores/productividad-exogena/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Tasa de autoría exógena por revista')}</a>&nbsp;
                                     <a class="manual" href="#tae-{$revista.revistaSlug}"><span class="fa fa fa-code"></span><b>Ver</b> enlace</a>
                                 </li>
-								<li class="list-group-item"><a href="{site_url('indicadores/productividad-exogenah/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Tasa anual de autoría exógena por país')}</a>&nbsp;
+								<li class="list-group-item"><a href="{site_url('indicadores/productividad-exogenah/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Tasa anual de autoría exógena dividida por país')}</a>&nbsp;
                                     <a class="manual" href="#taeh-{$revista.revistaSlug}"><span class="fa fa fa-code"></span><b>Ver</b> enlace</a>
                                 </li>																																																																																																		  									 
-				<li class="list-group-item"><a href="{site_url('indicadores/indice-concentracion/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Índice de concentración (Índice Pratt)')}</a>&nbsp;
+				<li class="list-group-item"><a href="{site_url('indicadores/indice-concentracion/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Índice de concentración temática')}</a>&nbsp;
                                     <a class="manual" href="#ic-{$revista.revistaSlug}"><span class="fa fa fa-code"></span><b>Ver</b> enlace</a>
                                 </li>
-				<li class="list-group-item"><a href="{site_url('indicadores/frecuencias-institucion-documento/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Representación institucional')}</a>&nbsp;
+				<li class="list-group-item"><a href="{site_url('indicadores/frecuencias-institucion-documento/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Documentos de una revista por institución')}</a>&nbsp;
                                     <a class="manual" href="#fid-{$revista.revistaSlug}"><span class="fa fa fa-code"></span><b>Ver</b> enlace</a>
                                 </li>
-								<li class="list-group-item"><a href="{site_url('indicadores/frecuencias-institucion-documentoh/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Evolución de representación institucional')}</a>&nbsp;
+								<li class="list-group-item"><a href="{site_url('indicadores/frecuencias-institucion-documentoh/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Documentos anuales de una revista por institución')}</a>&nbsp;
                                     <a class="manual" href="#fidh-{$revista.revistaSlug}"><span class="fa fa fa-code"></span><b>Ver</b> enlace</a>
                                 </li>																																																																	  																																				  									 
                                 <div style="display:none">
                                     <div id="fid-{$revista.revistaSlug}">
                                     <div class="page_title">
                                       <hr/>
-                                      <h4>{_('Representación institucional')}</h4>
+                                      <h4>{_('Documentos de una revista por institución')}</h4>
                                       <hr/>
                                     </div>
 				    <div class="form-group">
@@ -105,7 +105,7 @@
                                     <div id="fidh-{$revista.revistaSlug}">
                                     <div class="page_title">
                                       <hr/>
-                                      <h4>{_('Evolución de representación institucional')}</h4>
+                                      <h4>{_('Documentos anuales de una revista por institución')}</h4>
                                       <hr/>
                                     </div>
 				    <div class="form-group">
@@ -121,7 +121,7 @@
                                     <div id="tae-{$revista.revistaSlug}">
                                     <div class="page_title">
                                       <hr/>
-                                      <h4>{_('Tasa de autoría exógena')}</h4>
+                                      <h4>{_('Tasa de autoría exógena por revista')}</h4>
                                       <hr/>
                                     </div>
 				    <div class="form-group">
@@ -137,7 +137,7 @@
                                     <div id="taeh-{$revista.revistaSlug}">
                                     <div class="page_title">
                                       <hr/>
-                                      <h4>{_('Tasa anual de autoría exógena por país')}</h4>
+                                      <h4>{_('Tasa anual de autoría exógena dividida por país')}</h4>
                                       <hr/>
                                     </div>
 				    <div class="form-group">
@@ -153,7 +153,7 @@
                                     <div id="ic-{$revista.revistaSlug}">
                                     <div class="page_title">
                                       <hr/>
-                                      <h4>{_('Índice de concentración (Índice Pratt)')}</h4>
+                                      <h4>{_('Índice de concentración temática')}</h4>
                                       <hr/>
                                     </div>
 				    <div class="form-group">

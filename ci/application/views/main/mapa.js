@@ -466,7 +466,7 @@ c_frec = {
         body_autores: '',
         body_coautoria: '',
         df_institucion: 'universidad-nacional-autonoma-de-mexico',
-        df_sub: 'Uinversidad Nacional Autónoma de México',
+        df_sub: 'Universidad Nacional Autónoma de México',
         loading: '<center><br><br><div class="fa-2x" style="color:#ff8000"><i class="fa fa-refresh fa-spin"></i></div></center>',
         filter_pais: [],
         html_options: '<center><br><input id="ver_todos" type="button" value="Ver todos"><br><br><input id="sin_paises" type="button" value="<val>"></center>',
