@@ -11,7 +11,7 @@ class Datos extends REST_Controller {
 	public function datosPais_get(){
 		$data = array();
 		$this->load->database();
-		$query = "select \"paisRevistaSlug\" pais, count(\"revista\") revistas, sum(art) articulos from(" .
+		$query = "select \"paisRevistaSlug\" pais, count(distinct slug(\"revista\")) revistas, sum(art) articulos from(" .
                             "select ve.\"paisRevistaSlug\", ve.\"revista\", count(1) art from \"mvPaisRevistaArticulo\" ve group by 1,2".
                             ") a group by \"paisRevistaSlug\"";
 		
