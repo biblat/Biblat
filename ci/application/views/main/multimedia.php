@@ -4,6 +4,49 @@
 	      <h5 class="panel-title">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-4">
+                            <iframe width="250" src="https://fb.watch/7AVQT1UkLf/" allowfullscreen></iframe>
+                            <div>&nbsp;</div>
+                        </div>
+           
+                        <div class="col-xs-12 col-sm-6 col-md-8">
+                            <a href="https://fb.watch/7AVQT1UkLf/" target="_blank">
+                                <span class="fa fa-facebook-square"></span> 
+                                Presentación:<br>
+								BIBLAT: Indización e indicadores de la ciencia latinoamericana, transmitida a través de Facebook Grupo Compás 19 agosto 2021.
+                            </a>    
+                        </div>
+                    </div>
+	      </h5>
+	    </div>
+	</div>
+</div>
+<div class="panel-group">
+	<div class="panel panel-default">
+	    <div class="panel-heading">
+	      <h5 class="panel-title">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-4">
+                            <iframe width="250" src="https://fb.watch/7AUVjzQeRY/" allowfullscreen></iframe>
+                            <div>&nbsp;</div>
+                        </div>
+           
+                        <div class="col-xs-12 col-sm-6 col-md-8">
+                            <a href="https://fb.watch/7AUVjzQeRY/" target="_blank">
+                                <span class="fa fa-facebook-square"></span> 
+                                Ponencia sobre tendencias actuales de la comunicación, publicación y edición científicas, enfatizando los sistemas latinoamericanos de información LATINDEX, BIBLAT y SciELO. Grupo Compás, videoconferencia (Guayaquil, Ecuador) 12 agosto 2021.
+                            </a>    
+                        </div>
+                    </div>
+	      </h5>
+	    </div>
+	</div>
+</div>
+<div class="panel-group">
+	<div class="panel panel-default">
+	    <div class="panel-heading">
+	      <h5 class="panel-title">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-4">
                             <iframe width="250" src="https://www.youtube.com/embed/WgsELl6Pj7A" allowfullscreen></iframe>
                             <div>&nbsp;</div>
                         </div>
