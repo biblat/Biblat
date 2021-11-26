@@ -53,6 +53,7 @@ $route[$langs.'/creditos'] = 'main/creditos';
 $route[$langs.'/documentos/bibliografia'] = 'main/bibliografia';
 $route[$langs.'/documentos/presentaciones'] = 'main/presentaciones';
 $route[$langs.'/documentos/multimedia'] = 'main/multimedia';
+$route[$langs.'/documentos/guias'] = 'main/guias';
 $route[$langs.'/sitemap'] = 'main/sitemap';
 $route[$langs.'/contacto'] = 'main/contacto';
 $route[$langs.'/contacto/submit'] = 'main/contactoSubmit';

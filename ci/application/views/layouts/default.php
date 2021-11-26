@@ -184,6 +184,7 @@
                                                         <li><a href="{site_url('documentos/bibliografia')}">{_('Bibliografía')}</a></li>
                                                         <li><a href="{site_url('documentos/presentaciones')}">{_('Presentaciones PPT')}</a></li>
                                                         <li><a href="{site_url('documentos/multimedia')}">{_('Archivos multimedia')}</a></li>
+														<li><a href="{site_url('documentos/guias')}">{_('Guías')}</a></li>
                                                     </ul>
                                                 </li>
                                             </ul>
