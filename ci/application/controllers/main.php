@@ -74,6 +74,15 @@ class Main extends CI_Controller{
 		$this->template->set_meta('description', _('Multimedia'));
 		$this->template->build('main/multimedia', $data);
 	}
+	
+	public function guias(){
+		$data = array();
+		$data['page_title'] = _('Guías');
+		$this->template->title(_('Guías'));
+		$this->template->set_breadcrumb(_('Documentos'));
+		$this->template->set_meta('description', _('Guías'));
+		$this->template->build('main/guias', $data);
+	}
 
 	public function sobreBiblat(){
 		$data = array();
