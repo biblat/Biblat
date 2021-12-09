@@ -70,6 +70,7 @@ $route[$langs.'/postular-revista/preevaluacion'] = 'main/preevaluacion';
 $route[$langs.'/bibliometria/indicadores-scielo'] = 'main/indicadoresScielo';
 $route[$langs.'/bibliometria/indicadores-por-revista(.*)'] = 'main/indicadoresRevista$1';
 $route[$langs.'/manual-de-indizacion'] = 'main/manualIndizacion';
+$route[$langs.'/dashboardmu'] = 'main/dashboardmu';
 
 $route[$langs.'/conacyt/revista(.*)'] = 'conacyt/pdf_viewer/revista$1';
 $route[$langs.'/conacyt/area(.*)'] = 'conacyt/pdf_viewer/area$1';

@@ -469,4 +469,14 @@ class Main extends CI_Controller{
 		$data['button'] = '<button class="btn btn-warning translate">'._('Traducir').'</button>';
 		echo json_encode($data, TRUE); exit(0);
 	}
+	
+	public function dashboardmu(){
+            $data = array();
+            $data['page_title'] = _('Red de Biliotecas de América Latina y el Caribe');
+            $this->template->css('css/dashboardmu.css');
+            $this->template->title(_('Red de Biliotecas de América Latina y el Caribe'));
+            $this->template->set_meta('description', _('Red de Biliotecas de América Latina y el Caribe'));
+            $this->template->build('main/dashboardmu', $data);
+	}
+	
 }
