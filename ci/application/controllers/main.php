@@ -21,7 +21,7 @@ class Main extends CI_Controller{
 		$this->load->database();
 		
 		/*Vistas*/
-		$this->template->set_partial('view_js', 'main/header', array(), TRUE, FALSE);
+		//$this->template->set_partial('view_js', 'main/header', array(), TRUE, FALSE);
 		$this->template->set_partial('frecuencias_accordion', 'frecuencias/index', array(), TRUE);
 		$this->template->title(_('Biblat - Bibliografía latinoamericana'));
 		$this->template->js('js/d3.js');
