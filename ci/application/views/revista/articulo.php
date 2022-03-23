@@ -161,9 +161,9 @@
 								<label>{_('Nombre')}</label><br/>
 								<input class="form-control" type="text" name="from" required data-msg-required="{_('El nombre es requerido')}"/><br/>
 								<label>{_('Dirección de correo electrónico')}</label><br/>
-								<input class="form-control" type="text" name="email" placeholder="me@domain.com" required data-msg-required="{_('El correo electrónico es requerido')}"/><br/>
-								<label>{_('Instituto')}</label><br/>
-								<input class="form-control" type="text" name="instituto"/><br/>
+								<input class="form-control" type="email" name="email" placeholder="me@domain.com" required data-msg-required="{_('El correo electrónico es requerido')}" title="{_('Por favor, proporciona un correo electrónico válido')}"/><br/>
+								<label>{_('Institución')}</label><br/>
+								<input class="form-control" type="text" name="instituto" required data-msg-required="{_('La institución es requerida')}"/><br/>
 								<label>{_('Teléfono')}</label><br/>
 								<input class="form-control" type="text" name="telefono"/><br/>
 								<input type="hidden" name="database" value="{$articulo.database}"/>
