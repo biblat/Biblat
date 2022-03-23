@@ -392,8 +392,10 @@ class Revista extends CI_Controller{
 			$pais = (isset($_SERVER['REDIRECT_GEOIP_COUNTRY_NAME'])) ? "'{$_SERVER['REDIRECT_GEOIP_COUNTRY_NAME']}'" : "NULL";
 			$ciudad = (isset($_SERVER['REDIRECT_GEOIP_REGION_NAME'])) ? "'{$_SERVER['REDIRECT_GEOIP_REGION_NAME']}'" : "NULL";
 			$session_id = $this->session->userdata('session_id');
-			$query = "INSERT INTO \"logSolicitudDocumento\"(database, sistema, nombre, email, instituto, telefono, ip, pais, ciudad, session_id)
-				VALUES ({$database}, '{$data['sistema']}', '{$data['from']}', '{$data['email']}', '{$data['instituto']}', '{$data['telefono']}', '{$ip}', {$pais}, {$ciudad}, '{$session_id}');";
+                        $split_ip = explode(".", $ip);
+                        $geoip = ((int)$split_ip[0] * pow(256,3)) + ((int)$split_ip[1] * pow(256,2)) + ((int)$split_ip[2] * pow(256,1)) + ((int)$split_ip[3] * pow(256,0));
+			$query = "INSERT INTO \"logSolicitudDocumento\"(database, sistema, nombre, email, instituto, telefono, ip, pais, ciudad, session_id, geoip)
+				VALUES ({$database}, '{$data['sistema']}', '{$data['from']}', '{$data['email']}', '{$data['instituto']}', '{$data['telefono']}', '{$ip}', {$pais}, {$ciudad}, '{$session_id}', {$geoip});";
 			$biblatDB->query($query);
 			$result = array(
 					'type' => 'success',
