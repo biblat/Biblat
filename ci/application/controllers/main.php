@@ -1,5 +1,5 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-
+error_reporting(0);
 require 'vendor/autoload.php';
 
 class Main extends CI_Controller{
@@ -292,6 +292,8 @@ class Main extends CI_Controller{
             $this->template->js('assets/js/highcharts/phantomjs/highcharts8.js');
             $this->template->js('assets/js/highcharts/phantomjs/highcharts-more8.js');
             $this->template->js('assets/js/highcharts/phantomjs/solid-gauge8.js');
+            $this->template->js('assets/js/apigoogle/api.js');
+            $this->template->js('assets/js/apigoogle/getaccesstokenfromserviceaccount.js');
             $this->template->set_partial('main_js','main/preevaluacion.js', array(), TRUE, FALSE);
             $this->template->title(_('Preevaluación'));
             $this->template->set_breadcrumb(_('Postular una revista'));
@@ -412,9 +414,10 @@ class Main extends CI_Controller{
             
             if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
                 $correos = $_POST['correo']/*.",biblat_comite@dgb.unam.mx"*/;
-                $arraydocs = array(
-                    "CartaDePostulacion_".$_POST['issn'].".docx",'Preevaluacion_'.$_POST['issn'].'.xlsx'
-                );
+                //$arraydocs = array(
+                //    "CartaDePostulacion_".$_POST['issn'].".docx",'Preevaluacion_'.$_POST['issn'].'.xlsx'
+                //);
+                $arraydocs = array();
             }else{
                 $correos = $_POST['correo'];
                 $arraydocs = array(
@@ -431,8 +434,10 @@ class Main extends CI_Controller{
                     );
             
             if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
+                $result = $this->setDocumentsDrive("CartaDePostulacion_".$_POST['issn'].".docx", 'Preevaluacion_'.$_POST['issn'].'.xlsx');
                 unlink("CartaDePostulacion_".$_POST['issn'].".docx");
                 unlink('Preevaluacion_'.$_POST['issn'].'.xlsx');
+                echo('{"docx":"'.$result[0].'", "xlsx":"'.$result[1].'"}');
             }
             else
                 unlink('Preevaluacion_'.$_POST['correo'].'.xlsx');
@@ -478,5 +483,143 @@ class Main extends CI_Controller{
             $this->template->set_meta('description', _('Red de Biliotecas de América Latina y el Caribe'));
             $this->template->build('main/dashboardmu', $data);
 	}
+        
+        public function solicitudes(){
+            $data = array();
+            $data['page_title'] = _('Solicitudes');
+            $this->template->title(_('Solicitudes'));
+            $this->template->set_meta('description', _('Solicitudes'));
+            $this->template->js('assets/js/highcharts/phantomjs/highcharts8.js');
+            $this->template->js('assets/js/highcharts/phantomjs/drilldown8.js');
+            $this->template->js('assets/js/utils/utils.js');
+            $this->template->css('css/jquery.slider.min.css');
+            $this->template->css('css/colorbox.css');
+            $this->template->js('js/jquery.slider.min.js');
+            $this->template->js('js/jquery.serializeJSON.min.js');
+            $this->template->js('js/colorbox.js');
+            $this->template->set_partial('main_js', 'main/js/solicitudes.js', array(), TRUE, FALSE);
+            $this->template->build('main/solicitudes', $data);
+	}
 	
+        public function getClientGoogle()
+        {
+            //Realiza la conexión hacia Googl Drive, utiliza las credenciales creadas en clientes OAuth 2.0
+            $client = new Google_Client();
+            $client->setApplicationName('Biblat');
+            $client->setScopes([Google_Service_Sheets::SPREADSHEETS_READONLY, Google_Service_Drive::DRIVE]);
+            $client->setAuthConfig('credentials.json');
+            $client->setAccessType('offline');
+            $client->setPrompt('select_account consent');
+
+            // Load previously authorized token from a file, if it exists.
+            // The file token.json stores the user's access and refresh tokens, and is
+            // created automatically when the authorization flow completes for the first
+            // time.
+            $tokenPath = 'token.json';
+            if (file_exists($tokenPath)) {
+                $accessToken = json_decode(file_get_contents($tokenPath), true);
+                $client->setAccessToken($accessToken);
+            }
+
+            // If there is no previous token or it's expired.
+            if ($client->isAccessTokenExpired()) {
+                // Refresh the token if possible, else fetch a new one.
+                if ($client->getRefreshToken()) {
+                    $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+                } else {
+                    // Request authorization from the user.
+                    $authUrl = $client->createAuthUrl();
+                    
+                    /**********
+                     * 
+                     * Código utilizado para generar el primer archivo "token.json", posteriormente se va actualizando el token
+                     * Se copia la URL generada, se aceptan los permisos y el código generado en la url se copia a la variable $authCode
+                     * 
+                     * 
+                     */
+                    //printf("Open the following link in your browser:\n%s\n", $authUrl);
+                    //print 'Enter verification code: ';
+                    //echo($authUrl);
+                    //$authCode = '4/0AX4XfWgMP9xs6iE-J-FwYFh7WiGm4trK0MPwqJrElF2bPSi4y6LMdj0PnG1GYFzhzr5avg';//trim(fgets(STDIN));
+
+                    // Exchange authorization code for an access token.
+                    $accessToken = $client->fetchAccessTokenWithAuthCode($authCode);
+                    $client->setAccessToken($accessToken);
+
+                    // Check to see if there was an error.
+                    if (array_key_exists('error', $accessToken)) {
+                        throw new Exception(join(', ', $accessToken));
+                    }
+                }
+                // Save the token to a file.
+                if (!file_exists(dirname($tokenPath))) {
+                    mkdir(dirname($tokenPath), 0700, true);
+                }
+                file_put_contents($tokenPath, json_encode($client->getAccessToken()));
+            }
+            return $client;
+        }
+        
+        public function setDocumentsDrive($docx, $xlsx){
+            //$client = $this->getClientGoogle();
+            $client = $this->getClientGoogle2();
+            $service = new Google_Service_Drive($client);
+            //$folderIddocx = "1MvmMROb2dPn23UGnh7dgcMikrdPmdESr";
+            //$folderIdxlsx = "1MvmMROb2dPn23UGnh7dgcMikrdPmdESr";
+            $folderIddocx = "1hHOEct5V6_3YGZkzSo5R6WBxqiQTgA1e";
+            $folderIdxlsx = "1plTwBh1Y8Eq2QS0zp-UEx7-e2EIocbiv";
+            
+            
+            if (file_exists($docx)) {
+                $file = new Google_Service_Drive_DriveFile();
+                $file->setName($docx);
+                $file->setParents(array($folderIddocx));
+                $file->setMimeType('application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+                        
+                $result = $service->files->create(
+                    $file,
+                    array(
+                        'data' => file_get_contents($docx),
+                        'mimeType' => 'application/octet-stream',
+                        'uploadType' => 'media'
+                    )
+                );
+                
+                $fileDocId = $result->getId();
+
+            }
+            
+            if (file_exists($xlsx)) {
+                $file = new Google_Service_Drive_DriveFile();
+                $file->setName($xlsx);
+                $file->setParents(array($folderIdxlsx));
+                $file->setMimeType('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                        
+                $result = $service->files->create(
+                    $file,
+                    array(
+                        'data' => file_get_contents($xlsx),
+                        'mimeType' => 'application/octet-stream',
+                        'uploadType' => 'media'
+                    )
+                );
+                
+                $fileXlsxId = $result->getId();
+
+            }
+            
+            return [$fileDocId, $fileXlsxId];
+        }
+        
+        public function getClientGoogle2()
+        {
+            //Realiza la conexión hacia Googl Drive, utiliza las credenciales creadas mediante service account
+             putenv("GOOGLE_APPLICATION_CREDENTIALS=credentials2.json");
+            $client = new Google_Client();
+            $client->setApplicationName('Biblat');
+            $client->setScopes([Google_Service_Sheets::SPREADSHEETS_READONLY, Google_Service_Drive::DRIVE]);
+            $client->useApplicationDefaultCredentials();
+
+            return $client;
+        }
 }
