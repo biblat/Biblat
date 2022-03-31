@@ -4,17 +4,6 @@
  * and open the template in the editor.
  */
 class_pre = {
-    API_KEY:'AIzaSyCBgUXdf6Pa29CPh_Dim4tLzikRKDhAP5M',
-    CLIENT_ID:'149511766103-ehqdui30nv4qqmtle7srk33msaee8mr3.apps.googleusercontent.com',
-    DISCOVERY_DOCS:["https://sheets.googleapis.com/$discovery/rest?version=v4"],
-    //SCOPES: "https://www.googleapis.com/auth/spreadsheets.readonly",
-    SCOPES: ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'],
-    CLIENT_EMAIL: "biblat@scielo-claper.iam.gserviceaccount.com",
-    PRIVATE_KEY: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCIQV5DDMrgrAZm\npAe4xmlGafat8CKuB2zrcjB6b5RIPBV+Kvog0rATUpZg/PNJAbZMQCUYnCBI6kih\n0cmzhdteP2BXfVnfMtPTA8V0LsarQapam3r434EGuEPImF0phtqUWMxxK8yKiekU\nOnd+HIsHnZ8UO92keLVpq5IdvAn1zYTzjM+giyaCLigIKTZYrrHKJ0uzvImKOkfn\n2k6nREhtwwZxqvAtXXMn7vHT6Y6J02vQ8iMG9noVPNZf56tzZ0WOXuKhVZJCJ5vB\n2BtEFCjGv4U6CGCwwaLiP3Y7Hc/dKrtvY5UyjA+0psYt8DawQ7zRATn8rxyrWYmj\n3Uw1jRFhAgMBAAECggEAAUNV29pBAS8nCgmINsrEDA6MZlVdBO71sAMJdwEUx0yj\nSF2envJFBpDT6wc9PBaDeZZ4oY9E71gYn0NiEsNxYqDExFrZm+uNMh4NVQPf/JNp\nwFhDng34VLcdjbz31Bw3Z3uhPYVR6pDXs8PM+sLJ+SKZaGcbqVwjFl0sSBFHqFsh\nY20wUvffgvcZFo883Yg1koRS4gMzKdkrMR7JFFZ0Yk16VyMRXCYGSm8U7LmnmaiP\nJBejgD5q7KK+D8wqZfuaaRsvxMaYgSP1TUUw8HysNQb4wNqzpxwg39UMvuSh4Bwb\nQ5AVJxZtWDHLsowSdzkWZ3+7FFO8F1oCE5IlcwQ1fwKBgQC8dXpJpcJbRvwyMTAm\nyLi21J36Kc63SH2n4bdyvqgq3Ug9/XOh2lU8OeYT0uKqPnk+WEml07kGBEmBLumo\nB+nwlc9q1IZ43lThUUZtPBOOXwlHeLA7xUBY1mIvlNmFvauAoOeCXBg1yZjfTa0e\nJXcAHGBFolOI5bbxXmPyboK3BwKBgQC5FmAqeEc43PddBCLPm06kDjtm43EDVFle\nX+dbimmqNAprfK7GHwm3DXuMH4t+0N5e7ADxjkvruJjcBbP5qkcEL00mfGD+8/UY\nvKJyifTuz7jcsjFfXPQgjhvSKBvuyb/3u5YcCWiAh8F2o61+ZXvGXH/XdnWHF/oQ\nwh1EN7KyVwKBgHNM7KRiZaayp1mN/oe8BkbVjlGfgnlgQICV+EabnweamrhSeIxt\np/hQ9BLs0wCVeFhMa8Ko5mpn9RC0QwAq11X6UgxqOlt4qzWvJAdw2gYg3ux7SldH\nNzci8q9pwiuw/1yTFREMh0NhM8ZrH59yDHxk4AG6bqEy6dqChWOteQvBAoGBAIdz\n4qjyIV1yCO3fywIYbPMPH1Xq+ZgwML8qfIy3vSC8uSt0sgt4R4nZqiMgKtyCS1s4\naHBfbRxzmhrbaZ07ioF7hIC34dxz+VlDI7ejUsc66dVJ62wZAOiaV63zgI2+xGiu\nteqK0BnQQDttCdlIt86xfzXWEajuWSnOhdCY2oQ9AoGAaDBFngLdr1wwSeAgSGzK\nyAcD9iaAMv51oxmnUDDY1wkeC7xEeXVphvDj0j0MNQU8PvNWoJRhYLdpjT3itIpc\nM7oIV1BLT5QnOvWrtUMx6Fh1SyFqUEa+bfOyzTu6MpkkTmTWl439waEziAVbL4Ti\nNIbdUx7r6x3Ty60H+mp8qMM=\n-----END PRIVATE KEY-----\n",
-    spreadsheetId: '1MppeGM75mdXVcmeaBNlf2Vv2m_9silyB8F4frhxwnGU',
-    //spreadsheetId: '1cX0JRkoPx4VnSdYO9hKSXe73XqZvFmGvnMBTLvrY0os',//EDGAR
-    sheet: 'Control',
-    //sheet: 'Revistas',
     select:1,
     chart:null,
     puntos:0,
@@ -557,26 +546,13 @@ class_pre = {
             loading.start();
             
             $.post('<?=site_url("main/createPlantilla");?>', $.extend(form,{criterio:class_pre.criterio,completo:true}), function(result){
-                result = '{'+(result.split('}')[0]+'}').split('{')[1];
-                result = JSON.parse(result);
                 loading.end();
                 $('#btn_postular').prop('disabled',true);
                 $('#btn_postular').text('Enviado!');
                 $('#div_enviar').html('');
                 $('#div_criterios').html('');
                 $('.form').prop('disabled',true);
-                var dia = String(new Date(Date.now()).getDate());
-                dia = "0".repeat(2-dia.length)+dia;
-                var mes = String(new Date(Date.now()).getMonth());
-                mes = "0".repeat(2-mes.length)+mes;
-                var anio = String(new Date(Date.now()).getFullYear());
-                var array = [form.nombre_revista, form.issn, form.pais, form.ciudad, form.nombre, form.correo, form.periodicidad, form.organizacion, form.autorizo, 
-                                dia + "/" + mes + "/" + anio, "https://docs.google.com/document/d/"+result.docx+"/edit", "https://docs.google.com/spreadsheets/d/"+result.xlsx+"/edit"
-                                //"https://docs.google.com/document/d//edit",
-                                //"https://docs.google.com/spreadsheets/d//edit"
-                            ];
-                class_pre.initClient2(array);
-            });
+              });
         });
         
         $('#form_enviar').on('submit',function(e){
@@ -695,116 +671,7 @@ class_pre = {
             html+='<li><a href="javascript:void(0);" aria-label="Siguiente" id="sig"><span aria-hidden="true">»</span></a></li>';
         
         $('#pag').html(html);
-    },
-    initClient: function() {
-        //gapi.load('client:auth2', function(){
-        gapi.load('client', function(){
-            gapi.client.init({
-              apiKey: class_pre.API_KEY,
-              //clientId: class_pre.CLIENT_ID,
-              discoveryDocs: class_pre.DISCOVERY_DOCS,
-              scope: class_pre.SCOPES,
-              client_email: class_pre.CLIENT_EMAIL,
-              private_key: class_pre.PRIVATE_KEY
-            }).then(function () {
-                gapi.client.sheets.spreadsheets.values.get({
-                    spreadsheetId: '1cX0JRkoPx4VnSdYO9hKSXe73XqZvFmGvnMBTLvrY0os',
-                    range: 'Revistas!A2:E',
-                }).then(function(response) {
-                    var range = response.result;
-                    if (range.values.length > 0) {
-                      class_pre.appendPre('Name, Major:');
-                      for (i = 0; i < range.values.length; i++) {
-                        var row = range.values[i];
-                        // Print columns A and E, which correspond to indices 0 and 4.
-                        class_pre.appendPre(row[0] + ', ' + row[4]);
-                      }
-                    } else {
-                        class_pre.appendPre('No data found.');
-                    }
-                }, function(response) {
-                    class_pre.appendPre('Error: ' + response.result.error.message);
-                });
-
-            }, function(error) {
-              appendPre(JSON.stringify(error, null, 2));
-            });
-        });
-    },
-    initClient2: function(array) {
-        //llave privada y email de cliente creadas en google cloud Cuentas de servicio
-        var object = {
-            private_key: class_pre.PRIVATE_KEY,
-            client_email: class_pre.CLIENT_EMAIL,
-            scopes: class_pre.SCOPES,
-        };
-        gapi.load("client", async function(){
-            gapi.auth.setToken(await GetAccessTokenFromServiceAccount.do(object));
-            gapi.client.init({
-                discoveryDocs: class_pre.DISCOVERY_DOCS,
-            }).then(function () {
-                //Lectura de hoja de cálculo, se requiere el ID y la hoja de la que leerá
-                gapi.client.sheets.spreadsheets.values.get({
-                    spreadsheetId: class_pre.spreadsheetId,
-                    range: class_pre.sheet,
-                }).then(function(response) {
-                    var range = response.result;
-                    var row = '';
-                    
-                    $.each(range.values, function(i,val){
-                        if(val.length==1){
-                            row = i+1;
-                            return false;
-                        }
-                    });
-                    
-                    var values1 = [
-                        array.slice(0,10)
-                      ];
-                    var values2 = [
-                        array.slice(10)
-                      ];
-                     
-                    var body1 = {
-                        values: values1
-                    };
-                    var body2 = {
-                        values: values2
-                    };
-                    //Agrega valores a la hoja, obtiene el último renglón donde hay información
-                    gapi.client.sheets.spreadsheets.values.append({
-                        spreadsheetId: class_pre.spreadsheetId,
-                        //range: class_pre.sheet+"!B"+(range.values.length+1),
-                        range: class_pre.sheet+"!B"+row,
-                        resource: body1,
-                        valueInputOption: "RAW",
-                    }).then((response) => {
-                        gapi.client.sheets.spreadsheets.values.append({
-                        spreadsheetId: class_pre.spreadsheetId,
-                        //range: class_pre.sheet+"!B"+(range.values.length+1),
-                        range: class_pre.sheet+"!X"+row,
-                        resource: body2,
-                        valueInputOption: "RAW",
-                        }).then((response) => {
-                            var result = response.result;
-                        });
-                    });
-                    
-                    
-                }, function(response) {
-                    class_pre.appendPre('Error: ' + response.result.error.message);
-                });
-
-            }, function(error) {
-                appendPre(JSON.stringify(error, null, 2));
-            });
-        });
-    },
-    appendPre(message) {
-        var pre = document.getElementById('content');
-        var textContent = document.createTextNode(message + '\n');
-        //pre.appendChild(textContent);
-      }
+    }
 };
 
 $(class_pre.ready);
