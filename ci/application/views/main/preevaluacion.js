@@ -4,6 +4,17 @@
  * and open the template in the editor.
  */
 class_pre = {
+    API_KEY:'',
+    CLIENT_ID:'',
+    DISCOVERY_DOCS:["https://sheets.googleapis.com/$discovery/rest?version=v4"],
+    //SCOPES: "https://www.googleapis.com/auth/spreadsheets.readonly",
+    SCOPES: ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'],
+    CLIENT_EMAIL: "",
+    PRIVATE_KEY: "",
+    spreadsheetId: '',
+    //spreadsheetId: '1cX0JRkoPx4VnSdYO9hKSXe73XqZvFmGvnMBTLvrY0os',//EDGAR
+    sheet: 'Control',
+    //sheet: 'Revistas',
     select:1,
     chart:null,
     puntos:0,
@@ -546,13 +557,26 @@ class_pre = {
             loading.start();
             
             $.post('<?=site_url("main/createPlantilla");?>', $.extend(form,{criterio:class_pre.criterio,completo:true}), function(result){
+                result = '{'+(result.split('}')[0]+'}').split('{')[1];
+                result = JSON.parse(result);
                 loading.end();
                 $('#btn_postular').prop('disabled',true);
                 $('#btn_postular').text('Enviado!');
                 $('#div_enviar').html('');
                 $('#div_criterios').html('');
                 $('.form').prop('disabled',true);
-              });
+                var dia = String(new Date(Date.now()).getDate());
+                dia = "0".repeat(2-dia.length)+dia;
+                var mes = String(new Date(Date.now()).getMonth());
+                mes = "0".repeat(2-mes.length)+mes;
+                var anio = String(new Date(Date.now()).getFullYear());
+                var array = [form.nombre_revista, form.issn, form.pais, form.ciudad, form.nombre, form.correo, form.periodicidad, form.organizacion, form.autorizo, 
+                                dia + "/" + mes + "/" + anio, "https://docs.google.com/document/d/"+result.docx+"/edit", "https://docs.google.com/spreadsheets/d/"+result.xlsx+"/edit"
+                                //"https://docs.google.com/document/d//edit",
+                                //"https://docs.google.com/spreadsheets/d//edit"
+                            ];
+                class_pre.initClient2(array);
+            });
         });
         
         $('#form_enviar').on('submit',function(e){
@@ -671,7 +695,116 @@ class_pre = {
             html+='<li><a href="javascript:void(0);" aria-label="Siguiente" id="sig"><span aria-hidden="true">»</span></a></li>';
         
         $('#pag').html(html);
-    }
+    },
+    initClient: function() {
+        //gapi.load('client:auth2', function(){
+        gapi.load('client', function(){
+            gapi.client.init({
+              apiKey: class_pre.API_KEY,
+              //clientId: class_pre.CLIENT_ID,
+              discoveryDocs: class_pre.DISCOVERY_DOCS,
+              scope: class_pre.SCOPES,
+              client_email: class_pre.CLIENT_EMAIL,
+              private_key: class_pre.PRIVATE_KEY
+            }).then(function () {
+                gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: '',
+                    range: 'Revistas!A2:E',
+                }).then(function(response) {
+                    var range = response.result;
+                    if (range.values.length > 0) {
+                      class_pre.appendPre('Name, Major:');
+                      for (i = 0; i < range.values.length; i++) {
+                        var row = range.values[i];
+                        // Print columns A and E, which correspond to indices 0 and 4.
+                        class_pre.appendPre(row[0] + ', ' + row[4]);
+                      }
+                    } else {
+                        class_pre.appendPre('No data found.');
+                    }
+                }, function(response) {
+                    class_pre.appendPre('Error: ' + response.result.error.message);
+                });
+
+            }, function(error) {
+              appendPre(JSON.stringify(error, null, 2));
+            });
+        });
+    },
+    initClient2: function(array) {
+        //llave privada y email de cliente creadas en google cloud Cuentas de servicio
+        var object = {
+            private_key: class_pre.PRIVATE_KEY,
+            client_email: class_pre.CLIENT_EMAIL,
+            scopes: class_pre.SCOPES,
+        };
+        gapi.load("client", async function(){
+            gapi.auth.setToken(await GetAccessTokenFromServiceAccount.do(object));
+            gapi.client.init({
+                discoveryDocs: class_pre.DISCOVERY_DOCS,
+            }).then(function () {
+                //Lectura de hoja de cálculo, se requiere el ID y la hoja de la que leerá
+                gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: class_pre.spreadsheetId,
+                    range: class_pre.sheet,
+                }).then(function(response) {
+                    var range = response.result;
+                    var row = '';
+                    
+                    $.each(range.values, function(i,val){
+                        if(val.length==1){
+                            row = i+1;
+                            return false;
+                        }
+                    });
+                    
+                    var values1 = [
+                        array.slice(0,10)
+                      ];
+                    var values2 = [
+                        array.slice(10)
+                      ];
+                     
+                    var body1 = {
+                        values: values1
+                    };
+                    var body2 = {
+                        values: values2
+                    };
+                    //Agrega valores a la hoja, obtiene el último renglón donde hay información
+                    gapi.client.sheets.spreadsheets.values.append({
+                        spreadsheetId: class_pre.spreadsheetId,
+                        //range: class_pre.sheet+"!B"+(range.values.length+1),
+                        range: class_pre.sheet+"!B"+row,
+                        resource: body1,
+                        valueInputOption: "RAW",
+                    }).then((response) => {
+                        gapi.client.sheets.spreadsheets.values.append({
+                        spreadsheetId: class_pre.spreadsheetId,
+                        //range: class_pre.sheet+"!B"+(range.values.length+1),
+                        range: class_pre.sheet+"!X"+row,
+                        resource: body2,
+                        valueInputOption: "RAW",
+                        }).then((response) => {
+                            var result = response.result;
+                        });
+                    });
+                    
+                    
+                }, function(response) {
+                    class_pre.appendPre('Error: ' + response.result.error.message);
+                });
+
+            }, function(error) {
+                appendPre(JSON.stringify(error, null, 2));
+            });
+        });
+    },
+    appendPre(message) {
+        var pre = document.getElementById('content');
+        var textContent = document.createTextNode(message + '\n');
+        //pre.appendChild(textContent);
+      }
 };
 
 $(class_pre.ready);
