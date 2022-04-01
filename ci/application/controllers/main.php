@@ -241,11 +241,11 @@ class Main extends CI_Controller{
 		$this->template->build('main/criterios_seleccion', $data);
 	}
         
-        function multi_attach_mail($to, $subject, $message, $senderMail, $senderName, $files){
+        function multi_attach_mail($to, $subject, $message, $senderMail, $senderName, $files, $usuario){
 
             //$from = $senderName." <".$senderMail.">"; 
             //$headers = "From: $from\n";
-            $headers = "From: BIBLAT<biblat_comite@dgb.unam.mx>\nBcc: biblat_comite@dgb.unam.mx\nReply-To: biblat_comite@dgb.unam.mx";
+			$headers = "From: BIBLAT<biblat_comite@dgb.unam.mx>\nReply-To: biblat_comite@dgb.unam.mx";
 
             // boundary 
             $semi_rand = md5(time()); 
@@ -257,24 +257,26 @@ class Main extends CI_Controller{
             // multipart boundary 
             $message = "--{$mime_boundary}\n" . "Content-Type: text/html; charset=\"UTF-8\"\n" .
             "Content-Transfer-Encoding: 7bit\n\n" . $message . "\n\n"; 
+			
+			if($usuario){
+				// preparing attachments
+				if(count($files) > 0){
+					for($i=0;$i<count($files);$i++){
+						if(is_file($files[$i])){
+							$message .= "--{$mime_boundary}\n";
+							$fp =    @fopen($files[$i],"rb");
+							$data =  @fread($fp,filesize($files[$i]));
 
-            // preparing attachments
-            if(count($files) > 0){
-                for($i=0;$i<count($files);$i++){
-                    if(is_file($files[$i])){
-                        $message .= "--{$mime_boundary}\n";
-                        $fp =    @fopen($files[$i],"rb");
-                        $data =  @fread($fp,filesize($files[$i]));
-
-                        @fclose($fp);
-                        $data = chunk_split(base64_encode($data));
-                        $message .= "Content-Type: application/octet-stream; name=\"".basename($files[$i])."\"\n" . 
-                        "Content-Description: ".basename($files[$i])."\n" .
-                        "Content-Disposition: attachment;\n" . " filename=\"".basename($files[$i])."\"; size=".filesize($files[$i]).";\n" . 
-                        "Content-Transfer-Encoding: base64\n\n" . $data . "\n\n";
-                    }
-                }
-            }
+							@fclose($fp);
+							$data = chunk_split(base64_encode($data));
+							$message .= "Content-Type: application/octet-stream; name=\"".basename($files[$i])."\"\n" . 
+							"Content-Description: ".basename($files[$i])."\n" .
+							"Content-Disposition: attachment;\n" . " filename=\"".basename($files[$i])."\"; size=".filesize($files[$i]).";\n" . 
+							"Content-Transfer-Encoding: base64\n\n" . $data . "\n\n";
+						}
+					}
+				}
+			}
 
             $message .= "--{$mime_boundary}--";
             $returnpath = "-f" . $senderMail;
@@ -430,7 +432,16 @@ class Main extends CI_Controller{
                     $mensaje,
                     "biblat_comite@dgb.unam.mx",
                     "Comité de Evaluación de Publicaciones Periódicas para CLASE, PERIÓDICA y Catálogo SERIUNAM",
-                    $arraydocs
+                    $arraydocs,
+					true
+                    );
+			$this->multi_attach_mail('biblat_comite@dgb.unam.mx',
+                    "Postulación de Revista",
+                    $mensaje,
+                    "biblat_comite@dgb.unam.mx",
+                    "Comité de Evaluación de Publicaciones Periódicas para CLASE, PERIÓDICA y Catálogo SERIUNAM",
+                    $arraydocs,
+					false
                     );
             
             if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
