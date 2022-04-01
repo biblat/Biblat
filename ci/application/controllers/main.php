@@ -1,6 +1,7 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 require 'vendor/autoload.php';
+require 'vendor/google-api/vendor/autoload.php';
 
 class Main extends CI_Controller{
 
