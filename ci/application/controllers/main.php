@@ -1,5 +1,5 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-
+error_reporting(0);
 require 'vendor/autoload.php';
 require 'vendor/google-api/vendor/autoload.php';
 
@@ -425,13 +425,13 @@ class Main extends CI_Controller{
                 );
             }
             
-//            $this->multi_attach_mail($correos,
-//                    "Postulación de Revista",
-//                    $mensaje,
-//                    "biblat_comite@dgb.unam.mx",
-//                    "Comité de Evaluación de Publicaciones Periódicas para CLASE, PERIÓDICA y Catálogo SERIUNAM",
-//                    $arraydocs
-//                    );
+            $this->multi_attach_mail($correos,
+                    "Postulación de Revista",
+                    $mensaje,
+                    "biblat_comite@dgb.unam.mx",
+                    "Comité de Evaluación de Publicaciones Periódicas para CLASE, PERIÓDICA y Catálogo SERIUNAM",
+                    $arraydocs
+                    );
             
             if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
                 $result = $this->setDocumentsDrive("CartaDePostulacion_".$_POST['issn'].".docx", 'Preevaluacion_'.$_POST['issn'].'.xlsx');
@@ -513,17 +513,7 @@ class Main extends CI_Controller{
                     // Request authorization from the user.
                     $authUrl = $client->createAuthUrl();
                     
-                    /**********
-                     * 
-                     * Código utilizado para generar el primer archivo "token.json", posteriormente se va actualizando el token
-                     * Se copia la URL generada, se aceptan los permisos y el código generado en la url se copia a la variable $authCode
-                     * 
-                     * 
-                     */
-                    //printf("Open the following link in your browser:\n%s\n", $authUrl);
-                    //print 'Enter verification code: ';
-                    //echo($authUrl);
-                    //$authCode = '4/0AX4XfWgMP9xs6iE-J-FwYFh7WiGm4trK0MPwqJrElF2bPSi4y6LMdj0PnG1GYFzhzr5avg';//trim(fgets(STDIN));
+                
 
                     // Exchange authorization code for an access token.
                     $accessToken = $client->fetchAccessTokenWithAuthCode($authCode);
@@ -547,8 +537,6 @@ class Main extends CI_Controller{
             //$client = $this->getClientGoogle();
             $client = $this->getClientGoogle2();
             $service = new Google_Service_Drive($client);
-            //$folderIddocx = "1MvmMROb2dPn23UGnh7dgcMikrdPmdESr";
-            //$folderIdxlsx = "1MvmMROb2dPn23UGnh7dgcMikrdPmdESr";
             $folderIddocx = "";
             $folderIdxlsx = "";
             
