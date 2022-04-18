@@ -337,6 +337,42 @@ class Revista extends CI_Controller{
 		/*Article meta*/
 		$this->template->build('revista/articulo', $data['main']);
 	}
+	
+	public function numeros($revista){
+		$query = 'select revista, "anioRevista", volumen, numero from "mvNumerosRevista" where "revistaSlug"=\''.$revista.'\' order by 2 desc, 3 desc, NULLIF(regexp_replace(numero, \'\D\', \'\', \'g\'), \'\')::numeric';
+		$this->load->database();
+		$query = $this->db->query($query);
+		$numeros = $query->result_array();
+		$this->db->close();
+		$data['main']['numeros'] = $numeros;
+		$arr_numeros = array();
+		
+		$vol=null;
+		$volAnterior=null;
+		$cont=-1;
+		$contVol=0;
+		$contNum=-1;
+		$anioAnterior=0;
+		$arr_numeros['revista']=$numeros[0]['revista'];
+		foreach ($numeros as $row):
+			if($anioAnterior.$volAnterior != $row['anioRevista'].$row['volumen']){
+				$anioAnterior = $row['anioRevista'];
+				$cont = $cont+1;
+				$volAnterior = $row['volumen'];
+				$vol = $row['volumen'];
+				$contVol=0;
+				$contNum=-1;
+			}
+
+			$contNum = $contNum +1;
+			$arr_numeros['numeros'][$cont]['anio'] = trim($anioAnterior);
+			$arr_numeros['numeros'][$cont]['vol'] = trim($vol);
+			$arr_numeros['numeros'][$cont]['num'][$contNum] = trim($row['numero']);
+		endforeach;
+				
+		$this->parser->parse('revista/numeros', $arr_numeros);
+		return;
+	}
 
 	public function solicitudDocumento(){
 		$this->output->enable_profiler(FALSE);

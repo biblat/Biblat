@@ -567,7 +567,7 @@ class_pre = {
                 $('.form').prop('disabled',true);
                 var dia = String(new Date(Date.now()).getDate());
                 dia = "0".repeat(2-dia.length)+dia;
-                var mes = String(new Date(Date.now()).getMonth());
+                var mes = String(new Date(Date.now()).getMonth()+1);
                 mes = "0".repeat(2-mes.length)+mes;
                 var anio = String(new Date(Date.now()).getFullYear());
                 var array = [form.nombre_revista, form.issn, form.pais, form.ciudad, form.nombre, form.correo, form.periodicidad, form.organizacion, form.autorizo, 

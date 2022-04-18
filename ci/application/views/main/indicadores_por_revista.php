@@ -12,7 +12,7 @@
 	<div class="panel panel-default">
         <div class="panel-heading">
           <h5 class="panel-title">
-              <div style="display:inline-block;width:70px;"><b>No.</b></div><b>Revista</b><span style="float:right;"><b>Documentos</b></span>
+              <div style="display:inline-block;width:70px;"><b>No.</b></div><b>Revista</b><span style="float:right;"><div style="display:inline-block;width:100px;"><b>Números</b></div><b>Documentos</b></span>
           </h5>
         </div>
     </div>								 		  
@@ -21,8 +21,14 @@
 	    <div class="panel-heading">
 	      <h5 class="panel-title">
 	        {if $revista.disciplinaSlug}<a data-toggle="collapse" data-parent="#accordion" href="#{$revista.revistaSlug}">{/if}
-                    <div style="display:inline-block;width:70px;">{$key + 1}</div> {$revista.revista} {if $revista.disciplinaSlug}<sup><span class="fa fa-pie-chart"></span></sup>{/if} <a class="enlace" style="float:right;color:#ff8000" href="{site_url('revista/$revista.revistaSlug')}" title="{$revista.revista}">{number_format($revista.articulos)}</a>
+                    <div style="display:inline-block;width:70px;">{$key + 1}</div> {$revista.revista} {if $revista.disciplinaSlug}<sup><span class="fa fa-pie-chart"></span></sup>{/if}
 	        {if $revista.disciplinaSlug}</a>{/if}
+                <span style="float:right;">
+                    <div style="display:inline-block;width:100px;"><b><a class="numeros" style="color:#555;" onMouseOver="this.style.cssText='color: #ff8000'"  onMouseOut="this.style.cssText='color: #555'" href="{site_url('revista/$revista.revistaSlug/numeros')}"><span class="fa fa-table"></span></a></b></div>
+                    <div style="display:inline-block;width:50px;text-align:right;">
+                        <a class="enlace" style="color:#ff8000" href="{site_url('revista/$revista.revistaSlug')}" title="{$revista.revista}">{number_format($revista.articulos)}</a>
+                    </div>
+                </span>
 	      </h5>
 	    </div>
 	    <div id="{$revista.revistaSlug}" class="panel-collapse collapse">

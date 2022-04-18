@@ -15,7 +15,10 @@ $(document).ready(function() {
             width: 750,
             height: 500
     });
-    
+	jQuery('a.numeros').colorbox({
+            width: 500,
+            height: 700
+    });
     $('.copy-code').on('click', function(e){
 	$('.codehtml').select();
 	document.execCommand('copy');
