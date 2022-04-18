@@ -88,6 +88,7 @@ $route[$langs.'/buscar/(.*)/(.*)'] = 'buscar/index/null/$1/$2';
 $route[$langs.'/buscar/(.*)'] = 'buscar/index/null/null/$1';
 
 $route[$langs.'/revista/(.+)/articulo/(.+)'] = "revista/articulo/revista/$1/articulo/$2";
+$route[$langs.'/revista/(.+)/numeros'] = "revista/numeros/$1";
 $route[$langs.'/revista/(.*)'] = "revista/index/$1";
 /*≠≠≠≠≠≠≠≠ Indicadores Biblat ≠≠≠≠≠≠≠≠*/
 $route[$langs.'/indicadores/(indice-coautoria|tasa-documentos-coautorados|grado-colaboracion|modelo-elitismo|indice-colaboracion|indice-densidad-documentos|indice-concentracion|modelo-bradford-revista|modelo-bradford-institucion|productividad-exogena|frecuencias-institucion-documento|coautoria-pais)(.*)/preview\.png$'] = "indicadores/preview/$1";
