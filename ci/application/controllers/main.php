@@ -401,7 +401,8 @@ class Main extends CI_Controller{
                 "Quedamos atentos a sus comentarios y agradecemos su colaboración.<br><br>".
                 "Saludos.<br>".
                 "Comité de Evaluación de Publicaciones Periódicas para CLASE, PERIÓDICA y Catálogo SERIUNAM<br>".
-                "biblat_comite@dgb.unam.mx";
+                "biblat_comite@dgb.unam.mx".
+                "<i>Este correo es generado automáticamente a nombre del Comité, su revista ya se encuentra registrada en nuestra agenda y en breve le comunicaremos el resultado de postulación. Si usted requiere información adicional, favor de responder este mismo mensaje.</i>";
             }else{
                 $mensaje = "Estimado(a) editor(a):<br><br>".
                 "De acuerdo con la autoevaluación que realizó el día de hoy en nuestro sitio web biblat.unam.mx, lamentamos informarle que su revista no cumple con los criterios obligatorios para ingresar a CLASE, PERIÓDICA, portal BIBLAT y catálogo SERIUNAM.<br><br>".
