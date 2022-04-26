@@ -554,6 +554,7 @@ class_pre = {
             form.periodicidad = $('#periodicidad').val();
             form.ciudad = $('#ciudad').val();
             form.autorizo = $('#autorizo')[0].checked;
+			form.url = $('#url_revista').val();
             loading.start();
             
             $.post('<?=site_url("main/createPlantilla");?>', $.extend(form,{criterio:class_pre.criterio,completo:true}), function(result){
@@ -571,7 +572,7 @@ class_pre = {
                 mes = "0".repeat(2-mes.length)+mes;
                 var anio = String(new Date(Date.now()).getFullYear());
                 var array = [form.nombre_revista, form.issn, form.pais, form.ciudad, form.nombre, form.correo, form.periodicidad, form.organizacion, form.autorizo, 
-                                dia + "/" + mes + "/" + anio, "https://docs.google.com/document/d/"+result.docx+"/edit", "https://docs.google.com/spreadsheets/d/"+result.xlsx+"/edit"
+                                dia + "/" + mes + "/" + anio, "https://docs.google.com/spreadsheets/d/"+result.xlsx+"/edit", "https://docs.google.com/document/d/"+result.docx+"/edit", form.url
                                 //"https://docs.google.com/document/d//edit",
                                 //"https://docs.google.com/spreadsheets/d//edit"
                             ];
