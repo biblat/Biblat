@@ -401,7 +401,7 @@ class Main extends CI_Controller{
                 "Quedamos atentos a sus comentarios y agradecemos su colaboración.<br><br>".
                 "Saludos.<br>".
                 "Comité de Evaluación de Publicaciones Periódicas para CLASE, PERIÓDICA y Catálogo SERIUNAM<br>".
-                "biblat_comite@dgb.unam.mx".
+                "biblat_comite@dgb.unam.mx<br><br>".
                 "<i>Este correo es generado automáticamente a nombre del Comité, su revista ya se encuentra registrada en nuestra agenda y en breve le comunicaremos el resultado de postulación. Si usted requiere información adicional, favor de responder este mismo mensaje.</i>";
             }else{
                 $mensaje = "Estimado(a) editor(a):<br><br>".
@@ -411,7 +411,8 @@ class Main extends CI_Controller{
                 "Quedamos atentos a sus comentarios y esperamos contar con su postulación en un momento posterior.<br><br>".
                 "Saludos.<br>".
                 "Comité de Evaluación de Publicaciones Periódicas para CLASE, PERIÓDICA y Catálogo SERIUNAM<br>".
-                "biblat_comite@dgb.unam.mx";
+                "biblat_comite@dgb.unam.mx<br><br>".
+				"<i>Este correo es generado automáticamente a nombre del Comité. Si usted requiere información adicional, favor de responder este mismo mensaje.</i>";
             }
 
             $mensaje = wordwrap($mensaje, 70, "\r\n");
