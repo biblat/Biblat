@@ -339,7 +339,7 @@ class Revista extends CI_Controller{
 	}
 	
 	public function numeros($revista){
-		$query = 'select revista, "anioRevista", volumen, numero from "mvNumerosRevista" where "revistaSlug"=\''.$revista.'\' order by 2 desc, 3 desc, NULLIF(regexp_replace(numero, \'\D\', \'\', \'g\'), \'\')::numeric';
+		$query = 'select revista, "anioRevista", volumen, numero from "mvNumerosRevista" where "revistaSlug"=\''.$revista.'\' order by 2 desc, 3 desc, NULLIF(regexp_replace(numero, \'\D\', \'999\', \'g\'), \'\')::numeric';
 		$this->load->database();
 		$query = $this->db->query($query);
 		$numeros = $query->result_array();
