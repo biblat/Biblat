@@ -34,7 +34,8 @@ class Revista extends CI_Controller{
 					paginacion,
 					url->>0 AS url,
 					\"autoresJSON\",
-					\"institucionesJSON\"";
+					\"institucionesJSON\",
+					doi";
 		$queryFrom = "FROM \"vSearchFull\" WHERE \"revistaSlug\"='{$revistaSlug}'";
 		$query = "{$queryFields}
 				{$queryFrom}
