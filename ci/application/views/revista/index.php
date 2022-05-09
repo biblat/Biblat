@@ -1,3 +1,6 @@
+<script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
+<script async src="https://badge.dimensions.ai/badge.js" charset="utf-8"></script>
+<script type="text/javascript" src="//cdn.plu.mx/widget-popup.js"></script>
 {if $links != ""}
     <div class="text-center">
       {$links}
@@ -25,6 +28,13 @@
           </td>
           <td class="nowrap text-right">
             {if $resultado.downloadLink}{$resultado.downloadLink}{/if} {$resultado.mendeleyLink}
+			<br/><br/>
+            <div style="display: flex">
+                <div style="display: inline;" class='altmetric-embed'  data-badge-type='donut' data-link-target='_blank' data-doi='{$resultado.doi}' data-badge-popover='left' title="Altmetric"></div>
+                <div style="display: inline;">&nbsp;&nbsp;&nbsp;</div>
+                <div style="display: inline;"><span data-style="small_circle" class="__dimensions_badge_embed__" data-doi="{$resultado.doi}" data-legend="hover-bottom" title="Dimensions"></span></div>
+                <div style="display: inline;"><a href="https://plu.mx/plum/a/?doi={$resultado.doi}" class="plumx-plum-print-popup" data-size="medium" data-popup="right" data-hide-when-empty="true" title="PlumX"></a></div>
+            </div>
           </td>
                 </tr>
 {/foreach}
