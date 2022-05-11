@@ -147,7 +147,7 @@ class Buscar extends CI_Controller{
 			url->>0 AS url,
 			\"autoresJSON\",
 			\"institucionesJSON\",
-			doi";
+			regexp_replace(regexp_replace(doi,'[^a-z0-9]*$',''),'^[^a-z0-9]*','') doi";
 		$queryFrom="FROM \"vSearchFull\" s
 				WHERE  {$slugQuerySearch['where']} {$whereTextoCompleto} {$whereDisciplina}";
 		$query = "{$queryFields}
