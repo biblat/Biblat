@@ -64,6 +64,7 @@ class Revista extends CI_Controller{
 		$this->template->css('assets/css/colorboxIndices.css');
 		$this->template->js('assets/js/colorbox.js');
 		$this->template->js('assets/js/jquery.highlight.js');
+		$this->template->set_partial('main_js','revista/badges.js', array(), TRUE, FALSE);
 		if(ENVIRONMENT === "production"):
 			$this->template->js('//s7.addthis.com/js/300/addthis_widget.js#pubid=herz');
 		endif;
