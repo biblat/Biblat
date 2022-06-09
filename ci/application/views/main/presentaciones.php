@@ -2,6 +2,24 @@
         <div class="panel panel-default">
 		<div class="panel-heading">
 			<h5 class="panel-title">
+				<a href="{base_url('archivos/ppt/Seminario_internacional_FOLEC-CLACSO_10_junio_2022.pptx')}" target="_blank">
+                                    <span class="fa fa-file-powerpoint-o"></span> Sánchez Pereyra, Antonio. (2022, junio). <b>Construcción de indicadores y bases de datos regionales interoperables que contribuyan con indicadores en los procesos de evaluación de investigación, proyectos e instituciones - las revistas</b>. 9a Conferencia Latinoamericana y Caribeña de Ciencias Sociales. Ciudad Universitaria (Ciudad de México), México.
+				</a>
+			</h5>
+		</div>
+	</div>
+        <div class="panel panel-default">
+		<div class="panel-heading">
+			<h5 class="panel-title">
+				<a href="{base_url('archivos/ppt/BIBLAT_4.0_presentacion_DGBSDI_Abril_2021.pptx')}" target="_blank">
+                                    <span class="fa fa-file-powerpoint-o"></span> Carrillo Romero, Oralia, Durán Muñoz, Edgar y Sánchez Pereyra, Antonio. (2021, abril). <b>BIBLAT. Ventana de la ciencia latinoamericana y caribeña</b>. Educación Continua DGBSDI-UNAM, México.
+				</a>
+			</h5>
+		</div>
+	</div>
+        <div class="panel panel-default">
+		<div class="panel-heading">
+			<h5 class="panel-title">
 				<a href="{base_url('archivos/pdf/Indizacion_y_bibliometria_Biblat.pdf')}" target="_blank">
                                     <span class="fa fa-file-pdf-o"></span> Sánchez Pereyra, Antonio y Flores Chávez, Manuel Alejandro (2020, octubre). <b>CLASE-BIBLAT: Requisitos para la indización y para la obtención de indicadores bibliométricos.</b> IV Jornadas LatinRev FLACSO Argentina, Mendoza, Argentina.
 				</a>
@@ -27,7 +45,7 @@
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<h5 class="panel-title">
-					<a href="{base_url('archivos/pdf/Poster_BIBLAT_CRECS_2018.pdf')}" target="_blank"><span class="fa fa-file-pdf-o"></span> <a href="{base_url('archivos/img/Poster_BIBLAT_CRECS_2018.jpg')}" target="_blank"><span class="fa fa-file-image-o"></span></a> BIBLAT Indicadores bibliométricos para la ciencia de América Latina, poster ganador de la modalidad de diseño en la 8ª Conferencia Internacional sobre Revistas Científicas CRECS 2018, Barranquilla, Colombia, 2-4 mayo de 2018
+					<a href="{base_url('archivos/pdf/Poster_BIBLAT_CRECS_2018.pdf')}" target="_blank"><span class="fa fa-file-pdf-o"></span> <a href="{base_url('archivos/img/Poster_BIBLAT_CRECS_2018.jpg')}" target="_blank"><span class="fa fa-file-image-o"></span> BIBLAT Indicadores bibliométricos para la ciencia de América Latina, poster ganador de la modalidad de diseño en la 8ª Conferencia Internacional sobre Revistas Científicas CRECS 2018, Barranquilla, Colombia, 2-4 mayo de 2018</a>
 
 			</h5>
 		</div>
