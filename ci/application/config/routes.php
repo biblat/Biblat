@@ -204,6 +204,8 @@ $route[$langs.'/frecuencias/disciplina/(.+?)/\brevista\b/([^/]+)$'] = "frecuenci
 $route[$langs.'/frecuencias/disciplina/(.+?)/\brevista\b/([^/]+)/[0-9^/]+$'] = "frecuencias/disciplinaRevistaDocumentos/$1/$2/$3";
 $route[$langs.'/frecuencias/disciplina/(.+?)/\brevista\b(.*)'] = "frecuencias/disciplinaRevista/disciplinaSlug/$1$2";
 
+$route[$langs.'/bibmacro'] = "bibmacro";
+
 
 
 // URI like '/en/about' -> use controller 'about'
