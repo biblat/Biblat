@@ -121,5 +121,16 @@ class Datos extends REST_Controller {
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);
         }
+		
+		public function tabla_get($tabla){
+            if($tabla){
+				$data = array();
+				$biblatDB = $this->load->database('biblat', TRUE);
+						$query = $biblatDB->get($tabla); 
+				$this->response($query->result_array(), 200);
+            }
+            
+            $this->response(NULL, 200);
+		}
         
 }
