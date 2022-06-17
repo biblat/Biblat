@@ -1,10 +1,10 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 error_reporting(0);
-header('X-Frame-Options: ALLOW-FROM ["http://digitalab-ssie.unam.mx/", "https://bibmacro.dgb.unam.mx/"]');
 
 class Bibmacro extends CI_Controller {
     
     public function index(){
+		$this->output->set_header('X-Frame-Options', 'ALLOW FROM http://digitalab-ssie.unam.mx/');
         $this->template->set_layout('bibmacro');
         $this->template->js('js/d3.js');
         $this->template->js('js/d3.layout.cloud.js');
