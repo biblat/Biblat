@@ -4,7 +4,6 @@ error_reporting(0);
 class Bibmacro extends CI_Controller {
     
     public function index(){
-		$this->output->set_header('X-Frame-Options', 'ALLOW FROM http://digitalab-ssie.unam.mx/');
         $this->template->set_layout('bibmacro');
         $this->template->js('js/d3.js');
         $this->template->js('js/d3.layout.cloud.js');
