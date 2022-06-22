@@ -15,14 +15,15 @@ var revistas = '';
 var disciplinas = '';
 var anios = '';
 
+//color-verde #4fb800;
 var tabla_datos_revistas= '<span style="font-size:11px"></span><table id="tb_revistas" class="display" style="width:100%;font-size:11px"><thead>'+
 '<tr><th style="background-color: #ff800040">Revista</th>'+
-'<th style="background-color: #ff800040">País</th>'+
+'<th style="background-color: #ff800040" class="td_pais">País</th>'+
 '<th style="background-color: #ff800040">Ciudad</th>'+
-'<th style="background-color: #ff800040">Área de conocimiento</th>'+
-'<th style="background-color: #ff800040">Disciplina</th>'+
+'<th style="background-color: #ff800040" class="td_area">Área de conocimiento</th>'+
+'<th style="background-color: #ff800040" class="td_disciplina">Disciplina</th>'+
 '<th style="background-color: #ff800040">Naturaleza de la publicación</th>'+
-'<th style="background-color: #ff800040">Universidad</th>'+
+'<th style="background-color: #ff800040" class="td_universidad">Universidad</th>'+
 '<th style="background-color: #ff800040">Entidad editora</th>'+
 '<th style="background-color: #ff800040">ISSN impreso</th>'+
 '<th style="background-color: #ff800040">ISSN electrónico</th>'+
@@ -122,8 +123,42 @@ var chartTreemap = {
 //                    formatter:function(){
 //                        return '<a target="_blank" style="color:black" href="indice/disciplina/' + this.point.name.toLowerCase().split('').map(letra=>dicc[letra] || letra).join('') + '">' + this.point.name + '</a>'
 //                    },
+//                    formatter:function(){
+//                        fn_search=function(val){
+//                            $('#tb_revistas').DataTable().columns(4).search(val+'$', regex=true).draw()
+//                        };
+//                        op_url = window.location.origin + window.location.pathname + '#tb_revistas';
+//                        return '<a href="'+op_url+'" style="color:black" onclick="fn_search(\''+this.point.name+'\')">' + this.point.name + '</a>'
+//                    },
                     useHTML: true
-                }
+                },
+                point:{
+                    events:{
+                        click:function(){
+                            //Reset de la búsqueda desde el input
+                            $('input[type=search]').val('').change();
+                            $('#tb_revistas').DataTable().search('').draw();
+                            //Reset de la búsqueda por columna
+                            $('#tb_revistas').DataTable().columns().search('').draw();
+                            $('#tb_revistas').DataTable().columns(4).search(this.name+'$', regex=true).draw();
+                            $('#txt_revistas').html('Revistas clasificadas en la disciplina: "'+this.name+'"');
+                            //Reset demás estilos
+                            $('.td_area').css('font-size', '11px');
+                            $('.td_area').css('background-color', 'rgba(255, 128, 0, 0.25)');
+                            $('.td_universidad').css('font-size', '11px');
+                            $('.td_universidad').css('background-color', 'rgba(255, 128, 0, 0.25)');
+                            $('.td_pais').css('font-size', '11px');
+                            $('.td_pais').css('background-color', 'rgba(255, 128, 0, 0.25)');
+                            //Estilo para la columna
+                            $('.td_disciplina').css('font-size', '13px');
+                            $('.td_disciplina').css('font-weight', 'bold');
+                            $('.td_disciplina').css('background-color', 'rgb(163, 183, 241)');
+                            $('#reset_revistas').show();
+                            window.location.href = window.location.origin + window.location.pathname + '#txt_revistas';
+                        }
+                    }
+                },
+                cursor: "pointer"
             }
         },
         chart: {
@@ -260,11 +295,54 @@ mapaChart = {
                         body_revista = '';
                         pais_revista = e.point.name.toLowerCase().split('').map(letra=>dicc[letra] || letra).join('');
                         
-                        var revistas_filter = class_utils.filter_prop(revistas,'pais',pais_revista);    
+                        var revistas_filter = class_utils.filter_prop(revistas,'pais',pais_revista);
+                        
+                        //Reset de la búsqueda desde el input
+                        $('input[type=search]').val('').change();
+                        $('#tb_revistas').DataTable().search('').draw();
+                        //Reset de la búsqueda por columna
+                        $('#tb_revistas').DataTable().columns().search('').draw();
+                        $('#tb_revistas').DataTable().columns(1).search(e.point.name+'$', regex=true).draw();
+                        //Reset demás estilos
+                        $('.td_disciplina').css('font-size', '11px');
+                        $('.td_disciplina').css('background-color', 'rgba(255, 128, 0, 0.25)');
+                        $('.td_area').css('font-size', '11px');
+                        $('.td_area').css('background-color', 'rgba(255, 128, 0, 0.25)');
+                        $('.td_universidad').css('font-size', '11px');
+                        $('.td_universidad').css('background-color', 'rgba(255, 128, 0, 0.25)');
+                        //Estilo para la columna
+                        $('.td_pais').css('font-size', '13px');
+                        $('.td_pais').css('font-weight', 'bold');
+                        $('.td_pais').css('background-color', 'rgb(163, 183, 241)');
+                        $('#reset_revistas').show();
+                        $('#txt_revistas').html('Revistas del país: "' + e.point.name + '"');
+                        
+                        fn_search=function(val){
+                            //Reset de la búsqueda desde el input
+                            $('input[type=search]').val('').change();
+                            $('#tb_revistas').DataTable().search('').draw();
+                            //Reset de la búsqueda por columna
+                            $('#tb_revistas').DataTable().columns().search('').draw();
+                            $('#tb_revistas').DataTable().columns(6).search(val+'$', regex=true).draw();
+                            $('#txt_revistas').html('Revistas de la universidad: "'+val+'"');
+                            //Reset demás estilos
+                            $('.td_disciplina').css('font-size', '11px');
+                            $('.td_disciplina').css('background-color', 'rgba(255, 128, 0, 0.25)');
+                            $('.td_area').css('font-size', '11px');
+                            $('.td_area').css('background-color', 'rgba(255, 128, 0, 0.25)');
+                            $('.td_pais').css('font-size', '11px');
+                            $('.td_pais').css('background-color', 'rgba(255, 128, 0, 0.25)');
+                            //Estilo para la columna
+                            $('.td_universidad').css('font-size', '13px');
+                            $('.td_universidad').css('font-weight', 'bold');
+                            $('.td_universidad').css('background-color', 'rgb(163, 183, 241)');
+                            $('#reset_revistas').show();
+                            window.location.href = window.location.origin + window.location.pathname + '#txt_revistas';
+                        };
                         $.each(revistas_filter,function(i,val){
                             body_revista += tr_revista.replace('<rev>',val.universidad)
                                                        //.replace('<art>','<a target="_blank" class="enlace" href="revista/'+val.universidad+'">' + new Intl.NumberFormat("en").format(val.rev) + '</a>' );
-                                                       .replace('<art>', new Intl.NumberFormat("en").format(val.rev) );
+                                                       .replace('<art>', '<a style="cursor:pointer" onclick="fn_search(\''+val.universidad+'\')">' + new Intl.NumberFormat("en").format(val.rev) + '</a>' );
                         });
 
                         $('#div_tabla').html(tabla_revista);
@@ -293,6 +371,29 @@ mapaChart = {
                         
                         var chartTreemap2 = JSON.parse(JSON.stringify(chartTreemap));
                         chartTreemap2.title.text = "Revistas por áreas de conocimiento"
+                        chartTreemap2.plotOptions.treemap.point.events = { click:function(){
+                                //Reset de la búsqueda desde el input
+                                $('input[type=search]').val('').change();
+                                $('#tb_revistas').DataTable().search('').draw();
+                                //Reset de la búsqueda por columna
+                                $('#tb_revistas').DataTable().columns().search('').draw();
+                                $('#tb_revistas').DataTable().columns(3).search(this.name+'$', regex=true).draw();
+                                $('#txt_revistas').html('Revistas clasificadas en el área: "'+this.name+'"');
+                                //Reset demás estilos
+                                $('.td_disciplina').css('font-size', '11px');
+                                $('.td_disciplina').css('background-color', 'rgba(255, 128, 0, 0.25)');
+                                $('.td_universidad').css('font-size', '11px');
+                                $('.td_universidad').css('background-color', 'rgba(255, 128, 0, 0.25)');
+                                $('.td_pais').css('font-size', '11px');
+                                $('.td_pais').css('background-color', 'rgba(255, 128, 0, 0.25)');
+                                //Estilo para la columna
+                                $('.td_area').css('font-size', '13px');
+                                $('.td_area').css('font-weight', 'bold');
+                                $('.td_area').css('background-color', 'rgb(163, 183, 241)');
+                                $('#reset_revistas').show();
+                                window.location.href = window.location.origin + window.location.pathname + '#txt_revistas';
+                            }
+                        };
                         
                         var areas_filter = class_utils.filter_prop(area_conocimiento,'pais',pais_revista);
                         chartTreemap2.series[0].data = [];
@@ -372,7 +473,7 @@ mapaChart = {
     series: [{
         data: data,
         //name: 'Random data',
-        borderColor: '#ff8000',
+        borderColor: '#00299e',
         nullColor: 'lightgray',
         color: 'gray',
         states: {
@@ -415,7 +516,6 @@ $.when(
     class_utils.find_prop(mapa.series[0].points,'name',pais).update({color: '#00299e'});
     
     
-    
     $.when(
         class_utils.getResource('/datos/tabla/mvunivrevistas'),
         class_utils.getResource('/datos/tabla/mvpaisdisciplina'),
@@ -433,10 +533,32 @@ $.when(
     
 //    if( window.location.href.indexOf('mapa') !== -1 ){
         var revistas_filter = class_utils.filter_prop(revistas,'pais',pais_revista);    
+        fn_search=function(val){
+                            //Reset de la búsqueda desde el input
+                            $('input[type=search]').val('').change();
+                            $('#tb_revistas').DataTable().search('').draw();
+                            //Reset de la búsqueda por columna
+                            $('#tb_revistas').DataTable().columns().search('').draw();
+                            $('#tb_revistas').DataTable().columns(6).search(val+'$', regex=true).draw();
+                            $('#txt_revistas').html('Revistas de la universidad: "'+val+'"');
+                            //Reset demás estilos
+                            $('.td_disciplina').css('font-size', '11px');
+                            $('.td_disciplina').css('background-color', 'rgba(255, 128, 0, 0.25)');
+                            $('.td_area').css('font-size', '11px');
+                            $('.td_area').css('background-color', 'rgba(255, 128, 0, 0.25)');
+                            $('.td_pais').css('font-size', '11px');
+                            $('.td_pais').css('background-color', 'rgba(255, 128, 0, 0.25)');
+                            //Estilo para la columna
+                            $('.td_universidad').css('font-size', '13px');
+                            $('.td_universidad').css('font-weight', 'bold');
+                            $('.td_universidad').css('background-color', 'rgb(163, 183, 241)');
+                            $('#reset_revistas').show();
+                            window.location.href = window.location.origin + window.location.pathname + '#txt_revistas';
+                        };
         $.each(revistas_filter,function(i,val){
             body_revista += tr_revista.replace('<rev>',val.universidad)
                                         //.replace('<art>','<a target="_blank" class="enlace" href="revista/'+val.universidad+'">' + new Intl.NumberFormat("en").format(val.rev) + '</a>' );
-                                        .replace('<art>',new Intl.NumberFormat("en").format(val.rev));
+                                        .replace('<art>', '<a style="cursor:pointer" onclick="fn_search(\''+val.universidad+'\')">' + new Intl.NumberFormat("en").format(val.rev) + '</a>' );
         });
         
         $('#div_tabla').html(tabla_revista);
@@ -465,6 +587,29 @@ $.when(
         
         var chartTreemap2 = JSON.parse(JSON.stringify(chartTreemap));
         chartTreemap2.title.text = "Revistas por áreas de conocimiento"
+        chartTreemap2.plotOptions.treemap.point.events = { click:function(){
+                            //Reset de la búsqueda desde el input
+                            $('input[type=search]').val('').change();
+                            $('#tb_revistas').DataTable().search('').draw();
+                            //Reset de la búsqueda por columna
+                            $('#tb_revistas').DataTable().columns().search('').draw();
+                            $('#tb_revistas').DataTable().columns(3).search(this.name+'$', regex=true).draw();
+                            $('#txt_revistas').html('Revistas clasificadas en el área: "'+this.name+'"');
+                            //Reset demás estilos
+                            $('.td_disciplina').css('font-size', '11px');
+                            $('.td_disciplina').css('background-color', 'rgba(255, 128, 0, 0.25)');
+                            $('.td_universidad').css('font-size', '11px');
+                            $('.td_universidad').css('background-color', 'rgba(255, 128, 0, 0.25)');
+                            $('.td_pais').css('font-size', '11px');
+                            $('.td_pais').css('background-color', 'rgba(255, 128, 0, 0.25)');
+                            //Estilo para la columna
+                            $('.td_area').css('font-size', '13px');
+                            $('.td_area').css('font-weight', 'bold');
+                            $('.td_area').css('background-color', 'rgb(163, 183, 241)');
+                            $('#reset_revistas').show();
+                            window.location.href = window.location.origin + window.location.pathname + '#txt_revistas';
+                        }
+                    };
         
         var areas_filter = class_utils.filter_prop(area_conocimiento,'pais',pais_revista);
         chartTreemap2.series[0].data = [];
@@ -519,6 +664,42 @@ $.when(
         $('#tb_revistas_info').css('font-size',11);
         $('#tb_revistas_paginate').css('font-size',11);
         $('#tb_revistas_paginate .paginate_input').css('width',50);
+        $('#tb_revistas').DataTable().columns(1).search("México"+'$', regex=true).draw();
+        $('#txt_revistas').html('Revistas del país: "México"');
+        $('.td_pais').css('font-size', '13px');
+        $('.td_pais').css('font-weight', 'bold');
+        $('.td_pais').css('background-color', 'rgb(163, 183, 241)');
+        $('#div_revistas').show();
+        
+        $('#tb_revistas_filter, #reset_revistas').off('click').on('click', function(){
+            $('#div_tbl_revistas').html(tabla_datos_revistas);
+            $('#body_datos_revistas').html(body_revistas);
+
+            var op = {
+                            order: [[ 0, 'asc' ]],
+                            bLengthChange: false,
+                            pageLength: 10,
+                            pagingType: 'input',
+                        };                    
+
+            class_utils.setTabla('tb_revistas',op);
+            $('#txt_revistas').html('Revistas');
+            
+            $('#tb_revistas_filter').css('font-size',11);
+            $('#tb_revistas_info').css('font-size',11);
+            $('#tb_revistas_paginate').css('font-size',11);
+            $('#tb_revistas_paginate .paginate_input').css('width',50);
+            
+            //Reset demás estilos
+            $('.td_disciplina').css('font-size', '11px');
+            $('.td_disciplina').css('background-color', 'rgba(255, 128, 0, 0.25)');
+            $('.td_universidad').css('font-size', '11px');
+            $('.td_universidad').css('background-color', 'rgba(255, 128, 0, 0.25)');
+            $('.td_area').css('font-size', '11px');
+            $('.td_area').css('background-color', 'rgba(255, 128, 0, 0.25)');
+            $('.td_pais').css('font-size', '11px');
+            $('.td_pais').css('background-color', 'rgba(255, 128, 0, 0.25)');
+        });
         
         /*
         var anios_filter = class_utils.filter_prop(anios,'pais',pais_revista).sort(class_utils.order_by('anio'));
