@@ -117,6 +117,22 @@ var chartTreemap = {
             text: 'Revistas por disciplina',
             style: {fontSize: '11px', fontWeight: 'bold'}
         },
+        tooltip: {
+            pointFormatter: function(){
+                var rev = this.value;
+                if(this.name == "Por clasificar"){
+                    var disciplinas_filter = class_utils.filter_prop(disciplinas,'pais',pais_revista);
+                    $.each(disciplinas_filter,function(i,val){
+                        if( val.disciplina == "Por clasificar" ){
+                            rev = val.rev;
+                            return 0;
+                        }
+                    });
+                }
+                
+                return '<b>'+this.name + '</b>: ' + rev;
+            }
+        },
         plotOptions: {
             treemap: {
                 dataLabels: {
@@ -352,7 +368,23 @@ mapaChart = {
                         
                         var disciplinas_filter = class_utils.filter_prop(disciplinas,'pais',pais_revista);
                         chartTreemap.series[0].data = [];
-                        $.each(disciplinas_filter,function(i,val){            
+                        
+                        //total de revistas en las diferentes disciplinas
+                        var total=0;
+                        var mayor=1;
+                        $.each(disciplinas_filter,function(i,val){
+                            var intrev = parseInt(val.rev);
+                            total += intrev;
+                            if( val.disciplina !== "Por clasificar" )
+                                mayor = (intrev>mayor)?intrev:mayor;
+                        });
+                        $.each(disciplinas_filter,function(i,val){
+                            //Se le asigna la 4a parte del total a "Por clasificar" ya que son muchas
+                            var rev = val.rev;
+                            if( val.disciplina == "Por clasificar" )
+                                if( rev > mayor )
+                                    rev = mayor * 2;
+
                             chartTreemap.series[0].data.push(
                                 {
                                     id: 'id_' + i,
@@ -362,7 +394,7 @@ mapaChart = {
                                 {
                                     name: val.disciplina,
                                     parent: 'id_' + i,
-                                    value: parseInt(val.rev),
+                                    value: parseInt(rev),
                                 },
                             );
                         });
@@ -397,7 +429,23 @@ mapaChart = {
                         
                         var areas_filter = class_utils.filter_prop(area_conocimiento,'pais',pais_revista);
                         chartTreemap2.series[0].data = [];
-                        $.each(areas_filter,function(i,val){            
+                        
+                        //total de revistas en las diferentes areas
+                        var total=0;
+                        var mayor=1;
+                        $.each(areas_filter,function(i,val){
+                            var intrev = parseInt(val.rev);
+                            total += intrev;
+                            if( val.area_conocimiento !== "Por clasificar" )
+                                mayor = (intrev>mayor)?intrev:mayor;
+                        });
+                        $.each(areas_filter,function(i,val){
+                            //Se le asigna como valor el doble del mayor a "Por clasificar" ya que son muchas
+                            var rev = val.rev;
+                            if( val.area_conocimiento == "Por clasificar" )
+                                if( rev > mayor )
+                                    rev = mayor * 2;
+
                             chartTreemap2.series[0].data.push(
                                 {
                                     id: 'id_' + i,
@@ -407,7 +455,7 @@ mapaChart = {
                                 {
                                     name: val.area_conocimiento,
                                     parent: 'id_' + i,
-                                    value: parseInt(val.rev),
+                                    value: parseInt(rev),
                                 },
                             );
                         });
@@ -568,7 +616,23 @@ $.when(
         
         var disciplinas_filter = class_utils.filter_prop(disciplinas,'pais',pais_revista);
         chartTreemap.series[0].data = [];
-        $.each(disciplinas_filter,function(i,val){            
+        
+        //total de revistas en las diferentes disciplinas
+        var total=0;
+        var mayor=1;
+        $.each(disciplinas_filter,function(i,val){
+            var intrev = parseInt(val.rev);
+            total += intrev;
+            if( val.disciplina !== "Por clasificar" )
+                mayor = (intrev>mayor)?intrev:mayor;
+        });
+        $.each(disciplinas_filter,function(i,val){
+            //Se le asigna la 4a parte del total a "Por clasificar" ya que son muchas
+            var rev = val.rev;
+            if( val.disciplina == "Por clasificar" )
+                if( rev > mayor )
+                    rev = mayor * 2;
+            
             chartTreemap.series[0].data.push(
                 {
                     id: 'id_' + i,
@@ -578,7 +642,7 @@ $.when(
                 {
                     name: val.disciplina,
                     parent: 'id_' + i,
-                    value: parseInt(val.rev),
+                    value: parseInt(rev),
                 },
             );
         });
@@ -613,7 +677,22 @@ $.when(
         
         var areas_filter = class_utils.filter_prop(area_conocimiento,'pais',pais_revista);
         chartTreemap2.series[0].data = [];
-        $.each(areas_filter,function(i,val){            
+        //total de revistas en las diferentes areas
+        var total=0;
+        var mayor=1;
+        $.each(areas_filter,function(i,val){
+            var intrev = parseInt(val.rev);
+            total += intrev;
+            if( val.area_conocimiento !== "Por clasificar" )
+                mayor = (intrev>mayor)?intrev:mayor;
+        });
+        $.each(areas_filter,function(i,val){
+            //Se le asigna como valor el doble del mayor a "Por clasificar" ya que son muchas
+            var rev = val.rev;
+            if( val.area_conocimiento == "Por clasificar" )
+                if( rev > mayor )
+                    rev = mayor * 2;
+
             chartTreemap2.series[0].data.push(
                 {
                     id: 'id_' + i,
@@ -623,7 +702,7 @@ $.when(
                 {
                     name: val.area_conocimiento,
                     parent: 'id_' + i,
-                    value: parseInt(val.rev),
+                    value: parseInt(rev),
                 },
             );
         });
