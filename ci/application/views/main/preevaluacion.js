@@ -572,7 +572,8 @@ class_pre = {
                 mes = "0".repeat(2-mes.length)+mes;
                 var anio = String(new Date(Date.now()).getFullYear());
                 var array = [form.nombre_revista, form.issn, form.pais, form.ciudad, form.nombre, form.correo, form.periodicidad, form.organizacion, form.autorizo, 
-                                dia + "/" + mes + "/" + anio, "https://docs.google.com/spreadsheets/d/"+result.xlsx+"/edit", "https://docs.google.com/document/d/"+result.docx+"/edit", form.url
+                                //dia + "/" + mes + "/" + anio, "https://docs.google.com/spreadsheets/d/"+result.xlsx+"/edit", "https://docs.google.com/document/d/"+result.docx+"/edit", form.url
+								dia + "/" + mes + "/" + anio, "", "", form.url
                                 //"https://docs.google.com/document/d//edit",
                                 //"https://docs.google.com/spreadsheets/d//edit"
                             ];
