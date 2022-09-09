@@ -328,6 +328,62 @@ class Main extends CI_Controller{
                         else
                             $sheet->setCellValue($value2['celda'], 0);
                     }
+					
+					$spreadsheet->setActiveSheetIndex(1);
+                    $sheet = $spreadsheet->getActiveSheet();
+                    $sheet->setCellValue("C4", $_POST['nombre_revista']);
+                    $sheet->setCellValue("C5", $_POST['issn']);
+                    $sheet->setCellValue("C6", $_POST['issne']);
+                    $sheet->setCellValue("C7", $_POST['pais']);
+                    $sheet->setCellValue("C8", $_POST['organizacion']);
+                    $sheet->setCellValue("C9", $_POST['periodicidad']);
+                    $sheet->setCellValue("C10", $_POST['correo']);
+                    $sheet->setCellValue("C11", $_POST['url']);
+                    $sheet->setCellValue("C12", $_POST['nombre']);
+                    
+                    $sheet->setCellValue("C14", $_POST['calle']);
+                    $sheet->setCellValue("C15", $_POST['ciudad']);
+                    $sheet->setCellValue("C16", $_POST['estado']);
+                    $sheet->setCellValue("C17", $_POST['telefono']);
+                    $sheet->setCellValue("C18", $_POST['correo_ed']);
+                    $sheet->setCellValue("C19", $_POST['cp']);
+                    $sheet->setCellValue("C20", $_POST['ap']);
+                    
+                    $sheet->setCellValue("C22", $_POST['periodicidad']);
+                    $sheet->setCellValue("C23", $_POST['periodicidad_anterior']);
+                    
+                    for($i=1;$i<=intval($_POST['num_otra_institucion']);$i++){
+                        $sheet->setCellValue("C".(25+$i), $_POST['otra_institucion_'.$i]);
+                        $sheet->setCellValue("D".(25+$i), $_POST['otra_institucion_pais_'.$i]);
+                    }
+                    
+                    if($_POST['tipo_arbitraje']!='')
+                        $sheet->setCellValue("C".(32+intval($_POST['tipo_arbitraje'])),'X');
+                    
+                    if($_POST['licencia']!='')
+                        $sheet->setCellValue("C".(39+intval($_POST['licencia'])),'X');
+                    
+                    if($_POST['acceso']!='')
+                        $sheet->setCellValue("C".(50+intval($_POST['acceso'])),'X');
+                    
+                    $sheet->setCellValue("C58", $_POST['latindex_impresa']);
+                    $sheet->setCellValue("C59", $_POST['latindex_e']);
+                    $sheet->setCellValue("C60", $_POST['doaj']);
+                    $sheet->setCellValue("C61", $_POST['scielo']);
+                    $sheet->setCellValue("C62", $_POST['redalyc']);
+                    $sheet->setCellValue("C63", $_POST['dialnet']);
+                    $sheet->setCellValue("C64", $_POST['redib']);
+                    
+                    for($i=1;$i<=intval($_POST['num_otra_liga']);$i++){
+                        $sheet->setCellValue("C".(64+$i), $_POST['otro_sistema_'.$i]);
+                    }
+                    
+                    for($i=1;$i<=intval($_POST['num_otro_miembro']);$i++){
+                        $sheet->setCellValue("B".(93+$i), $_POST['otro_miembro_nombre_'.$i]);
+                        $sheet->setCellValue("C".(93+$i), $_POST['otro_miembro_institucion_'.$i]);
+                        $sheet->setCellValue("D".(93+$i), $_POST['otro_miembro_institucion_pais_'.$i]);
+                        $sheet->setCellValue("E".(93+$i), $_POST['otro_miembro_orcid_'.$i]);
+                    }
             } 
             
             $writer = PHPExcel_IOFactory::createWriter($spreadsheet, 'Excel2007');
