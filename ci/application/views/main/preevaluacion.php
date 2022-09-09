@@ -12,6 +12,9 @@
     <div class="row"><br><br><br></div>
     </div>
 </div>
+<div id="content">
+    
+</div>
 
 <div class="row" id="row_preevaluacion" hidden>
     
@@ -46,114 +49,489 @@
         </div>
         <div class="row"><br></div>
         <form id="form_postular">
+        
         <div class="row">
-        <div class="col-md-3">
-            <label for="nombre">Nombre completo del editor:</label>
+            <div class="col-md-3">
+                <label for="nombre_revista">Título de la revista:</label>
+            </div>
+            <div class="col-md-9">
+                <input id="nombre_revista" class="form" type="text" style="width:100%" required="required">
+            </div>
         </div>
-        <div class="col-md-3">
-            <input id="nombre" class="form" type="text" style="width:100%;text-transform:uppercase" required="required">
-        </div>
-        <div class="col-md-3">
-            <label for="correo">Correo electrónico:</label>
-        </div>
-        <div class="col-md-3">
-            <input id="correo" class="form" type="email" style="width:100%" required="required">
-        </div>
-        </div>
+            
         <div class="row"><br></div>
+        
         <div class="row">
-        <div class="col-md-3">
-            <label for="nombre_revista">Título de la revista:</label>
+            <div class="col-md-3">
+                <label for="issn">ISSN:</label>
+            </div>
+            <div class="col-md-3">
+                <input id="issn" class="form" type="text" style="width:100%" pattern="[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9A-Za-z]$" title="Formato XXXX-XXXX">
+            </div>
+            <div class="col-md-3">
+                <label for="issne">ISSN electrónico:</label>
+            </div>
+            <div class="col-md-3">
+                <input id="issne" class="form" type="text" style="width:100%" pattern="[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9A-Za-z]$" title="Formato XXXX-XXXX">
+            </div>
         </div>
-        <div class="col-md-9">
-            <input id="nombre_revista" class="form" type="text" style="width:100%;text-transform:uppercase" required="required">
-        </div>
-        </div>
+        
         <div class="row"><br></div>
+        
         <div class="row">
-        <div class="col-md-3">
-            <label for="issn">ISSN:</label>
+            <div class="col-md-3">
+                <label for="organizacion">Organización que edita:</label>
+            </div>
+            <div class="col-md-9">
+                <input id="organizacion" class="form" type="text" style="width:100%" required="required">
+            </div>
         </div>
-        <div class="col-md-3">
-            <input id="issn" class="form" type="text" style="width:100%;text-transform:uppercase" required="required" pattern="[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9A-Za-z]$" title="Formato XXXX-XXXX">
-        </div>
-        <div class="col-md-3">
-            <label for="pais">País de edición:</label>
-        </div>
-        <div class="col-md-3">
-            <!--<input id="pais" class="form" type="text" style="width:100%;text-transform:uppercase" required="required">-->
-            <select id="pais" class="form" type="text" required="required">
-                <option value='Argentina'>Argentina</option>
-                <option value='Barbados'>Barbados</option>
-                <option value='Belice'>Belice</option>
-                <option value='Bolivia'>Bolivia</option>
-                <option value='Brasil'>Brasil</option>
-                <option value='Chile'>Chile</option>
-                <option value='Colombia'>Colombia</option>
-                <option value='Costa Rica'>Costa Rica</option>
-                <option value='Cuba'>Cuba</option>
-                <option value='Ecuador'>Ecuador</option>
-                <option value='El Salvador'>El Salvador</option>
-                <option value='Guatemala'>Guatemala</option>
-                <option value='Haití'>Haití</option>
-                <option value='Honduras'>Honduras</option>
-                <option value='Jamaica'>Jamaica</option>
-                <option selected value='México'>México</option>
-                <option value='Nicaragua'>Nicaragua</option>
-                <option value='Panamá'>Panamá</option>
-                <option value='Paraguay'>Paraguay</option>
-                <option value='Perú'>Perú</option>
-                <option value='Puerto Rico'>Puerto Rico</option>
-                <option value='República Dominicana'>República Dominicana</option>
-                <option value='Trinidad y Tobago'>Trinidad y Tobago</option>
-                <option value='Uruguay'>Uruguay</option>
-                <option value='Venezuela'>Venezuela</option>
-            </select>
-        </div>
-        </div>
+        
         <div class="row"><br></div>
+        
         <div class="row">
-        <div class="col-md-3">
-            <label for="organizacion">Organización que edita:</label>
+            <div class="col-md-3">
+                <label for="pais">País de edición:</label>
+            </div>
+            <div class="col-md-3">
+                <!--<input id="pais" class="form" type="text" style="width:100%;text-transform:uppercase" required="required">-->
+                <select id="pais" class="form" type="text" required="required">
+                    <option value='Argentina'>Argentina</option>
+                    <option value='Barbados'>Barbados</option>
+                    <option value='Belice'>Belice</option>
+                    <option value='Bolivia'>Bolivia</option>
+                    <option value='Brasil'>Brasil</option>
+                    <option value='Chile'>Chile</option>
+                    <option value='Colombia'>Colombia</option>
+                    <option value='Costa Rica'>Costa Rica</option>
+                    <option value='Cuba'>Cuba</option>
+                    <option value='Ecuador'>Ecuador</option>
+                    <option value='El Salvador'>El Salvador</option>
+                    <option value='Guatemala'>Guatemala</option>
+                    <option value='Haití'>Haití</option>
+                    <option value='Honduras'>Honduras</option>
+                    <option value='Jamaica'>Jamaica</option>
+                    <option selected value='México'>México</option>
+                    <option value='Nicaragua'>Nicaragua</option>
+                    <option value='Panamá'>Panamá</option>
+                    <option value='Paraguay'>Paraguay</option>
+                    <option value='Perú'>Perú</option>
+                    <option value='Puerto Rico'>Puerto Rico</option>
+                    <option value='República Dominicana'>República Dominicana</option>
+                    <option value='Trinidad y Tobago'>Trinidad y Tobago</option>
+                    <option value='Uruguay'>Uruguay</option>
+                    <option value='Venezuela'>Venezuela</option>
+                </select>
+            </div>
+            
         </div>
-        <div class="col-md-9">
-            <input id="organizacion" class="form" type="text" style="width:100%;text-transform:uppercase" required="required">
+        
+        <div id="otra_institucion">
+            
         </div>
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                <span id="add_otra_institucion" style="cursor:pointer;font-size:15px"><i class="fa fa-plus-square" aria-hidden="true"></i>&nbsp;Agregar otra institución editora</sp<n>
+            </div>
         </div>
+        
         <div class="row"><br></div>
+        
         <div class="row">
-        <div class="col-md-3">
+            <div class="col-md-3">
             <label for="periodicidad">Periodicidad:</label>
+            </div>
+            <div class="col-md-3">
+                <select id="periodicidad" class="form" type="text" style="width:100%;height:25px" required="required">
+                    <option value="">Seleccione</option>
+                    <option value="MENSUAL">Mensual (doce veces al año)</option>
+                    <option value="BIMESTRAL">Bimestral (seis veces al año)</option>
+                    <option value="TRIMESTRAL">Trimestral (cuatro veces al año)</option>
+                    <option value="CUATRIMESTRAL">Cuatrimestral (tres veces al año)</option>
+                    <option value="SEMESTRAL">Semestral (dos veces por año)</option>
+                    <option value="ANUAL">Anual (una vez al año)</option>
+                    <option value="IRREGULAR">Irregular</option>
+                    <option value="PUBLICACIÓN CONTINUA">Publicación continua</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+            <label for="periodicidad_anterior">Periodicidad anterior:</label>
+            </div>
+            <div class="col-md-3">
+                <select id="periodicidad_anterior" class="form" type="text" style="width:100%;height:25px">
+                    <option value="">Seleccione</option>
+                    <option value="MENSUAL">Mensual (doce veces al año)</option>
+                    <option value="BIMESTRAL">Bimestral (seis veces al año)</option>
+                    <option value="TRIMESTRAL">Trimestral (cuatro veces al año)</option>
+                    <option value="CUATRIMESTRAL">Cuatrimestral (tres veces al año)</option>
+                    <option value="SEMESTRAL">Semestral (dos veces por año)</option>
+                    <option value="ANUAL">Anual (una vez al año)</option>
+                    <option value="IRREGULAR">Irregular</option>
+                    <option value="PUBLICACIÓN CONTINUA">Publicación continua</option>
+                </select>
+            </div>
         </div>
-        <div class="col-md-3">
-            <select id="periodicidad" class="form" type="text" style="width:100%;height:25px" required="required">
-                <option value="">Seleccione</option>
-                <option value="MENSUAL">Mensual (doce veces al año)</option>
-                <option value="BIMESTRAL">Bimestral (seis veces al año)</option>
-                <option value="TRIMESTRAL">Trimestral (cuatro veces al año)</option>
-                <option value="CUATRIMESTRAL">Cuatrimestral (tres veces al año)</option>
-                <option value="SEMESTRAL">Semestral (dos veces por año)</option>
-                <option value="ANUAL">Anual (una vez al año)</option>
-                <option value="IRREGULAR">Irregular</option>
-                <option value="PUBLICACIÓN CONTINUA">Publicación continua</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label for="ciudad">Ciudad:</label>
-        </div>
-        <div class="col-md-3">
-            <input id="ciudad" class="form" type="text" style="width:100%;text-transform:uppercase" required="required">
-        </div>
-        </div>
-		<div class="row"><br></div>
+        
+        <div class="row"><br></div>
+        
         <div class="row">
-        <div class="col-md-3">
-            <label for="url_revista">URL de la revista:</label>
+            <div class="col-md-3">
+                <label for="url_revista">URL de la revista:</label>
+            </div>
+            <div class="col-md-3">
+                <input id="url_revista" type="url" class="form"  pattern="https?://.*" size="30" style="width:100%" title="Formato: http://example.com">
+            </div>
+            <div class="col-md-3">
+                <label for="correo">Correo electrónico:</label>
+            </div>
+            <div class="col-md-3">
+                <input id="correo" class="form" type="email" style="width:100%" required="required">
+            </div>
         </div>
-        <div class="col-md-9">
-            <input id="url_revista" class="form" type="text" style="width:100%">
+        
+        <div class="row"><br></div>
+            
+        <div class="row">
+            <div class="col-md-3">
+                <label for="nombre">Nombre completo del editor:</label>
+            </div>
+            <div class="col-md-9">
+                <input id="nombre" class="form" type="text" style="width:100%" required="required">
+            </div>
         </div>
+            
+        <div class="row"><br></div>
+        
+        <div class="row">
+            <div class="col-md-12">
+                <label for="direccion">Dirección del editor:</label>
+            </div>
         </div>
+        
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                Calle, Número y Sector / Barrio / Colonia:
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                <input id="calle" class="form" type="text" style="width:100%">
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                Ciudad:
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                <input id="ciudad" class="form" type="text" style="width:100%">
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                Estado / Provincia / Departamento:
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                <input id="estado" class="form" type="text" style="width:100%">
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                Teléfono:
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                <input id="telefono" class="form" type="text" style="width:100%">
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                Correo electrónico:
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                <input id="correo_ed" class="form" type="email" style="width:100%">
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                Código Postal:
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                <input id="cp" class="form" type="text" style="width:100%">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                Apartado Postal:
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                <input id="ap" class="form" type="text" style="width:100%">
+            </div>
+        </div>
+        
+        <div class="row"><br></div>
+        
+        <div class="row">
+            <div class="col-md-3">
+                <label for="tipo_arbitraje">Tipo de arbitraje:</label>
+            </div>
+            <div class="col-md-9">
+                <input type="radio" id="a_d_c" name="tipo_arbitraje" value="1">
+                Arbitraje doble ciego (Double blind peer review)
+            </div>
+            <div class="col-md-9 col-md-offset-3">
+                <input type="radio" id="a_c" name="tipo_arbitraje" value="2">
+                Arbitraje ciego (Blind peer review)
+            </div>
+            <div class="col-md-9 col-md-offset-3">
+                <input type="radio" id="r_a" name="tipo_arbitraje" value="3">
+                Revista arbitrada (Peer review)
+            </div>
+            <div class="col-md-9 col-md-offset-3">
+                <input type="radio" id="a_a" name="tipo_arbitraje" value="4">
+                Arbitraje abierto (Open peer review)
+            </div>
+            <div class="col-md-9 col-md-offset-3">
+                <input type="radio" id="r_c" name="tipo_arbitraje" value="5">
+                Revisión del Comité Editorial (Editorial review)
+            </div>
+        </div>
+        
+        <div class="row"><br></div>
+        
+        <div class="row">
+            <div class="col-md-3">
+                <label for="licencia">Licencia de la revista:</label>
+            </div>
+            <div class="col-md-9">
+                <input type="radio" id="by" name="licencia" value="1">
+                CC BY
+            </div>
+            <div class="col-md-9 col-md-offset-3">
+                <input type="radio" id="by-nc-nd" name="licencia" value="2">
+                CC BY-NC-ND
+            </div>
+            <div class="col-md-9 col-md-offset-3">
+                <input type="radio" id="by-nc" name="licencia" value="3">
+                CC BY-NC
+            </div>
+            <div class="col-md-9 col-md-offset-3">
+                <input type="radio" id="by-nc-sa" name="licencia" value="4">
+                CC BY-NC-SA
+            </div>
+            <div class="col-md-9 col-md-offset-3">
+                <input type="radio" id="by-sa" name="licencia" value="5">
+                CC BY-SA
+            </div>
+            <div class="col-md-9 col-md-offset-3">
+                <input type="radio" id="own" name="licencia" value="6">
+                Publisher's own license
+            </div>
+            <div class="col-md-9 col-md-offset-3">
+                <input type="radio" id="by-nd" name="licencia" value="7">
+                CC BY-ND
+            </div>
+            <div class="col-md-9 col-md-offset-3">
+                <input type="radio" id="public" name="licencia" value="8">
+                public domain
+            </div>
+        </div>
+        
+        <div class="row"><br></div>
+        
+        <div class="row">
+            <div class="col-md-12">
+                <label>Política de archivo en Repositorios de acceso abierto, según <a target="_blank" href="http://www.sherpa.ac.uk/romeo/search.php?la=en&fIDnum=|&version=&mode=advanced">Sherpa-Romeo</a> y <a target="_blank" href="http://diadorim.ibict.br/">Diadorim</a>:</label>
+            </div>
+            <div class="col-md-9 col-md-offset-3">
+                <input type="radio" id="green" name="acceso" value="1">
+                Green&nbsp;&nbsp;<span style="font-size: 12px" class="fa fa-info-circle" title="Autoriza que los autores depositen en un repositorio la versión PDF pre-print o la versión final editada por la revista"></span>
+            </div>
+            <div class="col-md-9 col-md-offset-3">
+                <input type="radio" id="blue" name="acceso" value="2">
+                Blue&nbsp;&nbsp;<span style="font-size: 12px" class="fa fa-info-circle" title="Autoriza que los autores depositen en un repositorio la versión final del artículo (esto es aprobado por el dictamen de la revista) o la versión PDF editada por la revista"></span>
+            </div>
+            <div class="col-md-9 col-md-offset-3">
+                <input type="radio" id="yellow" name="acceso" value="3">
+                Yellow&nbsp;&nbsp;<span style="font-size: 12px" class="fa fa-info-circle" title="Autoriza que los autores depositen en un repositorio pre-print la versión aún no dictaminada por la revista"></span>
+            </div>
+            <div class="col-md-9 col-md-offset-3">
+                <input type="radio" id="white" name="acceso" value="4">
+                White&nbsp;&nbsp;<span style="font-size: 12px" class="fa fa-info-circle" title="No permite el depósito en ningún caso"></span>
+            </div>
+        </div>
+        
+        <div class="row"><br></div>
+        
+        <div class="row">
+            <div class="col-md-12">
+                <label>Índices, catálogos y sistemas de información en los que está registrada la revista:</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                Liga Latindex versión impresa
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                <input id="latindex_impresa" class="form" type="text" style="width:100%" pattern="https?://.*" title="Formato: http://example.com">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                Liga Latindex versión electrónica
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                <input id="latindex_e" class="form" type="text" style="width:100%" pattern="https?://.*" title="Formato: http://example.com">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                Liga DOAJ
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                <input id="doaj" class="form" type="text" style="width:100%" pattern="https?://.*" title="Formato: http://example.com">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                Liga SciELO
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                <input id="scielo" class="form" type="text" style="width:100%"  pattern="https?://.*" title="Formato: http://example.com">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                Liga RedALyC
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                <input id="redalyc" class="form" type="text" style="width:100%"  pattern="https?://.*" title="Formato: http://example.com">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                Liga Dialnet
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                <input id="dialnet" class="form" type="text" style="width:100%"  pattern="https?://.*" title="Formato: http://example.com">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                Liga REDIB
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                <input id="redib" class="form" type="text" style="width:100%"  pattern="https?://.*" title="Formato: http://example.com">
+            </div>
+        </div>
+        <div id="otro_sistema">
+            <div class="row">
+                <div class="col-md-9 col-md-offset-3">
+                    Liga o nombre de otro sistema de informacion
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-9 col-md-offset-3">
+                    <input id="otro_sistema_1" class="form" type="text" style="width:100%">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                <span id="add_otro_sistema" style="cursor:pointer;font-size:15px"><i class="fa fa-plus-square" aria-hidden="true"></i>&nbsp;Agregar otra liga o nombre</span>
+            </div>
+        </div>
+        
+        <div class="row"><br></div>
+        
+        <div class="row">
+            <div class="col-md-12">
+                <label>Miembros del Comité Científico:</label>
+            </div>
+        </div>
+        <div id="otro_miembro">
+            <div class="row">
+                <div class="col-md-9 col-md-offset-3">
+                    Nombre y apellidos
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-9 col-md-offset-3">
+                    <input id="otro_miembro_nombre_1" class="form" type="text" style="width:100%">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-9 col-md-offset-3">
+                    Institución
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-9 col-md-offset-3">
+                    <input id="otro_miembro_institucion_1" class="form" type="text" style="width:100%">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-9 col-md-offset-3">
+                    País de la institución
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-9 col-md-offset-3">
+                    <input id="otro_miembro_institucion_pais_1" class="form" type="text" style="width:100%">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-9 col-md-offset-3">
+                    ORCID
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-9 col-md-offset-3">
+                    <input id="otro_miembro_orcid_1" class="form" type="text" style="width:100%">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                <span id="add_otro_miembro" style="cursor:pointer;font-size:15px"><i class="fa fa-plus-square" aria-hidden="true"></i>&nbsp;Agregar otro miembro del comité</span>
+            </div>
+        </div>
+        
+        
         <div class="row"><br></div>
         <div class="row">
         <div class="col-md-12">

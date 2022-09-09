@@ -22,6 +22,82 @@ class_pre = {
     puntos_nobliga:0,
     pag_inicio:0,
     pag_fin:0,
+	html_otra_liga: '<div class="row">'+
+                    '<div class="col-md-9 col-md-offset-3">'+
+                    'Liga o nombre de otro sistema de informacion'+
+                    '</div>'+
+                    '</div>'+
+                    '<div class="row">'+
+                    '<div class="col-md-9 col-md-offset-3">'+
+                       '<input id="otro_sistema_<num>" class="form" type="text" style="width:100%">'+
+                    '</div>'+
+                    '</div><br>',
+    num_otra_liga:  1,
+    total_otra_liga: 8,
+    html_otro_miembro:  '<hr><div class="row">'+
+                            '<div class="col-md-9 col-md-offset-3">'+
+                                'Nombre y apellidos'+
+                            '</div>'+
+                        '</div>'+
+                        '<div class="row">'+
+                            '<div class="col-md-9 col-md-offset-3">'+
+                                '<input id="otro_miembro_nombre_<num>" class="form" type="text" style="width:100%">'+
+                            '</div>'+
+                        '</div>'+
+                        '<div class="row">'+
+                            '<div class="col-md-9 col-md-offset-3">'+
+                                'Institución'+
+                            '</div>'+
+                        '</div>'+
+                        '<div class="row">'+
+                            '<div class="col-md-9 col-md-offset-3">'+
+                                '<input id="otro_miembro_institucion_<num>" class="form" type="text" style="width:100%">'+
+                            '</div>'+
+                        '</div>'+
+                        '<div class="row">'+
+                            '<div class="col-md-9 col-md-offset-3">'+
+                                'País de la institución'+
+                            '</div>'+
+                        '</div>'+
+                        '<div class="row">'+
+                            '<div class="col-md-9 col-md-offset-3">'+
+                                '<input id="otro_miembro_institucion_pais_<num>" class="form" type="text" style="width:100%">'+
+                            '</div>'+
+                        '</div>'+
+                        '<div class="row">'+
+                            '<div class="col-md-9 col-md-offset-3">'+
+                                'ORCID'+
+                            '</div>'+
+                        '</div>'+
+                        '<div class="row">'+
+                            '<div class="col-md-9 col-md-offset-3">'+
+                                '<input id="otro_miembro_orcid_<num>" class="form" type="text" style="width:100%">'+
+                            '</div>'+
+                        '</div>',
+    num_otro_miembro:  1,
+    total_otro_miembro: 60,
+    html_otra_institucion:  '<hr><div class="row">'+
+                            '<div class="col-md-9 col-md-offset-3">'+
+                                'Institución editora'+
+                            '</div>'+
+                        '</div>'+
+                        '<div class="row">'+
+                            '<div class="col-md-9 col-md-offset-3">'+
+                                '<input id="otra_institucion_<num>" class="form" type="text" style="width:100%">'+
+                            '</div>'+
+                        '</div>'+
+                        '<div class="row">'+
+                            '<div class="col-md-9 col-md-offset-3">'+
+                                'País de la institución'+
+                            '</div>'+
+                        '</div>'+
+                        '<div class="row">'+
+                            '<div class="col-md-9 col-md-offset-3">'+
+                                '<input id="otra_institucion_pais_<num>" class="form" type="text" style="width:100%">'+
+                            '</div>'+
+                        '</div>',
+    num_otra_institucion:  0,
+    total_otra_institucion: 4,
     criterio:[
         {
             texto:'1. Mención de un editor o responsable de la revista',
@@ -481,6 +557,7 @@ class_pre = {
         class_pre.anterior_click();
         class_pre.siguiente_click();
         class_pre.pag_click();
+		class_pre.add_otros();
         
         $('#btn_cumplo').on('click',function(){
             var num = parseInt($('.pagination .active a').text())-1;
@@ -549,12 +626,47 @@ class_pre = {
             form.correo = $('#correo').val();
             form.nombre_revista = $('#nombre_revista').val();
             form.issn = $('#issn').val();
+            form.issne = $('#issne').val();
             form.pais = $('#pais').val();
             form.organizacion = $('#organizacion').val();
             form.periodicidad = $('#periodicidad').val();
-            form.ciudad = $('#ciudad').val();
+            form.periodicidad_anterior = $('#periodicidad_anterior').val();
             form.autorizo = $('#autorizo')[0].checked;
-			form.url = $('#url_revista').val();
+            form.url = $('#url_revista').val();
+            form.calle = $('#calle').val();
+            form.ciudad = $('#ciudad').val();
+            form.estado = $('#estado').val();
+            form.telefono = $('#telefono').val();
+            form.correo_ed = $('#correo_ed').val();
+            form.cp = $('#cp').val();
+            form.ap = $('#ap').val();
+            form.tipo_arbitraje = $('input[name="tipo_arbitraje"]:checked').val();
+            form.licencia = $('input[name="licencia"]:checked').val();
+            form.acceso = $('input[name="acceso"]:checked').val();
+            form.latindex_impresa = $('#latindex_impresa').val();
+            form.latindex_e = $('#latindex_e').val();
+            form.doaj = $('#doaj').val();
+            form.scielo = $('#scielo').val();
+            form.redalyc = $('#redalyc').val();
+            form.dialnet = $('#dialnet').val();
+            form.redib = $('#redib').val();
+            form.num_otra_liga = class_pre.num_otra_liga;
+            for(i=1;i<=class_pre.num_otra_liga;i++){
+                form['otro_sistema_'+i] = $('#otro_sistema_'+i).val();
+            }
+            form.num_otro_miembro = class_pre.num_otro_miembro;
+            for(i=1;i<=class_pre.num_otro_miembro;i++){
+                form['otro_miembro_nombre_'+i] = $('#otro_miembro_nombre_'+i).val();
+                form['otro_miembro_institucion_'+i] = $('#otro_miembro_institucion_'+i).val();
+                form['otro_miembro_institucion_pais_'+i] = $('#otro_miembro_institucion_pais_'+i).val();
+                form['otro_miembro_orcid_'+i] = $('#otro_miembro_orcid_'+i).val();
+            }
+            form.num_otra_institucion = class_pre.num_otra_institucion;
+            for(i=1;i<=class_pre.num_otra_institucion;i++){
+                form['otra_institucion_'+i] = $('#otra_institucion_'+i).val();
+                form['otra_institucion_pais_'+i] = $('#otra_institucion_pais_'+i).val();
+            }
+			
             loading.start();
             
             $.post('<?=site_url("main/createPlantilla");?>', $.extend(form,{criterio:class_pre.criterio,completo:true}), function(result){
@@ -595,6 +707,34 @@ class_pre = {
                 $('#div_criterios').html('');
                 $('.form').prop('disabled',true);
               });
+        });
+    },
+	add_otros:function(){
+        $('#add_otro_sistema').on('click',function(){
+            if (class_pre.num_otra_liga < class_pre.total_otra_liga){
+                class_pre.num_otra_liga++;
+                $('#otro_sistema').append(class_pre.html_otra_liga.replace('<num>',class_pre.num_otra_liga));
+                if(class_pre.num_otra_liga >= class_pre.total_otra_liga)
+                    $('#add_otro_sistema').remove();
+            }
+        });
+        $('#add_otro_miembro').on('click',function(){
+            if (class_pre.num_otro_miembro < class_pre.total_otro_miembro){
+                class_pre.num_otro_miembro++;
+                $('#otro_miembro').append(class_pre.html_otro_miembro.replaceAll('<num>',class_pre.num_otro_miembro));
+                if (class_pre.num_otro_miembro >= class_pre.total_otro_miembro){
+                    $('#add_otro_miembro').remove();
+                }
+            }
+        });
+        $('#add_otra_institucion').on('click',function(){
+            if (class_pre.num_otra_institucion < class_pre.total_otra_institucion){
+                class_pre.num_otra_institucion++;
+                $('#otra_institucion').append(class_pre.html_otra_institucion.replaceAll('<num>',class_pre.num_otra_institucion));
+                if (class_pre.num_otra_institucion >= class_pre.total_otra_institucion){
+                    $('#add_otra_institucion').remove();
+                }
+            }
         });
     },
     siguiente_click:function(){
