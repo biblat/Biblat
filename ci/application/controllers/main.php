@@ -503,10 +503,10 @@ class Main extends CI_Controller{
                     );
             
             if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
-                //$result = $this->setDocumentsDrive("CartaDePostulacion_".$_POST['issn'].".docx", 'Preevaluacion_'.$_POST['issn'].'.xlsx');
+                $result = $this->setDocumentsDrive("CartaDePostulacion_".$_POST['issn'].".docx", 'Preevaluacion_'.$_POST['issn'].'.xlsx');
                 unlink("CartaDePostulacion_".$_POST['issn'].".docx");
                 unlink('Preevaluacion_'.$_POST['issn'].'.xlsx');
-                //echo('{"docx":"'.$result[0].'", "xlsx":"'.$result[1].'"}');
+                echo('{"docx":"'.$result[0].'", "xlsx":"'.$result[1].'"}');
             }
             else
                 unlink('Preevaluacion_'.$_POST['correo'].'.xlsx');
