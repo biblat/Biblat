@@ -361,7 +361,7 @@
         
         <div class="row">
             <div class="col-md-12">
-                <label>Política de archivo en Repositorios de acceso abierto, según <a target="_blank" href="http://www.sherpa.ac.uk/romeo/search.php?la=en&fIDnum=|&version=&mode=advanced">Sherpa-Romeo</a> y <a target="_blank" href="http://diadorim.ibict.br/">Diadorim</a>:</label>
+                <label>Política de archivo en Repositorios de acceso abierto, según Sherpa-Romeo y Diadorim:</label>
                 <br>Para más información consulta la página 21 del documento: <a target="_blank" href="https://www.scielo.org.mx/avaliacao/Guia-CriteriosEvaluacion-ScieloMX.pdf">Criterios de SciELO-México para la admisión y permanencia de revistas</a>
             </div>
             <div class="col-md-9 col-md-offset-3">
