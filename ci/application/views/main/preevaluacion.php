@@ -362,22 +362,23 @@
         <div class="row">
             <div class="col-md-12">
                 <label>Política de archivo en Repositorios de acceso abierto, según <a target="_blank" href="http://www.sherpa.ac.uk/romeo/search.php?la=en&fIDnum=|&version=&mode=advanced">Sherpa-Romeo</a> y <a target="_blank" href="http://diadorim.ibict.br/">Diadorim</a>:</label>
+                <br>Para más información consulta la página 21 del documento: <a target="_blank" href="https://www.scielo.org.mx/avaliacao/Guia-CriteriosEvaluacion-ScieloMX.pdf">Criterios de SciELO-México para la admisión y permanencia de revistas</a>
             </div>
             <div class="col-md-9 col-md-offset-3">
                 <input type="radio" id="green" name="acceso" value="1">
-                Green&nbsp;&nbsp;<span style="font-size: 12px" class="fa fa-info-circle" title="Autoriza que los autores depositen en un repositorio la versión PDF pre-print o la versión final editada por la revista"></span>
+                Versión publicada (Published)&nbsp;&nbsp;<span style="font-size: 12px" class="fa fa-info-circle" title="Autoriza que los autores depositen en un repositorio la versión final publicada por la revista"></span>
             </div>
             <div class="col-md-9 col-md-offset-3">
                 <input type="radio" id="blue" name="acceso" value="2">
-                Blue&nbsp;&nbsp;<span style="font-size: 12px" class="fa fa-info-circle" title="Autoriza que los autores depositen en un repositorio la versión final del artículo (esto es aprobado por el dictamen de la revista) o la versión PDF editada por la revista"></span>
+                Versión aceptada (Accepted)&nbsp;&nbsp;<span style="font-size: 12px" class="fa fa-info-circle" title="Autoriza que los autores depositen en un repositorio la versión dictaminada del artículo (esto es aprobado por el dictamen de la revista)"></span>
             </div>
             <div class="col-md-9 col-md-offset-3">
                 <input type="radio" id="yellow" name="acceso" value="3">
-                Yellow&nbsp;&nbsp;<span style="font-size: 12px" class="fa fa-info-circle" title="Autoriza que los autores depositen en un repositorio pre-print la versión aún no dictaminada por la revista"></span>
+                Versión presentada (Submited)&nbsp;&nbsp;<span style="font-size: 12px" class="fa fa-info-circle" title="Autoriza que los autores depositen en un repositorio preprint la versión aún no dictaminada por la revista"></span>
             </div>
             <div class="col-md-9 col-md-offset-3">
                 <input type="radio" id="white" name="acceso" value="4">
-                White&nbsp;&nbsp;<span style="font-size: 12px" class="fa fa-info-circle" title="No permite el depósito en ningún caso"></span>
+                No permite el depósito en ningún caso&nbsp;&nbsp;<span style="font-size: 12px" class="fa fa-info-circle" title="No permite el depósito en ningún caso"></span>
             </div>
         </div>
         
