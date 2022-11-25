@@ -5,8 +5,8 @@
  */
 class_ver = {
     cons:{
-        get_oai: 'http://biblat.local/verificador/get_oai?oai=<oai>&years=<years>',
-        get_issn: 'http://biblat.local/verificador/get_data_by_issn?issn=<issn>',
+        get_oai: '/verificador/get_oai?oai=<oai>&years=<years>',
+        get_issn: '/verificador/get_data_by_issn?issn=<issn>',
         idiomas: {
                 'es_ES' : 'Español',
                 'en_US' : 'Inglés',
