@@ -835,7 +835,7 @@ class_ver = {
                 //}
                 var url = resp.resource.primary.URL;
                 $.when(
-                    class_utils.getResource('http://biblat.local/verificador/get_url_validate?url='+url)
+                    class_utils.getResource('/verificador/get_url_validate?url='+url)
                 ).then(function(resp2){
                     num = num + 1;
                     recibidos = recibidos + 1;
