@@ -229,11 +229,41 @@ class_utils= {
             return eval('obj2.' + prop + '== val');
         });
     },
+	filter_prop_arr: function(obj,prop,val){
+        return obj.filter(function(obj2){
+            return val.indexOf(obj2[prop]) !== -1;
+        });
+    },
+    filter_prop_arr_or: function(obj,props,vals){
+        return obj.filter(function(obj2){
+            var res = false;
+            $.each(props, function(i,prop){
+                if(vals[i].indexOf(obj2[prop]) !== -1)
+                    res = true;
+            });
+            return res;
+        });
+    },
+    filter_prop_er: function(obj,prop,er){
+        return obj.filter(function(obj2){
+            return er.test(obj2[prop]);
+        });
+    },										
     filterdiff_prop: function(obj,prop,val){
         return obj.filter(function(obj2){
             return val.indexOf(obj2[prop]) === -1;
         });
     },
+	filterdiff_prop_or: function(obj,props,vals){
+        return obj.filter(function(obj2){
+            var res = false;
+            $.each(props, function(i,prop){
+                if(vals[i].indexOf(obj2[prop]) === -1)
+                    res = true;
+            });
+            return res;
+        });
+    },											 
     find_prop: function(obj,prop,val){
         return obj.find(function(obj2){
             return eval('obj2.' + prop + '== val');
@@ -267,6 +297,18 @@ class_utils= {
           );
         };
     },
+	order_by_arr: function(key_arr, order = 'asc') {
+        return function(a, b) {
+            var ev = '';
+            $.each(key_arr, function(i,val){
+                if( ev !== '' ){
+                    ev += '||'
+                }
+                ev += 'a[key_arr['+i+']] - b[key_arr['+i+']]';
+            });
+            return eval(ev);
+        };
+    },
     getRandomColor: function() {
         var letters1 = '0123456789ABCDEF';
         var letters2 = 'CDEF';
@@ -279,6 +321,15 @@ class_utils= {
             color += l;
         }
         return color;
+    },
+	unique: function(obj,prop){
+        var arr = [];
+        $.each(obj, function(i, val){
+			if( arr.indexOf(val[prop]) ==	-1){
+				arr.push(val[prop]);
+			}
+		});
+		return arr;
     },
     slug: function(e){
         var dicc = {'á':'a','é':'e','í':'i','ó':'o','ú':'u',' ':'-','.':'-','&':'-',',':'-','ñ':'n'};
