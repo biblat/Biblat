@@ -224,6 +224,76 @@ class_utils= {
         },
         credits: {href: "https://biblat.unam.mx/es", text: "Fuente: biblat.unam.mx"}
     },
+	chartRadialBar:{
+        colors: ['green', 'orange', 'red'],
+        chart: {
+            type: 'column',
+            inverted: true,
+            polar: true
+        },
+        title: {
+            text: ''
+        },
+        subtitle: {
+            text: ''
+        },
+        tooltip: {
+            outside: true
+        },
+        pane: {
+            size: '85%',
+            innerSize: '40%',
+            endAngle: 270
+        },
+        xAxis: {
+            tickInterval: 1,
+            labels: {
+                align: 'right',
+                useHTML: true,
+                allowOverlap: true,
+                step: 1,
+                y: 3,
+                style: {
+                    fontSize: '13px'
+                }
+            },
+            lineWidth: 0,
+            categories: [
+                //'Norway <span class="f16"><span id="flag" class="flag no">' +
+                //'</span></span>',
+                //'United States <span class="f16"><span id="flag" class="flag us">' +
+                //'</span></span>'
+            ]
+        },
+        yAxis: {
+            crosshair: {
+                enabled: true,
+                color: '#333'
+            },
+            lineWidth: 0,
+            tickInterval: 25,
+            reversedStacks: false,
+            endOnTick: true,
+            showLastLabel: true
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+                borderWidth: 0,
+                pointPadding: 0,
+                groupPadding: 0.15
+            }
+        },
+        series: [
+            /*{
+            name: 'Gold medals',
+            data: [0, 113, 104, 71, 77]
+            }, {
+            name: 'Silver medals',
+            data: [113, 122, 98, 88, 72]
+            }*/
+        ]
+    },				
     filter_prop: function(obj,prop,val){
         return obj.filter(function(obj2){
             return eval('obj2.' + prop + '== val');
