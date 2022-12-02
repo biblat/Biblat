@@ -99,6 +99,9 @@ class Verificador extends CI_Controller {
                     $response .= ', "pg": ' . $arr_db[23];
                     $response .= ', "num": ' . $arr_db[25];
                     $response .= '} ';
+                    
+                    //header('Content-Type: text/plain; charset=utf-8');
+                    header('Content-Type: application/json; charset=utf-8');
                     echo $response;
                 }
             }
@@ -114,29 +117,62 @@ class Verificador extends CI_Controller {
                 
             $divs = $subfield->getElementsByTagName('subfield');
             $subs = array("i", "j", "j_s", "ss", "p", "p_s", "i_s", "a", "a_s", "c_v_e_s", "s", "s_s", "p_g", "p_f", "num");
+            $subs_exist = array();
             foreach( $divs as $div ){
                 if( in_array( $div->getAttribute( 'label' ), $subs)){
+                    array_push($subs_exist, $div->getAttribute( 'label' ));
                     $db = $div->nodeValue;
                     $dec .= openssl_decrypt ($db, $ciphering, $encryption_key, $options, $encryption_iv);
                 }
             }
             $arr_db = explode("xxx", $dec);
             $obj = json_decode($arr_db[1]);
+            
+            //De las opciones de la revista selecciona sólo las indispensables
+            $string_js = '';
+            $pieces = explode("},{", $arr_db[5]);
+            $ops_js = array('"setting_name":"title"', '"setting_name":"name"', '"setting_name":"printIssn"', '"setting_name":"onlineIssn"', '"setting_name":"publisherInstitution"', '"setting_name":"supportedSubmissionLocales"');
+            foreach( $pieces as $p ){
+                foreach( $ops_js as $op){
+                    if( stripos($p, $op) !== false ){
+                        if($string_js != ''){
+                            $string_js .= ',';
+                        }
+                        $string_js .= '{' . $p . '}';
+                    }
+                }
+            }
+            
             $response .= ', "i": ' . $arr_db[1];
             $response .= ', "j": ' . $arr_db[3];
-            $response .= ', "js": ' . $arr_db[5];
+            //$response .= ', "js": ' . $arr_db[5];
+            $response .= ', "js": ' . '[' . $string_js . ']';
             $response .= ', "ss": ' . $arr_db[7];
             $response .= ', "p": ' . $arr_db[9];
             $response .= ', "ps": ' . $arr_db[11];
             $response .= ', "is": ' . $arr_db[13];
             $response .= ', "a": ' . $arr_db[15];
             $response .= ', "as": ' . $arr_db[17];
-            $response .= ', "c_v_e_s": ' . $arr_db[19];
-            $response .= ', "s": ' . $arr_db[21];
-            $response .= ', "ses": ' . $arr_db[23];
-            $response .= ', "pg": ' . $arr_db[25];
-            $response .= ', "num": ' . $arr_db[27];
-            $response .= '} ';
+            if( in_array( "c_v_e_s", $subs_exist) ){
+                $response .= ', "c_v_e_s": ' . $arr_db[19];
+                $response .= ', "s": ' . $arr_db[21];
+                $response .= ', "ses": ' . $arr_db[23];
+                $response .= ', "pg": ' . $arr_db[25];
+                $response .= ', "pf": ' . $arr_db[27];
+                if($arr_db[29]!== null){
+                    $response .= ', "num": ' . $arr_db[29];
+                }
+            }else{
+                $response .= ', "s": ' . $arr_db[19];
+                $response .= ', "ses": ' . $arr_db[21];
+                $response .= ', "pg": ' . $arr_db[23];
+                $response .= ', "pf": ' . $arr_db[25];
+                $response .= ', "num": ' . $arr_db[27];
+            }
+            $response .= '}';
+
+            //header('Content-Type: text/plain; charset=utf-8');
+            header('Content-Type: application/json; charset=utf-8');
             echo $response;
         }
     }
