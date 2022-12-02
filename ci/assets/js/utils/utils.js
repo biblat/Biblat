@@ -225,7 +225,6 @@ class_utils= {
         credits: {href: "https://biblat.unam.mx/es", text: "Fuente: biblat.unam.mx"}
     },
 	chartRadialBar:{
-        colors: ['green', 'orange', 'red'],
         chart: {
             type: 'column',
             inverted: true,
@@ -319,6 +318,16 @@ class_utils= {
             return er.test(obj2[prop]);
         });
     },										
+	filter_prop_noter: function(obj,prop,er){
+        return obj.filter(function(obj2){
+            return !er.test(obj2[prop]);
+        });
+    },
+    filter_len: function(obj,prop,len){
+        return obj.filter(function(obj2){
+            return obj2[prop].length > len;
+        });
+    },										 
     filterdiff_prop: function(obj,prop,val){
         return obj.filter(function(obj2){
             return val.indexOf(obj2[prop]) === -1;

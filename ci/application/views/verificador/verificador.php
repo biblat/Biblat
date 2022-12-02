@@ -70,6 +70,7 @@
     </div>
 </div>
 </div>
+
 <div class="row"><br></div>
 
 <div class="row">
@@ -105,6 +106,34 @@
         <b><span id='promedio'></span></b>
         <br><br>
         <div id='containerp'>
+        </div>
+    </div>
+</div>
+
+<div class="row"><br></div>
+
+<div class="row">
+    <div class="col-sm-6">
+        <b><span id='consis_autores'></span></b>
+        <br><br>
+        <div id='container_c1'>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <b><span id='consis_documentos'></span></b>
+        <br><br>
+        <div id='container_c2'>
+        </div>
+    </div>
+</div>
+
+<div class="row"><br></div>
+
+<div class="row">
+    <div class="col-sm-offset-3 col-sm-6">
+        <b><span id='consis_promedio'></span></b>
+        <br><br>
+        <div id='containerp2'>
         </div>
     </div>
 </div>

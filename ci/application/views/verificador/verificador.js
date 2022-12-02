@@ -20,6 +20,22 @@ class_ver = {
         },
         er: {
             'mayus2' : /^[A-Z]*.*[A-Z]{3}.*[A-Z]+$/,
+            //Sólo mayúsculas
+            'mayus' : /^[A-Z]*$/,
+            //Inicia con "10." seguido de cualquier caracter las veces que sean "una diagonal" y cualquier caracter las veces que sean
+            'doi' : /^10\..*\/.*/,
+            //Sólo caracteres
+            'char' : /^\W*$/,
+            //Palabra autor
+            'autor' : /^[A|a][U|u][T|t][O|o][R|r]$/,
+            //Inicial
+            'inicial' : /([A-z]\.|^[A-z]\s|\s[A-z]\s)/,
+            //Orcid
+            'orcid' : /^(https:\/\/orcid.org\/|http:\/\/orcid.org\/)[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9]([0-9]|X)/,
+            //Mayúsculas seguidas
+            'doblemayus' : /([A-Z][A-Z]|[A-Z]\.[A-Z])/,
+            //Licesncias
+            'licencia' : /^https:\/\/creativecommons\.org\/licenses/
         }
     },
     var:{
@@ -38,8 +54,8 @@ class_ver = {
         //$('#url_oai').val('https://revistas.ulasalle.edu.pe/innosoft/oai'); //3.1
         $('#url_oai').val('https://bibliographica.iib.unam.mx/index.php/RB/oai'); //2.4
         //$('#url_oai').val('https://revistas.anahuac.mx/the_anahuac_journal/oai'); //3.2
-        //$('#url_oai').val('https://revistas.uned.ac.cr/index.php/espiga/oai'); //3.2
-        //$('#url_oai').val('https://rpi.isri.cu/rpi/oai');
+        //$('#url_oai').val('https://revistas.uned.ac.cr/index.php/espiga/oai'); //3.2 Version mal
+        //$('#url_oai').val('https://rpi.isri.cu/rpi/oai'); Falla en JSON
         //$('#url_oai').val('https://revistascientificas.una.py/index.php/rdgic/oai');//3.3
         
     },
@@ -55,6 +71,14 @@ class_ver = {
             $('#container4').html('');
             $('#promedio').html('');
             $('#containerp').html('');
+            
+            $('#container_c1').html('');
+            $('#consis_autores').html('');
+            $('#container_c2').html('');
+            $('#consis_documentos').html('');
+            $('#consis_promedio').html('');
+            $('#containerp2').html('');
+            
             $('#informacion').hide();
             var url = $('#url_oai').val();
             var years = '1900-' + (new Date()).getFullYear();
@@ -67,6 +91,14 @@ class_ver = {
                 loading.end();
                 $('#informacion').show();
                 class_ver.var.data = resp;
+                /*try {
+                    class_ver.var.datatxt = resp;
+                    class_ver.var.data = JSON.parse(resp);
+                } catch (error) {
+                    var position = parseInt(String(error).split('position')[1]);
+                    class_ver.var.datatxt = class_ver.var.datatxt.substring(0,position-2)+'"}],'+class_ver.var.datatxt.substring(position-1);
+                    class_ver.var.data = JSON.parse(class_ver.var.datatxt);
+                }*/
                 //revista
                 try{
                     var revista = class_utils.find_prop(class_ver.var.data.js, 'setting_name', 'title').setting_value;
@@ -182,6 +214,7 @@ class_ver = {
                 
                 var arr_palabras_clave = [];
                 var obj_palabras_clave = [];
+                obj_palabras_clave_arr = [];
                 
                 //palabras clave
                 if ( ['3.2.0', '3.1.2'].indexOf(class_ver.var.data.ver) != -1 ){
@@ -189,11 +222,15 @@ class_ver = {
                     $.each(arr_palabras_clave, function(i, val){
                         if( obj_palabras_clave[val.locale] == undefined){
                             obj_palabras_clave[val.locale] = [];
+                            obj_palabras_clave_arr[val.locale] = [];
                         }else{
                             if(obj_palabras_clave[val.locale][val.assoc_id] == undefined){
                                 obj_palabras_clave[val.locale][val.assoc_id] = val.setting_value;
+                                val[class_ver.cons.pub_id[class_ver.var.data.ver]] = val.assoc_id;
+                                obj_palabras_clave_arr[val.locale][val.assoc_id] = val;
                             }else{
                                 obj_palabras_clave[val.locale][val.assoc_id] += ';' + val.setting_value;
+                                obj_palabras_clave_arr[val.locale][val.assoc_id].setting_value += ';' + val.setting_value;
                             }
                         }
                     });
@@ -212,22 +249,47 @@ class_ver = {
                 var publicaciones_doi_total = JSON.parse(JSON.stringify(publicaciones_doi));
                 publicaciones_doi = class_ver.valida_dois(publicaciones_doi, res_dois);
                 
+                var consistencia_doi = [];
+                if(publicaciones_doi_total.length > 0){
+                    if('doi' in publicaciones_doi_total[0]){
+                        consistencia_doi = class_utils.filter_prop_er(publicaciones_doi_total, 'doi', class_ver.cons.er.doi);
+                    }else{
+                        consistencia_doi = class_utils.filter_prop_er(publicaciones_doi_total, 'setting_value', class_ver.cons.er.doi);
+                    }
+                }
+                
                 //pubs con paginas
                 var publicaciones_pags = class_utils.filterdiff_prop(publicaciones, 'pags', [null, '']);
-                
                 
                 var titulos = [];
                 var titulos_valor = [];
                 var titulos_mayus2 = [];
                 var titulos_idioma1 = [];
                 var titulos_idioma2 = [];
+                var titulos_idioma1_arr = [];
+                var titulos_idioma2_arr = [];
+                var titulos_i1_mayus = [];
+                var titulos_i2_mayus = [];
+                var consis_titulos_i1 = [];
+                var consis_titulos_i2 = [];
+                var consis_autores = [];
                 var resumenes = [];
                 var resumenes_valor = [];
                 var resumenes_mayus2 = [];
                 var resumenes_idioma1 = [];
                 var resumenes_idioma2 = [];
+                var consis_resumenes_idioma1 = [];
+                var consis_resumenes_idioma2 = [];
                 var palabras_clave_idioma1 = [];
                 var palabras_clave_idioma2 = [];
+                var palabras_clave_idioma1_arr = [];
+                var palabras_clave_idioma2_arr = [];
+                var palabras_clave_idioma1b = [];
+                var palabras_clave_idioma2b = [];
+                var palabras_clave_idioma1b_arr = [];
+                var palabras_clave_idioma2b_arr = [];
+                var consis_palabras_clave_idioma1 = [];
+                var consis_palabras_clave_idioma2 = [];
                 var palabras_clave = [];
                 var palabras_clave_valor = [];
                 var palabras_clave_cinco = [];
@@ -239,21 +301,50 @@ class_ver = {
                     obj = class_utils.filter_prop_arr(obj, 'locale', val);
                     titulos[val] = obj;
                     titulos_valor[val] = class_utils.filterdiff_prop(obj, 'setting_value', [null, '']);
-                    titulos_mayus2[val] = class_utils.filter_prop_er(titulos_valor[val], 'setting_value', class_ver.cons.er.mayus2);
+                    titulos_mayus2[val] = class_utils.filter_prop_er(titulos_valor[val], 'setting_value', class_ver.cons.er.mayus);
                     
                     //Si es el idioma principal llena el arreglo que contienen los ids de titulos en ese idioma
-                    if(val == idioma_principal){
-                        $.each(titulos[val],function(i2, val2){
-                            if( titulos_idioma1.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 )
+                    $.each(titulos[val],function(i2, val2){
+                        //Busca la publicación para obtener su idioma original
+                        var pub = class_utils.find_prop(class_ver.var.data.p, class_ver.cons.pub_id[class_ver.var.data.ver], val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                        var idioma_doc = '';
+                        
+                        //En versiones recientes el idioma del documento se encuentra en las opciones del envío
+                        if('locale' in pub){
+                            if(pub.locale !== null){
+                                idioma_doc = pub.locale;
+                            }else{
+                                var ss = class_utils.find_prop(class_ver.var.data.ss, 'submission_id', pub['submission_id']);
+                                idioma_doc = (ss.locale == null)?idioma_principal:ss.locale
+                            }
+                        }else{
+                            var ss = class_utils.find_prop(class_ver.var.data.ss, 'submission_id', pub['submission_id']);
+                            idioma_doc = (ss.locale == null)?idioma_principal:ss.locale
+                        }
+                        
+                        if(idioma_doc == val){
+                            if( titulos_idioma1.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 ){
                                 titulos_idioma1.push(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                        });
-                    //Si es en otro idioma llena el arreglo que contiene los ids de titulos en algún otro idioma
-                    }else{
-                        $.each(titulos[val],function(i2, val2){
-                            if( titulos_idioma2.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 )
+                                titulos_idioma1_arr.push(val2);
+                            }
+                        }else{
+                            if( titulos_idioma2.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 ){
                                 titulos_idioma2.push(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                        });
-                    }
+                                titulos_idioma2_arr.push(val2);
+                            }
+                        }
+                    });
+                    
+                    //títulos que No tienen el título completamente en mayúsculas
+                    titulos_i1_mayus = class_utils.filter_prop_noter(titulos_idioma1_arr, 'setting_value', class_ver.cons.er.mayus);
+                    //títulos que tienen longitud mayor a 1
+                    consis_titulos_i1 = class_utils.filter_len(titulos_i1_mayus, 'setting_value', 1);
+                    
+                    //títulos que No tienen el título completamente en mayúsculas
+                    titulos_i2_mayus = class_utils.filter_prop_noter(titulos_idioma2_arr, 'setting_value', class_ver.cons.er.mayus);
+                    //títulos que tienen longitud mayor a 1
+                    consis_titulos_i2 = class_utils.filter_len(titulos_i2_mayus, 'setting_value', 1);
+                    
                     
                     var obj2 = class_utils.filter_prop(publicaciones_ajustes, 'setting_name', 'abstract');
                     obj2 = class_utils.filter_prop_arr(obj2, 'locale', val);
@@ -262,17 +353,42 @@ class_ver = {
                     resumenes_mayus2[val] = class_utils.filter_prop_er(resumenes_valor[val], 'setting_value', class_ver.cons.er.mayus2);
                     
                     //revisión primer idioma
-                    if(val == idioma_principal){
-                        $.each(resumenes[val],function(i2, val2){
-                            if( resumenes_idioma1.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 )
+                    $.each(resumenes[val],function(i2, val2){
+                        //Busca la publicación para obtener su idioma original
+                        var pub = class_utils.find_prop(class_ver.var.data.p, class_ver.cons.pub_id[class_ver.var.data.ver], val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                        var idioma_doc = '';
+                        
+                        //En versiones recientes el idioma del documento se encuentra en las opciones del envío
+                        if('locale' in pub){
+                            if(pub.locale !== null){
+                                idioma_doc = pub.locale;
+                            }else{
+                                var ss = class_utils.find_prop(class_ver.var.data.ss, 'submission_id', pub['submission_id']);
+                                idioma_doc = (ss.locale == null)?idioma_principal:ss.locale;
+                            }
+                        }else{
+                            var ss = class_utils.find_prop(class_ver.var.data.ss, 'submission_id', pub['submission_id']);
+                            idioma_doc = (ss.locale == null)?idioma_principal:ss.locale
+                        }
+
+                        if(idioma_doc == val){
+                            if( resumenes_idioma1.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 ){
                                 resumenes_idioma1.push(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                        });
-                    }else{
-                        $.each(resumenes[val],function(i2, val2){
-                            if( resumenes_idioma2.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 )
+                                consis_resumenes_idioma1.push(val2);
+                            }
+                        }else{
+                            if( resumenes_idioma2.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 ){
                                 resumenes_idioma2.push(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                        });
-                    }
+                                consis_resumenes_idioma2.push(val2);
+                            }
+                        }
+                    });
+                    
+                    consis_resumenes_idioma1 = class_utils.filter_prop_noter(consis_resumenes_idioma1, 'setting_value', class_ver.cons.er.mayus);
+                    consis_resumenes_idioma1 = class_utils.filter_len(consis_resumenes_idioma1, 'setting_value', 100);
+                    
+                    consis_resumenes_idioma2 = class_utils.filter_prop_noter(consis_resumenes_idioma2, 'setting_value', class_ver.cons.er.mayus);
+                    consis_resumenes_idioma2 = class_utils.filter_len(consis_resumenes_idioma2, 'setting_value', 100);
                     
                     /*
                     //revisión primer idioma
@@ -339,17 +455,28 @@ class_ver = {
                         
                         if(val == idioma_principal){
                             $.each(palabras_clave[val],function(i2, val2){
-                                if( palabras_clave_idioma1.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 )
+                                if( palabras_clave_idioma1.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 ){
                                     palabras_clave_idioma1.push(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                                    palabras_clave_idioma1_arr.push(val2);
+                                }
                             });
                         }else{
                             $.each(palabras_clave[val],function(i2, val2){
-                                if( palabras_clave_idioma2.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 )
+                                if( palabras_clave_idioma2.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 ){
                                     palabras_clave_idioma2.push(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                                    palabras_clave_idioma2_arr.push(val2);
+                                }
                             });
                         }
-                        palabras_clave_idioma1 = class_utils.filterdiff_prop(palabras_clave_idioma1, 'setting_value', [null, '']);
-                        palabras_clave_idioma2 = class_utils.filterdiff_prop(palabras_clave_idioma2, 'setting_value', [null, '']);
+                        palabras_clave_idioma1 = class_utils.filterdiff_prop(palabras_clave_idioma1_arr, 'setting_value', [null, '']);
+                        palabras_clave_idioma2 = class_utils.filterdiff_prop(palabras_clave_idioma2_arr, 'setting_value', [null, '']);
+                        
+                        consis_palabras_clave_idioma1 = class_utils.filter_prop_noter(palabras_clave_idioma1, 'setting_value', class_ver.cons.er.mayus);
+                        consis_palabras_clave_idioma1 = class_utils.filter_len(consis_palabras_clave_idioma1, 'setting_value', 1);
+                        consis_palabras_clave_idioma1 = filter(consis_palabras_clave_idioma1);
+                        consis_palabras_clave_idioma2 = class_utils.filter_prop_noter(palabras_clave_idioma2, 'setting_value', class_ver.cons.er.mayus);
+                        consis_palabras_clave_idioma2 = class_utils.filter_len(consis_palabras_clave_idioma2, 'setting_value', 1);
+                        consis_palabras_clave_idioma2 = filter(consis_palabras_clave_idioma2);
                         
                         palabras_clave_valor[val] = class_utils.filterdiff_prop(obj3, 'setting_value', [null, '']);
                         palabras_clave_cinco[val] = filter(palabras_clave_valor[val]);
@@ -365,6 +492,37 @@ class_ver = {
                                 }
                             });
                         }
+                        
+                        if(val == idioma_principal){
+                            $.each(obj_palabras_clave_arr[val],function(i2, val2){
+                                if (val2 !== undefined){
+                                    if( palabras_clave_idioma1b.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 ){
+                                        palabras_clave_idioma1b.push(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                                        palabras_clave_idioma1b_arr.push(val2);
+                                    }
+                                }
+                            });
+                        }else{
+                            $.each(obj_palabras_clave_arr[val],function(i2, val2){
+                                if (val2 !== undefined){
+                                    if( palabras_clave_idioma2b.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 ){
+                                        palabras_clave_idioma2b.push(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                                        palabras_clave_idioma2b_arr.push(val2);
+                                    }
+                                }
+                            });
+                        }
+                        
+                        palabras_clave_idioma1b = class_utils.filterdiff_prop(palabras_clave_idioma1b_arr, 'setting_value', [null, '']);
+                        palabras_clave_idioma2b = class_utils.filterdiff_prop(palabras_clave_idioma2b_arr, 'setting_value', [null, '']);
+                        
+                        consis_palabras_clave_idioma1 = class_utils.filter_prop_noter(palabras_clave_idioma1b, 'setting_value', class_ver.cons.er.mayus);
+                        consis_palabras_clave_idioma1 = class_utils.filter_len(consis_palabras_clave_idioma1, 'setting_value', 1);
+                        consis_palabras_clave_idioma1 = filter(consis_palabras_clave_idioma1);
+                        consis_palabras_clave_idioma2 = class_utils.filter_prop_noter(palabras_clave_idioma2b, 'setting_value', class_ver.cons.er.mayus);
+                        consis_palabras_clave_idioma2 = class_utils.filter_len(consis_palabras_clave_idioma2, 'setting_value', 1);
+                        consis_palabras_clave_idioma2 = filter(consis_palabras_clave_idioma2);
+                        
                         palabras_clave_valor[val] = palabras_clave[val];
                         palabras_clave_cinco[val] = filter2(palabras_clave_valor[val]);
                     }
@@ -416,19 +574,52 @@ class_ver = {
                 //Autores con nombre 1691
                 var autores_nombre = '';
                 var autores_nombre_id = [];
+                var autores_nombre_compara = [];
                 if ( ['3.2.0', '3.1.2'].indexOf(class_ver.var.data.ver) !== -1 ){
-                    autores_nombre = class_utils.filter_prop_arr_or(autores_s, ['setting_name'], [["givenName", "familyName"]]);
-                    autores_nombre = class_utils.filter_prop_arr_or(autores_nombre, ['locale'], [[idioma_principal]]);
-                    autores_nombre = class_utils.filterdiff_prop(autores_nombre, 'setting_value', [null, '', undefined]);
-                    $.each(autores_nombre, function(i,val){
-                        if( autores_nombre_id.indexOf(val['author_id']) == -1 ){
-                            autores_nombre_id.push(val['author_id']);
+                    var autores_nombre_total = [];
+                    //No importa en qué idioma esté asentado el autor
+                    $.each(idiomas_envio, function(i,val){
+                        autores_nombre = class_utils.filter_prop_arr_or(autores_s, ['setting_name'], [["givenName", "familyName"]]);
+                        autores_nombre = class_utils.filter_prop_arr_or(autores_nombre, ['locale'], [[val]]);
+                        autores_nombre = class_utils.filterdiff_prop(autores_nombre, 'setting_value', [null, '', undefined]);
+                        autores_nombre_total = autores_nombre_total.concat(autores_nombre);
+                    });
+                    $.each(autores_nombre_total, function(i,val){
+                        if( autores_nombre_compara.indexOf(val['author_id']) == -1 ){
+                            autores_nombre_compara.push(val['author_id']);
+                            autores_nombre_id.push(val);
                         }
                     });
+                    
+                    consis_autores = class_utils.filter_prop_noter(autores_nombre_id, 'setting_value', class_ver.cons.er.mayus);
+                    consis_autores = class_utils.filter_len(consis_autores, 'setting_value', 1);
+                    consis_autores = class_utils.filter_prop_noter(consis_autores, 'setting_value', class_ver.cons.er.inicial);
+                    consis_autores = class_utils.filter_prop_noter(consis_autores, 'setting_value', class_ver.cons.er.autor);
+                    consis_autores = class_utils.filter_prop_noter(consis_autores, 'setting_value', class_ver.cons.er.char);
+
                 }else{
                     autores_nombre = class_utils.filterdiff_prop_or(autores, ['first_name', 'last_name'], [[null, '', undefined], [null, '', undefined]]);
                     autores_nombre_id = autores_nombre;
+                    
+                    var consis_autores_fn = class_utils.filter_prop_noter(autores_nombre, 'first_name', class_ver.cons.er.mayus);
+                    var consis_autores_ln = class_utils.filter_prop_noter(autores_nombre, 'last_name', class_ver.cons.er.mayus);
+                    consis_autores_fn = class_utils.filter_len(consis_autores_fn, 'first_name', 1);
+                    consis_autores_ln = class_utils.filter_len(consis_autores_ln, 'last_name', 1);
+                    consis_autores_fn = class_utils.filter_prop_noter(consis_autores_fn, 'first_name', class_ver.cons.er.inicial);
+                    consis_autores_ln = class_utils.filter_prop_noter(consis_autores_ln, 'last_name', class_ver.cons.er.inicial);
+                    consis_autores_fn = class_utils.filter_prop_noter(consis_autores_fn, 'first_name', class_ver.cons.er.autor);
+                    consis_autores_ln = class_utils.filter_prop_noter(consis_autores_ln, 'last_name', class_ver.cons.er.autor);
+                    consis_autores_fn = class_utils.filter_prop_noter(consis_autores_fn, 'first_name', class_ver.cons.er.char);
+                    consis_autores_ln = class_utils.filter_prop_noter(consis_autores_ln, 'last_name', class_ver.cons.er.char);
+
+                    $.each(consis_autores_fn, function(i2, val2){
+                       var busca = class_utils.find_prop(consis_autores_ln, 'author_id', val2['author_id']);
+                       if(busca !== undefined){
+                           consis_autores.push(val2);
+                       }
+                    });
                 }
+                
                 var autores_apellido = [];
                 /*
                 if ( ['3.2.0', '3.1.2'].indexOf(class_ver.var.data.ver) !== -1 ){
@@ -465,16 +656,32 @@ class_ver = {
                 }
                 
                 var autores_orcid = [];
+                var consis_orcid = [];
+                
                 //union autores url y orcid
                 $.each(autores_url, function(i,val){
-                    if(autores_orcid.indexOf(val.author_id) == -1)
+                    if(autores_orcid.indexOf(val.author_id) == -1){
                         autores_orcid.push(val.author_id);
+                        var obj = {};
+                        obj.orcid = val['url'];
+                        obj.author_id = val['author_id'];
+                        consis_orcid.push(obj);
+                    }
                 });
                 $.each(autores_orcid_tmp, function(i,val){
-                    if(autores_orcid.indexOf(val.author_id) == -1)
+                    if(autores_orcid.indexOf(val.author_id) == -1){
                         autores_orcid.push(val.author_id);
+                        consis_orcid.push(val);
+                    }
                 });
                 
+                if(consis_orcid.length > 0){
+                    if('orcid' in consis_orcid[0]){
+                        consis_orcid = class_utils.filter_prop_er(consis_orcid, 'orcid', class_ver.cons.er.orcid);
+                    }else{
+                        consis_orcid = class_utils.filter_prop_er(consis_orcid, 'setting_value', class_ver.cons.er.orcid);
+                    }
+                }
                 
                 //Búsqueda de ajustes
                 //Instituciones
@@ -482,6 +689,8 @@ class_ver = {
                 instituciones = class_utils.filter_prop_arr(instituciones, 'locale', idioma_principal);
                 //Instituciones con valor
                 var instituciones_valor = class_utils.filterdiff_prop(instituciones, 'setting_value', [null, '']);
+                
+                var consis_instituciones = class_utils.filter_prop_noter(instituciones_valor, 'setting_value', class_ver.cons.er.doblemayus);
                 
                 //issues
                 var issues = class_utils.filter_prop(class_ver.var.data.i, 'published', '1');
@@ -511,6 +720,7 @@ class_ver = {
                     licencia = class_utils.filterdiff_prop(licencia, 'setting_value', [null, '', undefined]);
                 }
                 
+                var consis_licencia = class_utils.filter_prop_er(licencia, 'setting_value', class_ver.cons.er.licencia);
                 
                 class_ver.var.salida.revista = revista;
                 class_ver.var.salida.issn = issn;
@@ -562,10 +772,27 @@ class_ver = {
                 class_ver.var.salida.lic = licencia;
                 class_ver.var.salida.cit = citas;
                 
+                class_ver.var.salida.consis_doi = consistencia_doi;
+                class_ver.var.salida.consis_ti1 = consis_titulos_i1;
+                class_ver.var.salida.consis_ti2 = consis_titulos_i2;
+                class_ver.var.salida.consis_ri1 = consis_resumenes_idioma1;
+                class_ver.var.salida.consis_ri2 = consis_resumenes_idioma2;
+                class_ver.var.salida.consis_pci1 = consis_palabras_clave_idioma1;
+                class_ver.var.salida.consis_pci2 = consis_palabras_clave_idioma2;
+                class_ver.var.salida.consis_a = consis_autores;
+                class_ver.var.salida.consis_or = consis_orcid;
+                class_ver.var.salida.consis_ins = consis_instituciones;
+                class_ver.var.salida.consis_lic = consis_licencia;
+                
+                
+                
                 //class_ver.graficaIssues();
                 class_ver.graficaAuth();
                 class_ver.graficaDocs();
                 class_ver.graficaProm();
+                class_ver.graficaAuthConsis();
+                class_ver.graficaDocsConsis();
+                class_ver.graficaPromConsis();
             });
               
         });
@@ -617,31 +844,24 @@ class_ver = {
         class_ver.suficiencia_promedio = nombre + email + orcid + instituciones;
         
         var completos = [ 
-                                (nombre == 100)?100:0,
+                                nombre,
                                 //(apellido == 100)?100:0,
-                                (email == 100)?100:0,
-                                (orcid == 100)?100:0,
-                                (instituciones == 100)?100:0,
+                                email,
+                                orcid,
+                                instituciones
                             ];
-        var mas50 = [ 
-                                (nombre > 50 && nombre < 100)?nombre:0,
+                            
+        var sindato = [ 
+                                100 - nombre,
                                 //(apellido > 50 && apellido < 100)?apellido:0,
-                                (email > 50 && email < 100)?email:0,
-                                (orcid > 50 && orcid < 100)?orcid:0,
-                                (instituciones > 50 && instituciones < 100)?instituciones:0,
-                            ];
-        var menos50 = [ 
-                                (nombre < 50)?nombre:0,
-                                //(apellido < 50)?apellido:0,
-                                (email < 50)?email:0,
-                                (orcid < 50)?orcid:0,
-                                (instituciones < 50)?instituciones:0,
+                                100 - email,
+                                100 - orcid,
+                                100 - instituciones
                             ];
                               
         grafica.series = [
-                                {'name': 'Completos', 'data': completos }, 
-                                {'name': '+ 50%', 'data': mas50},
-                                {'name': '- 50%', 'data': menos50}
+                                {'name': '% Completos', 'data': completos }, 
+                                {'name': '% Sin dato', 'data': sindato},
                                 ];
                                 
         var num = 'Total de Autores: ' + class_ver.var.salida.a.length;
@@ -675,58 +895,41 @@ class_ver = {
         class_ver.suficiencia_promedio += tituloip + titulo2i + resumenip + resumen2i + palabra_claveip + palabra_clave2i + enlaces + citas + licencia + doi;
         
         var completos = [ 
-                                (tituloip == 100)?100:0,
-                                (titulo2i == 100)?100:0,
+                                tituloip,
+                                titulo2i,
                                 //(titulom == 100)?100:0,
-                                (resumenip == 100)?100:0,
-                                (resumen2i == 100)?100:0,
+                                resumenip,
+                                resumen2i,
                                 //(resumenm == 100)?100:0,
                                 //(palabra_clave == 100)?100:0,
-                                (palabra_claveip == 100)?100:0,
-                                (palabra_clave2i == 100)?100:0,
+                                palabra_claveip,
+                                palabra_clave2i,
                                 //(palabra_clave_cinco == 100)?100:0,
-                                (enlaces == 100)?100:0,
-                                (citas == 100)?100:0,
-                                (licencia == 100)?100:0,
-                                (doi == 100)?100:0
+                                enlaces,
+                                citas,
+                                licencia,
+                                doi
                             ];
-        var mas50 = [ 
-                                (tituloip > 50 && tituloip < 100)?tituloip:0,
-                                (titulo2i > 50 && titulo2i < 100)?titulo2i:0,
+        var sindato = [ 
+                                100 - tituloip,
+                                100 - titulo2i,
                                 //(titulom > 50 && titulom < 100)?titulom:0,
-                                (resumenip > 50 && resumenip < 100)?resumenip:0,
-                                (resumen2i > 50 && resumen2i < 100)?resumen2i:0,
+                                100 - resumenip,
+                                100 - resumen2i,
                                 //(resumenm > 50 && resumenm < 100)?resumenm:0,
-                                (palabra_claveip > 50 && palabra_claveip < 100)?palabra_claveip:0,
-                                (palabra_clave2i > 50 && palabra_clave2i < 100)?palabra_clave2i:0,
+                                100 - palabra_claveip,
+                                100 - palabra_clave2i,
                                 //(palabra_clave > 50 && palabra_clave < 100)?palabra_clave:0,
                                 //(palabra_clave_cinco > 50 && palabra_clave_cinco < 100)?palabra_clave_cinco:0,
-                                (enlaces > 50 && enlaces < 100)?enlaces:0,
-                                (citas > 50 && citas < 100)?citas:0,
-                                (licencia > 50 && licencia < 100)?licencia:0,
-                                (doi > 50 && doi < 100)?doi:0
-                            ];
-        var menos50 = [ 
-                                (tituloip < 50)?tituloip:0,
-                                (titulo2i < 50)?titulo2i:0,
-                                //(titulom < 50)?titulom:0,
-                                (resumenip < 50)?resumenip:0,
-                                (resumen2i < 50)?resumen2i:0,
-                                //(resumenm < 50)?resumenm:0,
-                                //(palabra_clave < 50)?palabra_clave:0,
-                                (palabra_claveip < 50)?palabra_claveip:0,
-                                (palabra_clave2i < 50)?palabra_clave2i:0,
-                                //(palabra_clave_cinco < 50)?palabra_clave_cinco:0,
-                                (enlaces < 50)?enlaces:0,
-                                (citas < 50)?citas:0,
-                                (licencia < 50)?licencia:0,
-                                (doi < 50)?doi:0
+                                100 - enlaces,
+                                100 - citas,
+                                100 - licencia,
+                                100 - doi
                             ];
                               
         grafica.series = [
-                                {'name': 'Completos', 'data': completos }, 
-                                {'name': '+ 50%', 'data': mas50},
-                                {'name': '- 50%', 'data': menos50}
+                                {'name': '% Completos', 'data': completos }, 
+                                {'name': '% Sin dato', 'data': sindato},
                                 ];
                                 
         var num = 'Total de documentos: ' + class_ver.var.salida.p.length;
@@ -771,10 +974,119 @@ class_ver = {
         var sp = class_ver.suficiencia_promedio/14;
         
         var completos = [ 
-                                (sp == 100)?100:0,
+                                (sp >= 80)?sp:0,
                             ];
         var mas60 = [ 
-                                (sp > 60 && sp < 100)?sp:0,
+                                (sp > 60 && sp < 80)?sp:0,
+                            ];
+        var menos60 = [ 
+                                (sp < 60)?sp:0,
+                            ];
+                              
+        grafica.series = [
+                                {'name': 'Excelente', 'data': completos }, 
+                                {'name': 'Suficiente', 'data': mas60},
+                                {'name': 'Bajo', 'data': menos60}
+                                ];
+        grafica.colors = ['green', 'lightgreen', 'yellow'];
+        var num = 'Suficiencia promedio';
+        $('#promedio').html(num);
+        Highcharts.chart('containerp', grafica);
+    },
+    graficaAuthConsis:function(){
+        var grafica = JSON.parse(JSON.stringify(class_utils.chartRadialBar));
+        grafica.xAxis.categories = ['Autor', 'Orcid', 'Afiliación']
+        
+        var nombre = (class_ver.var.salida.an.length == 0)?0:class_ver.var.salida.consis_a.length / class_ver.var.salida.an.length * 100;
+        //var email = class_ver.var.salida.ae.length / class_ver.var.salida.a.length * 100;
+        var orcid = (class_ver.var.salida.ao.length == 0)?0:class_ver.var.salida.consis_or.length / class_ver.var.salida.ao.length * 100;
+        var instituciones = (class_ver.var.salida.iv.length == 0)?0:class_ver.var.salida.consis_ins.length / class_ver.var.salida.iv.length * 100;
+        
+        class_ver.consistencia_promedio = nombre + orcid + instituciones;
+        
+        var completos = [ 
+                                nombre,
+                                orcid,
+                                instituciones
+                            ];
+                            
+        var sindato = [ 
+                                100 - nombre,
+                                100 - orcid,
+                                100 - instituciones
+                            ];
+                              
+        grafica.series = [
+                                {'name': '% Consistentes', 'data': completos }, 
+                                {'name': '% No consistentes', 'data': sindato},
+                                ];
+                                
+        var num = 'Consistencia en datos de autores';
+        $('#consis_autores').html(num);
+        Highcharts.chart('container_c1', grafica);
+    },
+    graficaDocsConsis:function(){
+        var grafica = JSON.parse(JSON.stringify(class_utils.chartRadialBar));
+        grafica.xAxis.categories = ['Título', 'Título traducido', 'Resumen', 'Resumen traducido', 
+                                    'Palabras clave', 'Palabras clave traducidas', 'Enlace texto completo',
+                                    'Licencia', 'DOI'];
+        
+        //var tituloip = class_ver.var.salida.ptv[class_ver.var.salida.ip].length / class_ver.var.salida.p.length * 100;
+        var tituloip = (class_ver.var.salida.pti1.length == 0)?0:class_ver.var.salida.consis_ti1.length / class_ver.var.salida.pti1.length * 100;
+        var titulo2i = (class_ver.var.salida.pti2.length == 0)?0:class_ver.var.salida.consis_ti2.length / class_ver.var.salida.pti2.length * 100;
+        var resumenip = (class_ver.var.salida.pri1.length == 0)?0:class_ver.var.salida.consis_ri1.length / class_ver.var.salida.pri1.length * 100;
+        var resumen2i = (class_ver.var.salida.pri2.length == 0)?0:class_ver.var.salida.consis_ri2.length / class_ver.var.salida.pri2.length * 100;
+        var palabra_claveip = (class_ver.var.salida.ppci1.length == 0)?0:class_ver.var.salida.consis_pci1.length / class_ver.var.salida.ppci1.length * 100;
+        var palabra_clave2i = (class_ver.var.salida.ppci2.length == 0)?0:class_ver.var.salida.consis_pci2.length / class_ver.var.salida.ppci2.length * 100;
+        var enlaces = (class_ver.var.salida.p.length == 0)?0:class_ver.var.salida.ent.length / class_ver.var.salida.p.length * 100;
+        var licencia = (class_ver.var.salida.lic.length == 0)?0:class_ver.var.salida.consis_lic.length / class_ver.var.salida.lic.length * 100;
+        var doi = (class_ver.var.salida.pdt.length == 0)?0:class_ver.var.salida.consis_doi.length / class_ver.var.salida.pdt.length * 100;
+        
+        class_ver.consistencia_promedio += tituloip + titulo2i + resumenip + resumen2i + palabra_claveip + palabra_clave2i + enlaces + licencia + doi;
+        
+        var completos = [ 
+                                tituloip,
+                                titulo2i,
+                                resumenip,
+                                resumen2i,
+                                palabra_claveip,
+                                palabra_clave2i,
+                                enlaces,
+                                licencia,
+                                doi
+                            ];
+        var sindato = [ 
+                                100 - tituloip,
+                                100 - titulo2i,
+                                100 - resumenip,
+                                100 - resumen2i,
+                                100 - palabra_claveip,
+                                100 - palabra_clave2i,
+                                100 - enlaces,
+                                100 - licencia,
+                                100 - doi
+                            ];
+                              
+        grafica.series = [
+                                {'name': '% Conisistentes', 'data': completos }, 
+                                {'name': '% No consistentes', 'data': sindato},
+                                ];
+                                
+        var num = 'Consistencia en datos del documento';
+        $('#consis_documentos').html(num);
+        Highcharts.chart('container_c2', grafica);
+    },
+    graficaPromConsis:function(){
+        var grafica = JSON.parse(JSON.stringify(class_utils.chartRadialBar));
+        grafica.xAxis.categories = ['Consistencia promedio']
+        
+        var sp = class_ver.consistencia_promedio/12;
+        
+        var completos = [ 
+                                (sp >= 80)?sp:0,
+                            ];
+        var mas60 = [ 
+                                (sp > 60 && sp < 80)?sp:0,
                             ];
         var menos60 = [ 
                                 (sp < 60)?sp:0,
@@ -786,9 +1098,10 @@ class_ver = {
                                 {'name': 'Bajo', 'data': menos60}
                                 ];
         
-        var num = 'Suficiencia promedio';
-        $('#promedio').html(num);
-        Highcharts.chart('containerp', grafica);
+        grafica.colors = ['green', 'lightgreen', 'yellow'];
+        var num = 'Consistencia promedio';
+        $('#consis_promedio').html(num);
+        Highcharts.chart('containerp2', grafica);
     },
     verifica_valor: function(id, valor, compara=''){
         if(compara !== '')
@@ -850,7 +1163,7 @@ class_ver = {
                     
                     res.push(val);
                     if(recibidos == rango){
-                        if(rango == rango_fijo){
+                        if(rango == rango_fijo && dois.length !== rango){
                             class_ver.valida_dois(dois.slice(rango), res, total, num);
                         }else{
                             class_ver.var.salida.pd = res;
@@ -868,7 +1181,7 @@ class_ver = {
                 val.resuelve = 0;
                 res.push(val);
                 if(recibidos == rango){
-                    if(rango == rango_fijo){
+                    if(rango == rango_fijo && dois.length !== rango){
                         class_ver.valida_dois(dois.slice(rango), res, total, num);
                     }else{
                         class_ver.var.salida.pd = res;
