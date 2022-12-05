@@ -451,8 +451,8 @@ class Main extends CI_Controller{
             if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
                 $mensaje = "Estimado(a) editor(a):<br><br>".
                 "De acuerdo con la autoevaluación que realizó el día de hoy en nuestro sitio web biblat.unam.mx, le informamos que su revista cumple con los criterios obligatorios para ingresar a CLASE, PERIÓDICA, portal BIBLAT y catálogo SERIUNAM.<br><br>".
-                "Adjunto a este mensaje, usted encontrará su carta de postulación y un archivo con los resultados de su postulación. En este último, encontrará un espacio para ingresar los datos editoriales de su revista. ".
-                "Una vez completados, favor de enviarlos a esta misma dirección de correo electrónico con copia a baguilar@dgb.unam.mx <br><br>".
+                "Adjunto a este mensaje, usted encontrará su carta de postulación y un archivo con los resultados de su postulación.".
+                "<br><br>".
 				"Le recordamos que su autoevaluación será analizada por nuestro Comité de Evaluación, y que este, podrá emitir recomendaciones previa indización de su revista.".
                 "Quedamos atentos a sus comentarios y agradecemos su colaboración.<br><br>".
                 "Saludos.<br>".
