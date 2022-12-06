@@ -12,7 +12,8 @@
                             <a href="https://paideiastudio.net/episodio-8-biblat-clase-periodica/" target="_blank">
                                 <span class="fa fa-play-circle"></span>
                                 Pódcast<br>
-                                Episodio 8 – BIBLAT, CLASE, PERIÓDICA
+                                Episodio 8 – BIBLAT, CLASE, PERIÓDICA<br>
+								25 noviembre 2022
                             </a>    
                         </div>
                     </div>
