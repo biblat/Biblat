@@ -1,3 +1,12 @@
+<style>
+.center {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  justify-content: center;
+}
+</style>
+
 <div class="row">
     <div id="div_grafica" class="col-sm-12 form-group" >
         <label for="grafica">URL oai de su revista</label>
@@ -83,18 +92,55 @@
 </div>
 
 <div class="row"><br></div>
-
-<div class="row">
-    <div class="col-sm-6">
-        <b><span id='autores'></span></b>
-        <br><br>
-        <div id='container2'>
+    
+<div id="area_c2">
+    <div class="row front">
+        <div class="col-xs-6 col-sm-6">
+            <b><span id='autores'></span></b>
+            <br><br>
+                <div id='container2'> 
+                </div>
+        </div>
+        <div class="col-xs-6 col-sm-6">
+            <b><span id='documentos'></span></b>
+            <br><br>
+            <div id='container3'>
+            </div>
         </div>
     </div>
-    <div class="col-sm-6">
-        <b><span id='documentos'></span></b>
-        <br><br>
-        <div id='container3'>
+    <div class="row back">
+        <div class="col-xs-12">
+            <b><span id='promedio'></span></b>
+            <br><br>
+            <div id='containerp'>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row"><br></div>
+
+<div id="area_cons">
+    <div class="row front">
+        <div class="col-xs-6 col-sm-6">
+            <b><span id='consis_autores'></span></b>
+            <br><br>
+            <div id='container_c1'>
+            </div>
+        </div>
+        <div class="col-xs-6 col-sm-6">
+            <b><span id='consis_documentos'></span></b>
+            <br><br>
+            <div id='container_c2'>
+            </div>
+        </div>
+    </div>
+    <div class="row back">
+        <div class="col-xs-12">
+            <b><span id='consis_promedio'></span></b>
+            <br><br>
+            <div id='containerp2'>
+            </div>
         </div>
     </div>
 </div>
@@ -102,49 +148,28 @@
 <div class="row"><br></div>
 
 <div class="row">
-    <div class="col-sm-offset-3 col-sm-6">
-        <b><span id='promedio'></span></b>
+    <div class="col-xs-12" id="rev_dois">
+        <b><span id='consis_dois'></span></b>
         <br><br>
-        <div id='containerp'>
+        <div id='container4' class="center">
+            <p><b><span id='dois'></span></b></p>
+            <br>
+            <p><b><span id='orcid'></span></b></p>
         </div>
     </div>
-</div>
-
-<div class="row"><br></div>
-
-<div class="row">
-    <div class="col-sm-6">
-        <b><span id='consis_autores'></span></b>
-        <br><br>
-        <div id='container_c1'>
-        </div>
-    </div>
-    <div class="col-sm-6">
-        <b><span id='consis_documentos'></span></b>
-        <br><br>
-        <div id='container_c2'>
-        </div>
-    </div>
-</div>
-
-<div class="row"><br></div>
-
-<div class="row">
-    <div class="col-sm-offset-3 col-sm-6">
-        <b><span id='consis_promedio'></span></b>
-        <br><br>
-        <div id='containerp2'>
-        </div>
-    </div>
-</div>
-
-<div class="row"><br></div>
-
-<div class="row">
-    <div class="col-sm-6">
-        <b><span id='dois'></span></b>
+    <!--div class="col-xs-6 back">
+        <b><span id='consis_dois'></span></b>
         <br><br>
         <div id='container4'>
+        </div>
+    </div-->
+</div>
+    
+<div class="row"><br></div>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div id="div_resultado">
         </div>
     </div>
 </div>

@@ -21,12 +21,15 @@ class Verificador extends CI_Controller {
         $this->template->js('assets/js/highcharts/phantomjs/highcharts8.js');
         $this->template->js('assets/js/highcharts/phantomjs/highcharts-more8.js');
         $this->template->js('assets/js/highcharts/phantomjs/drilldown8.js');
+        $this->template->js('assets/js/flip/flip.js');
         $this->template->js('assets/js/utils/utils.js');
         $this->template->css('css/jquery.slider.min.css');
         $this->template->css('css/colorbox.css');
         $this->template->js('js/jquery.slider.min.js');
         $this->template->js('js/jquery.serializeJSON.min.js');
         $this->template->js('js/colorbox.js');
+        $this->template->js('assets/js/datatables/datatables.min.js');
+        $this->template->js('assets/js/datatables/input.js');
         $this->template->set_partial('main_js', 'verificador/verificador.js', array(), TRUE, FALSE);
         $this->template->build('verificador/verificador', $data);
     }
@@ -48,11 +51,30 @@ class Verificador extends CI_Controller {
         return $html_encoded;*/
     }
     
+    function file_get_contents_curl2($url){
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        //curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_ENCODING, "identity");
+        $data = curl_exec($ch);
+        curl_close($ch);
+        return $data;
+        /*
+        $data = file_get_contents($url);
+        $html_encoded = htmlentities($data);
+        return $html_encoded;*/
+    }
+    
     public function get_oai(){
         $oai = $_GET['oai'];
         $years = $_GET['years'];
         $url = $oai.'?verb=ListRecords&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
-        $url = file_get_contents($url);
+        $url = $this->file_get_contents_curl2($url);
         
         $dom = new DOMDocument();
         @$dom->loadHTML($url);
@@ -83,21 +105,21 @@ class Verificador extends CI_Controller {
                     $db = $div->nodeValue;
                     $db = pack("H*",$db);
 
-                    $arr_db = explode("xxx", $db);
+                    $arr_db = explode("xxx[", $db);
                     $obj = json_decode($arr_db[1]);
-                    $response .= ',"i": ' . $arr_db[1];
-                    $response .= ', "j": ' . $arr_db[3];
-                    $response .= ', "js": ' . $arr_db[5];
-                    $response .= ', "ss": ' . $arr_db[7];
-                    $response .= ', "p": ' . $arr_db[9];
-                    $response .= ', "ps": ' . $arr_db[11];
-                    $response .= ', "is": ' . $arr_db[13];
-                    $response .= ', "a": ' . $arr_db[15];
-                    $response .= ', "as": ' . $arr_db[17];
-                    $response .= ', "s": ' . $arr_db[19];
-                    $response .= ', "ses": ' . $arr_db[21];
-                    $response .= ', "pg": ' . $arr_db[23];
-                    $response .= ', "num": ' . $arr_db[25];
+                    $response .= ',"i": [' . explode("]xxx", $arr_db[1])[0] . ']';
+                    $response .= ', "j": [' . explode("]xxx", $arr_db[2])[0] . ']';
+                    $response .= ', "js": [' . explode("]xxx", $arr_db[3])[0] . ']';
+                    $response .= ', "ss": [' . explode("]xxx", $arr_db[4])[0] . ']';
+                    $response .= ', "p": [' . explode("]xxx", $arr_db[5])[0] . ']';
+                    $response .= ', "ps": [' . explode("]xxx", $arr_db[6])[0] . ']';
+                    $response .= ', "is": [' . explode("]xxx", $arr_db[7])[0] . ']';
+                    $response .= ', "a": [' . explode("]xxx", $arr_db[8])[0] . ']';
+                    $response .= ', "as": [' . explode("]xxx", $arr_db[9])[0] . ']';
+                    $response .= ', "s": [' . explode("]xxx", $arr_db[10])[0] . ']';
+                    $response .= ', "ses": [' . explode("]xxx", $arr_db[11])[0] . ']';
+                    $response .= ', "pg": [' . explode("]xxx", $arr_db[12])[0] . ']';
+                    $response .= ', "num": [' . explode("]xxx", $arr_db[13])[0] . ']';
                     $response .= '} ';
                     
                     //header('Content-Type: text/plain; charset=utf-8');
@@ -114,7 +136,7 @@ class Verificador extends CI_Controller {
                     break;
                 }
             }
-                
+            
             $divs = $subfield->getElementsByTagName('subfield');
             $subs = array("i", "j", "j_s", "ss", "p", "p_s", "i_s", "a", "a_s", "c_v_e_s", "s", "s_s", "p_g", "p_f", "num");
             $subs_exist = array();
@@ -125,12 +147,12 @@ class Verificador extends CI_Controller {
                     $dec .= openssl_decrypt ($db, $ciphering, $encryption_key, $options, $encryption_iv);
                 }
             }
-            $arr_db = explode("xxx", $dec);
+            $arr_db = explode("xxx[", $dec);
             $obj = json_decode($arr_db[1]);
             
             //De las opciones de la revista selecciona sólo las indispensables
             $string_js = '';
-            $pieces = explode("},{", $arr_db[5]);
+            $pieces = explode("},{", '[' . explode("]xxx", $arr_db[3])[0] . ']');
             $ops_js = array('"setting_name":"title"', '"setting_name":"name"', '"setting_name":"printIssn"', '"setting_name":"onlineIssn"', '"setting_name":"publisherInstitution"', '"setting_name":"supportedSubmissionLocales"');
             foreach( $pieces as $p ){
                 foreach( $ops_js as $op){
@@ -142,32 +164,33 @@ class Verificador extends CI_Controller {
                     }
                 }
             }
+            $ops_js = array('"setting_name":"title"', '"setting_name":"name"', '"setting_name":"printIssn"', '"setting_name":"onlineIssn"', '"setting_name":"publisherInstitution"', '"setting_name":"supportedSubmissionLocales"');
             
-            $response .= ', "i": ' . $arr_db[1];
-            $response .= ', "j": ' . $arr_db[3];
+            $response .= ', "i": [' . explode("]xxx", $arr_db[1])[0] . ']';
+            $response .= ', "j": [' . explode("]xxx", $arr_db[2])[0] . ']';
             //$response .= ', "js": ' . $arr_db[5];
             $response .= ', "js": ' . '[' . $string_js . ']';
-            $response .= ', "ss": ' . $arr_db[7];
-            $response .= ', "p": ' . $arr_db[9];
-            $response .= ', "ps": ' . $arr_db[11];
-            $response .= ', "is": ' . $arr_db[13];
-            $response .= ', "a": ' . $arr_db[15];
-            $response .= ', "as": ' . $arr_db[17];
+            $response .= ', "ss": [' . explode("]xxx", $arr_db[4])[0] . ']';
+            $response .= ', "p": [' . explode("]xxx", $arr_db[5])[0] . ']';
+            $response .= ', "ps": [' . explode("]xxx", $arr_db[6])[0] . ']';
+            $response .= ', "is": [' . explode("]xxx", $arr_db[7])[0] . ']';
+            $response .= ', "a": [' . explode("]xxx", $arr_db[8])[0] . ']';
+            $response .= ', "as": [' . explode("]xxx", $arr_db[9])[0] . ']';
             if( in_array( "c_v_e_s", $subs_exist) ){
-                $response .= ', "c_v_e_s": ' . $arr_db[19];
-                $response .= ', "s": ' . $arr_db[21];
-                $response .= ', "ses": ' . $arr_db[23];
-                $response .= ', "pg": ' . $arr_db[25];
-                $response .= ', "pf": ' . $arr_db[27];
-                if($arr_db[29]!== null){
-                    $response .= ', "num": ' . $arr_db[29];
+                $response .= ', "c_v_e_s": [' . explode("]xxx", $arr_db[10])[0] . ']';
+                $response .= ', "s": [' . explode("]xxx", $arr_db[11])[0] . ']';
+                $response .= ', "ses": [' . explode("]xxx", $arr_db[12])[0] . ']';
+                $response .= ', "pg": [' . explode("]xxx", $arr_db[13])[0] . ']';
+                $response .= ', "pf": [' . explode("]xxx", $arr_db[14])[0] . ']';
+                if(explode("]xxx", $arr_db[15])[0] + ']'!== null){
+                    $response .= ', "num": [' . explode("]xxx", $arr_db[15])[0] . ']';
                 }
             }else{
-                $response .= ', "s": ' . $arr_db[19];
-                $response .= ', "ses": ' . $arr_db[21];
-                $response .= ', "pg": ' . $arr_db[23];
-                $response .= ', "pf": ' . $arr_db[25];
-                $response .= ', "num": ' . $arr_db[27];
+                $response .= ', "s": [' . explode("]xxx", $arr_db[10])[0] . ']';
+                $response .= ', "ses": [' . explode("]xxx", $arr_db[11])[0] . ']';
+                $response .= ', "pg": [' . explode("]xxx", $arr_db[12])[0] . ']';
+                $response .= ', "pf": [' . explode("]xxx", $arr_db[13])[0] . ']';
+                $response .= ', "num": [' . explode("]xxx", $arr_db[14])[0] . ']';
             }
             $response .= '}';
 
@@ -237,6 +260,24 @@ class Verificador extends CI_Controller {
         $nodes = $dom->getElementsByTagName('h3');*/
     }
     
+    public function get_name_by_orcid(){
+        $orcid = $_GET['orcid'];
+        $url = 'https://pub.orcid.org/v3.0/'.$orcid.'/person';
+        $curl = file_get_contents($url);
+        if($curl == ''){
+            $response = '{"resp": "Fail"}';
+        }else{
+            $nombre = explode('</common:source-name>',explode('<common:source-name>', $curl)[1])[0];
+            if($nombre == ''){
+                $given_name = explode('</personal-details:given-names>',explode('<personal-details:given-names>', $curl)[1])[0];
+                $family_name = explode('</personal-details:family-name>',explode('<personal-details:family-name>', $curl)[1])[0];
+                $nombre = $given_name . ' ' . $family_name;
+            }
+            $response = '{"resp": "'.$nombre.'"}';
+        }
+        echo $response;
+    }
+    
     public function get_doi_validate(){
         //10.3623/revisa.v%.n%.p926%
         //10.22201/iib.2594178xe.2021.1.92
@@ -263,5 +304,24 @@ class Verificador extends CI_Controller {
             $response = '{"resp": "Success"}';
         }
         echo $response;
+    }
+    
+    public function get_contents_validate(){
+        $url = $_GET['url'];
+        $contents = file_get_contents($url);
+        if( $contents == "" ){
+            $response = '{"resp": "Fail"}';
+        }else{
+            $response = '{"resp": "Success"}';
+        }
+        echo $response;
+    }
+    
+    public function ws_insert(){
+        //$this->output->enable_profiler(false);
+        if ($this->input->post()) {
+            $this->load->model('generic_model');
+            $this->generic_model->insert_if_ne_article($this->input->post('tabla'), $this->input->post('where'), $this->input->post('data'));
+        }
     }
 }
