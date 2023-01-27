@@ -225,6 +225,7 @@ class_utils= {
         credits: {href: "https://biblat.unam.mx/es", text: "Fuente: biblat.unam.mx"}
     },
 	chartRadialBar:{
+		colors: ['green', 'lightgray', 'red'],									  
         chart: {
             type: 'column',
             inverted: true,
@@ -303,6 +304,11 @@ class_utils= {
             return val.indexOf(obj2[prop]) !== -1;
         });
     },
+	filter_prop_notarr: function(obj,prop,val){
+        return obj.filter(function(obj2){
+            return val.indexOf(obj2[prop]) == -1;
+        });
+    },										   
     filter_prop_arr_or: function(obj,props,vals){
         return obj.filter(function(obj2){
             var res = false;
@@ -345,14 +351,17 @@ class_utils= {
     },											 
     find_prop: function(obj,prop,val){
         return obj.find(function(obj2){
-            return eval('obj2.' + prop + '== val');
+            return obj2[prop] == val;
         });
     },
     find_prop2: function(obj,prop1,prop2,val1,val2){
         return obj.find(function(obj2){
-            return eval('obj2.' + prop1 + '== val1' && 'obj2.' + prop2 + '== val2');
+            return eval('obj2.' + prop1 + '== val1 && obj2.' + prop2 + '== val2');
         });
     },
+	cleanHtml: function(str){
+        return new DOMParser().parseFromString(str, 'text/html').body.textContent.replace(/(\n|\r|\t)/gm, '').trim().replaceAll("'","''").replaceAll("‘", '"').replaceAll("’", '"').replaceAll("“",'"').replaceAll("”",'"');
+    },						 
     order_by: function(key, order = 'asc') {
         return function innerSort(a, b) {
           if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
