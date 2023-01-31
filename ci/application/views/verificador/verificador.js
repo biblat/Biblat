@@ -5,8 +5,8 @@
  */
 class_ver = {
     cons:{
-        get_oai: '/verificador/get_oai?oai=<oai>&years=<years>',
-        get_issn: '/verificador/get_data_by_issn?issn=<issn>',
+        get_oai: '/metametrics/get_oai?oai=<oai>&years=<years>',
+        get_issn: '/metametrics/get_data_by_issn?issn=<issn>',
         idiomas: {
                 'es_ES' : 'Español',
                 'en_US' : 'Inglés',
@@ -536,14 +536,14 @@ class_ver = {
             var filter = function(obj){
                 return obj.filter(function(obj2){
                     obj2 = obj2.setting_value.split(';');
-                    return obj2.length >= 5;
+                    return obj2.length >= 3;
                 });
             };
 
             var filter2 = function(obj){
                 return obj.filter(function(obj2){
                     obj2 = obj2.split(';');
-                    return obj2.length >= 5;
+                    return obj2.length >= 3;
                 });
             };
 
@@ -838,6 +838,13 @@ class_ver = {
         var consis_orcid = [];
 
         //union autores url y orcid
+        $.each(autores_orcid_tmp, function(i,val){
+            if(autores_orcid.indexOf(val.author_id) == -1){
+                autores_orcid.push(val.author_id);
+                val.exist_orcid = true;
+                consis_orcid.push(val);
+            }
+        });
         $.each(autores_url, function(i,val){
             if(autores_orcid.indexOf(val.author_id) == -1){
                 autores_orcid.push(val.author_id);
@@ -845,15 +852,13 @@ class_ver = {
                 //obj.orcid = val['url'];
                 //obj.author_id = val['author_id'];
                 //consis_orcid.push(obj);
+                val.exist_url = true;
                 consis_orcid.push(val);
             }
         });
-        $.each(autores_orcid_tmp, function(i,val){
-            if(autores_orcid.indexOf(val.author_id) == -1){
-                autores_orcid.push(val.author_id);
-                consis_orcid.push(val);
-            }
-        });
+        
+        // En consis_orcid, están los ids de los autores que tienen registro de ORCID, pero se deben quitar aquellos que pertenezcan a un artículo donde haya más autores y que alguno de ellos no
+        // cuente con el orcid, esto se hace en la funcion de get_pub_id
 
         autores_pub_id = class_ver.get_pub_id(consis_orcid);
         orcid_faltantes = class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
@@ -861,10 +866,14 @@ class_ver = {
         arr_pubs_b = class_utils.filter_prop_arr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
 
         if(consis_orcid.length > 0){
-            if('orcid' in consis_orcid[0]){
-                consis_orcid = class_utils.filter_prop_er(consis_orcid, 'orcid', class_ver.cons.er.orcid);
-            }else{
-                consis_orcid = class_utils.filter_prop_er(consis_orcid, 'setting_value', class_ver.cons.er.orcid);
+            if('exist_orcid' in consis_orcid[0]){
+                if('orcid' in consis_orcid[0]){
+                    consis_orcid = class_utils.filter_prop_er(consis_orcid, 'orcid', class_ver.cons.er.orcid);
+                }else{
+                    consis_orcid = class_utils.filter_prop_er(consis_orcid, 'setting_value', class_ver.cons.er.orcid);
+                }
+            }else if('exist_url' in consis_orcid[0]){
+                consis_orcid = class_utils.filter_prop_er(consis_orcid, 'url', class_ver.cons.er.orcid);
             }
         }
 
@@ -1089,19 +1098,19 @@ class_ver = {
         class_ver.suficiencia_promedio = ((nombre == 100)?1:0) + /*((email == 100)?1:0) +*/ ((orcid == 100)?1:0) + ((instituciones == 100)?1:0);
         
         var completos = [ 
-                                nombre,
+                                parseFloat(nombre.toFixed(2)),
                                 //(apellido == 100)?100:0,
-                                email,
-                                orcid,
-                                instituciones
+                                parseFloat(email.toFixed(2)),
+                                parseFloat(orcid.toFixed(2)),
+                                parseFloat(instituciones.toFixed(2))
                             ];
                             
         var sindato = [ 
-                                100 - nombre,
+                                parseFloat((100 - nombre).toFixed(2)),
                                 //(apellido > 50 && apellido < 100)?apellido:0,
-                                100 - email,
-                                100 - orcid,
-                                100 - instituciones
+                                parseFloat((100 - email).toFixed(2)),
+                                parseFloat((100 - orcid).toFixed(2)),
+                                parseFloat((100 - instituciones).toFixed(2))
                             ];
                               
         grafica.series = [
@@ -1150,36 +1159,36 @@ class_ver = {
                                         + ((doi == 100)?1:0);
         
         var completos = [ 
-                                tituloip,
-                                titulo2i,
+                                parseFloat(tituloip.toFixed(2)),
+                                parseFloat(titulo2i.toFixed(2)),
                                 //(titulom == 100)?100:0,
-                                resumenip,
-                                resumen2i,
+                                parseFloat(resumenip.toFixed(2)),
+                                parseFloat(resumen2i.toFixed(2)),
                                 //(resumenm == 100)?100:0,
                                 //(palabra_clave == 100)?100:0,
-                                palabra_claveip,
-                                palabra_clave2i,
+                                parseFloat(palabra_claveip.toFixed(2)),
+                                parseFloat(palabra_clave2i.toFixed(2)),
                                 //(palabra_clave_cinco == 100)?100:0,
-                                enlaces,
-                                citas,
-                                licencia,
-                                doi
+                                parseFloat(enlaces.toFixed(2)),
+                                parseFloat(citas.toFixed(2)),
+                                parseFloat(licencia.toFixed(2)),
+                                parseFloat(doi.toFixed(2))
                             ];
         var sindato = [ 
-                                100 - tituloip,
-                                100 - titulo2i,
+                                parseFloat((100 - tituloip).toFixed(2)),
+                                parseFloat((100 - titulo2i).toFixed(2)),
                                 //(titulom > 50 && titulom < 100)?titulom:0,
-                                100 - resumenip,
-                                100 - resumen2i,
+                                parseFloat((100 - resumenip).toFixed(2)),
+                                parseFloat((100 - resumen2i).toFixed(2)),
                                 //(resumenm > 50 && resumenm < 100)?resumenm:0,
-                                100 - palabra_claveip,
-                                100 - palabra_clave2i,
+                                parseFloat((100 - palabra_claveip).toFixed(2)),
+                                parseFloat((100 - palabra_clave2i).toFixed(2)),
                                 //(palabra_clave > 50 && palabra_clave < 100)?palabra_clave:0,
                                 //(palabra_clave_cinco > 50 && palabra_clave_cinco < 100)?palabra_clave_cinco:0,
-                                100 - enlaces,
-                                100 - citas,
-                                100 - licencia,
-                                100 - doi
+                                parseFloat((100 - enlaces).toFixed(2)),
+                                parseFloat((100 - citas).toFixed(2)),
+                                parseFloat((100 - licencia).toFixed(2)),
+                                parseFloat((100 - doi).toFixed(2))
                             ];
                               
         grafica.series = [
@@ -1239,7 +1248,7 @@ class_ver = {
         
         var orcid_resuelve = class_utils.filter_prop(class_ver.var.salida.orcid, 'resuelve', 1);
         
-        orcid_resuelve = orcid_resuelve.length / class_ver.var.salida.orcid.length * 100;
+        orcid_resuelve = parseFloat( (orcid_resuelve.length / class_ver.var.salida.orcid.length * 100).toFixed(2) );
         
         var completos = [ 
                                 orcid_resuelve
@@ -1295,6 +1304,7 @@ class_ver = {
                                
         grafica.colors = ['green', 'lightgreen', 'yellow'];
         grafica.colors = [color, 'white'];
+        grafica.yAxis.tickInterval = 0;
         var num = 'Suficiencia promedio';
         $('#promedio').html(num);
         Highcharts.chart('containerp', grafica);
@@ -1311,15 +1321,15 @@ class_ver = {
         class_ver.consistencia_promedio = nombre + orcid + instituciones;
         
         var completos = [ 
-                                nombre,
-                                orcid,
-                                instituciones
+                                parseFloat(nombre.toFixed(2)),
+                                parseFloat(orcid.toFixed(2)),
+                                parseFloat(instituciones.toFixed(2))
                             ];
                             
         var sindato = [ 
-                                100 - nombre,
-                                100 - orcid,
-                                100 - instituciones
+                                parseFloat((100 - nombre).toFixed(2)),
+                                parseFloat((100 - orcid).toFixed(2)),
+                                parseFloat((100 - instituciones).toFixed(2))
                             ];
                               
         grafica.series = [
@@ -1352,28 +1362,28 @@ class_ver = {
         class_ver.consistencia_promedio += tituloip + titulo2i + resumenip + resumen2i + palabra_claveip + palabra_clave2i + enlaces + licencia + doi;
         
         var completos = [ 
-                                tituloip,
-                                titulo2i,
-                                resumenip,
-                                resumen2i,
-                                palabra_claveip,
-                                palabra_clave2i,
-                                enlaces,
-                                citas,
-                                licencia,
-                                doi
+                                parseFloat(tituloip.toFixed(2)),
+                                parseFloat(titulo2i.toFixed(2)),
+                                parseFloat(resumenip.toFixed(2)),
+                                parseFloat(resumen2i.toFixed(2)),
+                                parseFloat(palabra_claveip.toFixed(2)),
+                                parseFloat(palabra_clave2i.toFixed(2)),
+                                parseFloat(enlaces.toFixed(2)),
+                                parseFloat(citas.toFixed(2)),
+                                parseFloat(licencia.toFixed(2)),
+                                parseFloat(doi.toFixed(2))
                             ];
         var sindato = [ 
-                                100 - tituloip,
-                                100 - titulo2i,
-                                100 - resumenip,
-                                100 - resumen2i,
-                                100 - palabra_claveip,
-                                100 - palabra_clave2i,
-                                100 - enlaces,
-                                100 - citas,
-                                100 - licencia,
-                                100 - doi
+                                parseFloat((100 - tituloip).toFixed(2)),
+                                parseFloat((100 - titulo2i).toFixed(2)),
+                                parseFloat((100 - resumenip).toFixed(2)),
+                                parseFloat((100 - resumen2i).toFixed(2)),
+                                parseFloat((100 - palabra_claveip).toFixed(2)),
+                                parseFloat((100 - palabra_clave2i).toFixed(2)),
+                                parseFloat((100 - enlaces).toFixed(2)),
+                                parseFloat((100 - citas).toFixed(2)),
+                                parseFloat((100 - licencia).toFixed(2)),
+                                parseFloat((100 - doi).toFixed(2))
                             ];
                               
         grafica.series = [
@@ -1389,7 +1399,7 @@ class_ver = {
         var grafica = JSON.parse(JSON.stringify(class_utils.chartRadialBar));
         grafica.xAxis.categories = ['Consistencia promedio']
         
-        var sp = class_ver.consistencia_promedio/12;
+        var sp = parseFloat( (class_ver.consistencia_promedio/12).toFixed(2) );
         
         var completos = [ 
                                 (sp >= 80)?sp:0,
@@ -1489,7 +1499,7 @@ class_ver = {
                     //var url = resp.resource.primary.URL;
                     var url = resp.values[1].data.value;
                     $.when(
-                        class_utils.getResource('/verificador/get_url_validate?url='+url)
+                        class_utils.getResource('/metametrics/get_url_validate?url='+url)
                     ).then(function(resp2){
                         num = num + 1;
                         recibidos = recibidos + 1;
@@ -1558,9 +1568,18 @@ class_ver = {
         var recibidos = 0;
         
         $.each(orcid.slice(0,rango), function(i,val){
+            var reg_orcid = '';
+            if('orcid' in val){
+                reg_orcid = val.orcid;
+            }else if('url' in val){
+                reg_orcid = val.url;
+            }else{
+                reg_orcid = val.setting_value;
+            }
+                
             $.when(
                 //class_utils.getResource('http://biblat.local/verificador/get_doi_validate?doi='+val.setting_value)
-                class_utils.getResource('/verificador/get_name_by_orcid?orcid='+val.setting_value.split('org/')[1])
+                class_utils.getResource('/metametrics/get_name_by_orcid?orcid='+reg_orcid.split('org/')[1])
             )
             .then(function(resp){
                 num = num + 1;
@@ -1620,7 +1639,7 @@ class_ver = {
         $.each(licencias.slice(0,rango), function(i,val){
             $.when(
                 //class_utils.getResource('http://biblat.local/verificador/get_doi_validate?doi='+val.setting_value)
-                class_utils.getResource('/verificador/get_contents_validate?url='+val.setting_value)
+                class_utils.getResource('/metametrics/get_contents_validate?url='+val.setting_value)
             )
             .then(function(resp){
                 num = num + 1;
@@ -1657,8 +1676,20 @@ class_ver = {
     },
     get_pub_id: function(autores){
         var autores_pub_id = [];
+        var auth_ids = [];
         $.each(autores, function(i,val){
-            if( autores_pub_id.indexOf(val[class_ver.cons.pub_id_auth[class_ver.var.data.ver]]) == -1 ){
+            auth_ids.push(val.author_id);
+        });
+        $.each(autores, function(i,val){
+            var todos = class_utils.filter_prop(class_ver.var.data.a, class_ver.cons.pub_id_auth[class_ver.var.data.ver], val[class_ver.cons.pub_id_auth[class_ver.var.data.ver]]);
+            var completos = true;
+            $.each(todos, function(i2, val2){
+                if( auth_ids.indexOf(val2.author_id) == -1 ){
+                    completos = false;
+                    return 0;
+                }
+            });
+            if( autores_pub_id.indexOf(val[class_ver.cons.pub_id_auth[class_ver.var.data.ver]]) == -1 && completos){
                 autores_pub_id.push(val[class_ver.cons.pub_id_auth[class_ver.var.data.ver]]);
             }
         });
@@ -1845,6 +1876,8 @@ class_ver = {
         });
     },
     resultado: function(){
+                dicc_tablas = ['Autor', 'Email', 'ORCID', 'Afiliación', 'Título', 'Título traducido', 'Resumen', 'Resumen traducido', 'Palabras clave', 'Palabras clave traducidas',
+                                'Enlace', 'Referecias', 'Licencia', 'DOI'];
         //Armado de faltantes
                 arr_faltantes = [   doi_faltantes, titulos_i1_faltantes, titulos_i2_faltantes, resumenes_i1_faltantes, resumenes_i2_faltantes,
                                         palabras_clave_i1_faltantes, palabras_clave_i2_faltantes, enlaces_faltantes, autores_faltantes,
@@ -1869,11 +1902,11 @@ class_ver = {
                                         palabras_clave_i1_incons, palabras_clave_i2_incons, enlaces_incons, autores_incons,
                                         orcid_incons, instituciones_incons, citas_incons, licencias_incons];
                 
-                orden_consis = [     autores_incons, orcid_incons, instituciones_incons, titulos_i1_incons, titulos_i2_incons, 
+                orden_consis = [     autores_incons, [], orcid_incons, instituciones_incons, titulos_i1_incons, titulos_i2_incons, 
                                         resumenes_i1_incons, resumenes_i2_incons, palabras_clave_i1_incons, palabras_clave_i2_incons, enlaces_incons, citas_incons,
                                         licencias_incons, doi_incons ];
                 
-                orden_tablas_consis = ['autor', 'orcid', 'afiliacion', 'titulo', 'titulo_traducido', 'resumen', 'resumen_traducido', 'palabras_clave', 'palabras_clave_traducidas',
+                orden_tablas_consis = ['autor', 'email', 'orcid', 'afiliacion', 'titulo', 'titulo_traducido', 'resumen', 'resumen_traducido', 'palabras_clave', 'palabras_clave_traducidas',
                                 'enlace', 'referencia', 'licencia', 'doi'];
                 
                 //ordena primero el que tenga mayor número de registros para hacer un sólo recorrido
@@ -1906,7 +1939,7 @@ class_ver = {
                                 posicion = ids_faltantes.indexOf(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
                                 //alert(posicion);
                             }
-                            tablas_faltantes[0][posicion][orden_tablas[i2]] = orden_tablas[i2].replaceAll('_', ' ');
+                            tablas_faltantes[0][posicion][orden_tablas[i2]] = dicc_tablas[i2];//orden_tablas[i2].replaceAll('_', ' ');
                         }
                     });
                 });
@@ -1932,7 +1965,7 @@ class_ver = {
                                 posicion = ids_faltantes.indexOf(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
                                 //alert(posicion);
                             }
-                            tablas_faltantes[1][posicion][orden_tablas_consis[i2]] = orden_tablas_consis[i2].replaceAll('_', ' ');
+                            tablas_faltantes[1][posicion][orden_tablas_consis[i2]] = dicc_tablas[i2];//orden_tablas_consis[i2].replaceAll('_', ' ');
                         }
                     });
                 });
