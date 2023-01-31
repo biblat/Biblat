@@ -1,7 +1,7 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 error_reporting(0);
 
-class Verificador extends CI_Controller {
+class Metametrics extends CI_Controller {
     
     public function __construct(){
             parent::__construct();
@@ -15,9 +15,9 @@ class Verificador extends CI_Controller {
     
     public function index(){
         $data = array();
-        $data['page_title'] = _('Verificador');
-        $this->template->title(_('Verificador'));
-        $this->template->set_meta('description', _('Verificador'));
+        $data['page_title'] = _('MetaMetrics');
+        $this->template->title(_('MetaMetrics'));
+        $this->template->set_meta('description', _('MetaMetrics'));
         $this->template->js('assets/js/highcharts/phantomjs/highcharts8.js');
         $this->template->js('assets/js/highcharts/phantomjs/highcharts-more8.js');
         $this->template->js('assets/js/highcharts/phantomjs/drilldown8.js');
