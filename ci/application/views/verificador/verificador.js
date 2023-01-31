@@ -72,8 +72,8 @@ class_ver = {
         class_ver.control();
         console.log('Ready');
         //$('#url_oai').val('http://revistafacesa.senaaires.com.br/index.php/revisa/oai'); //2.3
-        $('#url_oai').val('https://revistacientifica.uamericana.edu.py/index.php/academo/oai'); //3.3
-        //$('#url_oai').val('https://revistas.ulasalle.edu.pe/innosoft/oai'); //3.1
+        //$('#url_oai').val('https://revistacientifica.uamericana.edu.py/index.php/academo/oai'); //3.3
+        $('#url_oai').val('https://revistas.ulasalle.edu.pe/innosoft/oai'); //3.1
         //$('#url_oai').val('https://bibliographica.iib.unam.mx/index.php/RB/oai'); //2.4
         //$('#url_oai').val('https://revistas.anahuac.mx/the_anahuac_journal/oai'); //3.2
         //$('#url_oai').val('https://revistas.uned.ac.cr/index.php/espiga/oai'); //3.2 Version mal
@@ -864,8 +864,23 @@ class_ver = {
         orcid_faltantes = class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
 
         arr_pubs_b = class_utils.filter_prop_arr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
-
-        if(consis_orcid.length > 0){
+        
+        var temp_consis_orcid = [];
+        
+        $.each(consis_orcid, function(i,val){
+            if('exist_orcid' in val){
+                if('orcid' in val){
+                    temp_consis_orcid = temp_consis_orcid.concat(class_utils.filter_prop_er([val], 'orcid', class_ver.cons.er.orcid));
+                }else{
+                    temp_consis_orcid = temp_consis_orcid.concat(class_utils.filter_prop_er([val], 'setting_value', class_ver.cons.er.orcid));
+                }
+            }else if('exist_url' in val){
+                temp_consis_orcid = temp_consis_orcid.concat(class_utils.filter_prop_er([val], 'url', class_ver.cons.er.orcid));
+            }
+        });
+        consis_orcid = temp_consis_orcid;
+        
+        /*if(consis_orcid.length > 0){
             if('exist_orcid' in consis_orcid[0]){
                 if('orcid' in consis_orcid[0]){
                     consis_orcid = class_utils.filter_prop_er(consis_orcid, 'orcid', class_ver.cons.er.orcid);
@@ -875,12 +890,13 @@ class_ver = {
             }else if('exist_url' in consis_orcid[0]){
                 consis_orcid = class_utils.filter_prop_er(consis_orcid, 'url', class_ver.cons.er.orcid);
             }
-        }
+        }*/
 
         //var res_orcid = [];
         //class_ver.valida_orcid(consis_orcid, res_orcid);
 
         autores_pub_id = class_ver.get_pub_id(consis_orcid);
+        
         $.each(consis_orcid, function(i,val){
             var pub = class_utils.find_prop(class_ver.var.data.p, class_ver.cons.pub_id[class_ver.var.data.ver], val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
             Object.assign(val, pub);
