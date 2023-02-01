@@ -63,7 +63,8 @@ class_ver = {
     var:{
         data: [],
         salida: {},
-        suficiencia_promedio: 0
+        suficiencia_promedio: 0,
+        total: {}
     },
     salida: function(msj){
       class_ver.var.salida += msj+'\n';
@@ -93,7 +94,7 @@ class_ver = {
             $('#documentos').html('');
             $('#container3').html('');
             $('#dois').html('');
-            $('#container4').html("<p><b><span id='dois'></span><br><span id='orcid'></span><br><span id='lic'></span></b></p>");
+            $('#container4').html("<p><b><span id='dois'></span><br><span id='orcid'></span><br><span id='lic'></span><br><span id='enlace'></span></b></p>");
             $('#promedio').html('');
             $('#containerp').html('');
             
@@ -688,27 +689,29 @@ class_ver = {
         $.each(enlaces, function(i2, val2){
             if( arr_id_pubs.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) !== -1 ){
                 if( enlaces_total.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 ){
+                    //Solo enlaces a pdf o html
+                    if(['html', 'pdf'].indexOf(val2.label.toLowerCase()) !== -1){
+                        //Busca la publicación para obtener su idioma original
+                        var pub = class_utils.find_prop(class_ver.var.data.p, class_ver.cons.pub_id[class_ver.var.data.ver], val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                        var idioma_doc = '';
 
-                    //Busca la publicación para obtener su idioma original
-                    var pub = class_utils.find_prop(class_ver.var.data.p, class_ver.cons.pub_id[class_ver.var.data.ver], val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                    var idioma_doc = '';
-
-                    //En versiones recientes el idioma del documento se encuentra en las opciones del envío
-                    if('locale' in pub){
-                        if(pub.locale !== null){
-                            idioma_doc = pub.locale;
+                        //En versiones recientes el idioma del documento se encuentra en las opciones del envío
+                        if('locale' in pub){
+                            if(pub.locale !== null){
+                                idioma_doc = pub.locale;
+                            }else{
+                                var ss = class_utils.find_prop(class_ver.var.data.ss, 'submission_id', pub['submission_id']);
+                                idioma_doc = (ss.locale == null)?idioma_principal:ss.locale
+                            }
                         }else{
                             var ss = class_utils.find_prop(class_ver.var.data.ss, 'submission_id', pub['submission_id']);
                             idioma_doc = (ss.locale == null)?idioma_principal:ss.locale
                         }
-                    }else{
-                        var ss = class_utils.find_prop(class_ver.var.data.ss, 'submission_id', pub['submission_id']);
-                        idioma_doc = (ss.locale == null)?idioma_principal:ss.locale
-                    }
 
-                    if(val2['locale'] == idioma_doc){
-                        enlaces_total.push(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                        arr_enlaces_total.push(val2);
+                        if(val2['locale'] == idioma_doc){
+                            enlaces_total.push(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                            arr_enlaces_total.push(val2);
+                        }
                     }
                 }
             }
@@ -836,7 +839,7 @@ class_ver = {
 
         var autores_orcid = [];
         var consis_orcid = [];
-
+        
         //union autores url y orcid
         $.each(autores_orcid_tmp, function(i,val){
             if(autores_orcid.indexOf(val.author_id) == -1){
@@ -1218,30 +1221,34 @@ class_ver = {
     },
     graficaDois:function(){
         var grafica = JSON.parse(JSON.stringify(class_utils.chartRadialBar));
-        grafica.xAxis.categories = ["DOI registrado", "DOI resuelve", "ORCID resuelve", "URL licencia resuelve"];
+        grafica.xAxis.categories = ["DOI registrado", "DOI resuelve", "ORCID resuelve", "URL licencia resuelve", "Enlace a texto resuelve"];
         
         var doi_registrado = class_utils.filter_prop(class_ver.var.salida.pd, 'registrado', 1);
         var doi_resuelve = class_utils.filter_prop(class_ver.var.salida.pd, 'resuelve', 1);
         var orcid_resuelve = class_utils.filter_prop(class_ver.var.salida.orcid, 'resuelve', 1);
         var lic_resuelve = class_utils.filter_prop(class_ver.var.salida.val_lic, 'resuelve', 1);
+        var enl_resuelve = class_utils.filter_prop(class_ver.var.salida.val_enl, 'resuelve', 1);
         
         doi_registrado = (class_ver.var.salida.pd.length == 0)?0:(doi_registrado.length / class_ver.var.salida.pd.length * 100);
         doi_resuelve = (class_ver.var.salida.pd.length == 0)?0:(doi_resuelve.length / class_ver.var.salida.pd.length * 100);
         orcid_resuelve = (class_ver.var.salida.orcid.length == 0)?0:(orcid_resuelve.length / class_ver.var.salida.orcid.length * 100);
         lic_resuelve = (class_ver.var.salida.val_lic.length == 0)?0:(lic_resuelve.length / class_ver.var.salida.val_lic.length * 100);
+        enl_resuelve = (class_ver.var.salida.val_enl.length == 0)?0:(enl_resuelve.length / class_ver.var.salida.val_enl.length * 100);
         
         var completos = [ 
-                                doi_registrado,
-                                doi_resuelve,
-                                orcid_resuelve,
-                                lic_resuelve
+                                parseFloat(doi_registrado.toFixed(2)),
+                                parseFloat(doi_resuelve.toFixed(2)),
+                                parseFloat(orcid_resuelve.toFixed(2)),
+                                parseFloat(lic_resuelve.toFixed(2)),
+                                parseFloat(enl_resuelve.toFixed(2))
                             ];
         
         var sindato = [ 
-                100 - doi_registrado,
-                100 - doi_resuelve,
-                100 - orcid_resuelve,
-                100 - lic_resuelve
+                parseFloat((100 - doi_registrado).toFixed(2)),
+                parseFloat((100 - doi_resuelve).toFixed(2)),
+                parseFloat((100 - orcid_resuelve).toFixed(2)),
+                parseFloat((100 - lic_resuelve).toFixed(2)),
+                parseFloat((100 - enl_resuelve).toFixed(2))
             ]
                               
         grafica.series = [
@@ -1257,6 +1264,9 @@ class_ver = {
             $("#area_dois").flip(true);
             $("#area_dois").off(".flip");
         }, 1000);*/
+        setTimeout( function(){
+            class_ver.graficaPromPrec();
+        }, 1000);
     },
     graficaOrcid:function(){
         var grafica = JSON.parse(JSON.stringify(class_utils.chartRadialBar));
@@ -1292,7 +1302,18 @@ class_ver = {
         var grafica = JSON.parse(JSON.stringify(class_utils.chartRadialBar));
         grafica.xAxis.categories = ['Suficiencia promedio']
         
-        var sp = parseFloat((class_ver.suficiencia_promedio/13 * 100).toFixed(2));
+        var total = class_ver.var.salida.p.length;
+        var campos_califica = 13;
+        var total_califica = total * campos_califica;
+        
+        var fallos =    autores_faltantes.length + orcid_faltantes.length + instituciones_faltantes.length + titulos_i1_faltantes.length + 
+                        titulos_i2_faltantes.length + resumenes_i1_faltantes.length + resumenes_i2_faltantes.length + palabras_clave_i1_faltantes.length +
+                        palabras_clave_i2_faltantes.length + enlaces_faltantes.length + citas_faltantes.length + licencias_faltantes.length + doi_faltantes.length;
+        
+        var puntos = total_califica - fallos;
+        class_ver.var.total.suficiencia = puntos;
+        
+        var sp = parseFloat(((puntos * 100) / total_califica).toFixed(2));
         
         var completos = [ 
                                 (sp >= 80)?sp:0,
@@ -1415,7 +1436,22 @@ class_ver = {
         var grafica = JSON.parse(JSON.stringify(class_utils.chartRadialBar));
         grafica.xAxis.categories = ['Consistencia promedio']
         
-        var sp = parseFloat( (class_ver.consistencia_promedio/12).toFixed(2) );
+        //var total = class_ver.var.total.suficiencia;
+        var total = class_ver.var.salida.p.length;
+        
+        var campos_califica = 13;
+        var total_califica = total * campos_califica;
+        
+        var fallos =    autores_incons.length + orcid_incons.length + instituciones_incons.length + titulos_i1_incons.length + 
+                        titulos_i2_incons.length + resumenes_i1_incons.length + resumenes_i2_incons.length + palabras_clave_i1_incons.length +
+                        palabras_clave_i2_incons.length + enlaces_incons.length + citas_incons.length + licencias_incons.length + doi_incons.length;
+        
+        //var puntos = total_califica - fallos;
+        var puntos = class_ver.var.total.suficiencia - fallos;
+        
+        class_ver.var.total.consistencia = puntos;
+        
+        var sp = parseFloat(((puntos * 100) / total_califica).toFixed(2));
         
         var completos = [ 
                                 (sp >= 80)?sp:0,
@@ -1426,18 +1462,73 @@ class_ver = {
         var menos60 = [ 
                                 (sp < 60)?sp:0,
                             ];
-                              
-        grafica.series = [
-                                {'name': 'Excelente', 'data': completos }, 
-                                {'name': 'Suficiente', 'data': mas60},
-                                {'name': 'Bajo', 'data': menos60}
-                                ];
+        var prom = [sp];
+        var prom2 = [100-sp];
         
-        grafica.colors = ['green', 'lightgreen', 'yellow'];
+        grafica.series = [
+                                {'name': sp+' %', 'data': prom }, 
+                                {'name': '', 'data': prom2}
+                                ];
+                                
+        var color = (sp >= 80)?'green':(sp >= 60)?'lightgreen':'yellow';
+        grafica.colors = [color, 'white'];
+        grafica.yAxis.tickInterval = 0;
+        
         var num = 'Consistencia promedio';
         $('#consis_promedio').html(num);
         Highcharts.chart('containerp2', grafica);
         $("#area_cons").flip();
+    },
+    graficaPromPrec:function(){
+        var grafica = JSON.parse(JSON.stringify(class_utils.chartRadialBar));
+        grafica.xAxis.categories = ['Precisión promedio']
+        
+        //var total = class_ver.var.total.suficiencia;
+        var total = class_ver.var.salida.p.length;
+        
+        var campos_califica = 13;
+        var total_califica = total * campos_califica;
+        
+        //var doi_registrado = class_utils.filter_prop(class_ver.var.salida.pd, 'registrado', 0);
+        var doi_resuelve = class_utils.filter_prop(class_ver.var.salida.pd, 'resuelve', 0);
+        var orcid_resuelve = class_utils.filter_prop(class_ver.var.salida.orcid, 'resuelve', 0);
+        var lic_resuelve = class_utils.filter_prop(class_ver.var.salida.val_lic, 'resuelve', 0);
+        var enl_resuelve = class_utils.filter_prop(class_ver.var.salida.val_enl, 'resuelve', 0);
+        
+        var fallos = doi_resuelve.length + orcid_resuelve.length + lic_resuelve.length + enl_resuelve.length;
+        
+        //var puntos = total_califica - fallos;
+        var puntos = class_ver.var.total.suficiencia - fallos;
+        
+        class_ver.var.total.precision = puntos;
+        
+        var sp = parseFloat(((puntos * 100) / total_califica).toFixed(2));
+        
+        var completos = [ 
+                                (sp >= 80)?sp:0,
+                            ];
+        var mas60 = [ 
+                                (sp > 60 && sp < 80)?sp:0,
+                            ];
+        var menos60 = [ 
+                                (sp < 60)?sp:0,
+                            ];
+        var prom = [sp];
+        var prom2 = [100-sp];
+        
+        grafica.series = [
+                                {'name': sp+' %', 'data': prom }, 
+                                {'name': '', 'data': prom2}
+                                ];
+                                
+        var color = (sp >= 80)?'green':(sp >= 60)?'lightgreen':'yellow';
+        grafica.colors = [color, 'white'];
+        grafica.yAxis.tickInterval = 0;
+        
+        var num = 'Precisión promedio';
+        $('#prec_promedio').html(num);
+        Highcharts.chart('container_prec', grafica);
+        $("#area_prec").flip();
     },
     verifica_valor: function(id, valor, compara=''){
         if(compara !== '')
@@ -1453,13 +1544,13 @@ class_ver = {
     },
     valida_dois: function(dois, res, total, num = 0){
         if(dois.length == 0){
-            $('#orcid').html("No hay DOI's para validar");
+            $('#dois').html("No hay DOI's para validar");
             var res_orcid = [];
             class_ver.valida_orcid(class_ver.var.salida.consis_or, res_orcid);
         }
         
-        var rango_fijo = 3;
-        var rango = 3;
+        var rango_fijo = 1;
+        var rango = 1;
         
         if(num == 0)
             total = dois.length;
@@ -1570,10 +1661,11 @@ class_ver = {
             class_ver.var.salida.orcid = [];
             var res_lic = [];
             class_ver.valida_lic(class_ver.var.salida.lic, res_lic);
+            //class_ver.valida_enlace(class_ver.var.salida.arr_ent, res_lic);
         }
         
-        var rango_fijo = 3;
-        var rango = 3;
+        var rango_fijo = 1;
+        var rango = 1;
         if(num == 0)
             total = orcid.length;
         var mensaje = "Verificando <num> de " + total + " ORCID";
@@ -1621,6 +1713,7 @@ class_ver = {
                         setTimeout(function(){
                             var res_lic = [];
                             class_ver.valida_lic(class_ver.var.salida.lic, res_lic);
+                            //class_ver.valida_enlace(class_ver.var.salida.arr_ent, res_lic);
                         }, 1000);
                         return res;
                     }
@@ -1633,16 +1726,12 @@ class_ver = {
         if(licencias.length == 0){
             $('#lic').html("No hay Licencias para validar");
             class_ver.var.salida.val_lic = [];
-            setTimeout(function(){
-                class_ver.graficaDois();
-                setTimeout(function(){
-                    class_ver.resultado();
-                },1000);
-            }, 1000);
+            var res_enl = [];
+            class_ver.valida_enlace(class_ver.var.salida.arr_ent, res_enl);
         }
         
-        var rango_fijo = 3;
-        var rango = 3;
+        var rango_fijo = 1;
+        var rango = 1;
         if(num == 0)
             total = licencias.length;
         var mensaje = "Verificando <num> de " + total + " Licencias";
@@ -1676,6 +1765,75 @@ class_ver = {
                         class_ver.valida_lic(licencias.slice(rango), res, total, num);
                     }else{
                         class_ver.var.salida.val_lic = res;
+                        //class_ver.graficaOrcid();
+                        setTimeout(function(){
+                            var res_enl = [];
+                            //class_ver.valida_lic(class_ver.var.salida.lic, res_enl);
+                            class_ver.valida_enlace(class_ver.var.salida.arr_ent, res_enl);
+                        }, 1000);
+                        return res;
+                    }
+                }
+
+            });
+        });
+    },
+    valida_enlace: function(enlaces, res, total, num = 0){
+        if(enlaces.length == 0){
+            $('#enlace').html("No hay enlaces para validar");
+            class_ver.var.salida.val_enl = [];
+            setTimeout(function(){
+                class_ver.graficaDois();
+                setTimeout(function(){
+                    class_ver.resultado();
+                },1000);
+            }, 1000);
+        }
+        
+        var rango_fijo = 1;
+        var rango = 1;
+        if(num == 0)
+            total = enlaces.length;
+        var mensaje = "Verificando <num> de " + total + " Enlaces";
+        
+        if(enlaces.length < rango){
+            rango = enlaces.length;
+        }
+        var recibidos = 0;
+        var url = $('#url_oai').val();
+        
+        $.each(enlaces.slice(0,rango), function(i,val){
+            
+            if('submission_id' in val){
+                url = url.replace('oai', 'article/view/') + val.submission_id + '/' + val.galley_id;
+            }else if('publication_id' in val){
+                var submission_id = class_utils.find_prop(class_ver.var.salida.p, 'publication_id', val.publication_id).submission_id;
+                url = url.replace('oai', 'article/view/') + submission_id + '/' + val.galley_id;
+            }else if('article_id' in val){
+                url = url.replace('oai', 'article/view/') + val.article_id + '/' + val.galley_id;
+            }
+            $.when(
+                class_utils.getResource('/metametrics/get_contents_validate?url='+url)
+            )
+            .then(function(resp){
+                num = num + 1;
+                recibidos = recibidos + 1;
+                $('#enlace').html(mensaje.replace('<num>', num));
+                
+                if(resp.resp == 'Fail'){
+                    val.resuelve = 0;
+                    val.nombre = 'sin';
+                }else{
+                    val.resuelve = 1;
+                    val.nombre = resp.resp;
+                }
+
+                res.push(val);
+                if(recibidos == rango){
+                    if(rango == rango_fijo && enlaces.length !== rango){
+                        class_ver.valida_enlace(enlaces.slice(rango), res, total, num);
+                    }else{
+                        class_ver.var.salida.val_enl = res;
                         //class_ver.graficaOrcid();
                         setTimeout(function(){
                             class_ver.graficaDois();

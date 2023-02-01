@@ -147,22 +147,26 @@
 
 <div class="row"><br></div>
 
-<div class="row">
-    <div class="col-xs-12" id="rev_dois">
-        <b><span id='consis_dois'></span></b>
-        <br><br>
-        <div id='container4' class="center">
-            <p><b><span id='dois'></span></b></p>
-            <br>
-            <p><b><span id='orcid'></span></b></p>
+<div id="area_prec">
+    <div class="row front">
+        <div class="col-xs-12" id="rev_dois">
+            <b><span id='consis_dois'></span></b>
+            <br><br>
+            <div id='container4' class="center">
+                <p><b><span id='dois'></span></b></p>
+                <br>
+                <p><b><span id='orcid'></span></b></p>
+            </div>
         </div>
     </div>
-    <!--div class="col-xs-6 back">
-        <b><span id='consis_dois'></span></b>
-        <br><br>
-        <div id='container4'>
+    <div class="row back">
+        <div class="col-xs-12">
+            <b><span id='prec_promedio'></span></b>
+            <br><br>
+            <div id='container_prec'>
+            </div>
         </div>
-    </div-->
+    </div>
 </div>
     
 <div class="row"><br></div>
