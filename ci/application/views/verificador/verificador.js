@@ -1580,7 +1580,7 @@ class_ver = {
                     res.push(val);
                     if(recibidos == rango){
                         if(rango == rango_fijo && dois.length !== rango){
-                            class_ver.valida_dois(dois.slice(rango), res, total, num);
+                            setTimeout(function(){class_ver.valida_dois(dois.slice(rango), res, total, num);},500);
                         }else{
                             class_ver.var.salida.pd = res;
                             //class_ver.graficaDois();
@@ -1705,7 +1705,7 @@ class_ver = {
                 res.push(val);
                 if(recibidos == rango){
                     if(rango == rango_fijo && orcid.length !== rango){
-                        class_ver.valida_orcid(orcid.slice(rango), res, total, num);
+                        setTimeout(function(){class_ver.valida_orcid(orcid.slice(rango), res, total, num);},500);
                     }else{
                         class_ver.var.salida.orcid = res;
                         //class_ver.graficaOrcid();
@@ -1762,7 +1762,7 @@ class_ver = {
                 res.push(val);
                 if(recibidos == rango){
                     if(rango == rango_fijo && licencias.length !== rango){
-                        class_ver.valida_lic(licencias.slice(rango), res, total, num);
+                        setTimeout(function(){class_ver.valida_lic(licencias.slice(rango), res, total, num);},500);
                     }else{
                         class_ver.var.salida.val_lic = res;
                         //class_ver.graficaOrcid();
@@ -1831,7 +1831,7 @@ class_ver = {
                 res.push(val);
                 if(recibidos == rango){
                     if(rango == rango_fijo && enlaces.length !== rango){
-                        class_ver.valida_enlace(enlaces.slice(rango), res, total, num);
+                        setTimeout(function(){class_ver.valida_enlace(enlaces.slice(rango), res, total, num);},500);
                     }else{
                         class_ver.var.salida.val_enl = res;
                         //class_ver.graficaOrcid();
