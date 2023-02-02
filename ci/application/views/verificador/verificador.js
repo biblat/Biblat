@@ -56,9 +56,10 @@ class_ver = {
                             '<th>Título</th>' +
                             '<th>No cumplen suficiencia</th>' +
                             '<th>No cumplen consistencia</th>' +
+                            '<th>No cumplen precisión</th>' +
                             '</tr></thead>' +
                             '<tbody id="<id_body>"><body></tbody></table>',
-        tr_faltantes: '<tr><td><anio></td><td><vol></td><td><num></td><td><pag></td><td><tit></td><td><falta></td><td><consis></td></tr>',
+        tr_faltantes: '<tr><td><anio></td><td><vol></td><td><num></td><td><pag></td><td><a href="<enlace>" target="_blank"><tit></a></td><td><falta></td><td><consis></td><td><precis></td></tr>',
     },
     var:{
         data: [],
@@ -1300,7 +1301,7 @@ class_ver = {
     },
     graficaProm:function(){
         var grafica = JSON.parse(JSON.stringify(class_utils.chartRadialBar));
-        grafica.xAxis.categories = ['Suficiencia promedio']
+        grafica.xAxis.categories = ['Valoración']
         
         var total = class_ver.var.salida.p.length;
         var campos_califica = 13;
@@ -1342,7 +1343,7 @@ class_ver = {
         grafica.colors = ['green', 'lightgreen', 'yellow'];
         grafica.colors = [color, 'white'];
         grafica.yAxis.tickInterval = 0;
-        var num = 'Suficiencia promedio';
+        var num = 'Valoración considerando Suficiencia';
         $('#promedio').html(num);
         Highcharts.chart('containerp', grafica);
     },
@@ -1434,7 +1435,7 @@ class_ver = {
     },
     graficaPromConsis:function(){
         var grafica = JSON.parse(JSON.stringify(class_utils.chartRadialBar));
-        grafica.xAxis.categories = ['Consistencia promedio']
+        grafica.xAxis.categories = ['Valoración']
         
         //var total = class_ver.var.total.suficiencia;
         var total = class_ver.var.salida.p.length;
@@ -1474,14 +1475,14 @@ class_ver = {
         grafica.colors = [color, 'white'];
         grafica.yAxis.tickInterval = 0;
         
-        var num = 'Consistencia promedio';
+        var num = 'Valoración considerando Suficiencia y Consistencia';
         $('#consis_promedio').html(num);
         Highcharts.chart('containerp2', grafica);
         $("#area_cons").flip();
     },
     graficaPromPrec:function(){
         var grafica = JSON.parse(JSON.stringify(class_utils.chartRadialBar));
-        grafica.xAxis.categories = ['Precisión promedio']
+        grafica.xAxis.categories = ['Valoración Final']
         
         //var total = class_ver.var.total.suficiencia;
         var total = class_ver.var.salida.p.length;
@@ -1498,7 +1499,7 @@ class_ver = {
         var fallos = doi_resuelve.length + orcid_resuelve.length + lic_resuelve.length + enl_resuelve.length;
         
         //var puntos = total_califica - fallos;
-        var puntos = class_ver.var.total.suficiencia - fallos;
+        var puntos = class_ver.var.total.consistencia - fallos;
         
         class_ver.var.total.precision = puntos;
         
@@ -1525,7 +1526,7 @@ class_ver = {
         grafica.colors = [color, 'white'];
         grafica.yAxis.tickInterval = 0;
         
-        var num = 'Precisión promedio';
+        var num = 'Valoración considerando Suficiencia, Consistencia y Precisión';
         $('#prec_promedio').html(num);
         Highcharts.chart('container_prec', grafica);
         $("#area_prec").flip();
@@ -1549,8 +1550,8 @@ class_ver = {
             class_ver.valida_orcid(class_ver.var.salida.consis_or, res_orcid);
         }
         
-        var rango_fijo = 1;
-        var rango = 1;
+        var rango_fijo = 3;
+        var rango = 3;
         
         if(num == 0)
             total = dois.length;
@@ -1580,7 +1581,7 @@ class_ver = {
                     res.push(val);
                     if(recibidos == rango){
                         if(rango == rango_fijo && dois.length !== rango){
-                            setTimeout(function(){class_ver.valida_dois(dois.slice(rango), res, total, num);},500);
+                            setTimeout(function(){class_ver.valida_dois(dois.slice(rango), res, total, num);},100);
                         }else{
                             class_ver.var.salida.pd = res;
                             //class_ver.graficaDois();
@@ -1705,7 +1706,7 @@ class_ver = {
                 res.push(val);
                 if(recibidos == rango){
                     if(rango == rango_fijo && orcid.length !== rango){
-                        setTimeout(function(){class_ver.valida_orcid(orcid.slice(rango), res, total, num);},500);
+                        setTimeout(function(){class_ver.valida_orcid(orcid.slice(rango), res, total, num);},100);
                     }else{
                         class_ver.var.salida.orcid = res;
                         //class_ver.graficaOrcid();
@@ -1732,8 +1733,11 @@ class_ver = {
         
         var rango_fijo = 1;
         var rango = 1;
-        if(num == 0)
+        if(num == 0){
+            res = JSON.parse(JSON.stringify(licencias));
+            licencias = class_utils.unique(licencias,'setting_value');
             total = licencias.length;
+        }
         var mensaje = "Verificando <num> de " + total + " Licencias";
         
         if(licencias.length < rango){
@@ -1744,7 +1748,7 @@ class_ver = {
         $.each(licencias.slice(0,rango), function(i,val){
             $.when(
                 //class_utils.getResource('http://biblat.local/verificador/get_doi_validate?doi='+val.setting_value)
-                class_utils.getResource('/metametrics/get_contents_validate?url='+val.setting_value)
+                class_utils.getResource('/metametrics/get_contents_validate?url='+val)
             )
             .then(function(resp){
                 num = num + 1;
@@ -1752,17 +1756,25 @@ class_ver = {
                 $('#lic').html(mensaje.replace('<num>', num));
                 
                 if(resp.resp == 'Fail'){
-                    val.resuelve = 0;
-                    val.nombre = 'sin';
+                    //val.resuelve = 0;
+                    //val.nombre = 'sin';
+                    $.each(class_utils.filter_prop(res, 'setting_value', val), function(i, val_url){
+                        val_url.resuelve = 0;
+                        val_url.nombre = 'sin';
+                    });
                 }else{
-                    val.resuelve = 1;
-                    val.nombre = resp.resp;
+                    //val.resuelve = 1;
+                    //val.nombre = resp.resp;
+                    $.each(class_utils.filter_prop(res, 'setting_value', val), function(i, val_url){
+                        val_url.resuelve = 1;
+                        val_url.nombre = resp.resp;
+                    });
                 }
 
-                res.push(val);
+                //res.push(val);
                 if(recibidos == rango){
                     if(rango == rango_fijo && licencias.length !== rango){
-                        setTimeout(function(){class_ver.valida_lic(licencias.slice(rango), res, total, num);},500);
+                        setTimeout(function(){class_ver.valida_lic(licencias.slice(rango), res, total, num);},100);
                     }else{
                         class_ver.var.salida.val_lic = res;
                         //class_ver.graficaOrcid();
@@ -1831,7 +1843,7 @@ class_ver = {
                 res.push(val);
                 if(recibidos == rango){
                     if(rango == rango_fijo && enlaces.length !== rango){
-                        setTimeout(function(){class_ver.valida_enlace(enlaces.slice(rango), res, total, num);},500);
+                        setTimeout(function(){class_ver.valida_enlace(enlaces.slice(rango), res, total, num);},100);
                     }else{
                         class_ver.var.salida.val_enl = res;
                         //class_ver.graficaOrcid();
@@ -2050,8 +2062,9 @@ class_ver = {
         });
     },
     resultado: function(){
+                var url = $('#url_oai').val();
                 dicc_tablas = ['Autor', 'Email', 'ORCID', 'Afiliación', 'Título', 'Título traducido', 'Resumen', 'Resumen traducido', 'Palabras clave', 'Palabras clave traducidas',
-                                'Enlace', 'Referecias', 'Licencia', 'DOI'];
+                                'Enlace', 'Referencias', 'Licencia', 'DOI'];
         //Armado de faltantes
                 arr_faltantes = [   doi_faltantes, titulos_i1_faltantes, titulos_i2_faltantes, resumenes_i1_faltantes, resumenes_i2_faltantes,
                                         palabras_clave_i1_faltantes, palabras_clave_i2_faltantes, enlaces_faltantes, autores_faltantes,
@@ -2067,7 +2080,7 @@ class_ver = {
                 //ordena primero el que tenga mayor número de registros para hacer un sólo recorrido
                 arr_faltantes.sort(function(a, b){return b.length-a.length});
                 
-                tablas_faltantes = [[],[]];
+                tablas_faltantes = [[],[],[]];
                 ids_faltantes = [];
                 
                 
@@ -2089,7 +2102,30 @@ class_ver = {
                 tablas_consis = [];
                 ids_consis = [];
                 
+                //Impresiciones
+                arr_precis = [
+                    class_utils.filter_prop(class_ver.var.salida.pd, 'resuelve', 0),
+                    [], [], [], [], [], [], 
+                    class_utils.filter_prop(class_ver.var.salida.val_enl, 'resuelve', 0),
+                    [],
+                    class_utils.filter_prop(class_ver.var.salida.orcid, 'resuelve', 0),
+                    [], [],                    
+                    class_utils.filter_prop(class_ver.var.salida.val_lic, 'resuelve', 0)
+                ];
                 
+                orden_precis = [     
+                    [], [], 
+                    class_utils.filter_prop(class_ver.var.salida.orcid, 'resuelve', 0),
+                    [], [], [], 
+                    [], [], [], [], 
+                    class_utils.filter_prop(class_ver.var.salida.val_enl, 'resuelve', 0),
+                    [],
+                    class_utils.filter_prop(class_ver.var.salida.val_lic, 'resuelve', 0),
+                    class_utils.filter_prop(class_ver.var.salida.pd, 'resuelve', 0) ];
+                                    
+                arr_precis.sort(function(a, b){return b.length-a.length});
+                ids_precis = [];
+                                                   
                 //Recorre con base en el primer elemento que es el de mayor número de elementos
                 $.each(arr_faltantes[0], function(i, val){
                     $.each(orden_faltantes, function(i2, val2){
@@ -2103,7 +2139,17 @@ class_ver = {
                                 obj.volume = val2[i].volume;
                                 obj.number = val2[i].number;
                                 obj.pages = val2[i].pages;
-                                obj.title = val2[i].title;
+                                obj.title = ( ['', undefined, null].indexOf(val2[i].title) !== -1 )?'<< No se encontró título >>':val2[i].title;
+                                
+                                if('submission_id' in val2[i]){
+                                    obj.link = url.replace('oai', 'article/view/') + val2[i].submission_id;
+                                }else if('publication_id' in val2[i]){
+                                    var submission_id = class_utils.find_prop(class_ver.var.salida.p, 'publication_id', val2[i].publication_id).submission_id;
+                                    obj.link = url.replace('oai', 'article/view/') + submission_id;
+                                }else if('article_id' in val2[i]){
+                                    obj.link = url.replace('oai', 'article/view/') + val2[i].article_id;
+                                }
+                                
                                 ids_faltantes.push(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
                                 tablas_faltantes[0].push(obj);
                                 tablas_faltantes[1].push(JSON.parse(JSON.stringify(obj)));
@@ -2124,14 +2170,29 @@ class_ver = {
                         if (val2[i] !== undefined){
                             //var id = val2[i].year + '-' + val2[i].volume + '-' + val2[i].number + '-' + val2[i].pages + '-' + val2[i].title;
                             var posicion = ids_faltantes.indexOf(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                            var posicion_consis = ids_consis.indexOf(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                            
+                            if( posicion_consis == -1 ){
+                                ids_faltantes.push(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                            }
                             //alert(posicion);
-                            if( posicion == -1 ){
+                            if( posicion_consis == -1 ){
                                 obj.year = val2[i].year;
                                 obj.volume = val2[i].volume;
                                 obj.number = val2[i].number;
                                 obj.pages = val2[i].pages;
-                                obj.title = val2[i].title;
-                                ids_faltantes.push(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                                obj.title = ( ['', undefined, null].indexOf(val2[i].title) !== -1 )?'<< No se encontró título >>':val2[i].title;
+                                
+                                if('submission_id' in val2[i]){
+                                    obj.link = url.replace('oai', 'article/view/') + val2[i].submission_id;
+                                }else if('publication_id' in val2[i]){
+                                    var submission_id = class_utils.find_prop(class_ver.var.salida.p, 'publication_id', val2[i].publication_id).submission_id;
+                                    obj.link = url.replace('oai', 'article/view/') + submission_id;
+                                }else if('article_id' in val2[i]){
+                                    obj.link = url.replace('oai', 'article/view/') + val2[i].article_id;
+                                }
+                                
+                                ids_consis.push(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
                                 tablas_faltantes[1].push(obj);
                                 //alert(ids_faltantes[0]);
                                 //alert(id);
@@ -2144,12 +2205,61 @@ class_ver = {
                     });
                 });
                 
+                
+                $.each(arr_precis[0], function(i, val){
+                    $.each(orden_precis, function(i2, val2){
+                        var obj = {};
+                        if (val2[i] !== undefined){
+                            //var id = val2[i].year + '-' + val2[i].volume + '-' + val2[i].number + '-' + val2[i].pages + '-' + val2[i].title;
+                            var posicion = ids_faltantes.indexOf(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                            var posicion_prec = ids_precis.indexOf(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                            //alert(posicion);
+                            if( posicion == -1 ){
+                                ids_faltantes.push(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                            }
+                            if( posicion_prec == -1 ){
+                                obj.year = val2[i].year;
+                                obj.volume = val2[i].volume;
+                                obj.number = val2[i].number;
+                                obj.pages = val2[i].pages;
+                                obj.title = ( ['', undefined, null].indexOf(val2[i].title) !== -1 )?'<< No se encontró título >>':val2[i].title;
+                                
+                                if('submission_id' in val2[i]){
+                                    obj.link = url.replace('oai', 'article/view/') + val2[i].submission_id;
+                                }else if('publication_id' in val2[i]){
+                                    var submission_id = class_utils.find_prop(class_ver.var.salida.p, 'publication_id', val2[i].publication_id).submission_id;
+                                    obj.link = url.replace('oai', 'article/view/') + submission_id;
+                                }else if('article_id' in val2[i]){
+                                    obj.link = url.replace('oai', 'article/view/') + val2[i].article_id;
+                                }
+                                
+                                ids_precis.push(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                                if('orcid' in val2[i]){
+                                    obj.orcid = val2[i].orcid;
+                                }else if('url' in val2[i]){
+                                    obj.orcid = val2[i].url;
+                                }else{
+                                    obj.orcid = val2[i].setting_value;
+                                }
+                                
+                                posicion = ids_faltantes.indexOf(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                                
+                                tablas_faltantes[2][posicion] = obj;
+                                //alert(posicion);
+                            }
+                            tablas_faltantes[2][posicion][orden_tablas_consis[i2]] = dicc_tablas[i2];
+                        }
+                    });
+                });
+                
                 //Tabla autor
                 tabla = class_ver.cons.tabla_faltantes.replace('<id>', 'tbl_autores').replace('<id_body>', 'body_autores');
                 var body = ''
                 $.each(ids_faltantes, function(i,val){
                     var falta = '';
                     var falta_consis = '';
+                    var falta_precis = '';
+                    
                     $.each(orden_tablas, function(i2, val2){
                         if( tablas_faltantes[0][i] !== undefined ){
                             if(val2 in tablas_faltantes[0][i]){
@@ -2170,8 +2280,19 @@ class_ver = {
                        }
                     });
                     
-                    if( falta != '' || falta_consis != ''){
-                        body += class_ver.cons.tr_faltantes.replace('<anio>', tablas_faltantes[1][i].year).replace('<vol>', tablas_faltantes[1][i].volume).replace('<num>', tablas_faltantes[1][i].number).replace('<pag>', tablas_faltantes[1][i].pages).replace('<tit>', tablas_faltantes[1][i].title).replace('<falta>', falta).replace('<consis>', falta_consis);
+                    $.each(orden_tablas_consis, function(i2, val2){
+                        if (tablas_faltantes[2][i] !== undefined){
+                            if(val2 in tablas_faltantes[2][i]){
+                                if( falta_precis != ''){
+                                    falta_precis += ', ';
+                                }
+                                falta_precis += tablas_faltantes[2][i][val2];
+                            }
+                        }
+                    });
+                    
+                    if( falta != '' || falta_consis != '' || falta_precis != ''){
+                        body += class_ver.cons.tr_faltantes.replace('<anio>', tablas_faltantes[1][i].year).replace('<vol>', tablas_faltantes[1][i].volume).replace('<num>', tablas_faltantes[1][i].number).replace('<pag>', tablas_faltantes[1][i].pages).replace('<tit>', tablas_faltantes[1][i].title).replace('<falta>', falta).replace('<consis>', falta_consis).replace('<precis>', falta_precis).replace('<enlace>', tablas_faltantes[1][i].link);
                     }
                 });
                 tabla = tabla.replace('<body>', body);
