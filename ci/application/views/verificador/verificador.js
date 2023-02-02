@@ -2291,12 +2291,16 @@ class_ver = {
                     });
                     
                     $.each(orden_tablas_consis, function(i2, val2){
-                       if(val2 in tablas_faltantes[1][i]){
-                           if( falta_consis != ''){
-                               falta_consis += ', ';
-                           }
-                           falta_consis += tablas_faltantes[1][i][val2];
-                       }
+                        if (tablas_faltantes[1][i] !== undefined){
+                            if(tablas_faltantes[1][i][val2] !== undefined){
+                                if(val2 in tablas_faltantes[1][i]){
+                                    if( falta_consis != ''){
+                                        falta_consis += ', ';
+                                    }
+                                    falta_consis += tablas_faltantes[1][i][val2];
+                                }
+                            }
+                        }
                     });
                     
                     $.each(orden_tablas_consis, function(i2, val2){
