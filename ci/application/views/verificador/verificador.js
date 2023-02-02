@@ -1720,6 +1720,8 @@ class_ver = {
                     }
                 }
 
+            }).fail(function(){
+                setTimeout(function(){class_ver.valida_orcid(orcid.slice(rango), res, total, num);},100);
             });
         });
     },
@@ -1787,6 +1789,9 @@ class_ver = {
                     }
                 }
 
+            })
+            .fail(function(){
+                setTimeout(function(){class_ver.valida_lic(licencias.slice(rango), res, total, num);},100);
             });
         });
     },
@@ -1857,6 +1862,9 @@ class_ver = {
                     }
                 }
 
+            })
+            .then(function(){
+                setTimeout(function(){class_ver.valida_enlace(enlaces.slice(rango), res, total, num);},100);
             });
         });
     },
