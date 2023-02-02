@@ -1657,7 +1657,7 @@ class_ver = {
             });
         });
     },
-    valida_orcid: function(orcid, res, total, num = 0){
+    valida_orcid: function(orcid, res, total, num = 0, repite = false){
         if(orcid.length == 0){
             $('#orcid').html("No hay ORCID para validar");
             class_ver.var.salida.orcid = [];
@@ -1692,17 +1692,21 @@ class_ver = {
                 class_utils.getResource('/metametrics/get_name_by_orcid?orcid='+reg_orcid.split('org/')[1])
             )
             .then(function(resp){
-                num = num + 1;
-                recibidos = recibidos + 1;
-                $('#orcid').html(mensaje.replace('<num>', num));
-                
                 if(resp.resp == 'Fail'){
+                    if(!repite){
+                        setTimeout(function(){class_ver.valida_orcid(orcid, res, total, num, true);},100);
+                        return 0;
+                    }
                     val.resuelve = 0;
                     val.nombre = 'sin';
                 }else{
                     val.resuelve = 1;
                     val.nombre = resp.resp;
                 }
+                
+                num = num + 1;
+                recibidos = recibidos + 1;
+                $('#orcid').html(mensaje.replace('<num>', num));
 
                 res.push(val);
                 if(recibidos == rango){
@@ -1726,7 +1730,7 @@ class_ver = {
             });
         });
     },
-    valida_lic: function(licencias, res, total, num = 0){
+    valida_lic: function(licencias, res, total, num = 0, repite = false){
         if(licencias.length == 0){
             $('#lic').html("No hay Licencias para validar");
             class_ver.var.salida.val_lic = [];
@@ -1754,13 +1758,11 @@ class_ver = {
                 class_utils.getResource('/metametrics/get_contents_validate?url='+val)
             )
             .then(function(resp){
-                num = num + 1;
-                recibidos = recibidos + 1;
-                $('#lic').html(mensaje.replace('<num>', num));
-                
                 if(resp.resp == 'Fail'){
-                    //val.resuelve = 0;
-                    //val.nombre = 'sin';
+                    if(!repite){
+                        setTimeout(function(){class_ver.valida_lic(licencias, res, total, num, true);},100);
+                        return 0;
+                    }
                     $.each(class_utils.filter_prop(res, 'setting_value', val), function(i, val_url){
                         val_url.resuelve = 0;
                         val_url.nombre = 'sin';
@@ -1773,6 +1775,9 @@ class_ver = {
                         val_url.nombre = resp.resp;
                     });
                 }
+                num = num + 1;
+                recibidos = recibidos + 1;
+                $('#lic').html(mensaje.replace('<num>', num));
 
                 //res.push(val);
                 if(recibidos == rango){
@@ -1796,7 +1801,7 @@ class_ver = {
             });
         });
     },
-    valida_enlace: function(enlaces, res, total, num = 0){
+    valida_enlace: function(enlaces, res, total, num = 0, repite = false){
         if(enlaces.length == 0){
             $('#enlace').html("No hay enlaces para validar");
             class_ver.var.salida.val_enl = [];
@@ -1834,17 +1839,22 @@ class_ver = {
                 class_utils.getResource('/metametrics/get_contents_validate?url='+url)
             )
             .then(function(resp){
-                num = num + 1;
-                recibidos = recibidos + 1;
-                $('#enlace').html(mensaje.replace('<num>', num));
-                
                 if(resp.resp == 'Fail'){
+                    if(!repite){
+                        setTimeout(function(){class_ver.valida_enlace(enlaces, res, total, num, true);}, 100);
+                        return 0;
+                    }
+                    
                     val.resuelve = 0;
                     val.nombre = 'sin';
                 }else{
                     val.resuelve = 1;
                     val.nombre = resp.resp;
                 }
+                
+                num = num + 1;
+                recibidos = recibidos + 1;
+                $('#enlace').html(mensaje.replace('<num>', num));
 
                 res.push(val);
                 if(recibidos == rango){
@@ -2291,11 +2301,13 @@ class_ver = {
                     
                     $.each(orden_tablas_consis, function(i2, val2){
                         if (tablas_faltantes[2][i] !== undefined){
-                            if(val2 in tablas_faltantes[2][i]){
-                                if( falta_precis != ''){
-                                    falta_precis += ', ';
+                            if(tablas_faltantes[2][i][val2] !== undefined){
+                                if(val2 in tablas_faltantes[2][i]){
+                                    if( falta_precis != ''){
+                                        falta_precis += ', ';
+                                    }
+                                    falta_precis += tablas_faltantes[2][i][val2];
                                 }
-                                falta_precis += tablas_faltantes[2][i][val2];
                             }
                         }
                     });
