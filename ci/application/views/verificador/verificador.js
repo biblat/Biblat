@@ -105,6 +105,7 @@ class_ver = {
             $('#consis_documentos').html('');
             $('#consis_promedio').html('');
             $('#containerp2').html('');
+            $('#div_resultado').html('');
             
             $('#informacion').hide();
             /*var url = $('#url_oai').val();
@@ -1721,7 +1722,7 @@ class_ver = {
                 }
 
             }).fail(function(){
-                setTimeout(function(){class_ver.valida_orcid(orcid.slice(rango), res, total, num);},100);
+                setTimeout(function(){class_ver.valida_orcid(orcid, res, total, num);},100);
             });
         });
     },
@@ -1791,7 +1792,7 @@ class_ver = {
 
             })
             .fail(function(){
-                setTimeout(function(){class_ver.valida_lic(licencias.slice(rango), res, total, num);},100);
+                setTimeout(function(){class_ver.valida_lic(licencias, res, total, num);},100);
             });
         });
     },
@@ -1863,8 +1864,8 @@ class_ver = {
                 }
 
             })
-            .then(function(){
-                setTimeout(function(){class_ver.valida_enlace(enlaces.slice(rango), res, total, num);},100);
+            .fail(function(){
+                setTimeout(function(){class_ver.valida_enlace(enlaces, res, total, num);},100);
             });
         });
     },
