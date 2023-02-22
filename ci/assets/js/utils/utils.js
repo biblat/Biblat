@@ -804,7 +804,8 @@ class_utils= {
             name: 'Silver medals',
             data: [113, 122, 98, 88, 72]
             }*/
-        ]
+        ],
+		credits: {href: "https://biblat.unam.mx/es", text: "Fuente: biblat.unam.mx"}																			
     },
     filter_prop: function(obj,prop,val){
         return obj.filter(function(obj2){

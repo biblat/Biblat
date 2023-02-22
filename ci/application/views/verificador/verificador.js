@@ -1352,11 +1352,11 @@ class_ver = {
                             ];
                             
         var sindato = [ 
-                                parseFloat((100 - nombre).toFixed(2)),
+                                100 - parseFloat((nombre).toFixed(2)),
                                 //(apellido > 50 && apellido < 100)?apellido:0,
-                                parseFloat((100 - email).toFixed(2)),
-                                parseFloat((100 - orcid).toFixed(2)),
-                                parseFloat((100 - instituciones).toFixed(2))
+                                100 - parseFloat((email).toFixed(2)),
+                                100 - parseFloat((orcid).toFixed(2)),
+                                100 - parseFloat((instituciones).toFixed(2))
                             ];
                               
         grafica.series = [
@@ -1430,20 +1430,20 @@ class_ver = {
                                 parseFloat(doi.toFixed(2))
                             ];
         var sindato = [ 
-                                parseFloat((100 - tituloip).toFixed(2)),
-                                parseFloat((100 - titulo2i).toFixed(2)),
+                                100 - parseFloat((tituloip).toFixed(2)),
+                                100 - parseFloat((titulo2i).toFixed(2)),
                                 //(titulom > 50 && titulom < 100)?titulom:0,
-                                parseFloat((100 - resumenip).toFixed(2)),
-                                parseFloat((100 - resumen2i).toFixed(2)),
+                                100 - parseFloat((resumenip).toFixed(2)),
+                                100 - parseFloat((resumen2i).toFixed(2)),
                                 //(resumenm > 50 && resumenm < 100)?resumenm:0,
-                                parseFloat((100 - palabra_claveip).toFixed(2)),
-                                parseFloat((100 - palabra_clave2i).toFixed(2)),
+                                100 - parseFloat((palabra_claveip).toFixed(2)),
+                                100 - parseFloat((palabra_clave2i).toFixed(2)),
                                 //(palabra_clave > 50 && palabra_clave < 100)?palabra_clave:0,
                                 //(palabra_clave_cinco > 50 && palabra_clave_cinco < 100)?palabra_clave_cinco:0,
-                                parseFloat((100 - enlaces).toFixed(2)),
-                                parseFloat((100 - citas).toFixed(2)),
-                                parseFloat((100 - licencia).toFixed(2)),
-                                parseFloat((100 - doi).toFixed(2))
+                                100 - parseFloat((enlaces).toFixed(2)),
+                                100 - parseFloat((citas).toFixed(2)),
+                                100 - parseFloat((licencia).toFixed(2)),
+                                100 - parseFloat((doi).toFixed(2))
                             ];
                               
         grafica.series = [
@@ -1480,11 +1480,11 @@ class_ver = {
                             ];
         
         var sindato = [ 
-                parseFloat((100 - doi_registrado).toFixed(2)),
-                parseFloat((100 - doi_resuelve).toFixed(2)),
-                parseFloat((100 - orcid_resuelve).toFixed(2)),
-                parseFloat((100 - lic_resuelve).toFixed(2)),
-                parseFloat((100 - enl_resuelve).toFixed(2))
+                100 - parseFloat((doi_registrado).toFixed(2)),
+                100 - parseFloat((doi_resuelve).toFixed(2)),
+                100 - parseFloat((orcid_resuelve).toFixed(2)),
+                100 - parseFloat((lic_resuelve).toFixed(2)),
+                100 - parseFloat((enl_resuelve).toFixed(2))
             ]
                               
         grafica.series = [
@@ -1600,9 +1600,9 @@ class_ver = {
                             ];
                             
         var sindato = [ 
-                                parseFloat((100 - nombre).toFixed(2)),
-                                parseFloat((100 - orcid).toFixed(2)),
-                                parseFloat((100 - instituciones).toFixed(2))
+                                100 - parseFloat((nombre).toFixed(2)),
+                                100 - parseFloat((orcid).toFixed(2)),
+                                100 - parseFloat((instituciones).toFixed(2))
                             ];
                               
         grafica.series = [
@@ -1647,16 +1647,16 @@ class_ver = {
                                 parseFloat(doi.toFixed(2))
                             ];
         var sindato = [ 
-                                parseFloat((100 - tituloip).toFixed(2)),
-                                parseFloat((100 - titulo2i).toFixed(2)),
-                                parseFloat((100 - resumenip).toFixed(2)),
-                                parseFloat((100 - resumen2i).toFixed(2)),
-                                parseFloat((100 - palabra_claveip).toFixed(2)),
-                                parseFloat((100 - palabra_clave2i).toFixed(2)),
-                                parseFloat((100 - enlaces).toFixed(2)),
-                                parseFloat((100 - citas).toFixed(2)),
-                                parseFloat((100 - licencia).toFixed(2)),
-                                parseFloat((100 - doi).toFixed(2))
+                                100 - parseFloat((tituloip).toFixed(2)),
+                                100 - parseFloat((titulo2i).toFixed(2)),
+                                100 - parseFloat((resumenip).toFixed(2)),
+                                100 - parseFloat((resumen2i).toFixed(2)),
+                                100 - parseFloat((palabra_claveip).toFixed(2)),
+                                100 - parseFloat((palabra_clave2i).toFixed(2)),
+                                100 - parseFloat((enlaces).toFixed(2)),
+                                100 - parseFloat((citas).toFixed(2)),
+                                100 - parseFloat((licencia).toFixed(2)),
+                                100 - parseFloat((doi).toFixed(2))
                             ];
                               
         grafica.series = [
@@ -2534,8 +2534,8 @@ class_ver = {
                             if( posicion == -1 ){
                                 obj.year = val2[i].year;
                                 obj.volume = val2[i].volume;
-                                obj.number = val2[i].number;
-                                obj.pages = val2[i].pages;
+                                obj.number = ( ['', undefined, null].indexOf(val2[i].number) !== -1 )?'':val2[i].number;
+                                obj.pages = ( ['', undefined, null].indexOf(val2[i].pages) !== -1 )?'':val2[i].pages;
                                 obj.title = ( ['', undefined, null].indexOf(val2[i].title) !== -1 )?'<< No se encontró título >>':val2[i].title;
                                 
                                 if('submission_id' in val2[i]){
@@ -2576,7 +2576,7 @@ class_ver = {
                             if( posicion_consis == -1 ){
                                 obj.year = val2[i].year;
                                 obj.volume = val2[i].volume;
-                                obj.number = val2[i].number;
+                                obj.number = ( ['', undefined, null].indexOf(val2[i].number) !== -1 )?'':val2[i].number;
                                 obj.pages = ( ['', undefined, null].indexOf(val2[i].pages) !== -1 )?'':val2[i].pages;
                                 obj.title = ( ['', undefined, null].indexOf(val2[i].title) !== -1 )?'<< No se encontró título >>':val2[i].title;
                                 
@@ -2617,7 +2617,7 @@ class_ver = {
                             if( posicion_prec == -1 ){
                                 obj.year = val2[i].year;
                                 obj.volume = val2[i].volume;
-                                obj.number = val2[i].number;
+                                obj.number = ( ['', undefined, null].indexOf(val2[i].number) !== -1 )?'':val2[i].number;
                                 obj.pages = ( ['', undefined, null].indexOf(val2[i].pages) !== -1 )?'':val2[i].pages;
                                 obj.title = ( ['', undefined, null].indexOf(val2[i].title) !== -1 )?'<< No se encontró título >>':val2[i].title;
                                 

@@ -8,7 +8,7 @@
 </style>
 <div class="row">
     <dd style="margin-left: 20px">
-        <p>MetaMetrics encuentra errores de catalogación e indización en los registros de OJS.</p>
+        <p>MetaMetrics encuentra errores de catalogación e indización en los registros de OJS. Conozca más acerca de lo que se evalúa, <a href="{site_url('sobre-metametrics')}" target="_blank">aquí</a>.</p>
 
         {if !$simulador and !$postular}
             <p>Seleccione alguna de las revistas ya evaluadas por la herramienta para realizar una prueba.</p>
