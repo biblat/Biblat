@@ -1,8 +1,8 @@
                 <p><b>{_('Información General')}</b></p><br>
 
-                <p>{$clase=_('Citas Latinoamericanas en Ciencias Sociales y Humanidades') $periodica=_('Índice de Revistas Latinoamericanas en Ciencias') _sprintf('¡Gracias por su interés en BIBLAT! Al elegirnos, usted estará contribuyendo al desarrollo de indicadores y productos bibliométricos que impulsen la toma de decisiones en el entorno editorial académico; además, su revista será incluida en los resultados de búsqueda de los metabuscadores en internet y formará parte de %s o %s, dos de las bases de datos pioneras en América Latina, portal %s y catálogo %s.','<a href="http://alephv23.cichcu.unam.mx:8991/F/?func=find-b-0&local_base=cla01" target="_blank"><acronym title="$clase">CLASE</acronym></a>','<a href="http://alephv23.cichcu.unam.mx:8991/F/?func=find-b-0&local_base=per01" target="_blank"><acronym title="$periodica">PERIÓDICA</acronym></a>','<a href="http://biblat.unam.mx" target="_blank">BIBLAT</a>','<a href="http://alephv23.cichcu.unam.mx:8993/F/?func=find-b-0&local_base=ser01" target="_blank">SERIUNAM</a>')}</p><br>
+                <p>{$clase=_('Citas Latinoamericanas en Ciencias Sociales y Humanidades') $periodica=_('Índice de Revistas Latinoamericanas en Ciencias') _sprintf('¡Gracias por su interés en BIBLAT! Al elegirnos, usted estará contribuyendo al desarrollo de indicadores y productos bibliométricos que impulsen la toma de decisiones en el entorno editorial académico; además, su revista será incluida en los resultados de búsqueda de los metabuscadores en internet y formará parte de %s o %s, dos de las bases de datos pioneras en América Latina, portal %s y catálogo %s.','<a href="http://clase.unam.mx" target="_blank"><acronym title="$clase">CLASE</acronym></a>','<a href="http://periodica.unam.mx" target="_blank"><acronym title="$periodica">PERIÓDICA</acronym></a>','<a href="http://biblat.unam.mx" target="_blank">BIBLAT</a>','<a href="https://seriunam.dgb.unam.mx/" target="_blank">SERIUNAM</a>')}</p><br>
                 
-                <p>{_('CLASE y PERIÓDICA son las dos bases de datos fuente constitutivas de BIBLAT. CLASE está especializada en revistas de ciencias sociales y humanidades, y PERIÓDICA en ciencias exactas y naturales, incluyendo medicina.')}<span style='color:#ff8000'>{_(' Se consideran todas las revistas científicas editadas en América Latina y el Caribe.')}</span></p><br>
+                <p>{_('CLASE y PERIÓDICA son las dos bases de datos fuente constitutivas de BIBLAT. CLASE está especializada en revistas de ciencias sociales y humanidades, y PERIÓDICA en ciencias exactas y naturales, incluyendo medicina.')}<b>{_(' Se consideran todas las revistas científicas editadas en América Latina y el Caribe.')}</b></p><br>
                 
                 <p>{_('Por su parte, SERIUNAM es el catálogo de todas las revistas disponibles en el Sistema Bibliotecario y de Información de la UNAM.')}</p><br>
                 
@@ -35,7 +35,7 @@
                         
                         <li>{_('Contar con la plataforma Open Journal System (OJS) y tener al menos 3 fascículos publicados.')}</li>
                         
-                        <li>{_('Aceptar la instalación del plugin de BIBLAT para la recolección de metadatos en OJS y aplicar la actualizaciones al mismo cuando BIBLAT las solicite.')}</li>                                               
+                        <li>{_('Aceptar la instalación del')} <a href="{base_url('archivos/pdf/PluginBIBLAT.pdf')}" target="_blank" style='color:green'><b>{_('plugin de BIBLAT')}</b></a> {_('para la recolección de metadatos en OJS y aplicar la actualizaciones al mismo cuando BIBLAT las solicite.')}</li>                                               
                         
                 </ol><br>
                 

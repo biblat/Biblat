@@ -1,7 +1,7 @@
 <div class="row" id="row_comenzar">
     <div class="col-md-12">
     ¡Postule su revista ahora!<br>
-    La evaluación de las revistas consta de 48 criterios: 33 de los cuales son obligatorios y 15 opcionales. Para aprobar se requiere el cumplimiento de 40 criterios: los 33 obligatorios y, al menos, 7 opcionales.<span style='color:#ff8000'>{_(' Se consideran todas las revistas científicas editadas en América Latina y el Caribe.')}</span><br>
+    La evaluación de las revistas consta de 48 criterios: 33 de los cuales son obligatorios y 15 opcionales. Para aprobar se requiere el cumplimiento de 40 criterios: los 33 obligatorios y, al menos, 7 opcionales.<b>{_(' Se consideran todas las revistas científicas editadas en América Latina y el Caribe.')}</b><br>
     Inicie la pre-evaluación dando clic en el botón de "Comenzar". Posteriormente, los criterios se desplegarán consecutivamente y podrá navegar a través de ellos mediante la barra de números que se encontrará en la parte inferior. Para cada criterio cumplido, haga clic en el botón "Cumplo este criterio"; de lo contrario, déjelo en blanco. Podrá observar el cumplimiento alcanzado en la gráfica del lado derecho.<br>
     {if !$simulador}
     Si reúne los criterios obligatorios, podrá enviar la postulación de la revista. En caso de no cumplir con dichos criterios, le proporcionaremos un resumen de la pre-evaluación, misma que será de utilidad para procurar el cumplimiento de los criterios faltantes y realizar posteriormente la postulación.<br>

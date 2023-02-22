@@ -10,7 +10,7 @@ La validación que realiza MetaMetrics comprende los siguientes aspectos:
     <br><br>
     <b>Consistencia</b>
     <br><br>
-    Asentamiento de los metadatos conforme a las normas ortográficas, sintaxis (estructura, tipo o formato de los datos) y semántica (campos con valores predefinidos) anunciadas en el <a href="{base_url('archivos/pdf/ManualDeIndizacionEnOJS_BuenasPracticas.pdf')}" target="_blank">Manual de indización en OJS: Buenas prácticas para la región latinoamericana</a>.
+    Asentamiento de los metadatos conforme a las normas ortográficas, sintaxis (estructura, tipo o formato de los datos) y semántica (campos con valores predefinidos) enunciadas en el <a href="{base_url('archivos/pdf/ManualDeIndizacionEnOJS_BuenasPracticas.pdf')}" target="_blank">Manual de indización en OJS: Buenas prácticas para la región latinoamericana</a>.
     <br><br>
     <b>Precisión</b>
     <br><br>
