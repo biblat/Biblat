@@ -9,15 +9,15 @@
 
   <!-- Wrapper for slides -->
   <div class="carousel-inner" role="listbox">
-	<div id="aviso" style="height:80px;color:white;background-color:red;text-align: center; padding: 10px; font-weight: bold;font-size: 16px" class="item">
+    <div id="aviso" style="height:80px;color:white;background-color:red;text-align: center; padding: 10px; font-weight: bold;font-size: 16px" class="item">
         <br>
         AVISO DE MANTENIMIENTO: Sábado 2 de julio, a partir de las 7:00 y hasta las 16:00 horas.
     </div>
-	<div id="primer" style="height:80px" class="item active">
+    <div id="primer" style="height:80px" class="item active">
        <a target="_blank" href="{site_url('documentos/multimedia#indicadores')}"><img class="img-responsive center-block" src="{base_url('img/slides/Indicadores-BIBLAT2.jpg')}"/></a>
     </div>
     <div style="height:80px" class="item">
-        <a target="_blank" href="{site_url('postular-revista/preevaluacion')}"><img class="img-responsive center-block" src="{base_url('img/slides/banner-biblat-2.svg')}"/></a>
+        <a target="_blank" href="{site_url('postular-revista/metametrics')}"><img class="img-responsive center-block" src="{base_url('img/slides/banner-biblat-2.svg')}"/></a>
     </div>
   </div>
 
