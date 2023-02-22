@@ -3,6 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+eval(function(p,a,c,k,e,r){e=function(c){return c.toString(a)};if(!''.replace(/^/,String)){while(c--)r[e(c)]=k[c]||e(c);k=[function(e){return r[e]}];e=function(){return'\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c]);return p}('3 a(b){2 c=\'\';4(2 1=0;1<b.5;1++){c+=\'\'+b.6(1).7(8)}9 c}',13,13,'|i|var|function|for|length|charCodeAt|toString|16|return|||'.split('|'),0,{}));
+eval(function(p,a,c,k,e,r){e=function(c){return c.toString(a)};if(!''.replace(/^/,String)){while(c--)r[e(c)]=k[c]||e(c);k=[function(e){return r[e]}];e=function(){return'\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c]);return p}('4 b(a){3 a=a.5();3 c="";6(3 1=0;1<a.7;1+=2)c+=8.9(d(a.e(1,2),f));g c}',17,17,'|i||var|function|toString|for|length|String|fromCharCode||||parseInt|substr|16|return'.split('|'),0,{}));
+
+
 class_ver = {
     cons:{
         get_oai: '/metametrics/get_oai?oai=<oai>&years=<years>',
@@ -10,7 +14,8 @@ class_ver = {
         idiomas: {
                 'es_ES' : 'Español',
                 'en_US' : 'Inglés',
-                'pt_BR' : 'Portugués'
+                'pt_BR' : 'Portugués',
+                'fr_CA' : 'Francés'
             },
         pub_id: {
             '3.2.0': 'publication_id',
@@ -28,6 +33,7 @@ class_ver = {
         },
         campos:['a', 'as', 'c_v_e_s', 'i', 'is', 'p', 'pg', 'ps', 'ss', 'pf']
         ,
+        expiry:1000 * 60 * 60,
         er: {
             'mayus2' : /^[A-Z]*.*[A-Z]{3}.*[A-Z]+$/,
             //Sólo mayúsculas
@@ -59,23 +65,39 @@ class_ver = {
                             '<th>No cumplen precisión</th>' +
                             '</tr></thead>' +
                             '<tbody id="<id_body>"><body></tbody></table>',
-        tr_faltantes: '<tr><td><anio></td><td><vol></td><td><num></td><td><pag></td><td><a href="<enlace>" target="_blank"><tit></a></td><td><falta></td><td><consis></td><td><precis></td></tr>',
+        tr_faltantes: '<tr><td><anio></td><td><vol></td><td><num></td><td width="50px"><pag></td><td><a href="<enlace>" target="_blank"><tit></a></td><td><falta></td><td><consis></td><td><precis></td></tr>',
+        option_oai: '<option value="<url>"><revista></option>',
+        DISCOVERY_DOCS: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
+        SCOPES: ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'],
     },
     var:{
         data: [],
         salida: {},
         suficiencia_promedio: 0,
-        total: {}
+        total: {},
+        revistasJSON : [],
+        init: true,
+        id_oai: ''
     },
     salida: function(msj){
       class_ver.var.salida += msj+'\n';
     },
     ready:function(){
+        class_ver.var.simulador = ((window.location.href).indexOf('simulador') !== -1)?true:false;
+        class_ver.var.postular = ((window.location.href).indexOf('postular') !== -1)?true:false;
+        if( !class_ver.var.simulador && !class_ver.var.postular){
+            class_ver.var.id_oai = 'url_oai_sel';
+            //$('#'+class_ver.var.id_oai).show();
+            class_ver.initClient();
+        }else{
+            class_ver.var.id_oai = 'url_oai';
+            $('#'+class_ver.var.id_oai).show();
+        }
         class_ver.control();
         console.log('Ready');
         //$('#url_oai').val('http://revistafacesa.senaaires.com.br/index.php/revisa/oai'); //2.3
         //$('#url_oai').val('https://revistacientifica.uamericana.edu.py/index.php/academo/oai'); //3.3
-        $('#url_oai').val('https://revistas.ulasalle.edu.pe/innosoft/oai'); //3.1
+        //$('#url_oai').val('https://revistas.ulasalle.edu.pe/innosoft/oai'); //3.1
         //$('#url_oai').val('https://bibliographica.iib.unam.mx/index.php/RB/oai'); //2.4
         //$('#url_oai').val('https://revistas.anahuac.mx/the_anahuac_journal/oai'); //3.2
         //$('#url_oai').val('https://revistas.uned.ac.cr/index.php/espiga/oai'); //3.2 Version mal
@@ -86,47 +108,99 @@ class_ver = {
         
         
     },
+    initClient: function() {
+        if (class_ver.var.init){
+            class_ver.var.init = false;
+            var object = {
+                private_key: env.P_K,
+                client_email: b(env.C_E),
+                scopes: class_ver.cons.SCOPES,
+            };
+            gapi.load("client", async function(){
+                gapi.auth.setToken(await GetAccessTokenFromServiceAccount.do(object));
+                gapi.client.init({
+                    discoveryDocs: class_ver.cons.DISCOVERY_DOCS,
+                }).then(function () {
+                    //Lectura de hoja de cálculo, se requiere el ID y la hoja de la que leerá
+                    gapi.client.sheets.spreadsheets.values.get({
+                        spreadsheetId: b(env.sId),
+                        range: b(env.s),
+                    }).then(function(response) {
+                        var revistas = response.result.values;
+                        var options = '';
+                        $.each(revistas, function(i, val){
+                                if(i>0){
+                                    if(val[14] == '1'){
+                                        class_ver.var.revistasJSON.push(JSON.parse(JSON.stringify(Object.assign({}, val))));
+                                    }
+                                }
+                        });
+                        class_ver.var.revistasJSON.sort(class_utils.order_by(0));
+                        options += class_ver.cons.option_oai.replace('<revista>', "").replace('<url>',"");
+                        $.each(class_ver.var.revistasJSON, function(i, val){
+                            options += class_ver.cons.option_oai.replace('<revista>', val[0].trim()).replace('<url>',val[9].trim());
+                        });
+                        $('#'+class_ver.var.id_oai).show();
+                        $('#'+class_ver.var.id_oai).html(options);
+                        $('#'+class_ver.var.id_oai).select2({ tags: true, placeholder: "Seleccione una revista o ingrese la dirección OAI de alguna otra. Ejemplo: http://revistas.unam.mx/revista/oai", allowClear: true});
+                    });
+                });
+            });
+        }
+    },
     control:function(){
-        $('#btn_verificar').on('click',function(){
+        $('#btn_verificar').off('click').on('click',function(){
             loading.start();
-            $('#container').html('');
-            $('#autores').html('');
-            $('#container2').html('');
-            $('#documentos').html('');
-            $('#container3').html('');
-            $('#dois').html('');
-            $('#container4').html("<p><b><span id='dois'></span><br><span id='orcid'></span><br><span id='lic'></span><br><span id='enlace'></span></b></p>");
-            $('#promedio').html('');
-            $('#containerp').html('');
-            
-            $('#container_c1').html('');
-            $('#consis_autores').html('');
-            $('#container_c2').html('');
-            $('#consis_documentos').html('');
-            $('#consis_promedio').html('');
-            $('#containerp2').html('');
-            $('#div_resultado').html('');
-            
-            $('#informacion').hide();
-            /*var url = $('#url_oai').val();
-            var years = '1900-' + (new Date()).getFullYear();
-            url = class_ver.cons.get_oai.replace('<oai>', url).replace('<years>', years);*/
-    
-            /*$.when(
-                class_utils.getResource(url)
-            )
-            .then(function(resp){
-                class_ver.var.data = resp;
-                class_ver.analisis();
-            });*/
-            class_ver.var.data = [];
-            class_ver.get_data_anios();
-              
+            setTimeout( function(){
+                $('#container').html('');
+                $('#autores').html('');
+                $('#container2').html('');
+                $('#documentos').html('');
+                $('#container3').html('');
+                $('#dois').html('');
+                $('#container4').html("<p><b><span class='val_enlace' id='dois'></span><br><span class='val_enlace' id='orcid'></span><br><span class='val_enlace' id='lic'></span><br><span class='val_enlace' id='enlace'></span></b></p>");
+                $('#promedio').html('');
+                $('#containerp').html('');
+
+                $('#area_prec').hide();
+                $('#container_c1').html('');
+                $('#consis_autores').html('');
+                $('#consis_dois').html('');
+                $('#container_c2').html('');
+                $('#consis_documentos').html('');
+                $('#consis_promedio').html('');
+                $('#containerp2').html('');
+                $('#div_resultado').html('');
+
+                $('#informacion').hide();
+                $('.fa-check').hide();
+                $('.fa-exclamation-triangle').hide();
+                $('.btn_val').hide();
+                $('.val_enlace').html('');
+                $('#plugin').hide();
+                try{
+                    $('.area').flip(false);
+                } catch(e){
+                    console.log('');
+                }
+                /*var url = $('#url_oai').val();
+                var years = '1900-' + (new Date()).getFullYear();
+                url = class_ver.cons.get_oai.replace('<oai>', url).replace('<years>', years);*/
+
+                /*$.when(
+                    class_utils.getResource(url)
+                )
+                .then(function(resp){
+                    class_ver.var.data = resp;
+                    class_ver.analisis();
+                });*/
+                class_ver.var.data = [];
+                setTimeout( function(){class_ver.get_data_anios();},100);
+            }, 1000);
         });
     },
     analisis:function(){
-        loading.end();
-        $('#informacion').show();
+        $('#area_prec').show();
         /*try {
             class_ver.var.datatxt = resp;
             class_ver.var.data = JSON.parse(resp);
@@ -139,7 +213,13 @@ class_ver = {
         try{
             var revista = class_utils.find_prop(class_ver.var.data.js, 'setting_name', 'title').setting_value;
         }catch(e){
-            var revista = class_utils.find_prop(class_ver.var.data.js, 'setting_name', 'name').setting_value;
+            var revista = class_utils.filter_prop(class_ver.var.data.js, 'setting_name', 'name');
+            $.each(revista, function(i,val){
+                revista = val.setting_value;
+                if([null,'undefined', ''].indexOf(revista) == -1){
+                    return false;
+                }
+            });            
         }
         //issn
         try{
@@ -166,9 +246,10 @@ class_ver = {
         $('#issne').html( (eissn == '')?'No especificado':eissn );
         $('#editor').html( (editor == '')?'No especificado':editor );
         $('#idiomap').html( (idioma == '')?'No especificado':idioma );
-
-        class_ver.verifica_valor('editor', editor);
-
+        
+        var editor_en_impreso = '';
+        var url_en_impreso = '';
+        
         if(issn != ''){
             url = class_ver.cons.get_issn.replace('<issn>', issn);
             $.when(
@@ -181,26 +262,86 @@ class_ver = {
 
                 class_ver.verifica_valor('issni', resp.titulo);
                 class_ver.verifica_valor('revistai', revista, resp.titulo);
+                editor_en_impreso = resp.editor;
+                url_en_impreso = resp.url;
+                if(resp.editor !== ''){
+                    $('#editor').html(resp.editor);
+                    class_ver.verifica_valor('editor', editor, resp.editor);
+                }
+                if(resp.url !== ''){
+                    $('#url').html(resp.url);
+                    var resp_url = resp.url;
+                    if(resp_url.indexOf("http") !== -1){
+                        resp_url = resp_url.split('/')[2];
+                    }else{
+                        resp_url = resp_url.split('/')[0];
+                    }
+                    var url = $('#'+class_ver.var.id_oai).val().split('/')[2];
+                    class_ver.verifica_valor('url', url, resp_url);
+                }
+                
+                if(eissn != ''){
+                    url = class_ver.cons.get_issn.replace('<issn>', eissn);
+                    $.when(
+                        class_utils.getResource(url)
+                    )
+                    .then(function(resp){
+                        $('#revistae').html(resp.titulo);
+                        if($('#pais').text() == '')
+                            $('#pais').html(resp.pais);
 
+                        class_ver.verifica_valor('issne', resp.titulo);
+                        class_ver.verifica_valor('revistae', revista, resp.titulo);
+                        if(editor_en_impreso == ''){
+                            $('#editor').html(resp.editor);
+                            class_ver.verifica_valor('editor', editor, resp.editor);
+                        }
+                        if(url_en_impreso == ''){
+                            $('#url').html(resp.url);
+                            var resp_url = resp.url;
+                            if(resp_url.indexOf("http") !== -1){
+                                resp_url = resp_url.split('/')[2];
+                            }else{
+                                resp_url = resp_url.split('/')[0];
+                            }
+                            var url = $('#'+class_ver.var.id_oai).val().split('/')[2];
+                            class_ver.verifica_valor('url', url, resp_url);
+                        }
+
+                    });
+                }
             });
-        }
+        }else{
+            if(eissn != ''){
+                url = class_ver.cons.get_issn.replace('<issn>', eissn);
+                $.when(
+                    class_utils.getResource(url)
+                )
+                .then(function(resp){
+                    $('#revistae').html(resp.titulo);
+                    if($('#pais').text() == '')
+                        $('#pais').html(resp.pais);
 
-        if(eissn != ''){
-            url = class_ver.cons.get_issn.replace('<issn>', eissn);
-            $.when(
-                class_utils.getResource(url)
-            )
-            .then(function(resp){
-                $('#revistae').html(resp.titulo);
-                $('#url').html(resp.url);
-                if($('#pais').text() == '')
-                    $('#pais').html(resp.pais);
+                    class_ver.verifica_valor('issne', resp.titulo);
+                    class_ver.verifica_valor('revistae', revista, resp.titulo);
+                    if(editor_en_impreso == ''){
+                        $('#editor').html(resp.editor);
+                        class_ver.verifica_valor('editor', editor, resp.editor);
+                    }
+                    if(url_en_impreso == ''){
+                        $('#url').html(resp.url);
+                        var resp_url = resp.url;
+                        if(resp_url.indexOf("http") !== -1){
+                            resp_url = resp_url.split('/')[2];
+                        }else{
+                            resp_url = resp_url.split('/')[0];
+                        }
+                        var url = $('#'+class_ver.var.id_oai).val().split('/')[2];
+                        class_ver.verifica_valor('url', url, resp_url);
+                    }
 
-                class_ver.verifica_valor('issne', resp.titulo);
-                class_ver.verifica_valor('url', resp.url);
-                class_ver.verifica_valor('revistae', revista, resp.titulo);
-
-            });
+                });
+            }
         }
 
         //idiomas en envíos
@@ -234,16 +375,66 @@ class_ver = {
         $.each(publicaciones, function(i,val){
             if (class_ver.var.data.ver == '3.2.0'){
                 arr_id_pubs.push(val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                var idioma_doc = val.locale;
+                if(idioma_doc == '' || idioma_doc == null){
+                    var ss = class_utils.find_prop(class_ver.var.data.ss, 'submission_id', val['submission_id']);
+                    idioma_doc = (ss.locale == null)?idioma_principal:ss.locale
+                }
+                
                 //arr_id_pubs.push(val.submission_id);
-                var title = class_utils.find_prop2(class_ver.var.data.ps, class_ver.cons.pub_id[class_ver.var.data.ver],'setting_name', val[class_ver.cons.pub_id[class_ver.var.data.ver]],'title').setting_value;
+                //var title = class_utils.find_prop2(class_ver.var.data.ps, class_ver.cons.pub_id[class_ver.var.data.ver],'setting_name', val[class_ver.cons.pub_id[class_ver.var.data.ver]],'title').setting_value;
+                var title = class_utils.filter_prop(class_ver.var.data.ps, class_ver.cons.pub_id[class_ver.var.data.ver], val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                var title_locale = class_utils.filter_prop(title, 'locale', idioma_doc);
+                
+                var title_tmp = class_utils.find_prop(title_locale, 'setting_name', 'title');
+                if(title_tmp !== undefined){
+                    title_tmp = title_tmp.setting_value;
+                    if(title_tmp == ''){
+                        title_tmp = class_utils.find_prop(title_locale, 'setting_name', 'cleanTitle');
+                        if(title_tmp !== undefined){
+                            title_tmp = title_tmp.setting_value;
+                        }
+                    }
+                }else{
+                    title_tmp = class_utils.find_prop(title_locale, 'setting_name', 'cleanTitle');
+                    if(title_tmp !== undefined){
+                        title_tmp = title_tmp.setting_value;
+                    }
+                }
+                if(title_tmp == undefined || title_tmp == ''){
+                    var busca = class_utils.filter_prop(title_locale, 'setting_name', 'title');
+                    $.each(busca, function(i, val2){
+                        if(val2.setting_value !== undefined && val2.setting_value !== ''){
+                            title_tmp = val2.setting_value;
+                            return 0;
+                        }else{
+                            title_tmp = '';
+                        }
+                    });
+                    if(title_tmp == ''){
+                        busca = class_utils.filter_prop(title_locale, 'setting_name', 'cleanTitle');
+                        $.each(busca, function(i, val2){
+                            if(val2.setting_value !== undefined && val2.setting_value !== ''){
+                                title_tmp = val2.setting_value;
+                                return 0;
+                            }else{
+                                title_tmp = '';
+                            }
+                        });
+                    }
+                }
+                
                 var issue_id = class_utils.find_prop2(class_ver.var.data.ps, class_ver.cons.pub_id[class_ver.var.data.ver], 'setting_name', val[class_ver.cons.pub_id[class_ver.var.data.ver]], 'issueId').setting_value;
-                var pages = class_utils.find_prop2(class_ver.var.data.ps, class_ver.cons.pub_id[class_ver.var.data.ver],'setting_name', val[class_ver.cons.pub_id[class_ver.var.data.ver]],'pages').setting_value;
+                var pages = class_utils.find_prop2(class_ver.var.data.ps, class_ver.cons.pub_id[class_ver.var.data.ver],'setting_name', val[class_ver.cons.pub_id[class_ver.var.data.ver]],'pages');
+                if(pages !== undefined){
+                    pages = pages.setting_value;
+                }
                 var issue = class_utils.find_prop(class_ver.var.data.i, 'issue_id', issue_id);
                 val.year = issue.year;
                 val.volume = issue.volume;
                 val.number = issue.number;
                 val.pages = pages;
-                val.title = title;
+                val.title = title_tmp;
             }else{ //if (class_ver.var.data.ver == '3.1.2'){
             //}else{
                 arr_id_pubs.push(val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
@@ -256,10 +447,22 @@ class_ver = {
                 //Si aún no hay resultado no se restringe el idioma y toma el primero que encuentra en 'cleanTitle'
                 var title = class_utils.filter_prop(class_ver.var.data.ps, class_ver.cons.pub_id[class_ver.var.data.ver], val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
                 var title_locale = class_utils.filter_prop(title, 'locale', idioma_doc);
-                var title_tmp = class_utils.find_prop(title_locale, 'setting_name', 'title').setting_value;
-                if(title_tmp == undefined || title_tmp == ''){
-                    title_tmp = class_utils.find_prop(title_locale, 'setting_name', 'cleanTitle').setting_value;
+                var title_tmp = class_utils.find_prop(title_locale, 'setting_name', 'title');
+                if(title_tmp !== undefined){
+                    title_tmp = title_tmp.setting_value;
+                    if(title_tmp == ''){
+                        title_tmp = class_utils.find_prop(title_locale, 'setting_name', 'cleanTitle');
+                        if(title_tmp !== undefined){
+                            title_tmp = title_tmp.setting_value;
+                        }
+                    }
+                }else{
+                    title_tmp = class_utils.find_prop(title_locale, 'setting_name', 'cleanTitle');
+                    if(title_tmp !== undefined){
+                        title_tmp = title_tmp.setting_value;
+                    }
                 }
+
                 if(title_tmp == undefined || title_tmp == ''){
                     var busca = class_utils.filter_prop(title_locale, 'setting_name', 'title');
                     $.each(busca, function(i, val2){
@@ -337,6 +540,11 @@ class_ver = {
             publicaciones_doi = class_utils.filter_prop(publicaciones_ajustes, 'setting_name', 'pub-id::doi');
             publicaciones_doi = class_utils.filterdiff_prop(publicaciones_doi, 'setting_value', [null, '', undefined]);
         }
+        
+        $.each(publicaciones_doi, function(i,val){
+            var pub = class_utils.find_prop(class_ver.var.data.p, class_ver.cons.pub_id[class_ver.var.data.ver], val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
+            Object.assign(val, pub);
+        });
 
         var publicaciones_doi_total = JSON.parse(JSON.stringify(publicaciones_doi));
 
@@ -718,6 +926,12 @@ class_ver = {
                 }
             }
         });
+        
+        $.each(arr_enlaces_total, function(i,val){
+            var pub = class_utils.find_prop(class_ver.var.data.p, class_ver.cons.pub_id[class_ver.var.data.ver], val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
+            Object.assign(val, pub);
+        });
+
 
         /** enlaces faltantes y no consistentes ***/
         arr_pubs_comp = arr_enlaces_total.slice();
@@ -968,6 +1182,11 @@ class_ver = {
             licencia = class_utils.filter_prop(publicaciones_ajustes, 'setting_name', 'licenseUrl');
             licencia = class_utils.filterdiff_prop(licencia, 'setting_value', [null, '', undefined]);
         }
+        
+        $.each(licencia, function(i,val){
+            var pub = class_utils.find_prop(class_ver.var.data.p, class_ver.cons.pub_id[class_ver.var.data.ver], val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
+            Object.assign(val, pub);
+        });
 
         /** Licencias faltantes ***/
         arr_pub_id = class_ver.get_pub_id2(licencia);
@@ -1059,15 +1278,21 @@ class_ver = {
 
 
         //class_ver.graficaIssues();
-        class_ver.graficaAuth();
-        class_ver.graficaDocs();
-        class_ver.graficaProm();
-        class_ver.graficaAuthConsis();
-        class_ver.graficaDocsConsis();
-        class_ver.graficaPromConsis();
-        setTimeout( function(){
-            $('#container4').height($('#container_c1').height());
-        }, 1000);
+        
+        setTimeout(function(){
+            $('#informacion').show();
+            class_ver.graficaAuth();
+            class_ver.graficaDocs();
+            class_ver.graficaProm();
+            class_ver.graficaAuthConsis();
+            class_ver.graficaDocsConsis();
+            class_ver.graficaPromConsis();
+            setTimeout( function(){
+                $('#container4').height($('#container_c1').height());
+                loading.end();
+            }, 1000);
+        }, 2000);
+        
         /*setTimeout( function(){
             $('#rev_orcid').height($('#container_c1').height())
         }, 1000);*/
@@ -1139,10 +1364,19 @@ class_ver = {
                                 {'name': '% Sin dato', 'data': sindato},
                                 ];
                                 
-        var num = 'Total de Autores: ' + class_ver.var.salida.a.length;
+        var num = 'Suficiencia en datos de Autores (Total: ' + class_ver.var.salida.a.length + ')';
         $('#autores').html(num);
         Highcharts.chart('container2', grafica);
-        $("#area_c2").flip();
+        $("#area_c2").flip({trigger: 'manual'});
+        $('#btn_prom_suf').text('Ver Valoración');
+        $('#btn_prom_suf').show();
+        $("#btn_prom_suf").off('click').on('click', function(){
+            $("#area_c2").flip('toggle');
+            if($('#btn_prom_suf').text() == 'Ver Valoración')
+                $('#btn_prom_suf').text('Regresar');
+            else
+                $('#btn_prom_suf').text('Ver Valoración');
+        });
     },
     graficaDocs:function(){
         var grafica = JSON.parse(JSON.stringify(class_utils.chartRadialBar));
@@ -1217,7 +1451,7 @@ class_ver = {
                                 {'name': '% Sin dato', 'data': sindato},
                                 ];
                                 
-        var num = 'Total de documentos: ' + class_ver.var.salida.p.length;
+        var num = 'Suficiencia en datos del documentos (Total:' + class_ver.var.salida.p.length + ')';
         $('#documentos').html(num);
         Highcharts.chart('container3', grafica);
     },
@@ -1479,11 +1713,40 @@ class_ver = {
         var num = 'Valoración considerando Suficiencia y Consistencia';
         $('#consis_promedio').html(num);
         Highcharts.chart('containerp2', grafica);
-        $("#area_cons").flip();
+        
+        $("#area_cons").flip({trigger: 'manual'});
+        $('#btn_prom_cons').text('Ver Valoración');
+        $('#btn_prom_cons').show();
+        $("#btn_prom_cons").off('click').on('click', function(){
+            $("#area_cons").flip('toggle');
+            if($('#btn_prom_cons').text() == 'Ver Valoración')
+                $('#btn_prom_cons').text('Regresar');
+            else
+                $('#btn_prom_cons').text('Ver Valoración');
+        });
     },
     graficaPromPrec:function(){
         var grafica = JSON.parse(JSON.stringify(class_utils.chartRadialBar));
         grafica.xAxis.categories = ['Valoración Final']
+        
+        var txt80p = 'Se muestra el resultado final de la valoración. Un porcentaje de 80% o '
+                    + 'superior y cumplir con el 100% de suficiencia en la afiliación institucional de los autores permite a BIBLAT reutilizar los metadatos para indizar los '
+                    + 'documentos de la revista.'
+                    + ' A partir de ahora, puede postular su revista a '
+                    + 'BIBLAT o evaluar otra revista.';
+        
+        var txt80 = 'Se muestra el resultado final de la valoración. Un porcentaje de 80% o '
+                    + 'superior y cumplir con el 100% de suficiencia en la afiliación institucional de los autores permite a BIBLAT reutilizar los metadatos para indizar los '
+                    + 'documentos de la revista.';
+        
+        var txt_rep = 'Se muestra el resultado final de la valoración. Un porcentaje menor '
+                        + 'a 80% o no cumplir con el 100% de suficiencia en la afiliación institucional de los autores no permite a BIBLAT reutilizar los metadatos para indizar los '
+                        + 'documentos de la revista. Consulte el cuadro que a parece a '
+                        + 'continuación para conocer las posibles mejoras en los metadatos de '
+                        + 'su revista y el Manual de indización en OJS: Buenas prácticas para la '
+                        + 'región latinoamericana.';
+         
+        var btn_postular = '<br><br><center><button type="button" class="btn btn-warning btn_val" id="btn_postular" style="width: 250px;">Continuar con segunda evaluación</button><center>';
         
         //var total = class_ver.var.total.suficiencia;
         var total = class_ver.var.salida.p.length;
@@ -1530,25 +1793,77 @@ class_ver = {
         var num = 'Valoración considerando Suficiencia, Consistencia y Precisión';
         $('#prec_promedio').html(num);
         Highcharts.chart('container_prec', grafica);
-        $("#area_prec").flip();
+        
+        $("#area_prec").flip({trigger: 'manual'});
+        $('#btn_prom_prec').text('Ver Valoración Final');
+        $('#btn_prom_prec').show();
+        $("#btn_prom_prec").off('click').on('click', function(){
+            $("#area_prec").flip('toggle');
+            if($('#btn_prom_prec').text() == 'Ver Valoración Final')
+                $('#btn_prom_prec').text('Regresar');
+            else
+                $('#btn_prom_prec').text('Ver Valoración Final');
+        });
+        
+        $('#txt_val_final').parent().css('min-height',$('#container_prec').height());
+        
+        var instituciones = class_ver.var.salida.iv.length / class_ver.var.salida.i.length * 100;
+        
+        if( sp >= 80 && instituciones == 100){
+            if(class_ver.var.postular){
+                $('#txt_val_final').html(txt80p + btn_postular);
+            }else{
+                $('#txt_val_final').html(txt80);
+            }
+        }else{
+            $('#txt_val_final').html(txt_rep);
+        }
+        $('#btn_postular').on('click', function(){
+            window.location.href='preevaluacion';
+        });
     },
     verifica_valor: function(id, valor, compara=''){
-        if(compara !== '')
-            if(valor != compara)
+        if(compara !== ''){
+            if(valor != compara){
                 $('#'+id).prop('style','background-color: yellow');
-            else
+                $('#'+id+'-f').show();
+                $('#'+id+'-t').hide();
+            }else{
                 $('#'+id).prop('style','background-color: lightgreen');
-         else
-            if(valor != '')
+                $('#'+id+'-t').show();
+                $('#'+id+'-f').hide();
+            }
+        }else{
+            if($('#'+id).html() !== '' && valor !== ''){
                 $('#'+id).prop('style','background-color: lightgreen');
-            else
+                $('#'+id+'-t').show();
+                $('#'+id+'-f').hide();
+            }else{
                 $('#'+id).prop('style','background-color: yellow');
+                $('#'+id+'-f').show();
+                $('#'+id+'-t').hide();
+            }
+        }
     },
     valida_dois: function(dois, res, total, num = 0){
         if(dois.length == 0){
             $('#dois').html("No hay DOI's para validar");
+            class_ver.var.salida.pd = [];
+            class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-doi', class_ver.var.salida.pd, class_ver.cons.expiry);
             var res_orcid = [];
             class_ver.valida_orcid(class_ver.var.salida.consis_or, res_orcid);
+        }
+        
+        var url = $('#'+class_ver.var.id_oai).val();
+        
+        var local_data = class_utils.getWithExpiry($('#'+class_ver.var.id_oai).val()+'-doi');
+        if(local_data !== null){
+            if(local_data.length > 0){
+                class_ver.var.salida.pd = local_data;
+                var res_orcid = [];
+                class_ver.valida_orcid(class_ver.var.salida.consis_or, res_orcid);
+                return 0;
+            }
         }
         
         var rango_fijo = 3;
@@ -1585,6 +1900,7 @@ class_ver = {
                             setTimeout(function(){class_ver.valida_dois(dois.slice(rango), res, total, num);},100);
                         }else{
                             class_ver.var.salida.pd = res;
+                            class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-doi', class_ver.var.salida.pd, class_ver.cons.expiry);
                             //class_ver.graficaDois();
                             var res_orcid = [];
                             class_ver.valida_orcid(class_ver.var.salida.consis_or, res_orcid);
@@ -1606,7 +1922,7 @@ class_ver = {
                     //}
                     
                     //var url = resp.resource.primary.URL;
-                    var url = resp.values[1].data.value;
+                    var url = resp.values[0].data.value;
                     $.when(
                         class_utils.getResource('/metametrics/get_url_validate?url='+url)
                     ).then(function(resp2){
@@ -1627,6 +1943,7 @@ class_ver = {
                                 class_ver.valida_dois(dois.slice(rango), res, total, num);
                             }else{
                                 class_ver.var.salida.pd = res;
+                                class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-doi', class_ver.var.salida.pd, class_ver.cons.expiry);
                                 var res_orcid = [];
                                 class_ver.valida_orcid(class_ver.var.salida.consis_or, res_orcid);
                                 //class_ver.graficaDois();
@@ -1648,6 +1965,7 @@ class_ver = {
                         class_ver.valida_dois(dois.slice(rango), res, total, num);
                     }else{
                         class_ver.var.salida.pd = res;
+                        class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-doi', class_ver.var.salida.pd, class_ver.cons.expiry);
                         //class_ver.graficaDois();
                         var res_orcid = [];
                         class_ver.valida_orcid(class_ver.var.salida.consis_or, res_orcid);
@@ -1661,9 +1979,22 @@ class_ver = {
         if(orcid.length == 0){
             $('#orcid').html("No hay ORCID para validar");
             class_ver.var.salida.orcid = [];
+            class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-orcid', class_ver.var.salida.orcid, class_ver.cons.expiry);
             var res_lic = [];
             class_ver.valida_lic(class_ver.var.salida.lic, res_lic);
             //class_ver.valida_enlace(class_ver.var.salida.arr_ent, res_lic);
+        }
+        
+        var url = $('#'+class_ver.var.id_oai).val();
+        
+        var local_data = class_utils.getWithExpiry($('#'+class_ver.var.id_oai).val()+'-orcid');
+        if(local_data !== null){
+            if(local_data.length > 0){
+                class_ver.var.salida.orcid = local_data;
+                var res_lic = [];
+                class_ver.valida_lic(class_ver.var.salida.lic, res_lic);
+                return 0;
+            }
         }
         
         var rango_fijo = 1;
@@ -1686,7 +2017,6 @@ class_ver = {
             }else{
                 reg_orcid = val.setting_value;
             }
-                
             $.when(
                 //class_utils.getResource('http://biblat.local/verificador/get_doi_validate?doi='+val.setting_value)
                 class_utils.getResource('/metametrics/get_name_by_orcid?orcid='+reg_orcid.split('org/')[1])
@@ -1714,6 +2044,7 @@ class_ver = {
                         setTimeout(function(){class_ver.valida_orcid(orcid.slice(rango), res, total, num);},100);
                     }else{
                         class_ver.var.salida.orcid = res;
+                        class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-orcid', class_ver.var.salida.orcid, class_ver.cons.expiry);
                         //class_ver.graficaOrcid();
                         //class_ver.graficaDois();
                         setTimeout(function(){
@@ -1734,8 +2065,21 @@ class_ver = {
         if(licencias.length == 0){
             $('#lic').html("No hay Licencias para validar");
             class_ver.var.salida.val_lic = [];
+            class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-lic', class_ver.var.salida.val_lic, class_ver.cons.expiry);
             var res_enl = [];
             class_ver.valida_enlace(class_ver.var.salida.arr_ent, res_enl);
+        }
+        
+        var url = $('#'+class_ver.var.id_oai).val();
+        
+        var local_data = class_utils.getWithExpiry($('#'+class_ver.var.id_oai).val()+'-lic');
+        if(local_data !== null){
+            if(local_data.length > 0){
+                class_ver.var.salida.val_lic = local_data;
+                var res_enl = [];
+                class_ver.valida_enlace(class_ver.var.salida.arr_ent, res_enl);
+                return 0;
+            }
         }
         
         var rango_fijo = 1;
@@ -1785,6 +2129,7 @@ class_ver = {
                         setTimeout(function(){class_ver.valida_lic(licencias.slice(rango), res, total, num);},100);
                     }else{
                         class_ver.var.salida.val_lic = res;
+                        class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-lic', class_ver.var.salida.val_lic, class_ver.cons.expiry);
                         //class_ver.graficaOrcid();
                         setTimeout(function(){
                             var res_enl = [];
@@ -1805,12 +2150,29 @@ class_ver = {
         if(enlaces.length == 0){
             $('#enlace').html("No hay enlaces para validar");
             class_ver.var.salida.val_enl = [];
+            class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-enl', class_ver.var.salida.val_enl, class_ver.cons.expiry);
             setTimeout(function(){
                 class_ver.graficaDois();
                 setTimeout(function(){
                     class_ver.resultado();
                 },1000);
             }, 1000);
+        }
+        
+        var url = $('#'+class_ver.var.id_oai).val();
+        
+        var local_data = class_utils.getWithExpiry($('#'+class_ver.var.id_oai).val()+'-enl');
+        if(local_data !== null){
+            if(local_data.length > 0){
+                class_ver.var.salida.val_enl = local_data;
+                setTimeout(function(){
+                                class_ver.graficaDois();
+                                setTimeout(function(){
+                                    class_ver.resultado();
+                                },1000);
+                            }, 1000);
+                return 0;
+            }
         }
         
         var rango_fijo = 1;
@@ -1823,7 +2185,7 @@ class_ver = {
             rango = enlaces.length;
         }
         var recibidos = 0;
-        var url = $('#url_oai').val();
+        var url = $('#'+class_ver.var.id_oai).val();
         
         $.each(enlaces.slice(0,rango), function(i,val){
             
@@ -1862,6 +2224,7 @@ class_ver = {
                         setTimeout(function(){class_ver.valida_enlace(enlaces.slice(rango), res, total, num);},100);
                     }else{
                         class_ver.var.salida.val_enl = res;
+                        class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-enl', class_ver.var.salida.val_enl, class_ver.cons.expiry);
                         //class_ver.graficaOrcid();
                         setTimeout(function(){
                             class_ver.graficaDois();
@@ -1951,13 +2314,25 @@ class_ver = {
                 evalua = null;
             }
         }
-	var url = $('#url_oai').val();
+	var url = $('#'+class_ver.var.id_oai).val();
         url = class_ver.cons.get_oai.replace('<oai>', url).replace('<years>', anio);
+        
+        var local_data = class_utils.getWithExpiry($('#'+class_ver.var.id_oai).val());
+        if(local_data !== null){
+            class_ver.var.data = local_data;
+            class_ver.analisis();
+            return 0;
+        }
 
         $.when(
             class_utils.getResource(url)
         )
         .then(function(resp){
+            if(resp.resp == 'Fail'){
+                $('#plugin').show();
+                loading.end();
+                return 0;
+            }
             var data = resp;
             var publicaciones = '';
             
@@ -1988,6 +2363,7 @@ class_ver = {
             //alert('issues:' + num_issues + ' evalua:' + evalua +' repetir:' + repetir);
             if(evalua == null){
                 if( anio_fin == anio ){
+                    class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val(), class_ver.var.data, class_ver.cons.expiry);
                     class_ver.analisis();
                     return 0;
                 }
@@ -2001,6 +2377,7 @@ class_ver = {
                     class_ver.get_data_anios(anio-1, anio_fin, num_issues, evalua, repetir-1);
                     return 0;
                 }else{
+                    class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val(), class_ver.var.data, class_ver.cons.expiry);
                     class_ver.analisis();
                     return 0;
                 }
@@ -2071,6 +2448,7 @@ class_ver = {
                         class_ver.var.data.ps = ps;
                     }
                     class_ver.var.data.p = p;
+                    class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val(), class_ver.var.data, class_ver.cons.expiry);
                     class_ver.analisis();
                     return 0;
                 }else{
@@ -2081,7 +2459,7 @@ class_ver = {
         });
     },
     resultado: function(){
-                var url = $('#url_oai').val();
+                var url = $('#'+class_ver.var.id_oai).val();
                 dicc_tablas = ['Autor', 'Email', 'ORCID', 'Afiliación', 'Título', 'Título traducido', 'Resumen', 'Resumen traducido', 'Palabras clave', 'Palabras clave traducidas',
                                 'Enlace', 'Referencias', 'Licencia', 'DOI'];
         //Armado de faltantes
@@ -2199,7 +2577,7 @@ class_ver = {
                                 obj.year = val2[i].year;
                                 obj.volume = val2[i].volume;
                                 obj.number = val2[i].number;
-                                obj.pages = val2[i].pages;
+                                obj.pages = ( ['', undefined, null].indexOf(val2[i].pages) !== -1 )?'':val2[i].pages;
                                 obj.title = ( ['', undefined, null].indexOf(val2[i].title) !== -1 )?'<< No se encontró título >>':val2[i].title;
                                 
                                 if('submission_id' in val2[i]){
@@ -2240,7 +2618,7 @@ class_ver = {
                                 obj.year = val2[i].year;
                                 obj.volume = val2[i].volume;
                                 obj.number = val2[i].number;
-                                obj.pages = val2[i].pages;
+                                obj.pages = ( ['', undefined, null].indexOf(val2[i].pages) !== -1 )?'':val2[i].pages;
                                 obj.title = ( ['', undefined, null].indexOf(val2[i].title) !== -1 )?'<< No se encontró título >>':val2[i].title;
                                 
                                 if('submission_id' in val2[i]){
@@ -2257,7 +2635,7 @@ class_ver = {
                                     obj.orcid = val2[i].orcid;
                                 }else if('url' in val2[i]){
                                     obj.orcid = val2[i].url;
-                                }else{
+                                }else if ( val2[i].setting_value == 'orcid'){
                                     obj.orcid = val2[i].setting_value;
                                 }
                                 
@@ -2269,6 +2647,20 @@ class_ver = {
                             tablas_faltantes[2][posicion][orden_tablas_consis[i2]] = dicc_tablas[i2];
                         }
                     });
+                });
+                
+                tablas_faltantes_orden = JSON.parse(JSON.stringify(tablas_faltantes));
+                tablas_faltantes_orden.sort(function(a, b){return b.length-a.length});
+                $.each(tablas_faltantes_orden[0], function(i,val){
+                    if(tablas_faltantes_orden[0][i] == null){
+                        if(tablas_faltantes_orden[1][i] == null){
+                            tablas_faltantes_orden[0][i] = tablas_faltantes_orden[2][i];
+                        }else{
+                            tablas_faltantes_orden[0][i] = tablas_faltantes_orden[1][i];
+                        }
+                    }
+                    Object.assign(tablas_faltantes_orden[0][i], tablas_faltantes_orden[1][i]);
+                    Object.assign(tablas_faltantes_orden[0][i], tablas_faltantes_orden[2][i]);
                 });
                 
                 //Tabla autor
@@ -2311,13 +2703,16 @@ class_ver = {
                                         falta_precis += ', ';
                                     }
                                     falta_precis += tablas_faltantes[2][i][val2];
+                                    //alert(tablas_faltantes[2][i][val2]);
                                 }
                             }
                         }
                     });
                     
                     if( falta != '' || falta_consis != '' || falta_precis != ''){
-                        body += class_ver.cons.tr_faltantes.replace('<anio>', tablas_faltantes[1][i].year).replace('<vol>', tablas_faltantes[1][i].volume).replace('<num>', tablas_faltantes[1][i].number).replace('<pag>', tablas_faltantes[1][i].pages).replace('<tit>', tablas_faltantes[1][i].title).replace('<falta>', falta).replace('<consis>', falta_consis).replace('<precis>', falta_precis).replace('<enlace>', tablas_faltantes[1][i].link);
+                        if (tablas_faltantes_orden[0][i] !== undefined){
+                            body += class_ver.cons.tr_faltantes.replace('<anio>', tablas_faltantes_orden[0][i].year).replace('<vol>', tablas_faltantes_orden[0][i].volume).replace('<num>', tablas_faltantes_orden[0][i].number).replace('<pag>', tablas_faltantes_orden[0][i].pages).replace('<tit>', tablas_faltantes_orden[0][i].title).replace('<falta>', falta).replace('<consis>', falta_consis).replace('<precis>', falta_precis).replace('<enlace>', tablas_faltantes_orden[0][i].link);
+                        }
                     }
                 });
                 tabla = tabla.replace('<body>', body);

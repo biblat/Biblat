@@ -10,21 +10,48 @@
                 
                 <p>{_('Para más información')} <a href="#contacto">{_(' contáctenos.')}</a></p><br><br>
                 
-                <p><b>{_('Proceso de Evaluación')}</b></p><br>
+                <p><b>{_('Proceso de Evaluación')}</b></p>
                 
-                <p>{_('Para incorporarse a BIBLAT, su revista debe cumplir un mínimo de 40 criterios editoriales, proporcionar los datos de identificación y del comité científico, y enviar los metadatos de los artículos publicados en los últimos 3 fascículos. El procedimiento es el siguiente:')}</p><br>                
+                <p>{_('Las revistas que deseen incorporarse a BIBLAT serán sometidas a tres evaluaciones, dos de ellas en línea y otra a cargo del Comité de Evaluación.')}</p><br>
+                
+                <dd style="margin-left: 50px;">
+                    <p><b>{_('Primera evaluación. Validación de metadatos')}</b></p>
+                    
+                    <p>{_('Se analizará la calidad de los metadatos almacenados en la base de datos del sitio OJS de la revista para asegurarse que estén completos y sean consistentes, esta comprobación es automática a través de la herramienta')} <a href="{site_url('metametrics/simulador')}">MetaMetrics</a>. {_('Se recomienda consultar el ')} <a href="{base_url('archivos/pdf/ManualDeIndizacionEnOJS_BuenasPracticas.pdf')}" target="_blank">{_('Manual de indización en OJS: Buenas prácticas para la región latinoamericana')}</a>{_(', a fin de conocer las características requeridas en los metadatos y realizar los ajustes en sus registros, si es el caso.')}</p><br>
+                    
+                    <p><b>{_('Segunda evaluación. Preevaluación editorial')}</b></p>
+                    
+                    <p>{_('A través del')} <a href="{site_url('preevaluacion/simulador')}">{_('módulo de preevaluación')}</a> {_('el editor autoevaluará si su revista cumple con un conjunto de criterios editoriales, tales como revisión por pares a doble ciego o el uso de identificadores persistentes para documentos (DOI) y autores (ORCID). Se recomienda consultar nuestra')} <a href="#plantilla">{_('Plantilla de evaluación.')}</a></p><br>
+                    
+                    <p><b>{_('Tercera evaluación. Revisión del Comité de Evaluación')}</b></p>
+                    
+                    <p>{_('El Comité de Evaluación revisará los resultados de la primera y segunda evaluaciones, verificará la información en el sitio web y emitirá un dictamen de aprobación o no-aprobación vía correo electrónico.')}</p><br>
+                </dd>
+
+                <p>{_('Los requisitos para que una revista sea evaluada son:')}</p>
                 
                 <ol>                    
-                        <li>{_('El editor debe completar el ')} <a href="{site_url('postular-revista/preevaluacion')}">{_('formulario de pre-evaluación')}</a> {_(' siguiendo las instrucciones que allí mismo se proporcionan.')}</li>
+                        <li>{_('Ser una revista académica, registrada y editada en países de América Latina y el Caribe.')}</li>
                         
-                        <li>{_('El editor deberá enviar los metadatos de sus artículos  y su carta de postulación de acuerdo con las instrucciones que obtendrá al finalizar el proceso de pre-evaluación.')}</li>
+                        <li>{_('Contar con la plataforma Open Journal System (OJS) y tener al menos 3 fascículos publicados.')}</li>
                         
-                        <li>{_('El Comité de Evaluación validará el resultado de la pre-evaluación. Si el Comité determina que ésta es correcta, se le enviará por correo electrónico una carta de aceptación y su revista será indizada en CLASE o PERIÓDICA, BIBLAT y catálogo SERIUNAM. De lo contrario, el Comité emitirá las recomendaciones que considere pertinentes para realizar una nueva postulación cuando haya solventado los criterios no cumplidos.')}</li>                                               
+                        <li>{_('Aceptar la instalación del plugin de BIBLAT para la recolección de metadatos en OJS y aplicar la actualizaciones al mismo cuando BIBLAT las solicite.')}</li>                                               
                         
-                        <li>{_('El equipo de analistas de BIBLAT valida, convierte y normaliza los metadatos recibidos y los carga a las bases de datos CLASE, PERIÓDICA y portal BIBLAT.')}</li>
                 </ol><br>
                 
-                <p>{_('BIBLAT recibe solicitudes todos los días y el tiempo estimado de dictaminación es de cuatro semanas, dependiendo de la cantidad de solicitudes recibida.')}</p><br><br>
+                <p>{_('Los pasos por seguir para que una revista sea evaluada son:')}</p>
+                
+                <ol>                    
+                    <li>{_('Instalar el plugin de BIBLAT para la recolección de metadatos en el OJS de la revista a postular, las instrucciones están disponibles en')} <a href="{base_url('archivos/pdf/PluginBIBLAT.pdf')}" target="_blank">{_('este enlace.')}</a></li>
+                        
+                        <li>{_('Someter su revista a la validación de metadatos a través de la herramienta')} <a href="{site_url('metametrics/simulador')}">MetaMetrics</a>. {_('El mínimo aceptable es 80% de cumplimiento en la calidad de los metadatos, siendo obligatorio cumplir con el 100% de los metadatos de afiliación institucional de los autores. Una vez aprobada esta validación el sistema le permitirá pasar a la siguiente evaluación, de lo contrario, le permitirá descargar los resultados del proceso.')}</li>
+                        
+                        <li>{_('Superada la validación de metadatos, deberá acceder al')} <a href="{site_url('preevaluacion/simulador')}">{_('módulo de preevaluación')}</a> {_('e indicar qué criterios cumple o no la revista postulante. Si cumple con al menos 40 puntos (33 obligatorios y 7 optativos) el sistema le solicitará algunos datos y le permitirá enviar su postulación al Comité, de lo contrario, le permitirá descargar los resultados del proceso.')}</li>
+                        
+                        <li>{_('El Comité revisará las postulaciones de las revistas que hayan superado la validación de metadatos y la preevaluación, en un plazo de hasta 1 mes emitirá un dictamen que será enviado al correo electrónico que se haya indicado durante la preevaluación.')}</li>
+                </ol>
+                
+                <p>{_('Las tres evaluaciones son consecutivas, es decir, para avanzar a la segunda etapa debe superarse la primera y para avanzar a la tercera, debe superarse la segunda.')}</p><br><br>
                 
                 <p><b>{_('¿Qué evaluamos?')}</b></p><br>
                 
@@ -37,16 +64,16 @@
 
 			<li>{_('Gestión y visibilidad: Se refiere a la existencia de un equipo editorial formal que trabaja para la revista. Además, se valora que la publicación ya esté indizada en otros sistemas (salvo que sea una revista con menos de 1 año de existencia).')}</li>
 
-			<li>{_('Metadatos de indización: En cada artículo publicado deben constar los metadatos necesarios: título, autor(es) con su afiliación institucional, resúmenes y palabras clave en al menos dos idiomas.')}</li>
+                        <li>{_('Metadatos de indización: En cada artículo publicado deben constar los metadatos necesarios: título, autor(es) con su afiliación institucional, resúmenes y palabras clave en al menos dos idiomas.')} <a href="{site_url('metametrics/simulador')}">{_('Este rubro se evalúa a través de la herramienta MetaMetrics.')}</a></li>
                 </ol><br><br>
                 
 		<div class="page_title">
             <hr/>
-            <h4>{_('Plantilla de evaluación del Comité de Evaluación de Revistas de CLASE, PERIÓDICA y Catálogo SERIUNAM')}</h4>
+            <h4 id="plantilla">{_('Plantilla de evaluación del Comité de Evaluación de Revistas de CLASE, PERIÓDICA y Catálogo SERIUNAM')}</h4>
             <hr/>
         </div>
 		
-                <p>{_('Para ir directamente al proceso de pree-valuación, haga clic en este ')} <a href="{site_url('postular-revista/preevaluacion')}">{_('enlace')}</a></p>
+                <p>{_('Para ir directamente al proceso de pree-valuación, haga clic en este ')} <a href="{site_url('preevaluacion/simulador')}">{_('enlace')}</a></p>
                 <br>
                 
 		<table class="table table-striped table-bordered table-hover">
