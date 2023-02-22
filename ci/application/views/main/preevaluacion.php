@@ -3,8 +3,10 @@
     ¡Postule su revista ahora!<br>
     La evaluación de las revistas consta de 48 criterios: 33 de los cuales son obligatorios y 15 opcionales. Para aprobar se requiere el cumplimiento de 40 criterios: los 33 obligatorios y, al menos, 7 opcionales.<span style='color:#ff8000'>{_(' Se consideran todas las revistas científicas editadas en América Latina y el Caribe.')}</span><br>
     Inicie la pre-evaluación dando clic en el botón de "Comenzar". Posteriormente, los criterios se desplegarán consecutivamente y podrá navegar a través de ellos mediante la barra de números que se encontrará en la parte inferior. Para cada criterio cumplido, haga clic en el botón "Cumplo este criterio"; de lo contrario, déjelo en blanco. Podrá observar el cumplimiento alcanzado en la gráfica del lado derecho.<br>
+    {if !$simulador}
     Si reúne los criterios obligatorios, podrá enviar la postulación de la revista. En caso de no cumplir con dichos criterios, le proporcionaremos un resumen de la pre-evaluación, misma que será de utilidad para procurar el cumplimiento de los criterios faltantes y realizar posteriormente la postulación.<br>
     Los resultados obtenidos en esta pre-evaluación deberán ser revisados y validados por el Comité Evaluación para emitir el dictamen definitivo de aprobación.
+    {/if}
     <div class="row"><br></div>
         <center>
             <button type="button" class="btn btn-warning" id="btn_comenzar">Comenzar</button>
@@ -44,9 +46,12 @@
         <div id="div_postular" hidden="">
         <div class="row">
         <div class="col-md-12">
-        Su revista cuenta con los puntos suficientes, si desea postularla ingrese los siguientes datos:
+        {if $simulador}Su revista cuenta con los puntos suficientes para postularla.{/if}
+        {if !$simulador}Su revista cuenta con los puntos suficientes, si desea postularla ingrese los siguientes datos:{/if}
         </div>
         </div>
+        </div>
+        <div id="div_postular2" hidden="">
         <div class="row"><br></div>
         <form id="form_postular">
         
@@ -361,7 +366,7 @@
         
         <div class="row">
             <div class="col-md-12">
-                <label>Política de archivo en Repositorios de acceso abierto, según Sherpa-Romeo y Diadorim:</label>
+                <label>Política de archivo en Repositorios de acceso abierto, según <a target="_blank" href="http://www.sherpa.ac.uk/romeo/search.php?la=en&fIDnum=|&version=&mode=advanced">Sherpa-Romeo</a> y <a target="_blank" href="http://diadorim.ibict.br/">Diadorim</a>:</label>
                 <br>Para más información consulta la página 21 del documento: <a target="_blank" href="https://www.scielo.org.mx/avaliacao/Guia-CriteriosEvaluacion-ScieloMX.pdf">Criterios de SciELO-México para la admisión y permanencia de revistas</a>
             </div>
             <div class="col-md-9 col-md-offset-3">

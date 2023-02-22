@@ -24,9 +24,7 @@
         <link rel="stylesheet" href="{base_url('assets/css/academicons.css')}" type="text/css" />
         <link rel="stylesheet" href="{base_url('assets/css/font-awesome.min.css')}" type="text/css" />
         <link rel="stylesheet" href="{base_url('assets/js/pnotify/jquery.pnotify.default.css')}" type="text/css" />
-        <link rel="stylesheet" href="{base_url('assets/js/select2/select2.css')}" />
-        <link rel="stylesheet" href="{base_url('assets/js/select2/select2-bootstrap.css')}" />
-        <!--<link rel="stylesheet" href="{base_url('assets/js/select2_410/select2.min.css')}" />-->
+        <link rel="stylesheet" href="{base_url('assets/js/select2_410/select2.min.css')}" />
 		<link rel="stylesheet" href="{base_url('assets/css/contenido.css')}" />
         <link rel="stylesheet" href="{base_url('assets/js/datatables/datatables.min.css')}" />																	   																							  
 {if $canonical}
@@ -187,7 +185,7 @@
                                                         <li><a href="{site_url('postular-revista/metametrics')}">{_('Iniciar proceso de evaluación')}</a></li>
                                                     </ul>
                                                 </li>
-                                                <!--<li><a href="#">{_('Políticas de acceso')}</a></li>-->
+                                                <!--li><a href="#">{_('Políticas de acceso')}</a></li-->
                                                 <li class="dropdown">
                                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">{_('Documentos')}<span class="caret"></span></a>
                                                     <ul class="dropdown-menu" role="menu">
@@ -231,7 +229,11 @@
 {if $page_title}
                     <div class="page_title">
                         <hr/>
-                        <h4>{$page_title}</h4>
+                        <h4>
+                            {$page_title} {if $simulador}(Simulador){/if}
+                            {if $postularPrimera}(Primera evaluación){/if}
+                            {if $postularSegunda}(Segunda evaluación){/if}
+                        </h4>
                         {if $page_subtitle}
                         <h5 style="color:black">{$page_subtitle}</h5>
                         {/if}
@@ -302,8 +304,7 @@
         <script src="{base_url('js/jquery.autosize.min.js')}"></script>
         <script src="{base_url('js/jquery.validate.min.js')}"></script>
         <script src="{base_url('assets/js/pnotify/jquery.pnotify.min.js')}"></script>
-        <script src="{base_url('assets/js/select2/select2.min.js')}"></script>
-        <!--<script src="{base_url('assets/js/select2_410/select2.min.js')}"></script>-->
+        <script src="{base_url('assets/js/select2_410/select2.min.js')}"></script>
         <script src="{base_url('js/jquery.blockUI.js')}"></script>
         <script src="{base_url('assets/js/advancedsearch/js/evol.advancedSearch.min.js')}"></script>
 {foreach $template.js file}

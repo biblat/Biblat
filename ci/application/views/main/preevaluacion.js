@@ -509,6 +509,7 @@ class_pre = {
     
     ready:function(){
 //        var href = '    <b><a target="_blank" style="float:right;font-size:14" href="criterios-de-seleccion#1">Ver criterio</a></b>';
+		class_pre.simulador = ((window.location.href).indexOf('simulador') !== -1)?true:false;																					  
         var href = '';
         $('#ev_texto').html(class_pre.criterio[class_pre.select-1].texto 
                 + ((class_pre.criterio[class_pre.select-1].obligatorio)?' (Obligatorio)':''));
@@ -596,6 +597,9 @@ class_pre = {
                 $('#div_postular').show();
                 $('#div_enviar').hide();
                 $('path.highcharts-point').css('fill','rgb(82 223 82)');                
+				if(!class_pre.simulador){
+                    $('#div_postular2').show();
+                }
             }else{
                 $('#div_postular').hide();
                 $('#div_enviar').show();

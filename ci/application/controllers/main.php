@@ -291,7 +291,21 @@ class Main extends CI_Controller{
         
         public function preevaluacion(){
             $data = array();
-            $data['page_title'] = _('Pre-evaluación');
+            $pos = strpos(uri_string(), 'simulador');
+            $pos2 = strpos(uri_string(), 'postular');
+            if($pos == false){
+                $data['simulador'] = false;
+            }else{
+                $data['simulador'] = true;
+            }
+            if($pos2 == false){
+                $data['postularSegunda'] = false;
+            }else{
+                $data['postularSegunda'] = true;
+            }
+            $this->template->set_layout('default_sel');
+            $data['page_title'] = _('Preevaluación editorial');
+            $data['page_subtitle'] = _('Módulo de autoevaluación de revistas editoriales');										 
             $this->template->js('assets/js/highcharts/phantomjs/highcharts8.js');
             $this->template->js('assets/js/highcharts/phantomjs/highcharts-more8.js');
             $this->template->js('assets/js/highcharts/phantomjs/solid-gauge8.js');

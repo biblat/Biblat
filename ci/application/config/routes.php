@@ -207,7 +207,10 @@ $route[$langs.'/frecuencias/disciplina/(.+?)/\brevista\b(.*)'] = "frecuencias/di
 $route[$langs.'/bibmacro'] = "bibmacro";
 
 
-
+$route[$langs.'/sobre-metametrics'] = 'metametrics/sobreMetaMetrics';
+$route[$langs.'/metametrics/simulador'] = 'metametrics/index/';
+$route[$langs.'/postular-revista/metametrics'] = 'metametrics/index/';
+$route[$langs.'/preevaluacion/simulador'] = 'main/preevaluacion';
 // URI like '/en/about' -> use controller 'about'
 $route[$langs.'/(.+)$'] = "$1";
 /* End of file routes.php */
