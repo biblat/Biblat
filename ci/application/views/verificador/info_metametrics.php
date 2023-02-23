@@ -17,4 +17,6 @@ La validación que realiza MetaMetrics comprende los siguientes aspectos:
     Se considera una buena práctica que los datos de la revista coincidan con los registrados en el Portal ISSN, que se especifiquen los idiomas de publicación, además que los identificadores persistentes y enlaces a los textos completos se resuelvan correctamente. 
 </dd>
 <br><br>
+<a href="{site_url('metametrics')}" style="font-size: 15px"><b>Ingrese a MetaMetrics</b></a>
+<br>
 <img src="/img/validacion_metadatos.png" style="width:100%">
