@@ -39,6 +39,12 @@
     </center>
 </div>
 <div class="row"><br></div>
+
+{if !$simulador and !$postular}
+<a href="{site_url('sobre-metametrics')}" style="font-size: 15px"><b>Sobre MetaMetrics</b></a>
+<br><br>
+{/if}
+
 <div id="plugin" style="display: none">
     <center><b>Al parecer no tiene intalada la versión más reciente del plugin BIBLAT</b></center>
 </div>
