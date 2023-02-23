@@ -1743,8 +1743,8 @@ class_ver = {
                         + 'a 80% o no cumplir con el 100% de suficiencia en la afiliación institucional de los autores no permite a BIBLAT reutilizar los metadatos para indizar los '
                         + 'documentos de la revista. Consulte el cuadro que a parece a '
                         + 'continuación para conocer las posibles mejoras en los metadatos de '
-                        + 'su revista y el Manual de indización en OJS: Buenas prácticas para la '
-                        + 'región latinoamericana.';
+                        + 'su revista y el <a href="{base_url(\'archivos/pdf/ManualDeIndizacionEnOJS_BuenasPracticas.pdf\')}" target="_blank">Manual de indización en OJS: Buenas prácticas para la '
+                        + 'región latinoamericana</a>.';
          
         var btn_postular = '<br><br><center><button type="button" class="btn btn-warning btn_val" id="btn_postular" style="width: 250px;">Continuar con segunda evaluación</button><center>';
         
