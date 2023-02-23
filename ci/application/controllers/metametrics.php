@@ -109,6 +109,8 @@ class Metametrics extends CI_Controller {
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_ENCODING, "identity");
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 600);
         $data = curl_exec($ch);
         curl_close($ch);
         return $data;
@@ -151,8 +153,8 @@ class Metametrics extends CI_Controller {
             $ciphering = "AES-256-CBC";
             $iv_length = openssl_cipher_iv_length($ciphering);
             $options = 0;
-            $encryption_iv = substr(hash('sha256', ''), 0, 16);
-            $encryption_key = hash('sha256', '');
+            $encryption_iv = substr(hash('sha256', 'c09f6a9e157d253d0b2f0bcd81d338298950f246'), 0, 16);
+            $encryption_key = hash('sha256', 'UNAM - Bibliografia Latinoamericana');
 
             $response = '{ "ver": "' . trim($ver) . '"';
             if ($version == '2'){
