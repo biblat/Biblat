@@ -55,6 +55,10 @@
         <span id='revista'></span>
     </div>
     <div class="col-xs-12 col-sm-12">
+        <b>Entidad editora:</b>
+        <span id='editor'></span>
+    </div>
+    <div class="col-xs-12 col-sm-12">
         <b>ISSN impreso:</b>
         <span id='issni'></span>
         <span id="issni-t" title="No se encontraron problemas con el ISSN impreso" class="fa fa-check fa-2x" style="color:lightgreen;margin-left:50px;display:none"></span>
@@ -89,10 +93,10 @@
 
 <div class="row">  
     <div class="col-xs-12 col-sm-12">
-        <b>Entidad editora:</b>
-        <span id='editor'></span>
-        <span id="editor-t" title="No se encontraron diferencias con la entidad editora recuperada del Portal ISSN Internacional" class="fa fa-check fa-2x" style="color:lightgreen;margin-left:50px;display:none"></span>
-        <span id="editor-f" title="Se recomienda verificar la entidad editora registrada en el Portal ISSN Internacional. La entidad editora registrada no coincide con la publicada en OJS" class="fa fa-exclamation-triangle fa-2x" style="color:lightsalmon;margin-left:50px;display:none"></span>
+        <b>Entidad editora en portal ISSN:</b>
+        <span id='editorp'></span>
+        <span id="editorp-t" title="No se encontraron diferencias con la entidad editora recuperada del Portal ISSN Internacional" class="fa fa-check fa-2x" style="color:lightgreen;margin-left:50px;display:none"></span>
+        <span id="editorp-f" title="Se recomienda verificar la entidad editora registrada en el Portal ISSN Internacional. La entidad editora registrada no coincide con la publicada en OJS" class="fa fa-exclamation-triangle fa-2x" style="color:lightsalmon;margin-left:50px;display:none"></span>
     </div>
     <div class="col-xs-12 col-sm-12">
         <b>URL en Portal ISSN:</b>
