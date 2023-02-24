@@ -60,13 +60,13 @@
     </div>
     <div class="col-xs-12 col-sm-12">
         <b>ISSN impreso:</b>
-        <span id='issni'></span>
+        <span id='issni' class="color-fondo"></span>
         <span id="issni-t" title="No se encontraron problemas con el ISSN impreso" class="fa fa-check fa-2x" style="color:lightgreen;margin-left:50px;display:none"></span>
         <span id="issni-f" title="Se encontraron diferencias con el ISSN impreso recuperado del Portal ISSN Internacional" class="fa fa-exclamation-triangle fa-2x" style="color:lightsalmon;margin-left:50px;display:none"></span>
     </div>
     <div class="col-xs-12 col-sm-12">
         <b>ISSN electrónico:</b>
-        <span id='issne'></span>
+        <span id='issne' class="color-fondo"></span>
         <span id="issne-t" title="No se encontraron problemas con el ISSN electrónico" class="fa fa-check fa-2x" style="color:lightgreen;margin-left:50px;display:none"></span>
         <span id="issne-f" title="Se encontraron diferencias con el ISSN electrónico recuperado del Portal ISSN Internacional" class="fa fa-exclamation-triangle fa-2x" style="color:lightsalmon;margin-left:50px;display:none"></span>
     </div>
@@ -77,13 +77,13 @@
 <div class="row">  
     <div class="col-xs-12 col-sm-12">
         <b>Título en Portal ISSN (impreso):</b>
-        <span id='revistai'></span>
+        <span id='revistai' class="color-fondo"></span>
         <span id="revistai-t" title="No se encontraron diferencias con el título recuperado del Portal ISSN Internacional" class="fa fa-check fa-2x" style="color:lightgreen;margin-left:50px;display:none"></span>
         <span id="revistai-f" title="Se recomienda verificar el título de la revista registrado en el Portal ISSN Internacional. El título registrado no coincide con el publicado en OJS" class="fa fa-exclamation-triangle fa-2x" style="color:lightsalmon;margin-left:50px;display:none"></span>
     </div>
     <div class="col-xs-12 col-sm-12">
         <b>Título en Portal ISSN (online):</b>
-        <span id='revistae'></span>
+        <span id='revistae' class="color-fondo"></span>
         <span id="revistae-t" title="No se encontraron diferencias con el título recuperado del Portal ISSN Internacional" class="fa fa-check fa-2x" style="color:lightgreen;margin-left:50px;display:none"></span>
         <span id="revistae-f" title="Se recomienda verificar el título de la revista registrado en el Portal ISSN Internacional. El título registrado no coincide con el publicado en OJS" class="fa fa-exclamation-triangle fa-2x" style="color:lightsalmon;margin-left:50px;display:none"></span>
     </div>
@@ -94,13 +94,13 @@
 <div class="row">  
     <div class="col-xs-12 col-sm-12">
         <b>Entidad editora en portal ISSN:</b>
-        <span id='editorp'></span>
+        <span id='editorp' class="color-fondo"></span>
         <span id="editorp-t" title="No se encontraron diferencias con la entidad editora recuperada del Portal ISSN Internacional" class="fa fa-check fa-2x" style="color:lightgreen;margin-left:50px;display:none"></span>
         <span id="editorp-f" title="Se recomienda verificar la entidad editora registrada en el Portal ISSN Internacional. La entidad editora registrada no coincide con la publicada en OJS" class="fa fa-exclamation-triangle fa-2x" style="color:lightsalmon;margin-left:50px;display:none"></span>
     </div>
     <div class="col-xs-12 col-sm-12">
         <b>URL en Portal ISSN:</b>
-        <span id='url'></span>
+        <span id='url' class="color-fondo"></span>
         <span id="url-t" title="No se encontraron diferencias con el URL de la revista recuperado del Portal ISSN Internacional" class="fa fa-check fa-2x" style="color:lightgreen;margin-left:50px;display:none"></span>
         <span id="url-f" title="Se recomienda verificar el URL de la revista registrado en el Portal ISSN Internacional. El URL de la revista registrado no coincide con el publicado en OJS" class="fa fa-exclamation-triangle fa-2x" style="color:lightsalmon;margin-left:50px;display:none"></span>
     </div>

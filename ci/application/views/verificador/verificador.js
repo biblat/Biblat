@@ -177,6 +177,8 @@ class_ver = {
                 $('.fa-exclamation-triangle').hide();
                 $('.btn_val').hide();
                 $('.val_enlace').html('');
+                $('.color-fondo').css('background-color','');
+                $('.color-fondo').html('');
                 $('#plugin').hide();
                 try{
                     $('.area').flip(false);
