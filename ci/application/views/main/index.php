@@ -14,7 +14,7 @@
         AVISO DE MANTENIMIENTO: Sábado 2 de julio, a partir de las 7:00 y hasta las 16:00 horas.
     </div>
     <div id="primer" style="height:80px" class="item active">
-       <a target="_blank" href="{site_url('metametrics')}"><img class="img-responsive center-block" src="{base_url('img/slides/banner-metametrics.svg')}"/></a>
+       <a target="_blank" href="{site_url('sobre-metametrics')}"><img class="img-responsive center-block" src="{base_url('img/slides/banner-metametrics.svg')}"/></a>
     </div>
     <div style="height:80px" class="item">
        <a target="_blank" href="{site_url('documentos/multimedia#indicadores')}"><img class="img-responsive center-block" src="{base_url('img/slides/Indicadores-BIBLAT2.jpg')}"/></a>
