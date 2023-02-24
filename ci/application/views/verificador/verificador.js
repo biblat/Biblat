@@ -211,11 +211,11 @@ class_ver = {
         }*/
         //revista
         try{
-            var revista = class_utils.find_prop(class_ver.var.data.js, 'setting_name', 'title').setting_value;
+            var revista = class_utils.find_prop(class_ver.var.data.js, 'setting_name', 'title').setting_value.trim();
         }catch(e){
             var revista = class_utils.filter_prop(class_ver.var.data.js, 'setting_name', 'name');
             $.each(revista, function(i,val){
-                revista = val.setting_value;
+                revista = val.setting_value.trim();
                 if([null,'undefined', ''].indexOf(revista) == -1){
                     return false;
                 }
@@ -224,11 +224,22 @@ class_ver = {
         //issn
         try{
             var issn = class_utils.find_prop(class_ver.var.data.js, 'setting_name', 'printIssn').setting_value;
+            if(issn == ''){
+                issn = 'No especificado';
+            }
         }catch(e){
             var issn = 'No especificado';
         }
         //eissn
-        var eissn = class_utils.find_prop(class_ver.var.data.js, 'setting_name', 'onlineIssn').setting_value;
+        try{
+            var eissn = class_utils.find_prop(class_ver.var.data.js, 'setting_name', 'onlineIssn').setting_value;
+            if(eissn == ''){
+                eissn = 'No especificado';
+            }
+        }catch(e){
+            var eissn = 'No especificado';
+        }
+        
         //entidadEditora
         var editor = class_utils.find_prop(class_ver.var.data.js, 'setting_name', 'publisherInstitution').setting_value;
         //idioma
@@ -250,23 +261,25 @@ class_ver = {
         var editor_en_impreso = '';
         var url_en_impreso = '';
         
-        if(issn != ''){
+        if(issn !== 'No especificado' ){
             url = class_ver.cons.get_issn.replace('<issn>', issn);
             $.when(
                 class_utils.getResource(url)
             )
             .then(function(resp){
-                $('#revistai').html(resp.titulo);
+                $('#revistai').html(resp.titulo.trim());
                 if($('#pais').text() == '')
-                    $('#pais').html(resp.pais);
+                    $('#pais').html(resp.pais.trim());
 
-                class_ver.verifica_valor('issni', resp.titulo);
-                class_ver.verifica_valor('revistai', revista, resp.titulo);
-                editor_en_impreso = resp.editor;
+                if(issn != 'No especificado'){
+                    class_ver.verifica_valor('issni', resp.titulo.trim());
+                    class_ver.verifica_valor('revistai', revista, resp.titulo.trim());
+                }
+                editor_en_impreso = resp.editor.trim();
                 url_en_impreso = resp.url;
                 if(resp.editor !== ''){
-                    $('#editor').html(resp.editor);
-                    class_ver.verifica_valor('editor', editor, resp.editor);
+                    $('#editorp').html(resp.editor.trim());
+                    class_ver.verifica_valor('editorp', editor, resp.editor.trim());
                 }
                 if(resp.url !== ''){
                     $('#url').html(resp.url);
@@ -280,21 +293,23 @@ class_ver = {
                     class_ver.verifica_valor('url', url, resp_url);
                 }
                 
-                if(eissn != ''){
+                if(eissn !== 'No espedificado'){
                     url = class_ver.cons.get_issn.replace('<issn>', eissn);
                     $.when(
                         class_utils.getResource(url)
                     )
                     .then(function(resp){
-                        $('#revistae').html(resp.titulo);
+                        $('#revistae').html(resp.titulo.trim());
                         if($('#pais').text() == '')
-                            $('#pais').html(resp.pais);
-
-                        class_ver.verifica_valor('issne', resp.titulo);
-                        class_ver.verifica_valor('revistae', revista, resp.titulo);
+                            $('#pais').html(resp.pais.trim());
+                        
+                        class_ver.verifica_valor('issne', resp.titulo.trim());
+                        class_ver.verifica_valor('revistae', revista, resp.titulo.trim());
                         if(editor_en_impreso == ''){
-                            $('#editor').html(resp.editor);
-                            class_ver.verifica_valor('editor', editor, resp.editor);
+                            if(resp.editor !== ''){
+                                $('#editorp').html(resp.editor.trim());
+                                class_ver.verifica_valor('editorp', editor, resp.editor.trim());
+                            }
                         }
                         if(url_en_impreso == ''){
                             $('#url').html(resp.url);
@@ -312,21 +327,23 @@ class_ver = {
                 }
             });
         }else{
-            if(eissn != ''){
+            if(eissn !== 'No espedificado'){
                 url = class_ver.cons.get_issn.replace('<issn>', eissn);
                 $.when(
                     class_utils.getResource(url)
                 )
                 .then(function(resp){
-                    $('#revistae').html(resp.titulo);
+                    $('#revistae').html(resp.titulo.trim());
                     if($('#pais').text() == '')
-                        $('#pais').html(resp.pais);
-
-                    class_ver.verifica_valor('issne', resp.titulo);
-                    class_ver.verifica_valor('revistae', revista, resp.titulo);
+                        $('#pais').html(resp.pais.trim());
+                    
+                    class_ver.verifica_valor('issne', resp.titulo.trim());
+                    class_ver.verifica_valor('revistae', revista, resp.titulo.trim());
                     if(editor_en_impreso == ''){
-                        $('#editor').html(resp.editor);
-                        class_ver.verifica_valor('editor', editor, resp.editor);
+                        if(resp.editor !== ''){
+                            $('#editorp').html(resp.editor.trim());
+                            class_ver.verifica_valor('editorp', editor, resp.editor.trim());
+                        }
                     }
                     if(url_en_impreso == ''){
                         $('#url').html(resp.url);
