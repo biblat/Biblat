@@ -46,7 +46,7 @@
 {/if}
 
 <div id="plugin" style="display: none">
-    <center><b>Al parecer no tiene intalada la versión más reciente del plugin BIBLAT</b></center>
+    <center><b>Al parecer no tiene instalada la versión más reciente del plugin BIBLAT</b></center>
 </div>
 <div id="informacion" style="display: none">
 <div class="row">
