@@ -107,6 +107,7 @@ class Metametrics extends CI_Controller {
         curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_USERAGENT,'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36');
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_ENCODING, "identity");
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 60);
@@ -124,6 +125,8 @@ class Metametrics extends CI_Controller {
         $oai = $_GET['oai'];
         $years = $_GET['years'];
         $url = $oai.'?verb=ListRecords&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
+        $url2 = $oai.'?verb=ListRecords&from='. date("Y").'-01-01T02:00:00Z&until='. date("Y").'-12-01T03:00:00Z&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
+        
         $url = $this->file_get_contents_curl2($url);
         
         $dom = new DOMDocument();
@@ -131,7 +134,7 @@ class Metametrics extends CI_Controller {
         
         //obtenemos todos los div de la url
         $divs = $dom->getElementsByTagName('varfield');
-        $version = '2';
+        $version = '3';
         $ver = '';
         $exist_div = false;
         
@@ -140,9 +143,32 @@ class Metametrics extends CI_Controller {
             if( $div->getAttribute( 'id' ) === "000" ){
                 $ver = explode("v", $div->nodeValue)[0];
                 $busca = strpos($div->nodeValue, '2.3.0');
-                if ($busca == false)
-                    $version = '3';
+                if ($busca !== false){
+                    $version = '2';
+                    break;
+                }
             }
+        }
+        
+        //
+        if( $exist_div == false ){
+            //while($token !== '' && $exist_div == false){
+                $url = file_get_contents($url2);
+                $dom2 = new DOMDocument();
+                @$dom2->loadHTML($url);
+                $divs = $dom2->getElementsByTagName('varfield');
+                foreach( $divs as $div ){
+                    $exist_div = true;
+                    if( $div->getAttribute( 'id' ) === "000" ){
+                        $ver = explode("v", $div->nodeValue)[0];
+                        $busca = strpos($div->nodeValue, '2.3.0');
+                        if ($busca !== false){
+                            $version = '2';
+                            break;
+                        }
+                    }
+                }
+            //}
         }
             
         if( $exist_div == false ){
@@ -154,7 +180,7 @@ class Metametrics extends CI_Controller {
             $iv_length = openssl_cipher_iv_length($ciphering);
             $options = 0;
             $encryption_iv = substr(hash('sha256', ''), 0, 16);
-            $encryption_key = hash('');
+            $encryption_key = hash('sha256', '');
 
             $response = '{ "ver": "' . trim($ver) . '"';
             if ($version == '2'){
