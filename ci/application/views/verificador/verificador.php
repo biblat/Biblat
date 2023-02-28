@@ -10,7 +10,7 @@
     <dd style="margin-left: 20px">
         <p>MetaMetrics encuentra errores de catalogación e indización en los registros de OJS. Conozca más acerca de lo que se evalúa, <a href="{site_url('sobre-metametrics')}" target="_blank">aquí</a>.</p>
 
-        {if !$simulador and !$postular}
+        {if !$simulador and !$postularPrimera}
             <p>Seleccione alguna de las revistas ya evaluadas por la herramienta para realizar una prueba.</p>
 
             <p>O si desea verificar alguna otra revista, ingrese la URL oai, recuerde que debe tener instalado el <a href="{base_url('archivos/pdf/PluginBIBLAT.pdf')}" target="_blank">plugin de BIBLAT</a> para la recolección de metadatos.</p>
@@ -20,7 +20,7 @@
         <p>Ingrese la URL oai de su revista, recuerde que debe tener instalado el <a href="{base_url('archivos/pdf/PluginBIBLAT.pdf')}" target="_blank">plugin de BIBLAT</a> para la recolección de metadatos.</p>
         {/if}
         
-        {if $postular}
+        {if $postularPrimera}
         <p>Si usted es editor de una revista que desea postular para BIBLAT, antes de comenzar, instale el <a href="{base_url('archivos/pdf/PluginBIBLAT.pdf')}" target="_blank">plugin de BIBLAT</a> para la recolección de metadatos.</p>
         {/if}
     </dd>
@@ -30,6 +30,12 @@
         <input type="text" class="form-control" name="grafica" id="url_oai" style="display:none" placeholder="Ingrese la dirección OAI de su revista. Ejemplo: http://revistas.unam.mx/revista/oai">
         <select class="form-control" name="oai" id="url_oai_sel" style="display:none">
         </select>
+        {if !$simulador and !$postularPrimera}
+            <br><br>
+            <label for="anio">Año de revisión</label>
+            <select class="form-control" name="anio" id="anio" style="max-width:200px">
+            </select>
+        {/if}
     </div>
 </div>
 <div class="row"><br></div>
@@ -47,6 +53,9 @@
 
 <div id="plugin" style="display: none">
     <center><b>Al parecer no tiene instalada la versión más reciente del plugin BIBLAT</b></center>
+</div>
+<div id="sinDatos" style="display: none">
+    <center><b>No se encontraron publicaciones para el año seleccionado</b></center>
 </div>
 <div id="informacion" style="display: none">
 <div class="row">

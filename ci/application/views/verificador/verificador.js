@@ -77,7 +77,8 @@ class_ver = {
         total: {},
         revistasJSON : [],
         init: true,
-        id_oai: ''
+        id_oai: '',
+        id_anio: ''
     },
     salida: function(msj){
       class_ver.var.salida += msj+'\n';
@@ -88,6 +89,12 @@ class_ver = {
         if( !class_ver.var.simulador && !class_ver.var.postular){
             class_ver.var.id_oai = 'url_oai_sel';
             //$('#'+class_ver.var.id_oai).show();
+            var anio = (new Date()).getFullYear();
+            var anios = '<option value="0">Últimos 3 fascículos</option>';
+            for(i=anio; i>=anio-10; i--){
+                anios += '<option value="'+i+'">'+i+'</option>';
+            }
+            $('#anio').html(anios);
             class_ver.initClient();
         }else{
             class_ver.var.id_oai = 'url_oai';
@@ -180,6 +187,7 @@ class_ver = {
                 $('.color-fondo').css('background-color','');
                 $('.color-fondo').html('');
                 $('#plugin').hide();
+                $('#sinDatos').hide();
                 try{
                     $('.area').flip(false);
                 } catch(e){
@@ -197,11 +205,26 @@ class_ver = {
                     class_ver.analisis();
                 });*/
                 class_ver.var.data = [];
-                setTimeout( function(){class_ver.get_data_anios();},100);
+                setTimeout( function(){
+                    if( !class_ver.var.simulador && !class_ver.var.postular){
+                        class_ver.var.id_anio = $('#anio').val();
+                        var anio = parseInt($('#anio').val());
+                        anio = (anio==0)?null:anio;
+                        class_ver.get_data_anios(anio, anio);
+                    }else{
+                        class_ver.var.id_anio = '0';
+                        class_ver.get_data_anios();
+                    }
+                },100);
             }, 1000);
         });
     },
     analisis:function(){
+        if(class_ver.var.data.length == 0){
+            $('#sinDatos').show();
+            loading.end();
+            return 0;
+        }
         $('#area_prec').show();
         /*try {
             class_ver.var.datatxt = resp;
@@ -1764,6 +1787,8 @@ class_ver = {
                         + 'continuación para conocer las posibles mejoras en los metadatos de '
                         + 'su revista y el <a href="/archivos/pdf/ManualDeIndizacionEnOJS_BuenasPracticas.pdf" target="_blank">Manual de indización en OJS: Buenas prácticas para la '
                         + 'región latinoamericana</a>.';
+        
+        var txt_anio = 'Se muestra el resultado final de la valoración con la información encontrada para el año ' + class_ver.var.id_anio + '.';
          
         var btn_postular = '<br><br><center><button type="button" class="btn btn-warning btn_val" id="btn_postular" style="width: 250px;">Continuar con segunda evaluación</button><center>';
         
@@ -1828,16 +1853,21 @@ class_ver = {
         
         var instituciones = class_ver.var.salida.iv.length / class_ver.var.salida.i.length * 100;
         
-        if( sp >= 80 && instituciones == 100){
-            if(class_ver.var.postular){
-                $('#txt_val_final').html(txt80p + btn_postular);
-            }else{
-                $('#txt_val_final').html(txt80);
-            }
+        if( class_ver.var.id_anio !== '0' & class_ver.var.id_anio !== ''){
+            $('#txt_val_final').html(txt_anio);
         }else{
-            $('#txt_val_final').html(txt_rep);
+            if( sp >= 80 && instituciones == 100){
+                if(class_ver.var.postular){
+                    $('#txt_val_final').html(txt80p + btn_postular);
+                }else{
+                    $('#txt_val_final').html(txt80);
+                }
+            }else{
+                $('#txt_val_final').html(txt_rep);
+            }
         }
-        $('#btn_postular').on('click', function(){
+        
+        $('#btn_postular').off('click').on('click', function(){
             window.location.href='preevaluacion';
         });
     },
@@ -1868,14 +1898,14 @@ class_ver = {
         if(dois.length == 0){
             $('#dois').html("No hay DOI's para validar");
             class_ver.var.salida.pd = [];
-            class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-doi', class_ver.var.salida.pd, class_ver.cons.expiry);
+            class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-doi'+'-'+class_ver.var.id_anio, class_ver.var.salida.pd, class_ver.cons.expiry);
             var res_orcid = [];
             class_ver.valida_orcid(class_ver.var.salida.consis_or, res_orcid);
         }
         
         var url = $('#'+class_ver.var.id_oai).val();
         
-        var local_data = class_utils.getWithExpiry($('#'+class_ver.var.id_oai).val()+'-doi');
+        var local_data = class_utils.getWithExpiry($('#'+class_ver.var.id_oai).val()+'-doi'+'-'+class_ver.var.id_anio);
         if(local_data !== null){
             if(local_data.length > 0){
                 class_ver.var.salida.pd = local_data;
@@ -1919,7 +1949,7 @@ class_ver = {
                             setTimeout(function(){class_ver.valida_dois(dois.slice(rango), res, total, num);},100);
                         }else{
                             class_ver.var.salida.pd = res;
-                            class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-doi', class_ver.var.salida.pd, class_ver.cons.expiry);
+                            class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-doi'+'-'+class_ver.var.id_anio, class_ver.var.salida.pd, class_ver.cons.expiry);
                             //class_ver.graficaDois();
                             var res_orcid = [];
                             class_ver.valida_orcid(class_ver.var.salida.consis_or, res_orcid);
@@ -1962,7 +1992,7 @@ class_ver = {
                                 class_ver.valida_dois(dois.slice(rango), res, total, num);
                             }else{
                                 class_ver.var.salida.pd = res;
-                                class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-doi', class_ver.var.salida.pd, class_ver.cons.expiry);
+                                class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-doi'+'-'+class_ver.var.id_anio, class_ver.var.salida.pd, class_ver.cons.expiry);
                                 var res_orcid = [];
                                 class_ver.valida_orcid(class_ver.var.salida.consis_or, res_orcid);
                                 //class_ver.graficaDois();
@@ -1984,7 +2014,7 @@ class_ver = {
                         class_ver.valida_dois(dois.slice(rango), res, total, num);
                     }else{
                         class_ver.var.salida.pd = res;
-                        class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-doi', class_ver.var.salida.pd, class_ver.cons.expiry);
+                        class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-doi'+'-'+class_ver.var.id_anio, class_ver.var.salida.pd, class_ver.cons.expiry);
                         //class_ver.graficaDois();
                         var res_orcid = [];
                         class_ver.valida_orcid(class_ver.var.salida.consis_or, res_orcid);
@@ -1998,7 +2028,7 @@ class_ver = {
         if(orcid.length == 0){
             $('#orcid').html("No hay ORCID para validar");
             class_ver.var.salida.orcid = [];
-            class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-orcid', class_ver.var.salida.orcid, class_ver.cons.expiry);
+            class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-orcid'+'-'+class_ver.var.id_anio, class_ver.var.salida.orcid, class_ver.cons.expiry);
             var res_lic = [];
             class_ver.valida_lic(class_ver.var.salida.lic, res_lic);
             //class_ver.valida_enlace(class_ver.var.salida.arr_ent, res_lic);
@@ -2006,7 +2036,7 @@ class_ver = {
         
         var url = $('#'+class_ver.var.id_oai).val();
         
-        var local_data = class_utils.getWithExpiry($('#'+class_ver.var.id_oai).val()+'-orcid');
+        var local_data = class_utils.getWithExpiry($('#'+class_ver.var.id_oai).val()+'-orcid'+'-'+class_ver.var.id_anio);
         if(local_data !== null){
             if(local_data.length > 0){
                 class_ver.var.salida.orcid = local_data;
@@ -2063,7 +2093,7 @@ class_ver = {
                         setTimeout(function(){class_ver.valida_orcid(orcid.slice(rango), res, total, num);},100);
                     }else{
                         class_ver.var.salida.orcid = res;
-                        class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-orcid', class_ver.var.salida.orcid, class_ver.cons.expiry);
+                        class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-orcid'+'-'+class_ver.var.id_anio, class_ver.var.salida.orcid, class_ver.cons.expiry);
                         //class_ver.graficaOrcid();
                         //class_ver.graficaDois();
                         setTimeout(function(){
@@ -2084,14 +2114,14 @@ class_ver = {
         if(licencias.length == 0){
             $('#lic').html("No hay Licencias para validar");
             class_ver.var.salida.val_lic = [];
-            class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-lic', class_ver.var.salida.val_lic, class_ver.cons.expiry);
+            class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-lic'+'-'+class_ver.var.id_anio, class_ver.var.salida.val_lic, class_ver.cons.expiry);
             var res_enl = [];
             class_ver.valida_enlace(class_ver.var.salida.arr_ent, res_enl);
         }
         
         var url = $('#'+class_ver.var.id_oai).val();
         
-        var local_data = class_utils.getWithExpiry($('#'+class_ver.var.id_oai).val()+'-lic');
+        var local_data = class_utils.getWithExpiry($('#'+class_ver.var.id_oai).val()+'-lic'+'-'+class_ver.var.id_anio);
         if(local_data !== null){
             if(local_data.length > 0){
                 class_ver.var.salida.val_lic = local_data;
@@ -2148,7 +2178,7 @@ class_ver = {
                         setTimeout(function(){class_ver.valida_lic(licencias.slice(rango), res, total, num);},100);
                     }else{
                         class_ver.var.salida.val_lic = res;
-                        class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-lic', class_ver.var.salida.val_lic, class_ver.cons.expiry);
+                        class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-lic'+'-'+class_ver.var.id_anio, class_ver.var.salida.val_lic, class_ver.cons.expiry);
                         //class_ver.graficaOrcid();
                         setTimeout(function(){
                             var res_enl = [];
@@ -2169,7 +2199,7 @@ class_ver = {
         if(enlaces.length == 0){
             $('#enlace').html("No hay enlaces para validar");
             class_ver.var.salida.val_enl = [];
-            class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-enl', class_ver.var.salida.val_enl, class_ver.cons.expiry);
+            class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-enl'+'-'+class_ver.var.id_anio, class_ver.var.salida.val_enl, class_ver.cons.expiry);
             setTimeout(function(){
                 class_ver.graficaDois();
                 setTimeout(function(){
@@ -2180,7 +2210,7 @@ class_ver = {
         
         var url = $('#'+class_ver.var.id_oai).val();
         
-        var local_data = class_utils.getWithExpiry($('#'+class_ver.var.id_oai).val()+'-enl');
+        var local_data = class_utils.getWithExpiry($('#'+class_ver.var.id_oai).val()+'-enl'+'-'+class_ver.var.id_anio);
         if(local_data !== null){
             if(local_data.length > 0){
                 class_ver.var.salida.val_enl = local_data;
@@ -2243,7 +2273,7 @@ class_ver = {
                         setTimeout(function(){class_ver.valida_enlace(enlaces.slice(rango), res, total, num);},100);
                     }else{
                         class_ver.var.salida.val_enl = res;
-                        class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-enl', class_ver.var.salida.val_enl, class_ver.cons.expiry);
+                        class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-enl'+'-'+class_ver.var.id_anio, class_ver.var.salida.val_enl, class_ver.cons.expiry);
                         //class_ver.graficaOrcid();
                         setTimeout(function(){
                             class_ver.graficaDois();
@@ -2336,7 +2366,7 @@ class_ver = {
 	var url = $('#'+class_ver.var.id_oai).val();
         url = class_ver.cons.get_oai.replace('<oai>', url).replace('<years>', anio);
         
-        var local_data = class_utils.getWithExpiry($('#'+class_ver.var.id_oai).val());
+        var local_data = class_utils.getWithExpiry($('#'+class_ver.var.id_oai).val()+'-'+class_ver.var.id_anio);
         if(local_data !== null){
             class_ver.var.data = local_data;
             class_ver.analisis();
@@ -2382,7 +2412,7 @@ class_ver = {
             //alert('issues:' + num_issues + ' evalua:' + evalua +' repetir:' + repetir);
             if(evalua == null){
                 if( anio_fin == anio ){
-                    class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val(), class_ver.var.data, class_ver.cons.expiry);
+                    class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-'+class_ver.var.id_anio, class_ver.var.data, class_ver.cons.expiry);
                     class_ver.analisis();
                     return 0;
                 }
@@ -2396,7 +2426,7 @@ class_ver = {
                     class_ver.get_data_anios(anio-1, anio_fin, num_issues, evalua, repetir-1);
                     return 0;
                 }else{
-                    class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val(), class_ver.var.data, class_ver.cons.expiry);
+                    class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-'+class_ver.var.id_anio, class_ver.var.data, class_ver.cons.expiry);
                     class_ver.analisis();
                     return 0;
                 }
@@ -2467,7 +2497,7 @@ class_ver = {
                         class_ver.var.data.ps = ps;
                     }
                     class_ver.var.data.p = p;
-                    class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val(), class_ver.var.data, class_ver.cons.expiry);
+                    class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-'+class_ver.var.id_anio, class_ver.var.data, class_ver.cons.expiry);
                     class_ver.analisis();
                     return 0;
                 }else{
