@@ -78,7 +78,24 @@ class_ver = {
         revistasJSON : [],
         init: true,
         id_oai: '',
-        id_anio: ''
+        id_anio: '',
+        plugin: '',
+        revista_impresa: '',
+        revista_electronica:'',
+        revista_ojs:'',
+        entidad_editora_ojs:'',
+        entidad_editora_issn:'',
+        issni:'',
+        issne:'',
+        idiomap:'',
+        idiomase:'',
+        pais_issn:'',
+        pp:'',
+        sp:'',
+        cp:'',
+        issni_v:'',
+        issne_v:'',
+        origen:''
     },
     salida: function(msj){
       class_ver.var.salida += msj+'\n';
@@ -154,6 +171,76 @@ class_ver = {
                 });
             });
         }
+    },
+    setBitacora: function() {
+            var ip='';
+            var pais='';
+            var org = '';
+            var paisRegistrado='';
+            var object = {
+                private_key: env.P_K,
+                client_email: b(env.C_E),
+                scopes: class_ver.cons.SCOPES,
+            };
+            gapi.load("client", async function(){
+                gapi.auth.setToken(await GetAccessTokenFromServiceAccount.do(object));
+                gapi.client.init({
+                    discoveryDocs: class_ver.cons.DISCOVERY_DOCS,
+                }).then(function () {
+                    //Lectura de hoja de cálculo, se requiere el ID y la hoja de la que leerá
+                    gapi.client.sheets.spreadsheets.values.get({
+                        spreadsheetId: b(env.sId),
+                        range: "Bitacora",
+                    }).then(function(response) {
+                        var row = response.result.values[0][26];
+                        var fecha = (new Date());
+                        $.getJSON('https://api.bigdatacloud.net/data/ip-geolocation?key=d9e53816d07345139c58d0ea733e3870', function(data) {
+                            var datos = [];
+                            datos[0] = $('#'+class_ver.var.id_oai).val();
+                            datos[1] = (class_ver.var.simulador)?"Simulación":(class_ver.var.postular)?"Evaluación":"Prueba";
+                            datos[2] = fecha.getFullYear() + '-' + String((fecha.getMonth()+1)).padStart(2,'0') + '-' + String(fecha.getDate()).padStart(2,'0');
+                            datos[3] = data.ip;
+                            datos[4] = data.country.isoName;
+                            datos[5] = data.network.organisation;
+                            datos[6] = data.network.registeredCountryName;
+                            datos[7] = class_ver.var.plugin;
+                            datos[8] = class_ver.var.revista_ojs;
+                            datos[9] = class_ver.var.entidad_editora_ojs;
+                            datos[10] = class_ver.var.issni;
+                            datos[11] = class_ver.var.issni_v;
+                            datos[12] = class_ver.var.issne;
+                            datos[13] = class_ver.var.issne_v;
+                            datos[14] = class_ver.var.revista_impresa;
+                            datos[15] = class_ver.var.revista_electronica;
+                            datos[16] = class_ver.var.entidad_editora_issn;
+                            datos[17] = class_ver.var.pais_issn;
+                            datos[18] = class_ver.var.idiomase;
+                            datos[19] = class_ver.var.idiomap;
+                            datos[20] = (class_ver.var.id_anio == '0')?'3 últimos fascículos':class_ver.var.id_anio;
+                            datos[21] = class_ver.var.sp;
+                            datos[22] = class_ver.var.cp;
+                            datos[23] = class_ver.var.pp;
+                            
+                            var body = {
+                                values: [datos]
+                            };
+                            
+                            //Agrega valores a la hoja, obtiene el último renglón donde hay información
+                            gapi.client.sheets.spreadsheets.values.append({
+                                spreadsheetId: b(env.sId),
+                                //range: class_pre.sheet+"!B"+(range.values.length+1),
+                                range: "Bitacora!A"+row,
+                                resource: body,
+                                valueInputOption: "RAW",
+                            }).then((response) => {
+                                var result = response.result;
+                            });
+                            
+                          });
+                        
+                    });
+                });
+            });
     },
     control:function(){
         $('#btn_verificar').off('click').on('click',function(){
@@ -246,6 +333,7 @@ class_ver = {
                 }
             });            
         }
+        
         //issn
         try{
             var issn = class_utils.find_prop(class_ver.var.data.js, 'setting_name', 'printIssn').setting_value;
@@ -277,11 +365,17 @@ class_ver = {
         else if( idioma_principal.indexOf('en_') !== -1 )
             idioma = 'Inglés';
 
+        class_ver.var.revista_ojs = revista;
+        class_ver.var.issni = (issn == '')?'No especificado':issn;
+        class_ver.var.issne = (eissn == '')?'No especificado':eissn;
+        class_ver.var.entidad_editora_ojs = (editor == '')?'No especificado':editor;
+        class_ver.var.idiomap = (idioma == '')?'No especificado':idioma;
+        
         $('#revista').html(revista);
-        $('#issni').html( (issn == '')?'No especificado':issn );
-        $('#issne').html( (eissn == '')?'No especificado':eissn );
-        $('#editor').html( (editor == '')?'No especificado':editor );
-        $('#idiomap').html( (idioma == '')?'No especificado':idioma );
+        $('#issni').html( class_ver.var.issni );
+        $('#issne').html( class_ver.var.issne );
+        $('#editor').html( class_ver.var.entidad_editora_ojs );
+        $('#idiomap').html( class_ver.var.idiomap );
         
         var editor_en_impreso = '';
         var url_en_impreso = '';
@@ -292,17 +386,19 @@ class_ver = {
                 class_utils.getResource(url)
             )
             .then(function(resp){
+                class_ver.var.revista_impresa = resp.titulo.trim();
                 $('#revistai').html(resp.titulo.trim());
+                class_ver.var.pais_issn = resp.pais.trim();
                 if($('#pais').text() == '')
                     $('#pais').html(resp.pais.trim());
 
                 if(issn != 'No especificado'){
-                    class_ver.verifica_valor('issni', resp.titulo.trim());
+                    class_ver.var.issni_v = class_ver.verifica_valor('issni', resp.titulo.trim());
                     class_ver.verifica_valor('revistai', revista, resp.titulo.trim());
                 }
-                editor_en_impreso = resp.editor.trim();
                 url_en_impreso = resp.url;
                 if(resp.editor !== ''){
+                    editor_en_impreso = resp.editor.trim();
                     $('#editorp').html(resp.editor.trim());
                     class_ver.verifica_valor('editorp', editor, resp.editor.trim());
                 }
@@ -324,14 +420,19 @@ class_ver = {
                         class_utils.getResource(url)
                     )
                     .then(function(resp){
+                        class_ver.var.revista_electronica = resp.titulo.trim();
                         $('#revistae').html(resp.titulo.trim());
-                        if($('#pais').text() == '')
-                            $('#pais').html(resp.pais.trim());
                         
-                        class_ver.verifica_valor('issne', resp.titulo.trim());
+                        if($('#pais').text() == ''){
+                            class_ver.var.pais_issn = resp.pais.trim();
+                            $('#pais').html(resp.pais.trim());
+                        }
+                        
+                        class_ver.var.issne_v = class_ver.verifica_valor('issne', resp.titulo.trim());
                         class_ver.verifica_valor('revistae', revista, resp.titulo.trim());
                         if(editor_en_impreso == ''){
                             if(resp.editor !== ''){
+                                editor_en_impreso = resp.editor.trim();
                                 $('#editorp').html(resp.editor.trim());
                                 class_ver.verifica_valor('editorp', editor, resp.editor.trim());
                             }
@@ -347,25 +448,30 @@ class_ver = {
                             var url = $('#'+class_ver.var.id_oai).val().split('/')[2];
                             class_ver.verifica_valor('url', url, resp_url);
                         }
-
                     });
                 }
+                class_ver.var.entidad_editora_issn = editor_en_impreso;
             });
         }else{
-            if(eissn !== 'No espedificado'){
+            if(eissn !== 'No especificado'){
                 url = class_ver.cons.get_issn.replace('<issn>', eissn);
                 $.when(
                     class_utils.getResource(url)
                 )
                 .then(function(resp){
+                    class_ver.var.revista_electronica = resp.titulo.trim();
                     $('#revistae').html(resp.titulo.trim());
-                    if($('#pais').text() == '')
-                        $('#pais').html(resp.pais.trim());
                     
-                    class_ver.verifica_valor('issne', resp.titulo.trim());
+                    if($('#pais').text() == ''){
+                        class_ver.var.pais_issn = resp.pais.trim();
+                        $('#pais').html(resp.pais.trim());
+                    }
+                    
+                    class_ver.var.issne_v = class_ver.verifica_valor('issne', resp.titulo.trim());
                     class_ver.verifica_valor('revistae', revista, resp.titulo.trim());
                     if(editor_en_impreso == ''){
                         if(resp.editor !== ''){
+                            editor_en_impreso = resp.editor.trim(); 
                             $('#editorp').html(resp.editor.trim());
                             class_ver.verifica_valor('editorp', editor, resp.editor.trim());
                         }
@@ -381,7 +487,7 @@ class_ver = {
                         var url = $('#'+class_ver.var.id_oai).val().split('/')[2];
                         class_ver.verifica_valor('url', url, resp_url);
                     }
-
+                    class_ver.var.entidad_editora_issn = editor_en_impreso;
                 });
             }
         }
@@ -397,7 +503,8 @@ class_ver = {
                 s_idiomas_envio += ( (s_idiomas_envio == '')?'':', ' ) + class_ver.cons.idiomas[val];
             }
         });
-        $('#idiomas').html( (s_idiomas_envio == '')?'No especificado':s_idiomas_envio );
+        class_ver.var.idiomase = (s_idiomas_envio == '')?'No especificado':s_idiomas_envio;
+        $('#idiomas').html( class_ver.var.idiomase );
 
         //Intercambio de valores en las tablas de opciones de envíos y en publicaciones
         if (class_ver.var.data.ver == '3.1.2' || class_ver.var.data.ver == '3.0.0'){
@@ -1603,6 +1710,7 @@ class_ver = {
                                 (sp < 60)?sp:0,
                             ];
         var prom = [sp];
+        class_ver.var.sp = sp;
         var prom2 = [100-sp];
                               
         grafica.series = [
@@ -1730,6 +1838,7 @@ class_ver = {
         class_ver.var.total.consistencia = puntos;
         
         var sp = parseFloat(((puntos * 100) / total_califica).toFixed(2));
+        class_ver.var.cp = sp;
         
         var completos = [ 
                                 (sp >= 80)?sp:0,
@@ -1812,6 +1921,7 @@ class_ver = {
         class_ver.var.total.precision = puntos;
         
         var sp = parseFloat(((puntos * 100) / total_califica).toFixed(2));
+        class_ver.var.pp = sp;
         
         var completos = [ 
                                 (sp >= 80)?sp:0,
@@ -1877,20 +1987,24 @@ class_ver = {
                 $('#'+id).prop('style','background-color: yellow');
                 $('#'+id+'-f').show();
                 $('#'+id+'-t').hide();
+                return false;
             }else{
                 $('#'+id).prop('style','background-color: lightgreen');
                 $('#'+id+'-t').show();
                 $('#'+id+'-f').hide();
+                return true;
             }
         }else{
             if($('#'+id).html() !== '' && valor !== ''){
                 $('#'+id).prop('style','background-color: lightgreen');
                 $('#'+id+'-t').show();
                 $('#'+id+'-f').hide();
+                return true;
             }else{
                 $('#'+id).prop('style','background-color: yellow');
                 $('#'+id+'-f').show();
                 $('#'+id+'-t').hide();
+                return false;
             }
         }
     },
@@ -2369,6 +2483,7 @@ class_ver = {
         var local_data = class_utils.getWithExpiry($('#'+class_ver.var.id_oai).val()+'-'+class_ver.var.id_anio);
         if(local_data !== null){
             class_ver.var.data = local_data;
+            class_ver.var.plugin = 'Si';
             class_ver.analisis();
             return 0;
         }
@@ -2379,8 +2494,11 @@ class_ver = {
         .then(function(resp){
             if(resp.resp == 'Fail'){
                 $('#plugin').show();
+                class_ver.var.plugin = 'No';
                 loading.end();
                 return 0;
+            }else{
+                class_ver.var.plugin = 'Si';
             }
             var data = resp;
             var publicaciones = '';
@@ -2508,6 +2626,7 @@ class_ver = {
         });
     },
     resultado: function(){
+                class_ver.setBitacora();
                 var url = $('#'+class_ver.var.id_oai).val();
                 dicc_tablas = ['Autor', 'Email', 'ORCID', 'Afiliación', 'Título', 'Título traducido', 'Resumen', 'Resumen traducido', 'Palabras clave', 'Palabras clave traducidas',
                                 'Enlace', 'Referencias', 'Licencia', 'DOI'];
