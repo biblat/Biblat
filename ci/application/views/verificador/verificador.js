@@ -14,8 +14,9 @@ class_ver = {
         idiomas: {
                 'es_ES' : 'Español',
                 'en_US' : 'Inglés',
-                'pt_BR' : 'Portugués',
-                'fr_CA' : 'Francés'
+                'pt_BR' : 'Portugués (Brasil)',
+                'fr_CA' : 'Francés',
+                'pt_PT' : 'Portugués (Portugal)',
             },
         pub_id: {
             '3.2.0': 'publication_id',
@@ -51,7 +52,71 @@ class_ver = {
             //Mayúsculas seguidas
             'doblemayus' : /([A-Z][A-Z]|[A-Z]\.[A-Z])/,
             //Licesncias
-            'licencia' : /^https?:\/\/creativecommons\.org\/licenses/
+            'licencia' : /^https?:\/\/creativecommons\.org\/licenses/,
+            //Palabras completas en título
+            'titulo_completo' : [
+                /^carta\s*al\s*lector$/,
+                /^editorial$/,
+                /^índice$/,
+                /^comité\s*editorial$/,
+                /^comité\s*editor$/,
+                /^editorial\s*del\s*número$/,
+                /^introducción$/,
+                /^presentación$/,
+                /^revisores$/,
+                /^listado\s*de\s*revisores$/,
+                /^criterios\s*editoriales$/,
+                /^criterios\s*de\s*publicación$/,
+                /^letter\s*to\s*the\s*reader$/,
+                /^index$/,
+                /^editorial\s*committee$/,
+                /^editor\s*committee$/,
+                /^editorial\s*of\s*the\s*number$/,
+                /^introduction$/,
+                /^presentation$/,
+                /^reviewers$/,
+                /^reviewers\s*list$/,
+                /^editorial\s*criteria$/,
+                /^publication\s*criteria$/,
+                /^carta\s*ao\s*leitor$/,
+                /^comitê\s*editorial$/,
+                /^comitê\s*do\s*editor$/,
+                /^editorial\s*do\s*número$/,
+                /^introdução$/,
+                /^apresentação$/,
+                /^revisores$/,
+                /^lista\s*de\s*revisores$/,
+                /^critérios\s*editoriais$/,
+                /^critérios\s*de\s*publicação$/,
+                /^resenha$/,
+                /^resenha\s*do\s*livro$/,
+                /^páginas\s*iniciales$/,
+            ],
+            'titulo_parcial' : [
+                /in\s*memóriam/,
+                /reseña/,
+                /reseña\s*de\s*libro/,
+                /entrevista\s*a/,
+                /in\s*memoriam/,
+                /review/,
+                /book\s*review/,
+                /review/,
+                /interview\s*to/,
+                /em memória/,
+                /revisão\s*do\s*livro/,
+                /review/,
+                /^editorial\s*/,
+                /^editorial:/,
+                /^editorial./,
+                /^expediente\s*\(/,
+                /^tesis/,
+            ],
+            'contenido_indizable' : [
+                /^reseña$/,
+                /^reseña\s*de\s*libro$/,
+                /^resenha$/,
+                /^resenha\s*do\s*livro$/,
+            ]
         },
         body_faltantes: '',
         tabla_faltantes: '<table id="<id>" class="display" style="width:100%;font-size:11px">' +
@@ -194,7 +259,7 @@ class_ver = {
                     }).then(function(response) {
                         var row = response.result.values[0][26];
                         var fecha = (new Date());
-                        $.getJSON('https://api.bigdatacloud.net/data/ip-geolocation?key=d9e53816d07345139c58d0ea733e3870', function(data) {
+                        $.getJSON('https://api.bigdatacloud.net/data/ip-geolocation?key=bdc_7a62527619f64920868ea6753c27b406', function(data) {
                             var datos = [];
                             datos[0] = $('#'+class_ver.var.id_oai).val();
                             datos[1] = (class_ver.var.simulador)?"Simulación":(class_ver.var.postular)?"Evaluación":"Prueba";
@@ -327,7 +392,11 @@ class_ver = {
         }catch(e){
             var revista = class_utils.filter_prop(class_ver.var.data.js, 'setting_name', 'name');
             $.each(revista, function(i,val){
-                revista = val.setting_value.trim();
+                try{
+                    revista = val.setting_value.trim();
+                }catch(e){
+                    revista = val.setting_value;
+                }
                 if([null,'undefined', ''].indexOf(revista) == -1){
                     return false;
                 }
@@ -515,15 +584,20 @@ class_ver = {
 
         //total de publicaciones
         var publicaciones = class_utils.filter_prop(class_ver.var.data.p, 'status', '3');
-
+        var publicaciones_totales = JSON.parse(JSON.stringify(publicaciones));
+        
         //Ids de las publicaciones vigentes
         var arr_id_pubs = [];
         //Datos completos de las publicaciones Año, vol, num, pages, tit
         arr_pubs = [];
         //id's de las publicaciones
+        var tmp_publicaciones = [];
+        var publicaciones_indizables = [];
+        
         $.each(publicaciones, function(i,val){
+            var coincide_titulo = false;
+            var coincide_titulo_indizable = true;
             if (class_ver.var.data.ver == '3.2.0'){
-                arr_id_pubs.push(val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
                 var idioma_doc = val.locale;
                 if(idioma_doc == '' || idioma_doc == null){
                     var ss = class_utils.find_prop(class_ver.var.data.ss, 'submission_id', val['submission_id']);
@@ -584,9 +658,51 @@ class_ver = {
                 val.number = issue.number;
                 val.pages = pages;
                 val.title = title_tmp;
+                
+                //Búsqueda de títulos que no debe entrar en la valoración
+                $.each(class_ver.cons.er.titulo_completo, function(i_t, val_t){
+                    try{
+                        if( val_t.test(val.title.toLowerCase().trim()) ){
+                            coincide_titulo = true;
+                            return false;
+                        }
+                    }catch(e){
+                       
+                    }
+                });
+                if(!coincide_titulo){
+                    $.each(class_ver.cons.er.titulo_parcial, function(i_t, val_t){
+                        try{
+                            if( val_t.test(val.title.toLowerCase().trim()) ){
+                                coincide_titulo = true;
+                                return false;
+                            }
+                        }catch(e){
+                       
+                        }
+                    });
+                }
+                
+                //Coincide con un título que no debe entrar en la valoración, pero se verifica si es contenido indizable
+                if(coincide_titulo){
+                    //De inicio se marca como contenido no indizable
+                    coincide_titulo_indizable = false;
+                    $.each(class_ver.cons.er.contenido_indizable, function(i_t, val_t){
+                        try{
+                            if( val_t.test(val.title.toLowerCase().trim()) ){
+                                //Si hay coincidencia en el listado siempre sí se marca como indizable
+                                coincide_titulo_indizable = true;
+                                return false;
+                            }
+                        }catch(e){
+                       
+                        }
+                    });
+                }
+                
             }else{ //if (class_ver.var.data.ver == '3.1.2'){
             //}else{
-                arr_id_pubs.push(val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                //arr_id_pubs.push(val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
                 var idioma_doc = val.locale;
                 //var title = class_utils.find_prop2(class_ver.var.data.ps, class_ver.cons.pub_id[class_ver.var.data.ver],'setting_name', val[class_ver.cons.pub_id[class_ver.var.data.ver]],'title').setting_value;
 
@@ -641,10 +757,57 @@ class_ver = {
                 val.volume = issue.volume;
                 val.number = issue.number;
                 val.title = title_tmp;
+                
+                //Búsqueda de títulos que no debe entrar en la valoración
+                $.each(class_ver.cons.er.titulo_completo, function(i_t, val_t){
+                    try{
+                        if( val_t.test(val.title.toLowerCase().trim()) ){
+                            coincide_titulo = true;
+                            return false;
+                        }
+                    }catch(e){
+                        console.log(e);
+                    }
+                });
+                if(!coincide_titulo){
+                        $.each(class_ver.cons.er.titulo_parcial, function(i_t, val_t){
+                            try{
+                                if( val_t.test(val.title.toLowerCase().trim()) ){
+                                    coincide_titulo = true;
+                                    return false;
+                                }
+                            }catch(e){
+                        
+                            }
+                        });
+                }
+                
+                //Coincide con un título que no debe entrar en la valoración, pero se verifica si es contenido indizable
+                if(coincide_titulo){
+                    coincide_titulo_indizable = true;
+                    $.each(class_ver.cons.er.contenido_indizable, function(i_t, val_t){
+                        try{
+                            if( val_t.test(val.title.toLowerCase().trim()) ){
+                                coincide_titulo_indizable = false;
+                                return false;
+                            }
+                        }catch(e){
+                            
+                        }
+                    });
+                }
             }
-            arr_pubs.push(val);
+            if(!coincide_titulo){
+                arr_pubs.push(val);
+                tmp_publicaciones.push(val);
+                arr_id_pubs.push(val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
+            }
+            if(coincide_titulo_indizable){
+                publicaciones_indizables.push(val);
+            }
         });
-
+        
+        publicaciones = tmp_publicaciones;
         //Búsqued ajustes publicaciones
         var publicaciones_ajustes = '';
         publicaciones_ajustes = class_utils.filter_prop_arr(class_ver.var.data.ps, class_ver.cons.pub_id[class_ver.var.data.ver], arr_id_pubs);
@@ -1275,19 +1438,31 @@ class_ver = {
         //Búsqueda de ajustes
         //Instituciones
         var instituciones = class_utils.filter_prop_arr(autores_s, 'setting_name', "affiliation");
-        instituciones = class_utils.filter_prop_arr(instituciones, 'locale', idioma_principal);
+        
+        //Ya no se toma en cuenta el idioma en el que esté guardado el valor
+        //instituciones = class_utils.filter_prop_arr(instituciones, 'locale', idioma_principal);
+        //
         //Instituciones con valor
-        var instituciones_valor = class_utils.filterdiff_prop(instituciones, 'setting_value', [null, '', undefined]);
-
+        instituciones_valor = class_utils.filterdiff_prop(instituciones, 'setting_value', [null, '', undefined]);
+        var instituciones_sinvalor = class_utils.filter_prop_arr(instituciones, 'setting_value', [null, '', undefined]);
+        autores_pub_id_sv = class_ver.get_autores_pub_id2(instituciones_sinvalor);
+        
         autores_pub_id = class_ver.get_autores_pub_id2(instituciones_valor);
         instituciones_faltantes = class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
+        //Esta parte es para tomar los ids de publicaciones con instituciones faltantes
+        //instituciones_faltantes = class_utils.filter_prop_arr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id_sv);
 
         var consis_instituciones = class_utils.filter_prop_noter(instituciones_valor, 'setting_value', class_ver.cons.er.doblemayus);
+        //instituciones que complan con esta expresión regular (inconsistentes)
+        var inconsis_instituciones = class_utils.filter_prop_er(instituciones_valor, 'setting_value', class_ver.cons.er.doblemayus);
 
         arr_pubs_b = class_utils.filter_prop_arr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
         autores_pub_id = class_ver.get_autores_pub_id2(consis_instituciones);
+        autores_pub_id = class_ver.get_autores_pub_id2(inconsis_instituciones);
 
         instituciones_incons = class_utils.filter_prop_notarr(arr_pubs_b, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
+        //ids de las publicaciones donde existan estas instituciones inconsistentes
+        instituciones_incons = class_utils.filter_prop_arr(arr_pubs_b, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
 
         //issues
         var issues = class_utils.filter_prop(class_ver.var.data.i, 'published', '1');
@@ -1363,7 +1538,9 @@ class_ver = {
         class_ver.var.salida.issnv = issues_numeros;
 
         class_ver.var.salida.idp = arr_id_pubs;
+        class_ver.var.salida.p_t = publicaciones_totales;
         class_ver.var.salida.p = publicaciones;
+        class_ver.var.salida.pi = publicaciones_indizables;
         class_ver.var.salida.pd = publicaciones_doi;
         class_ver.var.salida.pdt = publicaciones_doi_total;
         class_ver.var.salida.pp = publicaciones_pags;
@@ -1391,8 +1568,8 @@ class_ver = {
         class_ver.var.salida.ae = autores_email;
         class_ver.var.salida.ao = autores_orcid;
 
-        class_ver.var.salida.i = instituciones;
-        class_ver.var.salida.iv = instituciones_valor;
+        class_ver.var.salida.i = class_utils.unique(instituciones,'author_id');
+        class_ver.var.salida.iv = class_utils.unique(instituciones_valor,'author_id');
 
         class_ver.var.salida.en = enlaces;
         class_ver.var.salida.ent = enlaces_total;
@@ -1410,7 +1587,7 @@ class_ver = {
         class_ver.var.salida.consis_pci2 = consis_palabras_clave_idioma2;
         class_ver.var.salida.consis_a = consis_autores;
         class_ver.var.salida.consis_or = consis_orcid;
-        class_ver.var.salida.consis_ins = consis_instituciones;
+        class_ver.var.salida.consis_ins = class_utils.unique(consis_instituciones,'author_id');
         class_ver.var.salida.consis_lic = consis_licencia;
         class_ver.var.salida.consis_cit = consis_citas;
 
@@ -1513,7 +1690,7 @@ class_ver = {
                                 {'name': '% Sin dato', 'data': sindato},
                                 ];
                                 
-        var num = 'Suficiencia en datos de Autores (Total: ' + class_ver.var.salida.a.length + ')';
+        var num = 'Suficiencia en datos de Autores (Total: ' + class_ver.var.salida.a.length + ')<br>';
         $('#autores').html(num);
         Highcharts.chart('container2', grafica);
         $("#area_c2").flip({trigger: 'manual'});
@@ -1534,6 +1711,7 @@ class_ver = {
                                     'Referencias', 'Licencia', 'DOI'];
         
         //var tituloip = class_ver.var.salida.ptv[class_ver.var.salida.ip].length / class_ver.var.salida.p.length * 100;
+        var c_i = class_ver.var.salida.pi.length / class_ver.var.salida.p_t.length * 100;
         var tituloip = class_ver.var.salida.pti1.length / class_ver.var.salida.p.length * 100;
         var titulo2i = class_ver.var.salida.pti2.length / class_ver.var.salida.p.length * 100;
         var titulom = (class_ver.var.salida.p.length - class_ver.var.salida.ptm[class_ver.var.salida.ip].length) / class_ver.var.salida.p.length * 100;
@@ -1563,6 +1741,7 @@ class_ver = {
                                         + ((doi == 100)?1:0);
         
         var completos = [ 
+                                //parseFloat(c_i.toFixed(2)),
                                 parseFloat(tituloip.toFixed(2)),
                                 parseFloat(titulo2i.toFixed(2)),
                                 //(titulom == 100)?100:0,
@@ -1579,20 +1758,21 @@ class_ver = {
                                 parseFloat(doi.toFixed(2))
                             ];
         var sindato = [ 
-                                100 - parseFloat((tituloip).toFixed(2)),
-                                100 - parseFloat((titulo2i).toFixed(2)),
+                                //parseFloat((100 - parseFloat(c_i.toFixed(2))).toFixed(2)),
+                                parseFloat((100 - parseFloat((tituloip).toFixed(2))).toFixed(2)),
+                                parseFloat((100 - parseFloat((titulo2i).toFixed(2))).toFixed(2)),
                                 //(titulom > 50 && titulom < 100)?titulom:0,
-                                100 - parseFloat((resumenip).toFixed(2)),
-                                100 - parseFloat((resumen2i).toFixed(2)),
+                                parseFloat((100 - parseFloat((resumenip).toFixed(2))).toFixed(2)),
+                                parseFloat((100 - parseFloat((resumen2i).toFixed(2))).toFixed(2)),
                                 //(resumenm > 50 && resumenm < 100)?resumenm:0,
-                                100 - parseFloat((palabra_claveip).toFixed(2)),
-                                100 - parseFloat((palabra_clave2i).toFixed(2)),
+                                parseFloat((100 - parseFloat((palabra_claveip).toFixed(2))).toFixed(2)),
+                                parseFloat((100 - parseFloat((palabra_clave2i).toFixed(2))).toFixed(2)),
                                 //(palabra_clave > 50 && palabra_clave < 100)?palabra_clave:0,
                                 //(palabra_clave_cinco > 50 && palabra_clave_cinco < 100)?palabra_clave_cinco:0,
-                                100 - parseFloat((enlaces).toFixed(2)),
-                                100 - parseFloat((citas).toFixed(2)),
-                                100 - parseFloat((licencia).toFixed(2)),
-                                100 - parseFloat((doi).toFixed(2))
+                                parseFloat((100 - parseFloat((enlaces).toFixed(2))).toFixed(2)),
+                                parseFloat((100 - parseFloat((citas).toFixed(2))).toFixed(2)),
+                                parseFloat((100 - parseFloat((licencia).toFixed(2))).toFixed(2)),
+                                parseFloat((100 - parseFloat((doi).toFixed(2))).toFixed(2))
                             ];
                               
         grafica.series = [
@@ -1600,7 +1780,8 @@ class_ver = {
                                 {'name': '% Sin dato', 'data': sindato},
                                 ];
                                 
-        var num = 'Suficiencia en datos del documentos (Total:' + class_ver.var.salida.p.length + ')';
+        var num = 'Suficiencia en datos del documentos (Total:' + class_ver.var.salida.p.length + ')' + 
+                '<br>Contenido indizable: ' + parseFloat(c_i.toFixed(2)) + '%';
         $('#documentos').html(num);
         Highcharts.chart('container3', grafica);
     },
@@ -1629,11 +1810,11 @@ class_ver = {
                             ];
         
         var sindato = [ 
-                100 - parseFloat((doi_registrado).toFixed(2)),
-                100 - parseFloat((doi_resuelve).toFixed(2)),
-                100 - parseFloat((orcid_resuelve).toFixed(2)),
-                100 - parseFloat((lic_resuelve).toFixed(2)),
-                100 - parseFloat((enl_resuelve).toFixed(2))
+                parseFloat((100 - parseFloat((doi_registrado).toFixed(2))).toFixed(2)),
+                parseFloat((100 - parseFloat((doi_resuelve).toFixed(2))).toFixed(2)),
+                parseFloat((100 - parseFloat((orcid_resuelve).toFixed(2))).toFixed(2)),
+                parseFloat((100 - parseFloat((lic_resuelve).toFixed(2))).toFixed(2)),
+                parseFloat((100 - parseFloat((enl_resuelve).toFixed(2))).toFixed(2))
             ]
                               
         grafica.series = [
@@ -1750,9 +1931,9 @@ class_ver = {
                             ];
                             
         var sindato = [ 
-                                100 - parseFloat((nombre).toFixed(2)),
-                                100 - parseFloat((orcid).toFixed(2)),
-                                100 - parseFloat((instituciones).toFixed(2))
+                                parseFloat((100 - parseFloat((nombre).toFixed(2))).toFixed(2)),
+                                parseFloat((100 - parseFloat((orcid).toFixed(2))).toFixed(2)),
+                                parseFloat((100 - parseFloat((instituciones).toFixed(2))).toFixed(2))
                             ];
                               
         grafica.series = [
@@ -1797,16 +1978,16 @@ class_ver = {
                                 parseFloat(doi.toFixed(2))
                             ];
         var sindato = [ 
-                                100 - parseFloat((tituloip).toFixed(2)),
-                                100 - parseFloat((titulo2i).toFixed(2)),
-                                100 - parseFloat((resumenip).toFixed(2)),
-                                100 - parseFloat((resumen2i).toFixed(2)),
-                                100 - parseFloat((palabra_claveip).toFixed(2)),
-                                100 - parseFloat((palabra_clave2i).toFixed(2)),
-                                100 - parseFloat((enlaces).toFixed(2)),
-                                100 - parseFloat((citas).toFixed(2)),
-                                100 - parseFloat((licencia).toFixed(2)),
-                                100 - parseFloat((doi).toFixed(2))
+                                parseFloat((100 - parseFloat((tituloip).toFixed(2))).toFixed(2)),
+                                parseFloat((100 - parseFloat((titulo2i).toFixed(2))).toFixed(2)),
+                                parseFloat((100 - parseFloat((resumenip).toFixed(2))).toFixed(2)),
+                                parseFloat((100 - parseFloat((resumen2i).toFixed(2))).toFixed(2)),
+                                parseFloat((100 - parseFloat((palabra_claveip).toFixed(2))).toFixed(2)),
+                                parseFloat((100 - parseFloat((palabra_clave2i).toFixed(2))).toFixed(2)),
+                                parseFloat((100 - parseFloat((enlaces).toFixed(2))).toFixed(2)),
+                                parseFloat((100 - parseFloat((citas).toFixed(2))).toFixed(2)),
+                                parseFloat((100 - parseFloat((licencia).toFixed(2))).toFixed(2)),
+                                parseFloat((100 - parseFloat((doi).toFixed(2))).toFixed(2))
                             ];
                               
         grafica.series = [
@@ -1880,18 +2061,24 @@ class_ver = {
         var grafica = JSON.parse(JSON.stringify(class_utils.chartRadialBar));
         grafica.xAxis.categories = ['Valoración Final']
         
-        var txt80p = 'Se muestra el resultado final de la valoración. Un porcentaje de 80% o '
-                    + 'superior y cumplir con el 100% de suficiencia en la afiliación institucional de los autores permite a BIBLAT reutilizar los metadatos para indizar los '
+        var txt80p = 'Se muestra el resultado final de la valoración. Un <b>porcentaje de 80% o '
+                    + 'superior</b>, cumplir con el <b>100% de suficiencia en la afiliación institucional de los autores</b> '
+                    + 'y tener <b>60% de contenido indizable</b> (artículos originales, ensayos, reseñas de libro, revisiones bibliográficas, notas de más de una cuartilla, informes técnicos o cartas al editor) '
+                    + 'permite a BIBLAT reutilizar los metadatos para indizar los '
                     + 'documentos de la revista.'
                     + ' A partir de ahora, puede postular su revista a '
                     + 'BIBLAT o evaluar otra revista.';
         
-        var txt80 = 'Se muestra el resultado final de la valoración. Un porcentaje de 80% o '
-                    + 'superior y cumplir con el 100% de suficiencia en la afiliación institucional de los autores permite a BIBLAT reutilizar los metadatos para indizar los '
-                    + 'documentos de la revista.';
+        var txt80 = 'Se muestra el resultado final de la valoración. Un <b>porcentaje de 80% o '
+                    + 'superior</b>, cumplir con el <b>100% de suficiencia en la afiliación institucional de los autores</b> '
+                    + 'y tener <b>60% de contenido indizable</b> (artículos originales, ensayos, reseñas de libro, revisiones bibliográficas, notas de más de una cuartilla, informes técnicos o cartas al editor) '
+                    + 'permite a BIBLAT reutilizar los metadatos para indizar los '
+                    + 'documentos de la revista.'
         
-        var txt_rep = 'Se muestra el resultado final de la valoración. Un porcentaje menor '
-                        + 'a 80% o no cumplir con el 100% de suficiencia en la afiliación institucional de los autores no permite a BIBLAT reutilizar los metadatos para indizar los '
+        var txt_rep = 'Se muestra el resultado final de la valoración. Un <b>porcentaje menor '
+                        + 'a 80%</b>, no cumplir con el <b>100% de suficiencia en la afiliación institucional de los autores</b> '
+                        + 'o tener <b>menos del 60% de contenido indizable</b> (artículos originales, ensayos, reseñas de libro, revisiones bibliográficas, notas de más de una cuartilla, informes técnicos o cartas al editor)'
+                        + 'no permite a BIBLAT reutilizar los metadatos para indizar los '
                         + 'documentos de la revista. Consulte el cuadro que a parece a '
                         + 'continuación para conocer las posibles mejoras en los metadatos de '
                         + 'su revista y el <a href="/archivos/pdf/ManualDeIndizacionEnOJS_BuenasPracticas.pdf" target="_blank">Manual de indización en OJS: Buenas prácticas para la '
@@ -2701,7 +2888,7 @@ class_ver = {
                             //alert(posicion);
                             if( posicion == -1 ){
                                 obj.year = val2[i].year;
-                                obj.volume = val2[i].volume;
+                                obj.volume = ( ['', undefined, null].indexOf(val2[i].volume) !== -1 )?'':val2[i].volume;
                                 obj.number = ( ['', undefined, null].indexOf(val2[i].number) !== -1 )?'':val2[i].number;
                                 obj.pages = ( ['', undefined, null].indexOf(val2[i].pages) !== -1 )?'':val2[i].pages;
                                 obj.title = ( ['', undefined, null].indexOf(val2[i].title) !== -1 )?'<< No se encontró título >>':val2[i].title;
@@ -2743,7 +2930,7 @@ class_ver = {
                             //alert(posicion);
                             if( posicion_consis == -1 ){
                                 obj.year = val2[i].year;
-                                obj.volume = val2[i].volume;
+                                obj.volume = ( ['', undefined, null].indexOf(val2[i].volume) !== -1 )?'':val2[i].volume;
                                 obj.number = ( ['', undefined, null].indexOf(val2[i].number) !== -1 )?'':val2[i].number;
                                 obj.pages = ( ['', undefined, null].indexOf(val2[i].pages) !== -1 )?'':val2[i].pages;
                                 obj.title = ( ['', undefined, null].indexOf(val2[i].title) !== -1 )?'<< No se encontró título >>':val2[i].title;
@@ -2784,7 +2971,7 @@ class_ver = {
                             }
                             if( posicion_prec == -1 ){
                                 obj.year = val2[i].year;
-                                obj.volume = val2[i].volume;
+                                obj.volume = ( ['', undefined, null].indexOf(val2[i].volume) !== -1 )?'':val2[i].volume;
                                 obj.number = ( ['', undefined, null].indexOf(val2[i].number) !== -1 )?'':val2[i].number;
                                 obj.pages = ( ['', undefined, null].indexOf(val2[i].pages) !== -1 )?'':val2[i].pages;
                                 obj.title = ( ['', undefined, null].indexOf(val2[i].title) !== -1 )?'<< No se encontró título >>':val2[i].title;
