@@ -2,6 +2,10 @@
 <html lang="en">
     <head>
         <title>{$template.title}</title>
+        <meta http-equiv="Expires" content="0">
+        <meta http-equiv="Last-Modified" content="0">
+        <meta http-equiv="Cache-Control" content="no-cache, mustrevalidate">
+        <meta http-equiv="Pragma" content="no-cache">
         <meta name="resource-type" content="document" />
         <meta name="robots" content="all, index, follow"/>
         <meta name="googlebot" content="all, index, follow" />
