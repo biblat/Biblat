@@ -342,6 +342,7 @@ class_ver = {
                 $('.color-fondo').html('');
                 $('#plugin').hide();
                 $('#sinDatos').hide();
+                $("#numFasciculos").hide();
                 try{
                     $('.area').flip(false);
                 } catch(e){
@@ -2809,7 +2810,17 @@ class_ver = {
                     return 0;
                 }else{
                     //alert('Repetir:' + (issues.length + num_issues));
-                   class_ver.get_data_anios(anio-1, anio_fin, (issues.length + num_issues), evalua);
+                    if(publicaciones.length > 0){
+                        class_ver.get_data_anios(anio-1, anio_fin, (issues.length + num_issues), evalua);
+                    }else{
+                        if(repetir >0 ){
+                            class_ver.get_data_anios(anio-1, anio_fin, (issues.length + num_issues), evalua, repetir-1);
+                        }else{
+                            $("#numFasciculos").show();
+                            loading.end();
+                            return 0;
+                        }
+                    }
                 }
             }
         });

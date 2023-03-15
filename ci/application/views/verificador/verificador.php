@@ -57,6 +57,9 @@
 <div id="sinDatos" style="display: none">
     <center><b>No se encontraron publicaciones para el año seleccionado</b></center>
 </div>
+<div id="numFasciculos" style="display: none">
+    <center><b>Al parecer su revista no cuenta con al menos 3 fascículos publicados</b></center>
+</div>
 <div id="informacion" style="display: none">
 <div class="row">
     <div class="col-xs-12 col-sm-12">
