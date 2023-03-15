@@ -19,6 +19,7 @@ class_ver = {
                 'pt_PT' : 'Portugués (Portugal)',
             },
         pub_id: {
+            '3.3.0': 'publication_id',
             '3.2.0': 'publication_id',
             '3.1.2': 'submission_id',
             '3.0.0': 'submission_id',
@@ -26,6 +27,7 @@ class_ver = {
             '2.3.0': 'article_id'
         },
         pub_id_auth: {
+            '3.3.0': 'publication_id',
             '3.2.0': 'publication_id',
             '3.1.2': 'submission_id',
             '3.0.0': 'submission_id',
@@ -597,7 +599,7 @@ class_ver = {
         $.each(publicaciones, function(i,val){
             var coincide_titulo = false;
             var coincide_titulo_indizable = true;
-            if (class_ver.var.data.ver == '3.2.0'){
+            if (class_ver.var.data.ver == '3.2.0' || class_ver.var.data.ver == '3.3.0'){
                 var idioma_doc = val.locale;
                 if(idioma_doc == '' || idioma_doc == null){
                     var ss = class_utils.find_prop(class_ver.var.data.ss, 'submission_id', val['submission_id']);
@@ -825,7 +827,7 @@ class_ver = {
         var obj_palabras_clave_arr = [];
 
         //palabras clave
-        if ( ['3.2.0', '3.1.2', '3.0.0'].indexOf(class_ver.var.data.ver) != -1 ){
+        if ( ['3.3.0','3.2.0', '3.1.2', '3.0.0'].indexOf(class_ver.var.data.ver) != -1 ){
             arr_palabras_clave = class_utils.filter_prop_arr(class_ver.var.data.c_v_e_s, 'assoc_id', arr_id_pubs);
             $.each(arr_palabras_clave, function(i, val){
                 if( obj_palabras_clave[val.locale] == undefined){
@@ -1253,7 +1255,7 @@ class_ver = {
 
         //Búsqueda de autores 1691
         var autores = '';
-        if (class_ver.var.data.ver == '3.2.0'){
+        if (class_ver.var.data.ver == '3.2.0' || class_ver.var.data.ver == '3.3.0'){
             autores = class_utils.filter_prop_arr(class_ver.var.data.a, 'publication_id', arr_id_pubs);
         }else{
             autores = class_utils.filter_prop_arr(class_ver.var.data.a, 'submission_id', arr_id_pubs);
@@ -1276,7 +1278,7 @@ class_ver = {
         var autores_nombre_id = [];
         var autores_nombre_compara = [];
         autores_pub_id = [];
-        if ( ['3.2.0', '3.1.2'].indexOf(class_ver.var.data.ver) !== -1 ){
+        if ( ['3.3.0', '3.2.0', '3.1.2'].indexOf(class_ver.var.data.ver) !== -1 ){
             var autores_nombre_total = [];
             //No importa en qué idioma esté asentado el autor
             $.each(idiomas_envio, function(i,val){
@@ -1355,7 +1357,7 @@ class_ver = {
 
         //Autores con orcid 0
         var autores_orcid_tmp = '';
-        if ( ['3.2.0', '3.1.2'].indexOf(class_ver.var.data.ver) !== -1 ){
+        if ( ['3.3.0', '3.2.0', '3.1.2'].indexOf(class_ver.var.data.ver) !== -1 ){
             autores_orcid_tmp = class_utils.filter_prop_arr(autores_s, 'setting_name', "orcid");
             autores_orcid_tmp = class_utils.filterdiff_prop(autores_orcid_tmp, 'setting_value', [null, '', undefined]);
             $.each(autores_orcid_tmp, function(i,val){
@@ -2763,7 +2765,7 @@ class_ver = {
                         if(['3.0.0', '3.1.2'].indexOf(class_ver.var.data.ver) !== -1){
                             p = p.concat(class_utils.filter_prop(class_ver.var.data.p, 'issue_id', val.issue_id));
                         }
-                        if(['3.2.0'].indexOf(class_ver.var.data.ver) !== -1){
+                        if(['3.3.0', '3.2.0'].indexOf(class_ver.var.data.ver) !== -1){
                             var issues_id = class_utils.filter_prop(class_ver.var.data.ps, 'setting_name', 'issueId');
                             issues_id = class_utils.filter_prop(issues_id, 'setting_value', val.issue_id);
                             //alert('issues_id '+issues_id.length);
@@ -2787,7 +2789,7 @@ class_ver = {
                         class_ver.var.data.ss = ss;
                         class_ver.var.data.ps = ps;
                     }
-                    if(['3.2.0'].indexOf(class_ver.var.data.ver) !== -1){
+                    if(['3.3.0', '3.2.0'].indexOf(class_ver.var.data.ver) !== -1){
                         $.each(pre_ps, function(i, val){
                             ps = ps.concat(class_utils.filter_prop(class_ver.var.data.ps, 'publication_id', val.publication_id));
                             p = p.concat(class_utils.filter_prop(class_ver.var.data.p, 'publication_id', val.publication_id));
