@@ -125,12 +125,20 @@ class Metametrics extends CI_Controller {
         $oai = $_GET['oai'];
         $years = $_GET['years'];
         $url = $oai.'?verb=ListRecords&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
+        //$url = $oai.'?verb=ListRecords&from='.date("Y").'-01-01T02:00:00Z&until='.$years.'-12-31T03:00:00Z&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
         $url2 = $oai.'?verb=ListRecords&from='. date("Y").'-01-01T02:00:00Z&until='. date("Y").'-12-01T03:00:00Z&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
         
         $url = $this->file_get_contents_curl2($url);
         
         $dom = new DOMDocument();
         @$dom->loadHTML($url);
+        
+        $busca = strpos($url, 'noRecordsMatch');
+        if ($busca !== false){
+            $response = '{"resp": "noRecordsMatch"}';
+            echo $response;
+            return 0;
+        }
         
         //obtenemos todos los div de la url
         $divs = $dom->getElementsByTagName('varfield');

@@ -36,7 +36,7 @@ class_ver = {
         },
         campos:['a', 'as', 'c_v_e_s', 'i', 'is', 'p', 'pg', 'ps', 'ss', 'pf']
         ,
-        expiry:1000 * 60 * 60,
+        expiry:1000 * 10 * 60,
         er: {
             'mayus2' : /^[A-Z]*.*[A-Z]{3}.*[A-Z]+$/,
             //Sólo mayúsculas
@@ -239,7 +239,25 @@ class_ver = {
             });
         }
     },
-    setBitacora: function() {
+    setBitacora: function(estatus=1) {
+            if (estatus == 2){
+                class_ver.var.revista_ojs = '';
+                class_ver.var.entidad_editora_ojs = '';
+                class_ver.var.issni = '';
+                class_ver.var.issni_v = '';
+                class_ver.var.issne = '';
+                class_ver.var.issne_v = '';
+                class_ver.var.revista_impresa = '';
+                class_ver.var.revista_electronica = '';
+                class_ver.var.entidad_editora_issn = '';
+                class_ver.var.pais_issn = '';
+                class_ver.var.idiomase = '';
+                class_ver.var.idiomap = '';
+                class_ver.var.sp = '';
+                class_ver.var.cp = '';
+                class_ver.var.pp = '';
+            }
+        
             var ip='';
             var pais='';
             var org = '';
@@ -2685,10 +2703,23 @@ class_ver = {
             if(resp.resp == 'Fail'){
                 $('#plugin').show();
                 class_ver.var.plugin = 'No';
+                class_ver.setBitacora(2);
                 loading.end();
                 return 0;
             }else{
                 class_ver.var.plugin = 'Si';
+                if(resp.resp == 'noRecordsMatch'){
+                    if(repetir >0 ){
+                        class_ver.get_data_anios(anio-1, anio_fin, num_issues, evalua, repetir-1);
+                        return 0;
+                    }else{
+                        $("#numFasciculos").show();
+                        class_ver.var.plugin = 'Si';
+                        class_ver.setBitacora(2);
+                        loading.end();
+                        return 0;
+                    }
+                }
             }
             var data = resp;
             var publicaciones = '';
@@ -2817,6 +2848,8 @@ class_ver = {
                             class_ver.get_data_anios(anio-1, anio_fin, (issues.length + num_issues), evalua, repetir-1);
                         }else{
                             $("#numFasciculos").show();
+                            class_ver.var.plugin = 'Si';
+                            class_ver.setBitacora(2);
                             loading.end();
                             return 0;
                         }

@@ -2,6 +2,28 @@
 	<div class="panel panel-default">
 	    <div class="panel-heading">
 	      <h5 class="panel-title">
+                    <div class="row" id="indicadores">
+                        <div class="col-xs-12 col-sm-6 col-md-4">
+                            <iframe width="250px" src="https://www.youtube.com/embed/oNO4H2UvEpA" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                            <div>&nbsp;</div>
+                        </div>
+           
+                        <div class="col-xs-12 col-sm-6 col-md-8">
+                            <a href="https://www.youtube.com/watch?v=oNO4H2UvEpA" target="_blank">
+                                <span class="fa fa-youtube-square"></span> Ponencia en Mesa Redonda Minería: <br>
+                                "Metametrics: Evaluador en línea de la metadata en revistas OJS"<br>
+                                44 FIL Palacio de Minería México, 27 feb. 2023
+                            </a>
+                        </div>
+                    </div>
+	      </h5>
+	    </div>
+	</div>
+</div>
+<div class="panel-group">
+	<div class="panel panel-default">
+	    <div class="panel-heading">
+	      <h5 class="panel-title">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-4">
                             <iframe src="https://anchor.fm/paideia-studio/embed/episodes/Episodio-8---BIBLAT--CLASE--PERIDICA-e1rafmt/a-a8uatkq" width="250px" frameborder="0" scrolling="no"></iframe>
@@ -10,10 +32,10 @@
            
                         <div class="col-xs-12 col-sm-6 col-md-8">
                             <a href="https://paideiastudio.net/episodio-8-biblat-clase-periodica/" target="_blank">
-                                <span class="fa fa-play-circle"></span>
+                                <span class="fa fa-play-circle"></span> 
                                 Pódcast<br>
                                 Episodio 8 – BIBLAT, CLASE, PERIÓDICA<br>
-								25 noviembre 2022
+                                25 noviembre 2022
                             </a>    
                         </div>
                     </div>
