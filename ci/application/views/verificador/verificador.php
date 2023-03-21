@@ -51,6 +51,12 @@
 <br><br>
 {/if}
 
+<div id="url_vacia" style="display: none">
+    <center><b>No ha seleccionado ni ingresado ninguna URL</b></center>
+</div>
+<div id="url_invalida" style="display: none">
+    <center><b>La URL que ingresó no es válida<br> Ejemplo: http://revistas.unam.mx/revista/oai</b></center>
+</div>
 <div id="plugin" style="display: none">
     <center><b>Al parecer no tiene instalada la versión más reciente del plugin BIBLAT</b></center>
 </div>
@@ -231,15 +237,16 @@
         </div>
     </div>
     <div class="row back">
-        <div class="col-xs-6 col-sm-6">
+        <!--div class="col-xs-6 col-sm-6">
             <b><span id='prec_promedio'></span></b>
             <br><br>
             <div style="background-color:white">
                 <p style="padding: 25px"><span id="txt_val_final"></span></p>
             </div>
             <br><br>
-        </div>
-        <div class="col-xs-6 col-sm-6">
+        </div-->
+<!--        <div class="col-xs-6 col-sm-6">-->
+        <div class="col-xs-12">
             <b><span>&nbsp;</span></b>
             <br><br>
             <div id='container_prec'>
@@ -247,7 +254,13 @@
         </div>
     </div>
 </div>
+
+<div class="row"><br></div>
     
+<div class="row" style="background-color:white;margin:1px" style="display:none">
+        <p style="padding: 25px"><span id="txt_val_final"></span></p>
+</div>
+
 <div class="row"><br></div>
 
 <div class="row">
