@@ -329,6 +329,19 @@ class_ver = {
     },
     control:function(){
         $('#btn_verificar').off('click').on('click',function(){
+            $('#url_vacia').hide();
+            $('#url_invalida').hide();
+            var url = $('#'+class_ver.var.id_oai).val();
+            if(url.trim() == ''){
+                $('#url_vacia').show();
+                return 0;
+            }
+            if(url.toLowerCase().indexOf('oai') == -1 || url.toLowerCase().indexOf('http')){
+                $('#url_invalida').show();
+                class_ver.setBitacora(2);
+                return 0;
+            }
+            
             loading.start();
             setTimeout( function(){
                 $('#container').html('');
@@ -361,6 +374,8 @@ class_ver = {
                 $('#plugin').hide();
                 $('#sinDatos').hide();
                 $("#numFasciculos").hide();
+                $("#txt_val_final").hide();
+                
                 try{
                     $('.area').flip(false);
                 } catch(e){
@@ -2082,7 +2097,7 @@ class_ver = {
         var grafica = JSON.parse(JSON.stringify(class_utils.chartRadialBar));
         grafica.xAxis.categories = ['Valoración Final']
         
-        var txt80p = 'Se muestra el resultado final de la valoración. Un <b>porcentaje de 80% o '
+        var txt80p = 'Un <b>porcentaje final de 80% o '
                     + 'superior</b>, cumplir con el <b>100% de suficiencia en la afiliación institucional de los autores</b> '
                     + 'y tener <b>60% de contenido indizable</b> (artículos originales, ensayos, reseñas de libro, revisiones bibliográficas, notas de más de una cuartilla, informes técnicos o cartas al editor) '
                     + 'permite a BIBLAT reutilizar los metadatos para indizar los '
@@ -2090,13 +2105,13 @@ class_ver = {
                     + ' A partir de ahora, puede postular su revista a '
                     + 'BIBLAT o evaluar otra revista.';
         
-        var txt80 = 'Se muestra el resultado final de la valoración. Un <b>porcentaje de 80% o '
+        var txt80 = 'Un <b>porcentaje final de 80% o '
                     + 'superior</b>, cumplir con el <b>100% de suficiencia en la afiliación institucional de los autores</b> '
                     + 'y tener <b>60% de contenido indizable</b> (artículos originales, ensayos, reseñas de libro, revisiones bibliográficas, notas de más de una cuartilla, informes técnicos o cartas al editor) '
                     + 'permite a BIBLAT reutilizar los metadatos para indizar los '
                     + 'documentos de la revista.'
         
-        var txt_rep = 'Se muestra el resultado final de la valoración. Un <b>porcentaje menor '
+        var txt_rep = 'Un <b>porcentaje final menor '
                         + 'a 80%</b>, no cumplir con el <b>100% de suficiencia en la afiliación institucional de los autores</b> '
                         + 'o tener <b>menos del 60% de contenido indizable</b> (artículos originales, ensayos, reseñas de libro, revisiones bibliográficas, notas de más de una cuartilla, informes técnicos o cartas al editor)'
                         + 'no permite a BIBLAT reutilizar los metadatos para indizar los '
@@ -2167,8 +2182,9 @@ class_ver = {
                 $('#btn_prom_prec').text('Ver Valoración Final');
         });
         
-        $('#txt_val_final').parent().css('min-height',$('#container_prec').height());
+        //$('#txt_val_final').parent().css('min-height',$('#container_prec').height());
         
+        $('#txt_val_final').show();
         var instituciones = class_ver.var.salida.iv.length / class_ver.var.salida.i.length * 100;
         
         if( class_ver.var.id_anio !== '0' & class_ver.var.id_anio !== ''){
