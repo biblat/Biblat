@@ -178,6 +178,7 @@
                                                     <ul class="dropdown-menu" role="menu">
                                                         <li><a href="{site_url('sobre-metametrics')}">{_('¿Qué es MetaMetrics?')}</a></li>
                                                         <li><a href="{site_url('metametrics')}">{_('Validador de Metadatos')}</a></li>
+                                                        <li><a href="{site_url('metametrics/estadisticas')}">{_('Estadísticas de uso')}</a></li>
                                                     </ul>
                                                 </li>
                                                 <li class="dropdown">

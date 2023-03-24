@@ -805,7 +805,80 @@ class_utils= {
             data: [113, 122, 98, 88, 72]
             }*/
         ],
-		credits: {href: "https://biblat.unam.mx/es", text: "Fuente: biblat.unam.mx"}																			
+        credits: {href: "https://biblat.unam.mx/es", text: "Fuente: biblat.unam.mx"}
+    },
+    chartTreemap: {
+        series: [{
+            type: 'treemap',
+            layoutAlgorithm: 'squarified',
+            allowDrillToNode: true,
+            animationLimit: 1000,
+			drillUpButton: {
+				position: {
+                    align: 'left',
+					y: -50
+				},
+                text: '< Regresar'
+            },
+            dataLabels: {
+                enabled: false
+            },
+            levels: [{
+                level: 1,
+                dataLabels: {
+                    enabled: true
+                },
+                borderWidth: 3,
+				levelIsConstant: false,
+            }],
+            accessibility: {
+                exposeAsGroupOnly: true
+            },
+            data: [],
+			opacity:1,
+			/*states: {
+				hover: {
+					opacity: 1
+				},
+				inactive: {
+					opacity: 1
+				},
+			}*/
+        }],
+        subtitle: {
+            text: ''
+        },
+        title: {
+            text: '',
+            style: {fontSize: '11px', fontWeight: 'bold'}
+        },
+        plotOptions: {
+            treemap: {
+                dataLabels: {
+                    formatter:function(){
+                        //return '<a target="_blank" style="color:black" href="indice/disciplina/' + this.point.name.toLowerCase().split('').map(letra=>dicc[letra] || letra).join('') + '">' + this.point.name + '</a>'
+						return this.point.name;
+                    },
+                    useHTML: true
+                },
+				opacity:0
+            }
+        },
+		tooltip: {
+            headerFormat: "",
+            pointFormat: null,
+			pointFormatter: null,
+            useHTML: true,
+            style: {
+                pointerEvents: 'auto'
+            }
+        },
+        chart: {
+            height: '100%',
+            backgroundColor: 'transparent',
+			spacingTop: 100
+        },        
+        credits: {href: "http://biblat.unam.mx/", text: "Fuente: biblat.unam.mx"}
     },
     filter_prop: function(obj,prop,val){
         return obj.filter(function(obj2){
@@ -931,6 +1004,21 @@ class_utils= {
 			}
 		});
 		return arr;
+    },
+    unique_arr: function(obj,prop){
+        var utils_arr = [];
+        var arr = [];
+        $.each(obj, function(i, val){
+            var props = '';
+            $.each(prop, function(i2, val2){
+                props = props + '-' + val[val2];
+            });
+            if( utils_arr.indexOf(props) == -1){
+		utils_arr.push(props);
+                arr.push(val);
+            }
+	});
+	return arr;
     },
     slug: function(e){
         var dicc = {'á':'a','é':'e','í':'i','ó':'o','ú':'u',' ':'-','.':'-','&':'-',',':'-','ñ':'n'};
