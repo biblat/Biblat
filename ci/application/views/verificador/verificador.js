@@ -93,6 +93,14 @@ class_ver = {
                 /^resenha$/,
                 /^resenha\s*do\s*livro$/,
                 /^páginas\s*iniciales$/,
+                /^edition$/,
+                /^edição$/,
+                /^edición$/,
+                /^portada$/,
+                /^páginas\s*preliminares$/,
+                /^autores$/,
+                /^normas\s*para\s*autores/,
+                /^nota.*comité\s*editorial/
             ],
             'titulo_parcial' : [
                 /in\s*memóriam/,
