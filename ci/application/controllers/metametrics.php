@@ -127,6 +127,8 @@ class Metametrics extends CI_Controller {
         $url = $oai.'?verb=ListRecords&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
         //$url = $oai.'?verb=ListRecords&from='.date("Y").'-01-01T02:00:00Z&until='.$years.'-12-31T03:00:00Z&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
         $url2 = $oai.'?verb=ListRecords&from='. date("Y").'-01-01T02:00:00Z&until='. date("Y").'-12-01T03:00:00Z&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
+        $url3 = $oai.'?verb=ListRecords&from='. (date("Y")-1).'-01-01T02:00:00Z&until='. (date("Y")-1).'-12-01T03:00:00Z&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
+        $url4 = $oai.'?verb=ListRecords&from='. (date("Y")-2).'-01-01T02:00:00Z&until='. (date("Y")-2).'-12-01T03:00:00Z&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
         
         $url = $this->file_get_contents_curl2($url);
         
@@ -178,6 +180,46 @@ class Metametrics extends CI_Controller {
                 }
             //}
         }
+        
+        if( $exist_div == false ){
+            //while($token !== '' && $exist_div == false){
+                $url = file_get_contents($url3);
+                $dom2 = new DOMDocument();
+                @$dom2->loadHTML($url);
+                $divs = $dom2->getElementsByTagName('varfield');
+                foreach( $divs as $div ){
+                    $exist_div = true;
+                    if( $div->getAttribute( 'id' ) === "000" ){
+                        $ver = explode("v", $div->nodeValue)[0];
+                        $busca = strpos($div->nodeValue, '2.3.0');
+                        if ($busca !== false){
+                            $version = '2';
+                            break;
+                        }
+                    }
+                }
+            //}
+        }
+        
+        if( $exist_div == false ){
+            //while($token !== '' && $exist_div == false){
+                $url = file_get_contents($url4);
+                $dom2 = new DOMDocument();
+                @$dom2->loadHTML($url);
+                $divs = $dom2->getElementsByTagName('varfield');
+                foreach( $divs as $div ){
+                    $exist_div = true;
+                    if( $div->getAttribute( 'id' ) === "000" ){
+                        $ver = explode("v", $div->nodeValue)[0];
+                        $busca = strpos($div->nodeValue, '2.3.0');
+                        if ($busca !== false){
+                            $version = '2';
+                            break;
+                        }
+                    }
+                }
+            //}
+        }
             
         if( $exist_div == false ){
             $response = '{"resp": "Fail"}';
@@ -187,8 +229,8 @@ class Metametrics extends CI_Controller {
             $ciphering = "AES-256-CBC";
             $iv_length = openssl_cipher_iv_length($ciphering);
             $options = 0;
-            $encryption_iv = substr(hash('sha256', ''), 0, 16);
-            $encryption_key = hash('sha256', '');
+            $encryption_iv = substr(hash('sha256', 'c09f6a9e157d253d0b2f0bcd81d338298950f246'), 0, 16);
+            $encryption_key = hash('sha256', 'UNAM - Bibliografia Latinoamericana');
 
             $response = '{ "ver": "' . trim($ver) . '"';
             if ($version == '2'){
