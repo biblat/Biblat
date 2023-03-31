@@ -55,7 +55,10 @@
     <center><b>No ha seleccionado ni ingresado ninguna URL</b></center>
 </div>
 <div id="url_invalida" style="display: none">
-    <center><b>La URL que ingresó no es válida<br> Ejemplo: http://revistas.unam.mx/revista/oai</b></center>
+    <center><b>La URL que ingresó no es válida<br><br>
+            Si sólo escribió la URL de su revista, intente agregar al final "/oai"<br><br>
+            Ejemplo: http://revistas.unam.mx/revista/oai</b>
+    </center>
 </div>
 <div id="plugin" style="display: none">
     <center><b>Al parecer no tiene instalada la versión más reciente del plugin BIBLAT</b></center>
@@ -64,7 +67,13 @@
     <center><b>No se encontraron publicaciones para el año seleccionado</b></center>
 </div>
 <div id="numFasciculos" style="display: none">
-    <center><b>Al parecer su revista no cuenta con al menos 3 fascículos publicados</b></center>
+    <center><b>Al parecer su revista no cuenta con al menos 3 fascículos publicados, aún así, puede seleccionar un año en particular para su revisión.</b></center>
+    <br><br>
+    <center>
+        <b>Si su portal aloja múltiples revistas, asegúrese de indicar la URL de una revista en específico, la URL contiene el identificador de la revista</b><br><br>
+        <b>Ejemplo:</b> https://bibliographica.iib.unam.mx/index.php/<span style="font-size:20px"><b>RB</b></span>/oai
+    
+    </center>
 </div>
 <div id="informacion" style="display: none">
 <div class="row">
