@@ -100,7 +100,8 @@ class_ver = {
                 /^páginas\s*preliminares$/,
                 /^autores$/,
                 /^normas\s*para\s*autores/,
-                /^nota.*comité\s*editorial/
+                /^nota.*comité\s*editorial/,
+                /^advertencia\s*editorial$/
             ],
             'titulo_parcial' : [
                 /in\s*memóriam/,
@@ -340,15 +341,6 @@ class_ver = {
             $('#url_vacia').hide();
             $('#url_invalida').hide();
             var url = $('#'+class_ver.var.id_oai).val();
-            if(url.trim() == ''){
-                $('#url_vacia').show();
-                return 0;
-            }
-            if(url.toLowerCase().indexOf('oai') == -1 || url.toLowerCase().indexOf('http')){
-                $('#url_invalida').show();
-                class_ver.setBitacora(2);
-                return 0;
-            }
             
             loading.start();
             setTimeout( function(){
@@ -388,6 +380,19 @@ class_ver = {
                     $('.area').flip(false);
                 } catch(e){
                     console.log('');
+                }
+                
+                if(url.trim() == ''){
+                    $('#url_vacia').show();
+                    loading.end();
+                    return 0;
+                }
+                if(url.toLowerCase().indexOf('oai') == -1 || url.toLowerCase().indexOf('http')){
+                    $('#url_invalida').show();
+                    class_ver.var.plugin = '';
+                    class_ver.setBitacora(2);
+                    loading.end();
+                    return 0;
                 }
                 /*var url = $('#url_oai').val();
                 var years = '1900-' + (new Date()).getFullYear();
