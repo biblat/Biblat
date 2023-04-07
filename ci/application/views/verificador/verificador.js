@@ -472,7 +472,14 @@ class_ver = {
         }
         
         //entidadEditora
-        var editor = class_utils.find_prop(class_ver.var.data.js, 'setting_name', 'publisherInstitution').setting_value;
+		try{
+			var editor = class_utils.find_prop(class_ver.var.data.js, 'setting_name', 'publisherInstitution').setting_value;
+			if(editor == ''){
+                editor = 'No especificado';
+            }
+		}catch(e){
+            var editor = 'No especificado';
+        }
         //idioma
         var idioma = '';
         var idioma_principal = class_ver.var.data.j[0].primary_locale;
