@@ -101,7 +101,8 @@ class_ver = {
                 /^autores$/,
                 /^normas\s*para\s*autores/,
                 /^nota.*comité\s*editorial/,
-                /^advertencia\s*editorial$/
+                /^advertencia\s*editorial$/,
+                /^author\s*guidelines$/
             ],
             'titulo_parcial' : [
                 /in\s*memóriam/,
@@ -113,7 +114,7 @@ class_ver = {
                 /book\s*review/,
                 /review/,
                 /interview\s*to/,
-                /em memória/,
+                /em\s*memória/,
                 /revisão\s*do\s*livro/,
                 /review/,
                 /^editorial\s*/,
@@ -472,14 +473,14 @@ class_ver = {
         }
         
         //entidadEditora
-		try{
-			var editor = class_utils.find_prop(class_ver.var.data.js, 'setting_name', 'publisherInstitution').setting_value;
-			if(editor == ''){
+	try{
+            var editor = class_utils.find_prop(class_ver.var.data.js, 'setting_name', 'publisherInstitution').setting_value;
+            if(editor == ''){
                 editor = 'No especificado';
             }
-		}catch(e){
+	}catch(e){
             var editor = 'No especificado';
-        }
+        } 
         //idioma
         var idioma = '';
         var idioma_principal = class_ver.var.data.j[0].primary_locale;
