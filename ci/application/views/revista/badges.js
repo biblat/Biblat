@@ -6,19 +6,6 @@
 $(document).ready(function() {
     $('#resultados').bind('DOMNodeInserted DOMNodeRemoved', function(event) {
         setTimeout(function(){
-            $('.Tally__logo___k79zv').hide();
-            $('.SectionTally__logo___pEojg').hide();
-            $('.SectionTally__chartSubheading___tm7gz').hide();
-
-            $('.SectionTally__sectionTallyWrapper___nwj2j').each(function(i){
-                if(this.innerHTML.indexOf('<svg ') == -1){
-                    try{
-                        this.parentElement.remove();
-                    }catch(e){
-                    }
-                }
-            });
-
             try{
                 $('a').each(function(i){
                     if(this.href.indexOf("altmetric") != -1){
@@ -43,7 +30,7 @@ $(document).ready(function() {
             }
 
             $('.__dimensions_badge_embed__').each(function(i){
-                if(this.innerHTML.indexOf("?count=0") !== -1){
+                if(this.innerHTML.indexOf("?count=0") !== -1 || this.innerHTML.indexOf('alt="?') !== -1){
                     try{
                         this.parentElement.remove();
                     }catch(e){
@@ -64,21 +51,22 @@ $(document).ready(function() {
 
             try{
                 $('.scite-badge').each(function(i){
-                    var hijo = this.children[0]
-                    if(hijo.innerHTML.indexOf('Tally__tally___wF-n7') !== -1){
-                        if(hijo.innerHTML.indexOf('Tally__show___EesAt') == -1){
-                            try{
-                                this.remove();
-                            }catch(e){
-                            }
-                        }
-                    }
+                    
+                    var hijo = this.children[0];
+                    var count = (hijo.innerHTML.match(/>0</g) || []).length;
+                    var countP = (hijo.innerHTML.match(/publications/g) || []).length;
+                    if(count == 5 || (countP == 1 && count == 4))
+                        this.remove();
+									  
+							 
+						 
+					 
                 });
             }catch(e){
                 console.log(e);
             }
     
-        },1000);
+        },500);
         });
 });
 
