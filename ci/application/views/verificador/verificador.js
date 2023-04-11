@@ -2410,8 +2410,9 @@ class_ver = {
         
         var rango_fijo = 1;
         var rango = 1;
-        /*if(num == 0)
-            total = orcid.length;*/
+        if(num == 0)
+            total = orcid.length;
+        /*
         if(num == 0){
             res = JSON.parse(JSON.stringify(orcid));
             if('orcid' in orcid[0]){
@@ -2425,7 +2426,7 @@ class_ver = {
                 class_ver.var.orcid_etiqueta = 'setting_value';
             }
             total = orcid.length;
-        }
+        }*/
         var mensaje = "Verificando <num> de " + total + " ORCID";
         
         if(orcid.length < rango){
@@ -2436,9 +2437,42 @@ class_ver = {
         $.each(orcid.slice(0,rango), function(i,val){
             //var reg_orcid = '';
             //reg_orcid = val[etiqueta];
+            
+            if('orcid' in val){
+                class_ver.var.orcid_etiqueta = 'orcid';
+            }else if('url' in val){
+                class_ver.var.orcid_etiqueta = 'url';
+            }else{
+                class_ver.var.orcid_etiqueta = 'setting_value';
+            }
+            
+            if('resuelve' in val){
+                num = num + 1;
+                recibidos = recibidos + 1;
+                $('#orcid').html(mensaje.replace('<num>', num));
+
+                if(recibidos == rango){
+                    if(rango == rango_fijo && orcid.length !== rango){
+                        setTimeout(function(){class_ver.valida_orcid(orcid.slice(rango), res, total, num);},100);
+                    }else{
+                        class_ver.var.salida.orcid = res;
+                        class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-orcid'+'-'+class_ver.var.id_anio, class_ver.var.salida.orcid, class_ver.cons.expiry);
+                        //class_ver.graficaOrcid();
+                        //class_ver.graficaDois();
+                        setTimeout(function(){
+                            var res_lic = [];
+                            class_ver.valida_lic(class_ver.var.salida.lic, res_lic);
+                            //class_ver.valida_enlace(class_ver.var.salida.arr_ent, res_lic);
+                        }, 1000);
+                        return res;
+                    }
+                }
+                return;
+            }
+            
             $.when(
                 //class_utils.getResource('http://biblat.local/verificador/get_doi_validate?doi='+val.setting_value)
-                class_utils.getResource('/metametrics/get_name_by_orcid?orcid='+val.split('org/')[1])
+                class_utils.getResource('/metametrics/get_name_by_orcid?orcid='+val[class_ver.var.orcid_etiqueta].split('org/')[1])
             )
             .then(function(resp){
                 if(resp.resp == 'Fail'){
@@ -2446,12 +2480,12 @@ class_ver = {
                         setTimeout(function(){class_ver.valida_orcid(orcid, res, total, num, true);},100);
                         return 0;
                     }
-                    $.each(class_utils.filter_prop(res, class_ver.var.orcid_etiqueta, val), function(i, val_url){
+                    $.each(class_utils.filter_prop(res, class_ver.var.orcid_etiqueta, val[class_ver.var.orcid_etiqueta]), function(i, val_url){
                         val_url.resuelve = 0;
                         val_url.nombre = 'sin';
                     });
                 }else{
-                    $.each(class_utils.filter_prop(res, class_ver.var.orcid_etiqueta, val), function(i, val_url){
+                    $.each(class_utils.filter_prop(res, class_ver.var.orcid_etiqueta, val[class_ver.var.orcid_etiqueta]), function(i, val_url){
                         val_url.resuelve = 1;
                         val_url.nombre = resp.resp;
                     });
@@ -2483,7 +2517,7 @@ class_ver = {
                 recibidos = recibidos + 1;
                 $('#orcid').html(mensaje.replace('<num>', num));
                 
-                $.each(class_utils.filter_prop(res, class_ver.var.orcid_etiqueta, val), function(i, val_url){
+                $.each(class_utils.filter_prop(res, class_ver.var.orcid_etiqueta, val[class_ver.var.orcid_etiqueta]), function(i, val_url){
                         val_url.resuelve = 0;
                         val_url.nombre = 'sin';
                     });
