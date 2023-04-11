@@ -2261,6 +2261,7 @@ class_ver = {
             class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-doi'+'-'+class_ver.var.id_anio, class_ver.var.salida.pd, class_ver.cons.expiry);
             var res_orcid = [];
             class_ver.valida_orcid(class_ver.var.salida.consis_or, res_orcid);
+            return 0;
         }
         
         var url = $('#'+class_ver.var.id_oai).val();
@@ -2392,6 +2393,7 @@ class_ver = {
             var res_lic = [];
             class_ver.valida_lic(class_ver.var.salida.lic, res_lic);
             //class_ver.valida_enlace(class_ver.var.salida.arr_ent, res_lic);
+            return 0;
         }
         
         var url = $('#'+class_ver.var.id_oai).val();
@@ -2509,6 +2511,7 @@ class_ver = {
             class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-lic'+'-'+class_ver.var.id_anio, class_ver.var.salida.val_lic, class_ver.cons.expiry);
             var res_enl = [];
             class_ver.valida_enlace(class_ver.var.salida.arr_ent, res_enl);
+            return 0;
         }
         
         var url = $('#'+class_ver.var.id_oai).val();
@@ -2596,6 +2599,7 @@ class_ver = {
                 class_ver.graficaDois();
                 setTimeout(function(){
                     class_ver.resultado();
+                    return 0;
                 },1000);
             }, 1000);
         }
