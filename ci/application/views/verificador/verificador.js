@@ -172,7 +172,8 @@ class_ver = {
         cp:'',
         issni_v:'',
         issne_v:'',
-        origen:''
+        origen:'',
+        orcid_etiqueta:''
     },
     salida: function(msj){
       class_ver.var.salida += msj+'\n';
@@ -1580,7 +1581,7 @@ class_ver = {
         arr_pub_id = class_ver.get_pub_id2(consis_licencia);
         licencias_incons = class_utils.filter_prop_notarr(arr_pubs_comp, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
 
-
+        /*** Termina ciclo por cada issue ***/
 
         class_ver.var.salida.revista = revista;
         class_ver.var.salida.issn = issn;
@@ -2407,8 +2408,22 @@ class_ver = {
         
         var rango_fijo = 1;
         var rango = 1;
-        if(num == 0)
+        /*if(num == 0)
+            total = orcid.length;*/
+        if(num == 0){
+            res = JSON.parse(JSON.stringify(orcid));
+            if('orcid' in orcid[0]){
+                orcid = class_utils.unique(orcid, 'orcid');
+                class_ver.var.orcid_etiqueta = 'orcid';
+            }else if('url' in orcid[0]){
+                orcid = class_utils.unique(orcid, 'url');
+                class_ver.var.orcid_etiqueta = 'url';
+            }else{
+                orcid = class_utils.unique(orcid,'setting_value');
+                class_ver.var.orcid_etiqueta = 'setting_value';
+            }
             total = orcid.length;
+        }
         var mensaje = "Verificando <num> de " + total + " ORCID";
         
         if(orcid.length < rango){
@@ -2417,17 +2432,11 @@ class_ver = {
         var recibidos = 0;
         
         $.each(orcid.slice(0,rango), function(i,val){
-            var reg_orcid = '';
-            if('orcid' in val){
-                reg_orcid = val.orcid;
-            }else if('url' in val){
-                reg_orcid = val.url;
-            }else{
-                reg_orcid = val.setting_value;
-            }
+            //var reg_orcid = '';
+            //reg_orcid = val[etiqueta];
             $.when(
                 //class_utils.getResource('http://biblat.local/verificador/get_doi_validate?doi='+val.setting_value)
-                class_utils.getResource('/metametrics/get_name_by_orcid?orcid='+reg_orcid.split('org/')[1])
+                class_utils.getResource('/metametrics/get_name_by_orcid?orcid='+val.split('org/')[1])
             )
             .then(function(resp){
                 if(resp.resp == 'Fail'){
@@ -2435,18 +2444,21 @@ class_ver = {
                         setTimeout(function(){class_ver.valida_orcid(orcid, res, total, num, true);},100);
                         return 0;
                     }
-                    val.resuelve = 0;
-                    val.nombre = 'sin';
+                    $.each(class_utils.filter_prop(res, class_ver.var.orcid_etiqueta, val), function(i, val_url){
+                        val_url.resuelve = 0;
+                        val_url.nombre = 'sin';
+                    });
                 }else{
-                    val.resuelve = 1;
-                    val.nombre = resp.resp;
+                    $.each(class_utils.filter_prop(res, class_ver.var.orcid_etiqueta, val), function(i, val_url){
+                        val_url.resuelve = 1;
+                        val_url.nombre = resp.resp;
+                    });
                 }
                 
                 num = num + 1;
                 recibidos = recibidos + 1;
                 $('#orcid').html(mensaje.replace('<num>', num));
 
-                res.push(val);
                 if(recibidos == rango){
                     if(rango == rango_fijo && orcid.length !== rango){
                         setTimeout(function(){class_ver.valida_orcid(orcid.slice(rango), res, total, num);},100);
@@ -2465,7 +2477,28 @@ class_ver = {
                 }
 
             }).fail(function(){
-                setTimeout(function(){class_ver.valida_orcid(orcid, res, total, num);},100);
+                num = num + 1;
+                recibidos = recibidos + 1;
+                $('#orcid').html(mensaje.replace('<num>', num));
+                
+                $.each(class_utils.filter_prop(res, class_ver.var.orcid_etiqueta, val), function(i, val_url){
+                        val_url.resuelve = 0;
+                        val_url.nombre = 'sin';
+                    });
+                
+                if(recibidos == rango){
+                    if(rango == rango_fijo && orcid.length !== rango){
+                        setTimeout(function(){class_ver.valida_orcid(orcid.slice(rango), res, total, num);},100);
+                    }else{
+                        class_ver.var.salida.orcid = res;
+                        class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-orcid'+'-'+class_ver.var.id_anio, class_ver.var.salida.orcid, class_ver.cons.expiry);
+                        setTimeout(function(){
+                            var res_lic = [];
+                            class_ver.valida_lic(class_ver.var.salida.lic, res_lic);
+                        }, 1000);
+                        return res;
+                    }
+                }
             });
         });
     },
@@ -2710,11 +2743,11 @@ class_ver = {
         });
         return author_id;
     },
-    get_data_anios: function(anio = null, anio_fin = null, num_issues = 0, evalua = 3, repetir = 3){
+    get_data_anios: function(anio = null, anio_fin = null, num_issues = 0, evalua = 3, repetir = 3, anio_diferente = false){
         /* Si no se indica un año se obtienen desde el presente año los 3 últimos fascículos */
         /* Si se indica un año, traerá todos los años desde el indicado hasta donde encuentre hacia atrás */
         /* Si se indica un año fin, hasta ese año se obtendrá información */
-        
+        /* Si se indica anio_diferente, hará la búsqueda considerando que el año no es de longitud 4 */
         if (anio == null){
             anio = (new Date()).getFullYear();
         }else{
@@ -2884,11 +2917,16 @@ class_ver = {
                         if(repetir >0 ){
                             class_ver.get_data_anios(anio-1, anio_fin, (issues.length + num_issues), evalua, repetir-1);
                         }else{
-                            $("#numFasciculos").show();
-                            class_ver.var.plugin = 'Si';
-                            class_ver.setBitacora(2);
-                            loading.end();
-                            return 0;
+                            if(class_ver.var.data.i == undefined && !anio_diferente){
+                                //Si no se obtivieron datos, cabe la posibilidad que sea por el formato del año, se hará otro intento considerando esta posibilidad
+                                class_ver.get_data_anios(0, null, null, null, null, true);
+                            }else{
+                                $("#numFasciculos").show();
+                                class_ver.var.plugin = 'Si';
+                                class_ver.setBitacora(2);
+                                loading.end();
+                                return 0;
+                            }
                         }
                     }
                 }

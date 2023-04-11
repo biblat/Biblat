@@ -147,6 +147,7 @@ class Metametrics extends CI_Controller {
         $version = '3';
         $ver = '';
         $exist_div = false;
+        $anio_diferente = false;
         
         foreach( $divs as $div ){
             $exist_div = true;
@@ -160,6 +161,7 @@ class Metametrics extends CI_Controller {
             }
         }
         
+        $anio_encontrado = '';
         //Revisión para verificar el formato del año
         $divs2 = $dom->getElementsByTagName('subfield');
         foreach( $divs2 as $div2 ){
@@ -167,6 +169,10 @@ class Metametrics extends CI_Controller {
                 $anio_encontrado = $div2->nodeValue;
                 //Si el año no es de longitud 4, se hace la relación
                 if( strlen($anio_encontrado) != 4 ){
+                    $anio_diferente = true;
+                    if($years == 0){
+                        break;
+                    }
                     $fixs = $dom->getElementsByTagName('fixfield');
                     foreach( $fixs as $fix ){
                         if( $fix->getAttribute( 'id' ) === "008" ){
@@ -244,6 +250,25 @@ class Metametrics extends CI_Controller {
                 }
             //}
         }
+        
+        if( $years == 0 ){
+            $url = $oai.'?verb=ListRecords&metadataPrefix=oai_biblat&years_'.$anio_encontrado.'&tk_'.rand();
+            $url = file_get_contents($url);
+            $dom2 = new DOMDocument();
+            @$dom2->loadHTML($url);
+            $divs = $dom2->getElementsByTagName('varfield');
+            foreach( $divs as $div ){
+                $exist_div = true;
+                if( $div->getAttribute( 'id' ) === "000" ){
+                    $ver = explode("v", $div->nodeValue)[0];
+                    $busca = strpos($div->nodeValue, '2.3.0');
+                    if ($busca !== false){
+                        $version = '2';
+                        break;
+                    }
+                }
+            }
+        }
             
         if( $exist_div == false ){
             $response = '{"resp": "Fail"}';
@@ -254,7 +279,7 @@ class Metametrics extends CI_Controller {
             $iv_length = openssl_cipher_iv_length($ciphering);
             $options = 0;
             $encryption_iv = substr(hash('sha256', ''), 0, 16);
-            $encryption_key = hash('sha256', '');
+            $encryption_key = hash('sha256', ');
 
             $response = '{ "ver": "' . trim($ver) . '"';
             if ($version == '2'){
