@@ -882,7 +882,7 @@ class_utils= {
     },
     filter_prop: function(obj,prop,val){
         return obj.filter(function(obj2){
-            return eval('obj2.' + prop + '== val');
+            return obj2[prop] == val;
         });
     },
     filter_prop_arr: function(obj,prop,val){
@@ -893,6 +893,17 @@ class_utils= {
     filter_prop_notarr: function(obj,prop,val){
         return obj.filter(function(obj2){
             return val.indexOf(obj2[prop]) == -1;
+        });
+    },
+    //objetos obj que estén en el objeto 2 obj2 se eliminan del obj, se compara por propiedad
+    filter_prop_arr_diff: function(obj,prop,obj2,prop2){
+        var listado = [];
+        $.each(obj2, function(i,val){
+            if( listado.indexOf(val[prop2]) == -1)
+                listado.push(val[prop2]);
+        });
+        return obj.filter(function(o){
+            return listado.indexOf(o[prop]) == -1;
         });
     },
     filter_prop_arr_or: function(obj,props,vals){
