@@ -1522,20 +1522,25 @@ class_ver = {
         //
         //Instituciones con valor
         instituciones_valor = class_utils.filterdiff_prop(instituciones, 'setting_value', [null, '', undefined]);
-        var instituciones_sinvalor = class_utils.filter_prop_arr(instituciones, 'setting_value', [null, '', undefined]);
+        instituciones_sinvalor = class_utils.filter_prop_arr(instituciones, 'setting_value', [null, '', undefined]);
+        //Algunas instituciones "sin valor" pueden estar en las de "valor" puesto que aparecen en algún campo de diferente idioma por lo tanto se quitan del arreglo
+        instituciones_sinvalor = class_utils.filter_prop_arr_diff(instituciones_sinvalor, 'author_id', instituciones_valor, 'author_id');
+        
+        //Se obtienen los ids de las publicaciones que no tienen valor en la institución
         autores_pub_id_sv = class_ver.get_autores_pub_id2(instituciones_sinvalor);
         
         autores_pub_id = class_ver.get_autores_pub_id2(instituciones_valor);
-        instituciones_faltantes = class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
+        //instituciones_faltantes = class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
         //Esta parte es para tomar los ids de publicaciones con instituciones faltantes
-        //instituciones_faltantes = class_utils.filter_prop_arr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id_sv);
+        instituciones_faltantes = class_utils.filter_prop_arr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id_sv);
 
         var consis_instituciones = class_utils.filter_prop_noter(instituciones_valor, 'setting_value', class_ver.cons.er.doblemayus);
         //instituciones que complan con esta expresión regular (inconsistentes)
         var inconsis_instituciones = class_utils.filter_prop_er(instituciones_valor, 'setting_value', class_ver.cons.er.doblemayus);
+        inconsis_instituciones = class_utils.filter_prop_arr_diff(inconsis_instituciones, 'author_id', consis_instituciones, 'author_id');
 
         arr_pubs_b = class_utils.filter_prop_arr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
-        autores_pub_id = class_ver.get_autores_pub_id2(consis_instituciones);
+        //autores_pub_id = class_ver.get_autores_pub_id2(consis_instituciones);
         autores_pub_id = class_ver.get_autores_pub_id2(inconsis_instituciones);
 
         instituciones_incons = class_utils.filter_prop_notarr(arr_pubs_b, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
