@@ -1413,9 +1413,29 @@ class_ver = {
 
         //Autores con orcid 0
         var autores_orcid_tmp = '';
+        var autores_orcid_tmp2 = '';
         if ( ['3.3.0', '3.2.0', '3.1.2'].indexOf(class_ver.var.data.ver) !== -1 ){
             autores_orcid_tmp = class_utils.filter_prop_arr(autores_s, 'setting_name', "orcid");
             autores_orcid_tmp = class_utils.filterdiff_prop(autores_orcid_tmp, 'setting_value', [null, '', undefined]);
+			
+            //Pueden existir los dos orcid y url
+            autores_orcid_tmp2 = class_utils.filter_prop_arr(autores_s, 'setting_name', "url");
+            autores_orcid_tmp2 = class_utils.filterdiff_prop(autores_orcid_tmp2, 'setting_value', [null, '', undefined]);
+			
+            //Se recorre el arreglo de url para ver si ya existe un orcid para el autor
+            var autores_orcid_concat = [];
+            $.each(autores_orcid_tmp2, function(iu, valu){
+                var obj = class_utils.filter_prop(autores_orcid_tmp, 'author_id', valu['author_id']);
+                //Si ya existe no se agrega al arreglo, si no, se cambia el nombre a orcid para que todos sean iguales y se agrega
+                if(obj.length == 0){
+                    valu['setting_name'] = 'orcid';
+                    autores_orcid_concat.push(valu);
+                }
+            });
+			
+            //se concatenan los 2 arreglos
+            autores_orcid_tmp = autores_orcid_tmp.concat(autores_orcid_concat);
+			
             $.each(autores_orcid_tmp, function(i,val){
                 val[class_ver.cons.pub_id_auth[class_ver.var.data.ver]] = class_utils.find_prop(class_ver.var.data.a, 'author_id', val['author_id'])[class_ver.cons.pub_id_auth[class_ver.var.data.ver]];
             });
@@ -2410,8 +2430,10 @@ class_ver = {
         
         var rango_fijo = 1;
         var rango = 1;
-        if(num == 0)
+        if(num == 0){
+            res = orcid;
             total = orcid.length;
+        }
         /*
         if(num == 0){
             res = JSON.parse(JSON.stringify(orcid));
