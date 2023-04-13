@@ -684,7 +684,11 @@ class_utils= {
         xAxis: {
             categories: [],
             //sombreado en el area por categoría (true)
-            crosshair: false,        
+            crosshair: false,   
+            title: {
+                text: ''
+            },
+            reversed: false
         },
         yAxis: [{ // Primary yAxis
             labels: {
@@ -731,10 +735,49 @@ class_utils= {
                     enabled: false
                 },
             color: Highcharts.getOptions().colors[0],
-            yAxis: 0
-            }       
+            yAxis: 0,
+            dataSorting: {
+                enabled: false,
+                //sortKey: 'custom.value'
+            }
+        }       
         ],
         credits: {href: "https://biblat.unam.mx/es", text: "Fuente: biblat.unam.mx"}
+    },
+    chartPie: function(){
+        var chart = {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false
+        };
+        var title = {
+           text: '',
+           style: {fontSize: '11px', fontWeight: 'bold'}
+        };      
+        var tooltip = {
+           pointFormat: '{series.name}: <b>{point.y} ({point.percentage:.1f}%)</b>'
+        };
+        var plotOptions = {
+           pie: {
+              allowPointSelect: true,
+              cursor: 'pointer',
+
+              dataLabels: {
+                 enabled: false           
+              },
+
+              showInLegend: true
+           }
+        };
+        var series = [{
+        }];     
+        var json = {};   
+        json.chart = chart; 
+        json.title = title;     
+        json.tooltip = tooltip;  
+        json.series = series;
+        json.plotOptions = plotOptions;
+        return json;
     },
     chartRadialBar:{
         colors: ['green', 'lightgray', 'red'],
@@ -1006,6 +1049,13 @@ class_utils= {
             color += l;
         }
         return color;
+    },
+    getRandomColorF: function(opacidad) {
+        // Generar un color aleatorio en formato hexadecimal
+        let color = "#" + Math.floor(Math.random() * 16777215).toString(16);
+        // Agregar la opacidad al color
+        let colorConOpacidad = color + Math.floor(opacidad * 255).toString(16);
+        return colorConOpacidad;
     },
     unique: function(obj,prop){
         var arr = [];
