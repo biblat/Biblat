@@ -170,7 +170,7 @@ class_nr = {
         grafica.series[0].data = xdata;
         grafica.series[0].dataLabels.enabled = true;
         grafica.series[0].dataSorting.enabled = true;
-        grafica.series[0].color = class_utils.getRandomColorF();
+        grafica.series[0].color = Highcharts.getOptions().colors[7];
         grafica.xAxis.reversed = true;
    
         Highcharts.chart('container', grafica);
@@ -196,7 +196,7 @@ class_nr = {
                     {
                             name: val,
                             y: obj.length,
-                            color: class_utils.getRandomColorF()
+                            color: Highcharts.getOptions().colors[i]
                     }
             );
         });
@@ -226,7 +226,7 @@ class_nr = {
                     {
                             name: val,
                             y: obj.length,
-                            color: class_utils.getRandomColorF()
+                            color: Highcharts.getOptions().colors[i+2]
                     }
             );
         });
@@ -267,7 +267,7 @@ class_nr = {
         grafica.series[0].data = xdata;
         grafica.series[0].dataLabels.enabled = true;
         grafica.series[0].dataSorting.enabled = true;
-        grafica.series[0].color = class_utils.getRandomColorF();
+        grafica.series[0].color = Highcharts.getOptions().colors[5];
         grafica.xAxis.reversed = true;
    
         Highcharts.chart('container2', grafica);

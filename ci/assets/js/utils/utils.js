@@ -1062,8 +1062,14 @@ class_utils= {
         // Agregar la opacidad al color
         let colorConOpacidad = color + Math.floor(opacidad * 255).toString(16);
         return colorConOpacidad;*/
-
-        return Highcharts.color(Highcharts.getOptions().colors[Math.floor(Math.random() * 10)]).brighten((Math.floor(Math.random() * 5) - 3) / 7).get();
+        var colores = ['rgb(255,255,255)', 'rgb(0,0,0)', 'rgb(31,31,36)', 'rgb(0,35,34)'];
+        var color = 'rgb(255,255,255)';
+        
+        while(colores.indexOf(color) !== -1){
+            color = Highcharts.color(Highcharts.getOptions().colors[Math.floor(Math.random() * 10)]).brighten((Math.floor(Math.random() * 5) - 3) / 7).get();
+        }
+        
+        return color;
     },
     unique: function(obj,prop){
         var arr = [];
