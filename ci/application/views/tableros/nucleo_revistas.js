@@ -141,6 +141,7 @@ class_nr = {
     },
     set_chart_column: function(){
         var grafica = JSON.parse(JSON.stringify(class_utils.chartColumn2));
+        grafica.chart.height = (window.innerHeight/2);
         grafica.title.text = 'Países del núcleo';
         grafica.yAxis[0].title.text = 'Revistas';
         grafica.yAxis[0].title.style.color = null;
@@ -169,7 +170,7 @@ class_nr = {
         grafica.series[0].data = xdata;
         grafica.series[0].dataLabels.enabled = true;
         grafica.series[0].dataSorting.enabled = true;
-        grafica.series[0].color = class_utils.getRandomColor();
+        grafica.series[0].color = class_utils.getRandomColorF();
         grafica.xAxis.reversed = true;
    
         Highcharts.chart('container', grafica);
@@ -195,7 +196,7 @@ class_nr = {
                     {
                             name: val,
                             y: obj.length,
-                            color: class_utils.getRandomColorF(0.5)
+                            color: class_utils.getRandomColorF()
                     }
             );
         });
@@ -225,7 +226,7 @@ class_nr = {
                     {
                             name: val,
                             y: obj.length,
-                            color: class_utils.getRandomColorF(0.5)
+                            color: class_utils.getRandomColorF()
                     }
             );
         });
@@ -237,6 +238,7 @@ class_nr = {
     },
     set_chart_column2: function(){
         var grafica = JSON.parse(JSON.stringify(class_utils.chartColumn2));
+        grafica.chart.height = (window.innerHeight/2);
         grafica.title.text = 'Disciplinas';
         grafica.yAxis[0].title.text = 'Revistas';
         grafica.yAxis[0].title.style.color = null;
@@ -265,7 +267,7 @@ class_nr = {
         grafica.series[0].data = xdata;
         grafica.series[0].dataLabels.enabled = true;
         grafica.series[0].dataSorting.enabled = true;
-        grafica.series[0].color = class_utils.getRandomColor();
+        grafica.series[0].color = class_utils.getRandomColorF();
         grafica.xAxis.reversed = true;
    
         Highcharts.chart('container2', grafica);
