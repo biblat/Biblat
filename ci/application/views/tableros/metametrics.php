@@ -2,7 +2,7 @@
 .center {
   display: flex;
   align-items: center;
-  background-color: white;
+  --background-color: white;
   justify-content: center;
 }
 </style>
@@ -14,7 +14,26 @@
     <br>
 </div>
 <div class="row">
-    <div id="container" class="center">
+    <div class="col-xs-12">
+        <div id="container" class="center">
+        </div>
+    </div>
+    <!--div class="col-xs-6">
+        <div id="container2" class="center">
+        </div>
+    </div-->
+</div>
+<div class="row">
+    <br>
+</div>
+<div class="row">
+    <div class="col-xs-6">
+        <div id="grafica_tipo_uso" class="center">
+        </div>
+    </div>
+    <div class="col-xs-6">
+        <div id="grafica_anios" class="center">
+        </div>
     </div>
 </div>
 

@@ -748,7 +748,8 @@ class_utils= {
         var chart = {
             plotBackgroundColor: null,
             plotBorderWidth: null,
-            plotShadow: false
+            plotShadow: false,
+            backgroundColor: 'transparent'
         };
         var title = {
            text: '',
@@ -771,12 +772,16 @@ class_utils= {
         };
         var series = [{
         }];     
+    
+        var credits = {href: "https://biblat.unam.mx/es", text: "Fuente: biblat.unam.mx"};
+        
         var json = {};   
         json.chart = chart; 
         json.title = title;     
         json.tooltip = tooltip;  
         json.series = series;
         json.plotOptions = plotOptions;
+        json.credits = credits;
         return json;
     },
     chartRadialBar:{
@@ -1050,12 +1055,15 @@ class_utils= {
         }
         return color;
     },
-    getRandomColorF: function(opacidad) {
+    getRandomColorF: function() {
+        /*
         // Generar un color aleatorio en formato hexadecimal
         let color = "#" + Math.floor(Math.random() * 16777215).toString(16);
         // Agregar la opacidad al color
         let colorConOpacidad = color + Math.floor(opacidad * 255).toString(16);
-        return colorConOpacidad;
+        return colorConOpacidad;*/
+
+        return Highcharts.color(Highcharts.getOptions().colors[Math.floor(Math.random() * 10)]).brighten((Math.floor(Math.random() * 5) - 3) / 7).get();
     },
     unique: function(obj,prop){
         var arr = [];
