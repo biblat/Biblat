@@ -756,7 +756,7 @@ class_utils= {
            style: {fontSize: '11px', fontWeight: 'bold'}
         };      
         var tooltip = {
-           pointFormat: '{series.name}: <b>{point.y} ({point.percentage:.1f}%)</b>'
+           pointFormat: '{series.name}: <b>{point.y} ({point.percentage:.2f}%)</b>'
         };
         var plotOptions = {
            pie: {
