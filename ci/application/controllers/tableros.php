@@ -43,11 +43,11 @@ class Tableros extends CI_Controller {
     
     public function nucleorevistas(){
         $data = array();
-        $data['page_title'] = _('Núcleo básico de revistas');
+        $data['page_title'] = _('Núcleo central de revistas');
         $this->template->set_layout('default_sel');
-        $this->template->title(_('Núcleo básico de revistas'));
+        $this->template->title(_('Núcleo central de revistas'));
         //$data['page_subtitle'] = _('Ranking MetaMetrics');
-        $this->template->set_meta('description', _('Núcleo básico de revistas'));
+        $this->template->set_meta('description', _('Núcleo central de revistas'));
         $this->template->set_partial('main_js', 'tableros/nucleo_revistas.js', array(), TRUE, FALSE);
         $this->template->build('tableros/nucleo_revistas', $data);
     }

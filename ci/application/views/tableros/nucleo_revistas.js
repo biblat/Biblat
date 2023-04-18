@@ -50,16 +50,16 @@ class_nr = {
         li: '<li><a class="li-filtro2" id="<id>"><val></a></li>'
     },
     texto:{
-        nucleo: "El Núcleo básico de revistas es la colección de revistas actualizadas en BIBLAT durante los últimos 5 años (<anio1> a <anio2>). Se considera que una " +
-                "revista está actualizada si en el rango de cinco años cuenta con acervo en el portal.<br><br>Las revistas incluidas en el Núcleo básico BIBLAT tienen acceso a los indicadores " +
-                "bibliométricos de internacionalización de la autoría y coautoría generados por BIBLAT.<br><br>El Núcleo básico BIBLAT es dinámico, esto es, actualiza las revistas incluidas conforme éstas actualizan sus contenidos (el registro de los artículos publicados) en el portal BIBLAT.<br><br>" +
+        nucleo: "El Núcleo central de revistas es la colección de revistas actualizadas en BIBLAT durante los últimos 5 años (<anio1> a <anio2>). Se considera que una " +
+                "revista está actualizada si en el rango de cinco años cuenta con acervo en el portal.<br><br>Las revistas incluidas en el Núcleo central BIBLAT tienen acceso a los indicadores " +
+                "bibliométricos de internacionalización de la autoría y coautoría generados por BIBLAT.<br><br>El Núcleo central BIBLAT es dinámico, esto es, actualiza las revistas incluidas conforme éstas actualizan sus contenidos (el registro de los artículos publicados) en el portal BIBLAT.<br><br>" +
                 "Para la actualización de una revista, es necesario instalar el <a target='_blank' href='https://biblat.unam.mx/archivos/pdf/PluginBIBLAT.pdf'>Plugin BIBLAT</a>, con objeto de permitir la exportación de los metadatos de los artículos publicados y facilitar así la actualización de las revistas en BIBLAT. Para cualquier duda, contáctenos a <a href='mailto:biblat_comite@dgb.unam.mx'>biblat_comite@dgb.unam.mx</a>",
-        tabla1: "<b>Tabla de revistas del núcleo básico BIBLAT</b><br><br>"+
-                "Se muestran los datos de las revistas que integran el Núcleo básico. De izquierda a derecha se indica si las revistas están indizadas en BIBLAT o " +
+        tabla1: "<b>Tabla de revistas del núcleo central BIBLAT</b><br><br>"+
+                "Se muestran los datos de las revistas que integran el Núcleo central. De izquierda a derecha se indica si las revistas están indizadas en BIBLAT o " +
                 "también en SciELO, la base de datos a la cual pertenecen, el ISSN, título, el país y la disciplina con la cual se clasifican en BIBLAT. Los números que " +
                 "siguen a la columna Disciplina indican la cantidad de documentos en cada año.",
         procedencia: "<b>Procedencia de las revistas del Núcleo</b><br><br>"+
-                    "La procedencia de las revistas que integran el Núcleo básico se concentra en <num_pais> países latinoamericanos, sólo <num_inter> de las revistas <es_son> por un organismo "+
+                    "La procedencia de las revistas que integran el Núcleo central se concentra en <num_pais> países latinoamericanos, sólo <num_inter> de las revistas <es_son> por un organismo "+
                     "internacional. <pais1>, <pais2> y <pais3> tienen el mayor número de títulos en la colección núcleo de BIBLAT.",
         scielo: "<b>Indización en SciELO</b><br><br>" +
                 "El <pscielo>% de las revistas del Núcleo también se encuentran " +
@@ -71,7 +71,7 @@ class_nr = {
                 "son revistas indizadas en CLASE, es decir, pertenecen al área " +
                 "de Ciencias sociales, humanidades y artes. El <pper>% " +
                 "pertenecen a las Ciencias exactas, biológicas, químicas y medicina.",
-        cobertura: "<b>Cobertura temática del Núcleo básico</b><br><br>" +
+        cobertura: "<b>Cobertura temática del Núcleo central</b><br><br>" +
                     "Se muestra el número de revistas que actualmente integran el núcleo por cada Disciplina. Estas categorías son definidas por BIBLAT de acuerdo su " +
                     "propio <a target='_blank' href='https://biblat.unam.mx/archivos/anexo4-disciplinas.pdf'>listado</a>. Se observa una fuerte tendencia a la <disciplina>, ocupando <num> de los <total> títulos del Núcleo."
     },
@@ -296,7 +296,7 @@ class_nr = {
         grafica.series[0].dataLabels.enabled = true;
         grafica.series[0].dataSorting.enabled = true;
         grafica.series[0].dataSorting.sortKey = 'y'
-        grafica.series[0].color = Highcharts.getOptions().colors[7];
+        grafica.series[0].color = '#EA8D45';//Highcharts.getOptions().colors[7];
         grafica.xAxis.reversed = true;
    
         Highcharts.chart('container', grafica);
@@ -322,7 +322,7 @@ class_nr = {
                     {
                             name: val,
                             y: obj.length,
-                            color: Highcharts.getOptions().colors[i],
+                            color: (val == 'BIBLAT')?'#EA8D45':'#9b9d99',
                             porc: ((obj.length * 100) / class_nr.var.values.length).toFixed(2)
                     }
             );
