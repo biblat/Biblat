@@ -139,7 +139,14 @@ class_nr = {
                 $('#btn-filtro2').html($('#'+this.id).html());
                 var filtro = class_utils.filter_prop(class_nr.var.values, id_filtro1, this.id);
                 class_nr.setTabla(filtro);
+                $('#remove').show();
             });
+        });
+        $("#remove").off('click').on('click', function(){
+            $('#remove').hide();
+            $('#btn-filtro').html("Filtrar por :");
+            $('#btn-filtro2').html("Seleccione");
+            class_nr.setTabla(class_nr.var.values);
         });
     },
     setTexto: function(){
