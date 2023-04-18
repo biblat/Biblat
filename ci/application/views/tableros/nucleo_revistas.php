@@ -53,6 +53,10 @@
                   </ul>
                 </div>
             </div>
+            <br><br>
+            <button id="remove" type="button" class="btn btn-default btn-sm" style="display: none">
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Quitar filtro
+            </button>
         </div>
     </div>
     <div class="col-xs-12">
