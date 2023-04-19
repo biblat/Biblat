@@ -36,6 +36,14 @@
             <select class="form-control" name="anio" id="anio" style="max-width:200px">
             </select>
         {/if}
+        <div id="div_secciones" style="display:none">
+            <br>
+            <label>Secciones</label>
+            <p>Se encontraron las siguientes secciones en la revista, si alguna(s) de ellas no cuenta(n) con contenido indizable (artículos originales, ensayos, reseñas de libro, revisiones bibliográficas, notas de más de una cuartilla, informes técnicos o cartas al editor), de clic para quitar la selección y no considerar para la evaluación los documentos incluídos en dicha(s) seccion(es).</p>
+            <div id="group_secciones">
+                
+            </div>
+        </div>
     </div>
 </div>
 <div class="row"><br></div>
