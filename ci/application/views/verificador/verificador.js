@@ -34,7 +34,7 @@ class_ver = {
             '2.4.0': 'submission_id',
             '2.3.0': 'submission_id'
         },
-        campos:['a', 'as', 'c_v_e_s', 'i', 'is', 'p', 'pg', 'ps', 'ss', 'pf']
+        campos:['a', 'as', 'c_v_e_s', 'i', 'is', 'p', 'pg', 'ps', 'ss', 'pf', 's', 'ses']
         ,
         expiry:1000 * 10 * 60,
         er: {
@@ -146,6 +146,12 @@ class_ver = {
         option_oai: '<option value="<url>"><revista></option>',
         DISCOVERY_DOCS: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
         SCOPES: ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'],
+        chbx_seccion:   '<div class="input-group" >' +
+                            '<span class="input-group-addon">' +
+                                '<input type="checkbox" class="seccion checkbox" name="section[]" id="sel-<id_seccion>" value="<id_seccion>" checked style="accent-color: #f0ad4e">' +
+                            '</span>' +
+                            '<input type="text" class="form-control txt_seccion" disabled style="width:200px" value="<seccion>">' + 
+                        '</div>'
     },
     var:{
         data: [],
@@ -173,7 +179,9 @@ class_ver = {
         issni_v:'',
         issne_v:'',
         origen:'',
-        orcid_etiqueta:''
+        orcid_etiqueta:'',
+        seccion_no_indizable: [],
+        cambio_secciones: false
     },
     salida: function(msj){
       class_ver.var.salida += msj+'\n';
@@ -251,6 +259,13 @@ class_ver = {
         }
     },
     setBitacora: function(estatus=1) {
+        var secciones = '';
+        $.each($('.seccion'), function(isec, valsec){
+            if( !$('#'+valsec.id)[0].checked ){
+                secciones += ((secciones.length > 0)?',':'') + $('.txt_seccion')[isec].value;
+            }
+        });
+        
             if (estatus == 2){
                 class_ver.var.revista_ojs = '';
                 class_ver.var.entidad_editora_ojs = '';
@@ -288,7 +303,7 @@ class_ver = {
                         spreadsheetId: b(env.sId),
                         range: "Bitacora",
                     }).then(function(response) {
-                        var row = response.result.values[0][26];
+                        var row = response.result.values[0][31];
                         var fecha = (new Date());
                         $.getJSON('https://api.bigdatacloud.net/data/ip-geolocation?key=bdc_7a62527619f64920868ea6753c27b406', function(data) {
                             var datos = [];
@@ -316,7 +331,15 @@ class_ver = {
                             datos[21] = class_ver.var.sp;
                             datos[22] = class_ver.var.cp;
                             datos[23] = class_ver.var.pp;
-                            
+                            datos[24] = secciones;
+                            //docuemntos totales
+                            datos[25] = class_ver.var.salida.p_t.length;
+                            //documentos evaluados
+                            datos[26] = class_ver.var.salida.p.length;
+                            //documentos indizables
+                            datos[27] = class_ver.var.salida.pi.length;
+                            //Autores
+                            datos[28] = class_ver.var.salida.a.length;
                             var body = {
                                 values: [datos]
                             };
@@ -338,6 +361,39 @@ class_ver = {
                 });
             });
     },
+    html_reset: function(){
+        $('#container').html('');
+        $('#autores').html('');
+        $('#container2').html('');
+        $('#documentos').html('');
+        $('#container3').html('');
+        $('#dois').html('');
+        $('#container4').html("<p><b><span class='val_enlace' id='dois'></span><br><span class='val_enlace' id='orcid'></span><br><span class='val_enlace' id='lic'></span><br><span class='val_enlace' id='enlace'></span></b></p>");
+        $('#promedio').html('');
+        $('#containerp').html('');
+
+        $('#area_prec').hide();
+        $('#container_c1').html('');
+        $('#consis_autores').html('');
+        $('#consis_dois').html('');
+        $('#container_c2').html('');
+        $('#consis_documentos').html('');
+        $('#consis_promedio').html('');
+        $('#containerp2').html('');
+        $('#div_resultado').html('');
+
+        $('#informacion').hide();
+        $('.fa-check').hide();
+        $('.fa-exclamation-triangle').hide();
+        $('.btn_val').hide();
+        $('.val_enlace').html('');
+        $('.color-fondo').css('background-color','');
+        $('.color-fondo').html('');
+        $('#plugin').hide();
+        $('#sinDatos').hide();
+        $("#numFasciculos").hide();
+        $("#txt_val_final").hide();
+    },
     control:function(){
         $('#btn_verificar').off('click').on('click',function(){
             $('#url_vacia').hide();
@@ -346,37 +402,7 @@ class_ver = {
             
             loading.start();
             setTimeout( function(){
-                $('#container').html('');
-                $('#autores').html('');
-                $('#container2').html('');
-                $('#documentos').html('');
-                $('#container3').html('');
-                $('#dois').html('');
-                $('#container4').html("<p><b><span class='val_enlace' id='dois'></span><br><span class='val_enlace' id='orcid'></span><br><span class='val_enlace' id='lic'></span><br><span class='val_enlace' id='enlace'></span></b></p>");
-                $('#promedio').html('');
-                $('#containerp').html('');
-
-                $('#area_prec').hide();
-                $('#container_c1').html('');
-                $('#consis_autores').html('');
-                $('#consis_dois').html('');
-                $('#container_c2').html('');
-                $('#consis_documentos').html('');
-                $('#consis_promedio').html('');
-                $('#containerp2').html('');
-                $('#div_resultado').html('');
-
-                $('#informacion').hide();
-                $('.fa-check').hide();
-                $('.fa-exclamation-triangle').hide();
-                $('.btn_val').hide();
-                $('.val_enlace').html('');
-                $('.color-fondo').css('background-color','');
-                $('.color-fondo').html('');
-                $('#plugin').hide();
-                $('#sinDatos').hide();
-                $("#numFasciculos").hide();
-                $("#txt_val_final").hide();
+                class_ver.html_reset();
                 
                 try{
                     $('.area').flip(false);
@@ -420,6 +446,22 @@ class_ver = {
                     }
                 },100);
             }, 1000);
+        });
+        
+        $('#anio').off('change').on('change',function(){
+            class_ver.html_reset();
+            $('#group_secciones').html('');
+            $('#div_secciones').hide();
+            class_ver.var.seccion_no_indizable= [];
+            class_ver.var.cambio_secciones= false;
+        });
+        
+        $('#url_oai_sel').off('change').on('change',function(){
+            class_ver.html_reset();
+            $('#group_secciones').html('');
+            $('#div_secciones').hide();
+            class_ver.var.seccion_no_indizable= [];
+            class_ver.var.cambio_secciones= false;
         });
     },
     analisis:function(){
@@ -639,6 +681,41 @@ class_ver = {
             class_ver.var.data.ss = JSON.parse(JSON.stringify(class_ver.var.data.p))
             class_ver.var.data.p = temp;
         }
+        
+        //secciones
+        
+        if(!class_ver.var.cambio_secciones){
+            var secciones = class_utils.filter_prop(class_ver.var.data.ses, 'locale', idioma_principal);
+            var ids_secciones = class_utils.unique(secciones, 'section_id');
+            var html_secciones = '';
+            $.each(ids_secciones, function(is, vals){
+                var nombre = '';
+                var busca = class_utils.filter_prop(secciones, 'section_id', vals);
+                var busca_abrev = class_utils.filter_prop(busca, 'setting_name', 'abbrev');
+                if(busca_abrev.length > 0){
+                    nombre = busca_abrev[0].setting_value;
+                }
+                var busca_tit = class_utils.filter_prop(busca, 'setting_name', 'title');
+                if(busca_tit.length > 0){
+                    nombre += ((nombre.length > 0)?':':'') + busca_tit[0].setting_value;
+                }
+                html_secciones += class_ver.cons.chbx_seccion.replaceAll('<id_seccion>', vals).replace('<seccion>', nombre);
+            });
+        
+            $('#group_secciones').html(html_secciones);
+        }
+        
+        $('#div_secciones').show();
+        
+        class_ver.var.seccion_no_indizable = [];
+        $.each($('.seccion'), function(isec, valsec){
+            if( !$('#'+valsec.id)[0].checked ){
+                class_ver.var.seccion_no_indizable.push(String($('#'+valsec.id).val()));
+            }
+            $('#'+valsec.id).off('change').on('change', function(ic, valc){
+                class_ver.var.cambio_secciones = true;
+            });
+        });
 
         //total de publicaciones
         var publicaciones = class_utils.filter_prop(class_ver.var.data.p, 'status', '3');
@@ -717,45 +794,52 @@ class_ver = {
                 val.pages = pages;
                 val.title = title_tmp;
                 
-                //Búsqueda de títulos que no debe entrar en la valoración
-                $.each(class_ver.cons.er.titulo_completo, function(i_t, val_t){
-                    try{
-                        if( val_t.test(val.title.toLowerCase().trim()) ){
-                            coincide_titulo = true;
-                            return false;
-                        }
-                    }catch(e){
-                       
-                    }
-                });
-                if(!coincide_titulo){
-                    $.each(class_ver.cons.er.titulo_parcial, function(i_t, val_t){
+                //Búsqueda de títulos que no entran en la valoración por una sección con contenido no indizable
+                if(class_ver.var.seccion_no_indizable.indexOf(String(val.section_id)) !== -1 ){
+                    coincide_titulo = true;
+                    coincide_titulo_indizable = false;
+                }else{
+                
+                    //Búsqueda de títulos que no debe entrar en la valoración
+                    $.each(class_ver.cons.er.titulo_completo, function(i_t, val_t){
                         try{
                             if( val_t.test(val.title.toLowerCase().trim()) ){
                                 coincide_titulo = true;
                                 return false;
                             }
                         }catch(e){
-                       
+
                         }
                     });
-                }
-                
-                //Coincide con un título que no debe entrar en la valoración, pero se verifica si es contenido indizable
-                if(coincide_titulo){
-                    //De inicio se marca como contenido no indizable
-                    coincide_titulo_indizable = false;
-                    $.each(class_ver.cons.er.contenido_indizable, function(i_t, val_t){
-                        try{
-                            if( val_t.test(val.title.toLowerCase().trim()) ){
-                                //Si hay coincidencia en el listado siempre sí se marca como indizable
-                                coincide_titulo_indizable = true;
-                                return false;
+                    if(!coincide_titulo){
+                        $.each(class_ver.cons.er.titulo_parcial, function(i_t, val_t){
+                            try{
+                                if( val_t.test(val.title.toLowerCase().trim()) ){
+                                    coincide_titulo = true;
+                                    return false;
+                                }
+                            }catch(e){
+
                             }
-                        }catch(e){
-                       
-                        }
-                    });
+                        });
+                    }
+
+                    //Coincide con un título que no debe entrar en la valoración, pero se verifica si es contenido indizable
+                    if(coincide_titulo){
+                        //De inicio se marca como contenido no indizable
+                        coincide_titulo_indizable = false;
+                        $.each(class_ver.cons.er.contenido_indizable, function(i_t, val_t){
+                            try{
+                                if( val_t.test(val.title.toLowerCase().trim()) ){
+                                    //Si hay coincidencia en el listado siempre sí se marca como indizable
+                                    coincide_titulo_indizable = true;
+                                    return false;
+                                }
+                            }catch(e){
+
+                            }
+                        });
+                    }
                 }
                 
             }else{ //if (class_ver.var.data.ver == '3.1.2'){
@@ -816,43 +900,50 @@ class_ver = {
                 val.number = issue.number;
                 val.title = title_tmp;
                 
-                //Búsqueda de títulos que no debe entrar en la valoración
-                $.each(class_ver.cons.er.titulo_completo, function(i_t, val_t){
-                    try{
-                        if( val_t.test(val.title.toLowerCase().trim()) ){
-                            coincide_titulo = true;
-                            return false;
-                        }
-                    }catch(e){
-                        console.log(e);
-                    }
-                });
-                if(!coincide_titulo){
-                        $.each(class_ver.cons.er.titulo_parcial, function(i_t, val_t){
-                            try{
-                                if( val_t.test(val.title.toLowerCase().trim()) ){
-                                    coincide_titulo = true;
-                                    return false;
-                                }
-                            }catch(e){
-                        
-                            }
-                        });
-                }
+                //Búsqueda de títulos que no entran en la valoración por una sección con contenido no indizable
+                if(class_ver.var.seccion_no_indizable.indexOf(String(val.section_id)) !== -1 ){
+                    coincide_titulo = true;
+                    coincide_titulo_indizable = false;
+                }else{
                 
-                //Coincide con un título que no debe entrar en la valoración, pero se verifica si es contenido indizable
-                if(coincide_titulo){
-                    coincide_titulo_indizable = true;
-                    $.each(class_ver.cons.er.contenido_indizable, function(i_t, val_t){
+                    //Búsqueda de títulos que no debe entrar en la valoración
+                    $.each(class_ver.cons.er.titulo_completo, function(i_t, val_t){
                         try{
                             if( val_t.test(val.title.toLowerCase().trim()) ){
-                                coincide_titulo_indizable = false;
+                                coincide_titulo = true;
                                 return false;
                             }
                         }catch(e){
-                            
+                            console.log(e);
                         }
                     });
+                    if(!coincide_titulo){
+                            $.each(class_ver.cons.er.titulo_parcial, function(i_t, val_t){
+                                try{
+                                    if( val_t.test(val.title.toLowerCase().trim()) ){
+                                        coincide_titulo = true;
+                                        return false;
+                                    }
+                                }catch(e){
+
+                                }
+                            });
+                    }
+
+                    //Coincide con un título que no debe entrar en la valoración, pero se verifica si es contenido indizable
+                    if(coincide_titulo){
+                        coincide_titulo_indizable = true;
+                        $.each(class_ver.cons.er.contenido_indizable, function(i_t, val_t){
+                            try{
+                                if( val_t.test(val.title.toLowerCase().trim()) ){
+                                    coincide_titulo_indizable = false;
+                                    return false;
+                                }
+                            }catch(e){
+
+                            }
+                        });
+                    }
                 }
             }
             if(!coincide_titulo){
@@ -2160,7 +2251,7 @@ class_ver = {
         
         var txt_rep = 'Un <b>porcentaje final menor '
                         + 'a 80%</b>, no cumplir con el <b>100% de suficiencia en la afiliación institucional de los autores</b> '
-                        + 'o tener <b>menos del 60% de contenido indizable</b> (artículos originales, ensayos, reseñas de libro, revisiones bibliográficas, notas de más de una cuartilla, informes técnicos o cartas al editor)'
+                        + 'o tener <b>menos del 60% de contenido indizable</b> (artículos originales, ensayos, reseñas de libro, revisiones bibliográficas, notas de más de una cuartilla, informes técnicos o cartas al editor) '
                         + 'no permite a BIBLAT reutilizar los metadatos para indizar los '
                         + 'documentos de la revista. Consulte el cuadro que a parece a '
                         + 'continuación para conocer las posibles mejoras en los metadatos de '
