@@ -399,7 +399,7 @@ class_ver = {
         gapi.client.sheets.spreadsheets.values.append({
             spreadsheetId: b(env.sIdC),
             //range: class_pre.sheet+"!B"+(range.values.length+1),
-            range: b(env.sC)+"!AA"+class_ver.var.row_reevaluar,
+            range: b(env.sC)+"!AB"+class_ver.var.row_reevaluar,
             resource: body,
             valueInputOption: "RAW",
         }).then((response) => {
