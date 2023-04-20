@@ -525,7 +525,6 @@ class_ver = {
                                             
                                             if( obj[obj.length-1][18].trim().toLowerCase() == 'aprobada' ){
                                                 texto = "Su revista ya ha sido Aprobada";
-                                                obj[obj.length-1][26] = 'reevaluación';
                                                 $('#estatus').html(texto);
                                                 try{
                                                     if( obj[obj.length-1][26].trim().toLowerCase() == 'reevaluación'){
