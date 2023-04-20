@@ -2946,6 +2946,14 @@ class_ver = {
         )
         .then(function(resp){
             if(resp.resp == 'Fail'){
+                var url = $('#'+class_ver.var.id_oai).val();
+                if( url.indexOf('/index/oai') !== -1 ){
+                    var html = $('#plugin').html();
+                    html += '<br><center> <b>Es posible también que la URL OAI que ingresó es incorrecta, puede probar con:</b></center>';
+                    html += '<br><br><b><center><span style="font-size:18px">' + url.replace('/index/oai', '/oai') + '</span></center></b>';
+                    $('#plugin').html(html);
+                }
+        
                 $('#plugin').show();
                 class_ver.var.plugin = 'No';
                 class_ver.setBitacora(2);
