@@ -112,7 +112,7 @@
                                         <div class="collapse navbar-collapse navbar-right" id="bs-navbar-collapse-1">
                                             <ul class="nav navbar-nav">
                                                 <li class="dropdown">
-                                                    <a href="{site_url('nucleorevistas')}" class="dropdown-toggle"><span style="background-color: #e12b30;padding: 10px">{_('Nucleo Central')}</span></a>
+                                                    <a href="{site_url('nucleorevistas')}" class="dropdown-toggle"><span style="background-color: #e12b30;padding: 10px">{_('Núcleo Central')}</span></a>
                                                 </li>
                                                 <li class="dropdown">
                                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">{_('Sobre Biblat')}<span class="caret"></span></a>
