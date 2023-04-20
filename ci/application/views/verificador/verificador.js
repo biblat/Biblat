@@ -258,14 +258,7 @@ class_ver = {
             });
         }
     },
-    setBitacora: function(estatus=1) {
-        var secciones = '';
-        $.each($('.seccion'), function(isec, valsec){
-            if( !$('#'+valsec.id)[0].checked ){
-                secciones += ((secciones.length > 0)?',':'') + $('.txt_seccion')[isec].value;
-            }
-        });
-        
+    setBitacora: function(estatus=1) {    
             if (estatus == 2){
                 class_ver.var.revista_ojs = '';
                 class_ver.var.entidad_editora_ojs = '';
@@ -282,12 +275,12 @@ class_ver = {
                 class_ver.var.sp = '';
                 class_ver.var.cp = '';
                 class_ver.var.pp = '';
+                class_ver.var.salida.p_t = [];
+                class_ver.var.salida.p = [];
+                class_ver.var.salida.pi = [];
+                class_ver.var.salida.a = [];
             }
         
-            var ip='';
-            var pais='';
-            var org = '';
-            var paisRegistrado='';
             var object = {
                 private_key: env.P_K,
                 client_email: b(env.C_E),
@@ -304,62 +297,88 @@ class_ver = {
                         range: "Bitacora",
                     }).then(function(response) {
                         var row = response.result.values[0][31];
-                        var fecha = (new Date());
-                        $.getJSON('https://api.bigdatacloud.net/data/ip-geolocation?key=bdc_7a62527619f64920868ea6753c27b406', function(data) {
-                            var datos = [];
-                            datos[0] = $('#'+class_ver.var.id_oai).val();
-                            datos[1] = (class_ver.var.simulador)?"Simulación":(class_ver.var.postular)?"Evaluación":"Prueba";
-                            datos[2] = fecha.getFullYear() + '-' + String((fecha.getMonth()+1)).padStart(2,'0') + '-' + String(fecha.getDate()).padStart(2,'0');
-                            datos[3] = data.ip;
-                            datos[4] = data.country.isoName;
-                            datos[5] = data.network.organisation;
-                            datos[6] = data.network.registeredCountryName;
-                            datos[7] = class_ver.var.plugin;
-                            datos[8] = class_ver.var.revista_ojs;
-                            datos[9] = class_ver.var.entidad_editora_ojs;
-                            datos[10] = class_ver.var.issni;
-                            datos[11] = class_ver.var.issni_v;
-                            datos[12] = class_ver.var.issne;
-                            datos[13] = class_ver.var.issne_v;
-                            datos[14] = class_ver.var.revista_impresa;
-                            datos[15] = class_ver.var.revista_electronica;
-                            datos[16] = class_ver.var.entidad_editora_issn;
-                            datos[17] = class_ver.var.pais_issn;
-                            datos[18] = class_ver.var.idiomase;
-                            datos[19] = class_ver.var.idiomap;
-                            datos[20] = (class_ver.var.id_anio == '0')?'3 últimos fascículos':class_ver.var.id_anio;
-                            datos[21] = class_ver.var.sp;
-                            datos[22] = class_ver.var.cp;
-                            datos[23] = class_ver.var.pp;
-                            datos[24] = secciones;
-                            //docuemntos totales
-                            datos[25] = class_ver.var.salida.p_t.length;
-                            //documentos evaluados
-                            datos[26] = class_ver.var.salida.p.length;
-                            //documentos indizables
-                            datos[27] = class_ver.var.salida.pi.length;
-                            //Autores
-                            datos[28] = class_ver.var.salida.a.length;
-                            var body = {
-                                values: [datos]
-                            };
-                            
-                            //Agrega valores a la hoja, obtiene el último renglón donde hay información
-                            gapi.client.sheets.spreadsheets.values.append({
-                                spreadsheetId: b(env.sId),
-                                //range: class_pre.sheet+"!B"+(range.values.length+1),
-                                range: "Bitacora!A"+row,
-                                resource: body,
-                                valueInputOption: "RAW",
-                            }).then((response) => {
-                                var result = response.result;
-                            });
-                            
+                        $.getJSON('https://api.bigdatacloud.net/data/ip-geolocation?key='+b(env.C_K1), function(data) {
+                            class_ver.envio_data(data, row);
+                          })
+                          .fail(function() {
+                              $.getJSON('https://api.bigdatacloud.net/data/ip-geolocation?key='+b(env.C_K2), function(data2) {
+                                  class_ver.envio_data(data2, row);
+                              })
+                              .fail(function() {
+                                 var data3 = {
+                                    ip: '',
+                                    country: {
+                                        isoName: ''
+                                    },
+                                    network: {
+                                        organisation: '',
+                                        registeredCountryName: ''
+                                    }
+                                 };
+                                 class_ver.envio_data(data3, row);
+                              });
                           });
                         
                     });
                 });
             });
+    },
+    envio_data: function(data, row){
+        var secciones = '';
+        $.each($('.seccion'), function(isec, valsec){
+            if( !$('#'+valsec.id)[0].checked ){
+                secciones += ((secciones.length > 0)?',':'') + $('.txt_seccion')[isec].value;
+            }
+        });
+        var fecha = (new Date());
+        var datos = [];
+        datos[0] = $('#'+class_ver.var.id_oai).val();
+        datos[1] = (class_ver.var.simulador)?"Simulación":(class_ver.var.postular)?"Evaluación":"Prueba";
+        datos[2] = fecha.getFullYear() + '-' + String((fecha.getMonth()+1)).padStart(2,'0') + '-' + String(fecha.getDate()).padStart(2,'0');
+        datos[3] = data.ip;
+        datos[4] = data.country.isoName;
+        datos[5] = data.network.organisation;
+        datos[6] = data.network.registeredCountryName;
+        datos[7] = class_ver.var.plugin;
+        datos[8] = class_ver.var.revista_ojs;
+        datos[9] = class_ver.var.entidad_editora_ojs;
+        datos[10] = class_ver.var.issni;
+        datos[11] = class_ver.var.issni_v;
+        datos[12] = class_ver.var.issne;
+        datos[13] = class_ver.var.issne_v;
+        datos[14] = class_ver.var.revista_impresa;
+        datos[15] = class_ver.var.revista_electronica;
+        datos[16] = class_ver.var.entidad_editora_issn;
+        datos[17] = class_ver.var.pais_issn;
+        datos[18] = class_ver.var.idiomase;
+        datos[19] = class_ver.var.idiomap;
+        datos[20] = (class_ver.var.id_anio == '0')?'3 últimos fascículos':class_ver.var.id_anio;
+        datos[21] = class_ver.var.sp;
+        datos[22] = class_ver.var.cp;
+        datos[23] = class_ver.var.pp;
+        datos[24] = secciones;
+        //docuemntos totales
+        datos[25] = class_ver.var.salida.p_t.length;
+        //documentos evaluados
+        datos[26] = class_ver.var.salida.p.length;
+        //documentos indizables
+        datos[27] = class_ver.var.salida.pi.length;
+        //Autores
+        datos[28] = class_ver.var.salida.a.length;
+        var body = {
+            values: [datos]
+        };
+
+        //Agrega valores a la hoja, obtiene el último renglón donde hay información
+        gapi.client.sheets.spreadsheets.values.append({
+            spreadsheetId: b(env.sId),
+            //range: class_pre.sheet+"!B"+(range.values.length+1),
+            range: "Bitacora!A"+row,
+            resource: body,
+            valueInputOption: "RAW",
+        }).then((response) => {
+            var result = response.result;
+        });
     },
     html_reset: function(){
         $('#container').html('');
