@@ -83,6 +83,11 @@
     
     </center>
 </div>
+<div>
+    <center>
+        <b><span id="estatus"></span></b>
+    </center>
+</div>
 <div id="informacion" style="display: none">
 <div class="row">
     <div class="col-xs-12 col-sm-12">

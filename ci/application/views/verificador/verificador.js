@@ -151,7 +151,8 @@ class_ver = {
                                 '<input type="checkbox" class="seccion checkbox" name="section[]" id="sel-<id_seccion>" value="<id_seccion>" checked style="accent-color: #f0ad4e">' +
                             '</span>' +
                             '<input type="text" class="form-control txt_seccion" disabled style="width:200px" value="<seccion>">' + 
-                        '</div>'
+                        '</div>',
+        btns_reevaluar: '<button type="button" class="btn btn-warning" id="btn_cancelar">Cancelar</button><span>&nbsp;&nbsp;</span><button type="button" class="btn btn-warning" id="btn_reevaluar">Reevaluar</button>'
     },
     var:{
         data: [],
@@ -181,7 +182,10 @@ class_ver = {
         origen:'',
         orcid_etiqueta:'',
         seccion_no_indizable: [],
-        cambio_secciones: false
+        cambio_secciones: false,
+        control:[],
+        reevaluar: false,
+        row_reevaluar: 0,
     },
     salida: function(msj){
       class_ver.var.salida += msj+'\n';
@@ -379,6 +383,28 @@ class_ver = {
         }).then((response) => {
             var result = response.result;
         });
+        
+    },
+    enviar_reev: function(){
+        var body = {
+                values: [[class_ver.var.sp, class_ver.var.cp, class_ver.var.pp]]
+        };
+        
+        var object = {
+                private_key: env.P_K,
+                client_email: b(env.C_E),
+                scopes: class_ver.cons.SCOPES,
+            };
+            
+        gapi.client.sheets.spreadsheets.values.append({
+            spreadsheetId: b(env.sIdC),
+            //range: class_pre.sheet+"!B"+(range.values.length+1),
+            range: b(env.sC)+"!AA"+class_ver.var.row_reevaluar,
+            resource: body,
+            valueInputOption: "RAW",
+        }).then((response) => {
+            var result = response.result;
+        }); 
     },
     html_reset: function(){
         $('#container').html('');
@@ -412,6 +438,8 @@ class_ver = {
         $('#sinDatos').hide();
         $("#numFasciculos").hide();
         $("#txt_val_final").hide();
+        $('#estatus').html('');
+        $('#btn_verificar').show();
     },
     control:function(){
         $('#btn_verificar').off('click').on('click',function(){
@@ -453,6 +481,7 @@ class_ver = {
                     class_ver.analisis();
                 });*/
                 class_ver.var.data = [];
+                
                 setTimeout( function(){
                     if( !class_ver.var.simulador && !class_ver.var.postular){
                         class_ver.var.id_anio = $('#anio').val();
@@ -460,8 +489,86 @@ class_ver = {
                         anio = (anio==0)?null:anio;
                         class_ver.get_data_anios(anio, anio);
                     }else{
-                        class_ver.var.id_anio = '0';
-                        class_ver.get_data_anios();
+                        if(class_ver.var.postular && !class_ver.var.reevaluar){
+                            var object = {
+                                private_key: env.P_K,
+                                client_email: b(env.C_E),
+                                scopes: class_ver.cons.SCOPES,
+                            };
+                            gapi.load("client", async function(){
+                                gapi.auth.setToken(await GetAccessTokenFromServiceAccount.do(object));
+                                gapi.client.init({
+                                    discoveryDocs: class_ver.cons.DISCOVERY_DOCS,
+                                }).then(function () {
+                                    //Lectura de hoja de cálculo, se requiere el ID y la hoja de la que leerá
+                                    gapi.client.sheets.spreadsheets.values.get({
+                                        spreadsheetId: b(env.sIdC),
+                                        range: b(env.sC),
+                                    }).then(function(response) {
+                                        class_ver.var.control = response.result.values;
+                                        $.each(class_ver.var.control, function(i, val){
+                                           val.row = i+1; 
+                                        });
+                                        var texto = '';
+                                        //Primero obtiene las filas que tengan valor en la columna 25
+                                        var obj = class_utils.filter_prop_arr_diff(class_ver.var.control, 25, [''])
+                                        //Revisa si la columna 25 que tiene la URL de la revista coincide con la URL OAI
+                                        obj = class_utils.filter_val(obj,25,url);
+                                        //considerando que pongan un index
+                                        if(obj.length == 0){
+                                            obj = class_utils.filter_prop_arr_diff(class_ver.var.control, 25, [''])
+                                            obj = class_utils.filter_val(obj,25,url.replace('/oai','/index/'));
+                                        }
+                                        //Se encontró el registro en la hoja del comité
+                                        if(obj.length > 0){
+                                            var simuladores="<br><br>" + "Puede continuar haciendo uso de nuestros simuladores para la revisión de sus metadatos";
+                                            
+                                            if( obj[obj.length-1][18].trim().toLowerCase() == 'aprobada' ){
+                                                texto = "Su revista ya ha sido Aprobada";
+                                                obj[obj.length-1][26] = 'reevaluación';
+                                                $('#estatus').html(texto);
+                                                try{
+                                                    if( obj[obj.length-1][26].trim().toLowerCase() == 'reevaluación'){
+                                                        class_ver.var.row_reevaluar = obj[obj.length-1]['row'];
+                                                        if( obj[obj.length-1][27] !== undefined ){
+                                                            texto = "Su revista ya se encuentra en proceso de Reevaluación" + simuladores;
+                                                            $('#estatus').html(texto);
+                                                        }else{
+                                                            $('#btn_verificar').hide();
+                                                            texto += "<br><br>¿Desea realizar nuevamente el proceso de Evaluación?";
+                                                            texto += "<br><br>" + class_ver.cons.btns_reevaluar;
+                                                            $('#estatus').html(texto);
+                                                            class_ver.control();
+                                                        }
+                                                    }else{
+                                                        texto = "Su revista ya ha sido Aprobada" + simuladores;
+                                                        $('#estatus').html(texto);
+                                                    }
+                                                }catch(e){
+                                                    texto = "Su revista ya ha sido Aprobada" + simuladores;
+                                                    $('#estatus').html(texto);
+                                                    console.log('No existe');
+                                                }
+                                                loading.end();
+                                            }else if( obj[obj.length-1][18].trim().toLowerCase() == 'rechazada' ){
+                                                class_ver.var.id_anio = '0';
+                                                class_ver.get_data_anios();
+                                            }else if( obj[obj.length-1][15].trim().toLowerCase() == '' ){
+                                                texto = "Su revista ya se encuentra en proceso de Evaluación" + simuladores;
+                                                $('#estatus').html(texto);
+                                                loading.end();
+                                            }
+                                        }else{
+                                            class_ver.var.id_anio = '0';
+                                            class_ver.get_data_anios();
+                                        }
+                                    });
+                                });
+                            });
+                        }else{
+                            class_ver.var.id_anio = '0';
+                            class_ver.get_data_anios();
+                        }
                     }
                 },100);
             }, 1000);
@@ -481,6 +588,17 @@ class_ver = {
             $('#div_secciones').hide();
             class_ver.var.seccion_no_indizable= [];
             class_ver.var.cambio_secciones= false;
+        });
+        
+        $('#btn_reevaluar').off('click').on('click',function(){
+            class_ver.html_reset();
+            class_ver.var.reevaluar = true;
+            $('#btn_verificar').click();
+        });
+        
+        $('#btn_cancelar').off('click').on('click',function(){
+            class_ver.html_reset();
+            class_ver.var.reevaluar = false;
         });
     },
     analisis:function(){
@@ -2278,7 +2396,11 @@ class_ver = {
                         + 'región latinoamericana</a>.';
         
         var txt_anio = 'Se muestra el resultado final de la valoración con la información encontrada para el año ' + class_ver.var.id_anio + '.';
-         
+        
+        var txtReevaluar = '<br><br><center><b>Se enviaron los porcentajes de valoración de su revista<br>Pronto nos pondremos en contacto con usted</b><center>';
+        
+        var btn_enviar_reev = '<br><br><center><button type="button" class="btn btn-warning btn_val" id="btn_enviar_reev" style="width: 250px;">Enviar resultados de Reevaluación</button><center>';
+        
         var btn_postular = '<br><br><center><button type="button" class="btn btn-warning btn_val" id="btn_postular" style="width: 250px;">Continuar con segunda evaluación</button><center>';
         
         //var total = class_ver.var.total.suficiencia;
@@ -2349,7 +2471,11 @@ class_ver = {
         }else{
             if( sp >= 80 && instituciones == 100){
                 if(class_ver.var.postular){
-                    $('#txt_val_final').html(txt80p + btn_postular);
+                    if(class_ver.var.reevaluar){
+                        $('#txt_val_final').html(txt80 + btn_enviar_reev);
+                    }else{
+                        $('#txt_val_final').html(txt80p + btn_postular);
+                    }
                 }else{
                     $('#txt_val_final').html(txt80);
                 }
@@ -2360,6 +2486,12 @@ class_ver = {
         
         $('#btn_postular').off('click').on('click', function(){
             window.location.href='preevaluacion';
+        });
+        
+        $('#btn_enviar_reev').off('click').on('click', function(){
+            class_ver.var.reevaluar = false;
+            $('#txt_val_final').html(txt80 + txtReevaluar);
+            class_ver.enviar_reev();
         });
     },
     verifica_valor: function(id, valor, compara=''){
