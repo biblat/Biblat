@@ -1641,7 +1641,7 @@ class_ver = {
         //Autores con orcid 0
         var autores_orcid_tmp = '';
         var autores_orcid_tmp2 = '';
-        if ( ['3.3.0', '3.2.0', '3.1.2'].indexOf(class_ver.var.data.ver) !== -1 ){
+        if ( ['3.3.0', '3.2.0', '3.1.2', '3.0.0'].indexOf(class_ver.var.data.ver) !== -1 ){
             autores_orcid_tmp = class_utils.filter_prop_arr(autores_s, 'setting_name', "orcid");
             autores_orcid_tmp = class_utils.filterdiff_prop(autores_orcid_tmp, 'setting_value', [null, '', undefined]);
 			
