@@ -53,14 +53,16 @@ class_met = {
                                 if(paises.indexOf(val[4]) !== -1 && paises.indexOf(val[4]) !== undefined){
                                     dataTree[paises.indexOf(val[4])]['value']++;
                                 }else{
-                                    var obj={};
-                                    obj['id'] = val[4];
-                                    obj['parent'] = '';
-                                    obj['name'] = val[4];
-                                    obj['value'] = 1;
-                                    obj['color'] = class_utils.getRandomColor();
-                                    paises.push(val[4]);
-                                    dataTree.push(obj);
+                                    if(val[4] !== ''){
+                                        var obj={};
+                                        obj['id'] = val[4];
+                                        obj['parent'] = '';
+                                        obj['name'] = val[4];
+                                        obj['value'] = 1;
+                                        obj['color'] = class_utils.getRandomColor();
+                                        paises.push(val[4]);
+                                        dataTree.push(obj);
+                                    }
                                 }
                             });
                             class_met.chart_treemap(dataTree);
