@@ -43,7 +43,7 @@ class_met = {
                             });
                             var data_filter = [];
                             data_filter = class_utils.filterdiff_prop(class_met.var.values, '21', ['', null, undefined]);
-                            data_filter = class_utils.unique_arr(data_filter, [0,2,3,4]);
+                            data_filter = class_utils.unique_arr(data_filter, [0,2,3,4,21]);
                             data_filter = class_utils.filterdiff_prop(data_filter, '3', ['132.248.9.97']);
                             class_met.var.values = data_filter;
                             
