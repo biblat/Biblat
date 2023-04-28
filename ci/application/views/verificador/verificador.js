@@ -620,16 +620,27 @@ class_ver = {
             var revista = class_utils.find_prop(class_ver.var.data.js, 'setting_name', 'title').setting_value.trim();
         }catch(e){
             var revista = class_utils.filter_prop(class_ver.var.data.js, 'setting_name', 'name');
-            $.each(revista, function(i,val){
-                try{
-                    revista = val.setting_value.trim();
-                }catch(e){
-                    revista = val.setting_value;
-                }
-                if([null,'undefined', ''].indexOf(revista) == -1){
-                    return false;
-                }
-            });            
+            var revista_idioma = '';
+            try{
+                revista_idioma = class_utils.find_prop(revista, 'locale', class_ver.var.data.j[0].primary_locale)['setting_value'];
+            }catch(e){
+                revista_idioma = '';
+            }
+            
+            if(revista_idioma == ''){
+                $.each(revista, function(i,val){
+                    try{
+                        revista = val.setting_value.trim();
+                    }catch(e){
+                        revista = val.setting_value;
+                    }
+                    if([null,'undefined', ''].indexOf(revista) == -1){
+                        return false;
+                    }
+                });
+            }else{
+                revista = revista_idioma;
+            }
         }
         
         //issn
