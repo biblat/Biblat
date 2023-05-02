@@ -36,7 +36,7 @@ class_ver = {
         },
         campos:['a', 'as', 'c_v_e_s', 'i', 'is', 'p', 'pg', 'ps', 'ss', 'pf', 's', 'ses']
         ,
-        expiry:1000 * 600 * 60, //ms * min * 60seg
+        expiry:1000 * 10 * 60, //ms * min * 60seg
         er: {
             'mayus2' : /^[A-Z]*.*[A-Z]{3}.*[A-Z]+$/,
             //Sólo mayúsculas
