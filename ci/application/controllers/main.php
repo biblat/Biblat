@@ -303,6 +303,9 @@ class Main extends CI_Controller{
             }else{
                 $data['postularSegunda'] = true;
             }
+			if( isset($_POST['url']) ){
+                $data['url'] = $_POST['url'];
+            }						   
             $this->template->set_layout('default_sel');
             $data['page_title'] = _('Preevaluación editorial');
             $data['page_subtitle'] = _('Módulo de autoevaluación de revistas editoriales');										 
@@ -311,6 +314,7 @@ class Main extends CI_Controller{
             $this->template->js('assets/js/highcharts/phantomjs/solid-gauge8.js');
             $this->template->js('assets/js/apigoogle/api.js');
             $this->template->js('assets/js/apigoogle/getaccesstokenfromserviceaccount.js');
+			$this->template->js('assets/js/utils/utils.js');												
             $this->template->set_partial('main_js','main/preevaluacion.js', array(), TRUE, FALSE);
             $this->template->title(_('Preevaluación'));
             $this->template->set_breadcrumb(_('Postular una revista'));
