@@ -36,7 +36,7 @@ class_ver = {
         },
         campos:['a', 'as', 'c_v_e_s', 'i', 'is', 'p', 'pg', 'ps', 'ss', 'pf', 's', 'ses']
         ,
-        expiry:1000 * 10 * 60,
+        expiry:1000 * 600 * 60, //ms * min * 60seg
         er: {
             'mayus2' : /^[A-Z]*.*[A-Z]{3}.*[A-Z]+$/,
             //Sólo mayúsculas
@@ -2411,7 +2411,7 @@ class_ver = {
         
         var btn_enviar_reev = '<br><br><center><button type="button" class="btn btn-warning btn_val" id="btn_enviar_reev" style="width: 250px;">Enviar resultados de Reevaluación</button><center>';
         
-        var btn_postular = '<br><br><center><button type="button" class="btn btn-warning btn_val" id="btn_postular" style="width: 250px;">Continuar con segunda evaluación</button><center>';
+        var btn_postular = '<br><br><center><form method="post" action="preevaluacion" id="form_postular"><input type="hidden" id="url" name="url" value="'+$('#'+class_ver.var.id_oai).val()+'" /><button type="submit" class="btn btn-warning btn_val" id="btn_postular" style="width: 250px;">Continuar con segunda evaluación</button></form><center>';
         
         //var total = class_ver.var.total.suficiencia;
         var total = class_ver.var.salida.p.length;
@@ -2484,6 +2484,7 @@ class_ver = {
                     if(class_ver.var.reevaluar){
                         $('#txt_val_final').html(txt80 + btn_enviar_reev);
                     }else{
+                        class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-metametrics', 'Aprobado', class_ver.cons.expiry);
                         $('#txt_val_final').html(txt80p + btn_postular);
                     }
                 }else{
@@ -2494,9 +2495,13 @@ class_ver = {
             }
         }
         
-        $('#btn_postular').off('click').on('click', function(){
+        //$('#btn_postular').off('click').on('click', function(){
+        /*$('#form_postular').off('submit').on('submit', function(){
+            //e.preventDefault();
+            var form = {};
+            form.url = $('#'+class_ver.var.id_oai).val();
             window.location.href='preevaluacion';
-        });
+        });*/
         
         $('#btn_enviar_reev').off('click').on('click', function(){
             class_ver.var.reevaluar = false;

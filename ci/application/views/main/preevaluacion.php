@@ -1,5 +1,19 @@
+{if !$simulador && !$url}
+    <div class="row">
+        <div class="col-md-12">
+            Es necesario realizar la <a href="{site_url('postular-revista/metametrics')}">Primera evaluación</a> de sus metadatos
+            <br>
+            <br>
+            <br>
+            <br>
+        </div>
+    </div>
+{else}
+<script type="text/javascript">
+    url_metametrics = "{$url}";
+</script>
 <div class="row" id="row_comenzar">
-    <div class="col-md-12">
+    <div class="col-md-12" id="txt_comenzar">
     ¡Postule su revista ahora!<br>
     La evaluación de las revistas consta de 48 criterios: 33 de los cuales son obligatorios y 15 opcionales. Para aprobar se requiere el cumplimiento de 40 criterios: los 33 obligatorios y, al menos, 7 opcionales.<b>{_(' Se consideran todas las revistas científicas editadas en América Latina y el Caribe.')}</b><br>
     Inicie la pre-evaluación dando clic en el botón de "Comenzar". Posteriormente, los criterios se desplegarán consecutivamente y podrá navegar a través de ellos mediante la barra de números que se encontrará en la parte inferior. Para cada criterio cumplido, haga clic en el botón "Cumplo este criterio"; de lo contrario, déjelo en blanco. Podrá observar el cumplimiento alcanzado en la gráfica del lado derecho.<br>
@@ -583,3 +597,4 @@
         <div class="col-md-12" id="resultado"></div>
     </div>
 </div>
+{/if}

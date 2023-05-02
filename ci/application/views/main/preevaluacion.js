@@ -510,49 +510,68 @@ class_pre = {
     ready:function(){
 //        var href = '    <b><a target="_blank" style="float:right;font-size:14" href="criterios-de-seleccion#1">Ver criterio</a></b>';
 		class_pre.simulador = ((window.location.href).indexOf('simulador') !== -1)?true:false;																					  
-        var href = '';
-        $('#ev_texto').html(class_pre.criterio[class_pre.select-1].texto 
-                + ((class_pre.criterio[class_pre.select-1].obligatorio)?' (Obligatorio)':''));
-        $('#ev_descripcion').html(class_pre.criterio[class_pre.select-1].descripcion
-                + ((class_pre.criterio[class_pre.select-1].ver)?href:'')
-                );
-        
-        class_pre.paginacion(1,1);
-        
-        class_pre.control();
-        
-        class_pre.chart = Highcharts.chart('resultado', Highcharts.merge(class_pre.gaugeOptions, {
-            yAxis: {
-                min: 0,
-                max: 48,
-                title: {
-                    text: ''
-                }
-            },
+		
+		try{
+            var aprobado = class_utils.getWithExpiry(url_metametrics + '-metametrics');
+        }catch(e){
+            var aprobado = '';
+        }
+		
+		if(class_pre.simulador || (!class_pre.simulador && aprobado == 'Aprobado')){
+            var href = '';
+            $('#ev_texto').html(class_pre.criterio[class_pre.select-1].texto 
+                    + ((class_pre.criterio[class_pre.select-1].obligatorio)?' (Obligatorio)':''));
+            $('#ev_descripcion').html(class_pre.criterio[class_pre.select-1].descripcion
+                    + ((class_pre.criterio[class_pre.select-1].ver)?href:'')
+                    );
+			  
 
-            credits: {
-                enabled: false
-            },
+            class_pre.paginacion(1,1);
+							  
+			  
 
-            series: [{
-                name: 'Puntos',
-                data: [0],
-                dataLabels: {
-                    format:
-                        '<div style="text-align:center">' +
-                        '<span style="font-size:25px">{y}</span><br/>' +
-                        '<span style="font-size:12px;opacity:0.4">Puntos totales</span><br/><br/>' +                        
-                        '<span id="obliga" style="font-size:9px;opacity:0.4;text-align:left">Obligatorios: 0/33</span><br/>' +                        
-                        '<span id="nobliga" style="font-size:9px;opacity:0.4">No obligatorios: 0/15</span>' +                        
-                        '</div>'
+            class_pre.control();
+
+            class_pre.chart = Highcharts.chart('resultado', Highcharts.merge(class_pre.gaugeOptions, {
+                yAxis: {
+                    min: 0,
+                    max: 48,
+                    title: {
+																															
+                        text: ''
+                    }
+								
                 },
-                tooltip: {
-                    valueSuffix: 'puntos'
-                }
-            }]
+						  
+										 
+				 
+			  
 
-        }));        
-        
+                credits: {
+                    enabled: false
+                },
+
+                series: [{
+                    name: 'Puntos',
+                    data: [0],
+                    dataLabels: {
+                        format:
+                            '<div style="text-align:center">' +
+                            '<span style="font-size:25px">{y}</span><br/>' +
+                            '<span style="font-size:12px;opacity:0.4">Puntos totales</span><br/><br/>' +                        
+                            '<span id="obliga" style="font-size:9px;opacity:0.4;text-align:left">Obligatorios: 0/33</span><br/>' +                        
+                            '<span id="nobliga" style="font-size:9px;opacity:0.4">No obligatorios: 0/15</span>' +                        
+                            '</div>'
+                    },
+                    tooltip: {
+                        valueSuffix: 'puntos'
+                    }
+                }]
+
+            }));
+        }else{
+            $('#txt_comenzar').html('Es necesario realizar la <a href="/metametrics/index/">Primera evaluación</a> de sus metadatos<br><br><br><br>');
+        }
     },
     control:function(){
         class_pre.anterior_click();
