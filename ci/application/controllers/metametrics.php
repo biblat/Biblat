@@ -278,8 +278,8 @@ class Metametrics extends CI_Controller {
             $ciphering = "AES-256-CBC";
             $iv_length = openssl_cipher_iv_length($ciphering);
             $options = 0;
-            $encryption_iv = substr(hash('sha256', 'c09f6a9e157d253d0b2f0bcd81d338298950f246'), 0, 16);
-            $encryption_key = hash('sha256', 'UNAM - Bibliografia Latinoamericana');
+            $encryption_iv = substr(hash('sha256', ''), 0, 16);
+            $encryption_key = hash('sha256', '');
 
             $response = '{ "ver": "' . trim($ver) . '"';
             if ($version == '2'){
