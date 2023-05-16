@@ -36,7 +36,7 @@ class_ver = {
         },
         campos:['a', 'as', 'c_v_e_s', 'i', 'is', 'p', 'pg', 'ps', 'ss', 'pf', 's', 'ses']
         ,
-        expiry:1000 * 10 * 60, //ms * min * 60seg
+        expiry:1000 * 5 * 60, //ms * min * 60seg
         er: {
             'mayus2' : /^[A-Z]*.*[A-Z]{3}.*[A-Z]+$/,
             //Sólo mayúsculas
@@ -110,13 +110,11 @@ class_ver = {
                 /reseña\s*de\s*libro/,
                 /entrevista\s*a/,
                 /in\s*memoriam/,
-                /review/,
+                /^review$/,
                 /book\s*review/,
-                /review/,
                 /interview\s*to/,
                 /em\s*memória/,
                 /revisão\s*do\s*livro/,
-                /review/,
                 /^editorial\s*/,
                 /^editorial:/,
                 /^editorial./,
@@ -2479,19 +2477,19 @@ class_ver = {
         if( class_ver.var.id_anio !== '0' & class_ver.var.id_anio !== ''){
             $('#txt_val_final').html(txt_anio);
         }else{
-            if( sp >= 80 && instituciones == 100){
-                if(class_ver.var.postular){
-                    if(class_ver.var.reevaluar){
-                        $('#txt_val_final').html(txt80 + btn_enviar_reev);
-                    }else{
+            if(class_ver.var.reevaluar){
+                $('#txt_val_final').html(txt80 + btn_enviar_reev);
+            }else{
+                if( sp >= 80 && instituciones == 100){
+                    if(class_ver.var.postular){
                         class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-metametrics', 'Aprobado', class_ver.cons.expiry);
                         $('#txt_val_final').html(txt80p + btn_postular);
+                    }else{
+                        $('#txt_val_final').html(txt80);
                     }
                 }else{
-                    $('#txt_val_final').html(txt80);
+                    $('#txt_val_final').html(txt_rep);
                 }
-            }else{
-                $('#txt_val_final').html(txt_rep);
             }
         }
         
