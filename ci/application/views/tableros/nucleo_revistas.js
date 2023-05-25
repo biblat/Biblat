@@ -47,7 +47,8 @@ class_nr = {
         pie1_data: [],
         pie2_data: [],
         tree_disc: [],
-        li: '<li><a class="li-filtro2" id="<id>"><val></a></li>'
+        li: '<li><a class="li-filtro2" id="<id>"><val></a></li>',
+        graficaRed:'<iframe allowFullScreen src="https://ouestware.gitlab.io/retina/beta/#/embed/?url=https%3A%2F%2Fgist.githubusercontent.com%2FPatyGV16%2F55de084c2a538915e9d3a383ee07d45e%2Fraw%2F36a9943652ffde41493e6ca71cdd85592eb58974%2FRedInstituciones.gexf&sa[]=c&sa[]=h&sa[]=b&sa[]=m&sa[]=ei&ca[]=i-s&ca[]=o-s&ca[]=d-s&ca[]=wi-s&ca[]=wo-s&ca[]=wd-s&ca[]=ec-s&ec=o" width="100%" height="500px"></iframe>'
     },
     texto:{
         nucleo: "El Núcleo central de revistas es la colección de revistas actualizadas en BIBLAT durante los últimos 5 años (<anio1> a <anio2>). Se considera que una " +
@@ -73,7 +74,9 @@ class_nr = {
                 "pertenecen a las Ciencias exactas, biológicas, químicas y medicina.",
         cobertura: "<b>Cobertura temática del Núcleo central</b><br><br>" +
                     "Se muestra el número de revistas que actualmente integran el núcleo por cada Disciplina. Estas categorías son definidas por BIBLAT de acuerdo su " +
-                    "propio <a target='_blank' href='https://biblat.unam.mx/archivos/anexo4-disciplinas.pdf'>listado</a>. Se observa una fuerte tendencia a la <disciplina>, ocupando <num> de los <total> títulos del Núcleo."
+                    "propio <a target='_blank' href='https://biblat.unam.mx/archivos/anexo4-disciplinas.pdf'>listado</a>. Se observa una fuerte tendencia a la <disciplina>, ocupando <num> de los <total> títulos del Núcleo.",
+        red: "<b>Red</b><br><br>" +
+                    "Explicación"
     },
     ready: function(){
         /*
@@ -181,6 +184,18 @@ class_nr = {
                     .replace('<num>', class_nr.var.tree_disc[0].value)
                     .replace('<total>', class_nr.var.values.length);
         $('#txtDisc').html(txtDisc);
+        
+        var txtRed = class_nr.texto.red;
+        
+        $('#txtRed').html(txtRed);
+        clic=0;
+        $('#clic').on('click', function(){
+            clic++;
+            if(clic == 5){
+                $('#clics').show();
+                $('#graficaRed').html(class_nr.var.graficaRed);
+            }
+        })
     },
     setTabla: function(data){
         var tbody = '';

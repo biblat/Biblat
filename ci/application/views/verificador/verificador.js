@@ -510,11 +510,13 @@ class_ver = {
                                         var texto = '';
                                         //Primero obtiene las filas que tengan valor en la columna 25
                                         var obj = class_utils.filter_prop_arr_diff(class_ver.var.control, 25, [''])
+                                        //Que no tengan "DUPLICADO" en la fila 15
+                                        obj = class_utils.filter_prop_notarr(obj, 15, ['DUPLICADO'])
                                         //Revisa si la columna 25 que tiene la URL de la revista coincide con la URL OAI
                                         obj = class_utils.filter_val(obj,25,url);
                                         //considerando que pongan un index
                                         if(obj.length == 0){
-                                            obj = class_utils.filter_prop_arr_diff(class_ver.var.control, 25, [''])
+                                            obj = class_utils.filter_prop_notarr(class_ver.var.control, 25, [''])
                                             obj = class_utils.filter_val(obj,25,url.replace('/oai','/index/'));
                                         }
                                         //Se encontró el registro en la hoja del comité
