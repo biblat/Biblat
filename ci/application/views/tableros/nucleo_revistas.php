@@ -106,3 +106,15 @@
     </div>
 </div>
 
+<div class="row" id="clic"><br><br></div>
+
+<div class="row" id="clics" style="display:none">
+    <div class="col-xs-12">
+        <p id="txtRed">
+        </p>
+    </div>
+    <div class="col-xs-12" id="graficaRed">
+        
+    </div>
+</div>
+
