@@ -184,6 +184,7 @@ class_ver = {
         control:[],
         reevaluar: false,
         row_reevaluar: 0,
+        numeros: 3
     },
     salida: function(msj){
       class_ver.var.salida += msj+'\n';
@@ -479,7 +480,6 @@ class_ver = {
                     class_ver.analisis();
                 });*/
                 class_ver.var.data = [];
-                
                 setTimeout( function(){
                     if( !class_ver.var.simulador && !class_ver.var.postular){
                         class_ver.var.id_anio = $('#anio').val();
@@ -528,6 +528,11 @@ class_ver = {
                                                 $('#estatus').html(texto);
                                                 try{
                                                     if( obj[obj.length-1][26].trim().toLowerCase() == 'reevaluación'){
+                                                        //Búsqueda número de volúmenes
+                                                        class_ver.var.numeros = obj[obj.length-1][19];
+                                                        if(class_ver.var.numeros.indexOf('Números:') !== -1){
+                                                            class_ver.var.numeros = class_ver.var.numeros.split("Números:")[1].split(')')[0].trim();
+                                                        }
                                                         class_ver.var.row_reevaluar = obj[obj.length-1]['row'];
                                                         if( obj[obj.length-1][27] !== undefined ){
                                                             texto = "Su revista ya se encuentra en proceso de Reevaluación" + simuladores;
@@ -566,7 +571,7 @@ class_ver = {
                             });
                         }else{
                             class_ver.var.id_anio = '0';
-                            class_ver.get_data_anios();
+                            class_ver.get_data_anios(null,null,null,class_ver.var.numeros);
                         }
                     }
                 },100);
