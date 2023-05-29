@@ -20,9 +20,6 @@
 			current:"<?php _printf('Artículo %s de %s', '{current}', '{total}');?>"
 		});
 		$(document).bind('cbox_complete', function(){
-<?php if(ENVIRONMENT === "production"):?>
-			addthis.toolbox('.addthis_toolbox');
-<?php endif;?>
 			$('#formSolicitudDocumento').validate();
 		});
 <?php if(isset($slugHighLight)):?>
