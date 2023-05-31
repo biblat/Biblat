@@ -121,16 +121,86 @@ class Datos extends REST_Controller {
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);
         }
-		
-		public function tabla_get($tabla){
+        
+        public function tabla_get($tabla){
             if($tabla){
-				$data = array();
-				$biblatDB = $this->load->database('biblat', TRUE);
-						$query = $biblatDB->get($tabla); 
-				$this->response($query->result_array(), 200);
+		$data = array();
+		$biblatDB = $this->load->database('biblat', TRUE);
+                $query = $biblatDB->get($tabla); 
+		$this->response($query->result_array(), 200);
             }
             
             $this->response(NULL, 200);
-		}
+	}
+        
+        public function revista_num_get($revista='',$anio=''){
+            $data = array();
+            $this->load->database();
+            $query = 'WITH numeros AS (
+                        SELECT max(article.revista::text) AS revista,
+                        slug(article.revista) AS "revistaSlug",
+                        article."anioRevista",
+                        CASE
+                            WHEN (article."descripcionBibliografica" ->> \'a\'::text) IS NULL THEN \'s/v\'::text
+                            WHEN btrim(article."descripcionBibliografica" ->> \'a\'::text) = \'\'::text THEN \'s/v\'::text
+                            ELSE replace(replace(upper(article."descripcionBibliografica" ->> \'a\'::text), \'V\'::text, \'\'::text), \'"\'::text, \'\'::text)
+                        END AS volumen,
+                        CASE
+                            WHEN (article."descripcionBibliografica" ->> \'b\'::text) IS NULL THEN \'\'::text
+                            WHEN btrim(article."descripcionBibliografica" ->> \'b\'::text) = \'\'::text THEN \'\'::text
+                        ELSE replace(replace(upper(article."descripcionBibliografica" ->> \'b\'::text), \'N\'::text, \'\'::text), \'"\'::text, \'\'::text)
+                        END AS numero,
+                        CASE
+                            WHEN (article."descripcionBibliografica" ->> \'d\'::text) IS NULL THEN \'\'::text
+                            WHEN btrim(article."descripcionBibliografica" ->> \'d\'::text) = \'\'::text THEN \'\'::text
+                            WHEN upper(article."descripcionBibliografica" ->> \'d\'::text) ~ \'P.*-\'::text THEN \'\'::text
+                        ELSE replace(replace(article."descripcionBibliografica" ->> \'d\'::text, \'"\'::text, \'\'::text), \' \'::text, \'\'::text)
+                        END AS parte
+                        FROM article
+                        WHERE article."anioRevista" IS NOT NULL and slug(article.revista) = \''.$revista.'\' and article."anioRevista" = \''.$anio.'\'
+                        GROUP BY (slug(article.revista)), article."anioRevista", (
+                        CASE
+                            WHEN (article."descripcionBibliografica" ->> \'a\'::text) IS NULL THEN \'s/v\'::text
+                            WHEN btrim(article."descripcionBibliografica" ->> \'a\'::text) = \'\'::text THEN \'s/v\'::text
+                            ELSE replace(replace(upper(article."descripcionBibliografica" ->> \'a\'::text), \'V\'::text, \'\'::text), \'"\'::text, \'\'::text)
+                        END), (
+                        CASE
+                            WHEN (article."descripcionBibliografica" ->> \'b\'::text) IS NULL THEN \'\'::text
+                            WHEN btrim(article."descripcionBibliografica" ->> \'b\'::text) = \'\'::text THEN \'\'::text
+                            ELSE replace(replace(upper(article."descripcionBibliografica" ->> \'b\'::text), \'N\'::text, \'\'::text), \'"\'::text, \'\'::text)
+                        END), (
+                        CASE
+                            WHEN (article."descripcionBibliografica" ->> \'d\'::text) IS NULL THEN \'\'::text
+                            WHEN btrim(article."descripcionBibliografica" ->> \'d\'::text) = \'\'::text THEN \'\'::text
+                            WHEN upper(article."descripcionBibliografica" ->> \'d\'::text) ~ \'P.*-\'::text THEN \'\'::text
+                            ELSE replace(replace(article."descripcionBibliografica" ->> \'d\'::text, \'"\'::text, \'\'::text), \' \'::text, \'\'::text)
+                        END)
+                    ORDER BY (slug(article.revista)), article."anioRevista", (
+                          CASE
+                              WHEN (article."descripcionBibliografica" ->> \'a\'::text) IS NULL THEN \'s/v\'::text
+                              WHEN btrim(article."descripcionBibliografica" ->> \'a\'::text) = \'\'::text THEN \'s/v\'::text
+                              ELSE replace(replace(upper(article."descripcionBibliografica" ->> \'a\'::text), \'V\'::text, \'\'::text), \'"\'::text, \'\'::text)
+                          END), (NULLIF(regexp_replace(
+                          CASE
+                              WHEN (article."descripcionBibliografica" ->> \'b\'::text) IS NULL THEN \'\'::text
+                              WHEN btrim(article."descripcionBibliografica" ->> \'b\'::text) = \'\'::text THEN \'\'::text
+                              ELSE replace(replace(upper(article."descripcionBibliografica" ->> \'b\'::text), \'N\'::text, \'\'::text), \'"\'::text, \'\'::text)
+                          END, \'\D\'::text, \'\'::text, \'g\'::text), \'\'::text)::numeric), (
+                          CASE
+                              WHEN (article."descripcionBibliografica" ->> \'d\'::text) IS NULL THEN \'\'::text
+                              WHEN btrim(article."descripcionBibliografica" ->> \'d\'::text) = \'\'::text THEN \'\'::text
+                              WHEN upper(article."descripcionBibliografica" ->> \'d\'::text) ~ \'P.*-\'::text THEN \'\'::text
+                              ELSE replace(replace(article."descripcionBibliografica" ->> \'d\'::text, \'"\'::text, \'\'::text), \' \'::text, \'\'::text)
+                          END)
+                            )
+                     SELECT 
+                        numeros."anioRevista",
+                            ARRAY_AGG(\'V\' || numeros.volumen || \'N\' || numeros.numero || numeros.parte) as numero
+                       FROM numeros
+                       group by numeros."anioRevista"';
+            
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);
+        }
         
 }
