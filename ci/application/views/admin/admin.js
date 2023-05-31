@@ -207,6 +207,7 @@ class_admin = {
                 var ids_issue = '';
                 var arr_ids_issue = [];
                 var issue = class_utils.filter_prop(resp_ojs.i, 'year', anio);
+                issue = issue.sort(class_utils.order_by_arr(['year', 'volume', 'number']));
                 var data_ss = '';
                 var data_p = '';
 
@@ -262,6 +263,7 @@ class_admin = {
                     
                     $('.nums').off().on('click',function(e){
                         e.preventDefault();
+                        $('#mensajeFin').html('');
                         var anio = this.id.split('__')[0];
                         var vol = this.id.split('__')[1].split('V')[1].split('N')[0];
                         var num = this.id.split('__')[1].split('V')[1].split('N')[1];
@@ -543,10 +545,10 @@ class_admin = {
                 $.each(textos, function(i2, val2){
                     var tipo = val2['label'].toLowerCase();
                     if( tipo.indexOf('pdf') !== -1){
-                        doc.textoPDF = class_admin.var.url_oai.replace('oai', 'article/view') + '/' + val[class_admin.cons.pub_id_file[class_admin.var.data.ver]] + '/' + val2['galley_id'];
+                        doc.textoPDF = class_admin.var.revista[9].replace('oai', 'article/view') + '/' + val[class_admin.cons.pub_id_file[class_admin.var.data.ver]] + '/' + val2['galley_id'];
                     }
                     if( tipo.indexOf('html') !== -1){
-                        doc.textoHTML = class_admin.var.url_oai.replace('oai', 'article/view') + '/' + val[class_admin.cons.pub_id_file[class_admin.var.data.ver]] + '/' + val2['galley_id'];
+                        doc.textoHTML = class_admin.var.revista[9].replace('oai', 'article/view') + '/' + val[class_admin.cons.pub_id_file[class_admin.var.data.ver]] + '/' + val2['galley_id'];
                     }
                 });
             }
@@ -558,10 +560,10 @@ class_admin = {
                 $.each(textos, function(i2, val2){
                     var tipo = val2['label'].toLowerCase();
                     if( tipo.indexOf('pdf') !== -1){
-                        doc.textoPDF = class_admin.var.url_oai.replace('oai', 'article/view') + '/' + val[class_admin.cons.pub_id[class_admin.var.data.ver]] + '/' + val2['galley_id'];
+                        doc.textoPDF = class_admin.var.revista[9].replace('oai', 'article/view') + '/' + val[class_admin.cons.pub_id[class_admin.var.data.ver]] + '/' + val2['galley_id'];
                     }
                     if( tipo.indexOf('html') !== -1){
-                        doc.textoHTML = class_admin.var.url_oai.replace('oai', 'article/view') + '/' + val[class_admin.cons.pub_id[class_admin.var.data.ver]] + '/' + val2['galley_id'];
+                        doc.textoHTML = class_admin.var.revista[9].replace('oai', 'article/view') + '/' + val[class_admin.cons.pub_id[class_admin.var.data.ver]] + '/' + val2['galley_id'];
                     }
                 });
             }
@@ -715,7 +717,7 @@ class_admin = {
         /*console.log(class_admin.data_inserta_article());*/
         $.ajax({
                     type: 'POST',
-                    url: '/metametrics/ws_insert',
+                    url: "<?=site_url('metametrics/ws_insert');?>",
                     data: class_admin.data_inserta_article(),
             }).done(function() {
                     loading.end();
