@@ -26,7 +26,7 @@
         <br><br>
         <div id="respOJS"></div>
         <br><br>
-        <div id="mensajeFin"></div>
+        <center><div id="mensajeFin"></div></center>
     </div>
 </div>
 <div class="row"><br></div>
