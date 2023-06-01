@@ -263,11 +263,30 @@ class_admin = {
                     
                     $('.nums').off().on('click',function(e){
                         e.preventDefault();
-                        $('#mensajeFin').html('');
-                        var anio = this.id.split('__')[0];
-                        var vol = this.id.split('__')[1].split('V')[1].split('N')[0];
-                        var num = this.id.split('__')[1].split('V')[1].split('N')[1];
-                        class_admin.registrosCLAPER(anio, vol, num);
+                        var id = this.id;
+                        $.confirm({
+                            title: '',
+                            content: 'Se ingresarán a Biblat los documentos encontrados en el número seleccionado: <b>' + this.id.replace('__', ' ') + '</b>',
+                            buttons: {
+                                cancelar: {
+                                        text: 'Cancelar',
+                                        //btnClass: 'btn-red',
+                                        action: function(){
+                                        }
+                                },
+                                aceptar: {
+                                        text: 'Aceptar',
+                                        btnClass: 'btn-warning',
+                                        action: function(){
+                                            $('#mensajeFin').html('');
+                                            var anio = id.split('__')[0];
+                                            var vol = id.split('__')[1].split('V')[1].split('N')[0];
+                                            var num = id.split('__')[1].split('V')[1].split('N')[1];
+                                            class_admin.registrosCLAPER(anio, vol, num);
+                                        }
+                                }
+                            }
+                        });
                     });
                 }else{
                     $('#respOJS').html('<b>Números en OJS:</b> No se encontraron números en OJS');
