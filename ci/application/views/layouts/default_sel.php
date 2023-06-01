@@ -29,8 +29,9 @@
         <link rel="stylesheet" href="{base_url('assets/css/font-awesome.min.css')}" type="text/css" />
         <link rel="stylesheet" href="{base_url('assets/js/pnotify/jquery.pnotify.default.css')}" type="text/css" />
         <link rel="stylesheet" href="{base_url('assets/js/select2_410/select2.min.css')}" />
-		<link rel="stylesheet" href="{base_url('assets/css/contenido.css')}" />
+        <link rel="stylesheet" href="{base_url('assets/css/contenido.css')}" />
         <link rel="stylesheet" href="{base_url('assets/js/datatables/datatables.min.css')}" />																	   																							  
+        <link rel="stylesheet" href="{base_url('assets/js/confirm/jquery-confirm.min.css')}" />
 {if $canonical}
         <link rel="canonical" href="{$canonical}" />
 {/if}
@@ -315,6 +316,7 @@
         <script src="{base_url('assets/js/select2_410/select2.min.js')}"></script>
         <script src="{base_url('js/jquery.blockUI.js')}"></script>
         <script src="{base_url('assets/js/advancedsearch/js/evol.advancedSearch.min.js')}"></script>
+        <script src="{base_url('assets/js/confirm/jquery-confirm.min.js')}"></script>
 {foreach $template.js file}
         <script src="{$file}"></script>
 {/foreach}
