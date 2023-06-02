@@ -124,11 +124,11 @@ class Tableros extends CI_Controller {
                 slug,
                 pais,
                 disciplina,
-                (select docs from conteo where anio =(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-5)::text and slug = c.slug) as anio1,
-                (select docs from conteo where anio =(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-4)::text and slug = c.slug) as anio2,
-                (select docs from conteo where anio =(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-3)::text and slug = c.slug) as anio3,
-                (select docs from conteo where anio =(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-2)::text and slug = c.slug) as anio4,
-                (select docs from conteo where anio =(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-1)::text and slug = c.slug) as anio5
+                (select max(docs) from conteo where anio =(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-5)::text and slug = c.slug) as anio1,
+                (select max(docs) from conteo where anio =(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-4)::text and slug = c.slug) as anio2,
+                (select max(docs) from conteo where anio =(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-3)::text and slug = c.slug) as anio3,
+                (select max(docs) from conteo where anio =(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-2)::text and slug = c.slug) as anio4,
+                (select max(docs) from conteo where anio =(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-1)::text and slug = c.slug) as anio5
         from conteo c
         group by
         revista,
