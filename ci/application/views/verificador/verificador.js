@@ -532,6 +532,8 @@ class_ver = {
                                                         class_ver.var.numeros = obj[obj.length-1][19];
                                                         if(class_ver.var.numeros.indexOf('Números:') !== -1){
                                                             class_ver.var.numeros = class_ver.var.numeros.split("Números:")[1].split(')')[0].trim();
+                                                        }else{
+                                                            class_ver.var.numeros = 3;
                                                         }
                                                         class_ver.var.row_reevaluar = obj[obj.length-1]['row'];
                                                         if( obj[obj.length-1][27] !== undefined ){
