@@ -146,7 +146,11 @@ class_admin = {
                         class_admin.var.revistasJSON.sort(class_utils.order_by(0));
                         options += class_admin.cons.option_oai.replace('<revista>', "").replace('<url>',"");
                         $.each(class_admin.var.revistasJSON, function(i, val){
-                            options += class_admin.cons.option_oai.replace('<revista>', val[0].trim()).replace('<url>',val[9].trim());
+                            try{
+                                options += class_admin.cons.option_oai.replace('<revista>', val[0].trim()).replace('<url>',val[9].trim());
+                            } catch (error) {
+                                console.log(error);
+                            }
                         });
                         $('#revista_sel').show();
                         $('#revista_sel').html(options);
