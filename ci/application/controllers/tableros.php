@@ -61,7 +61,9 @@ class Tableros extends CI_Controller {
 	select 
 	case when 
 	slug(a.revista) in (select slug from revistas_scielo) or 
-	a.issn in (select issn from revistas_scielo) then
+	a.issn in (select issn from revistas_scielo) or
+        a.issn in (select issn2 from revistas_scielo)
+        then
 	\'Scielo-BIBLAT\'
 	else
 	\'BIBLAT\'
