@@ -22,6 +22,7 @@ class_admin = {
             'Portugués' : 'p'
         },
         pub_id: {
+            '3.3.0.11': 'publication_id',
             '3.3.0': 'publication_id',
             '3.2.0': 'publication_id',
             '3.1.2': 'submission_id',
@@ -30,6 +31,7 @@ class_admin = {
             '2.3.0': 'article_id'
         },
         pub_id_auth: {
+            '3.3.0.11': 'publication_id',
             '3.3.0': 'publication_id',
             '3.2.0': 'publication_id',
             '3.1.2': 'submission_id',
@@ -38,6 +40,7 @@ class_admin = {
             '2.3.0': 'submission_id'
         },
         pub_id_file: {
+            '3.3.0.11': 'submission_id',
             '3.3.0': 'submission_id',
             '3.2.0': 'submission_id',
             '3.1.2': 'submission_id',
@@ -226,7 +229,7 @@ class_admin = {
                 }
 
                 //ids en issues
-                if( ['3.3.0', '3.2.0'].indexOf(resp_ojs.ver) !== -1 ){
+                if( ['3.3.0.11', '3.3.0', '3.2.0'].indexOf(resp_ojs.ver) !== -1 ){
                     $.each(issue, function(i,val){
                         ids_issue = class_utils.filter_prop(resp_ojs.ps, 'setting_name', 'issueId');
                         ids_issue = class_utils.filter_prop(ids_issue, 'setting_value', val.issue_id + '');
@@ -332,7 +335,7 @@ class_admin = {
         }
 
         //ids en issues
-        if( ['3.3.0', '3.2.0'].indexOf(class_admin.var.data.ver) !== -1 ){
+        if( ['3.3.0.11', '3.3.0', '3.2.0'].indexOf(class_admin.var.data.ver) !== -1 ){
             ids_issue = class_utils.filter_prop(class_admin.var.data.ps, 'setting_name', 'issueId');
             ids_issue = class_utils.filter_prop(ids_issue, 'setting_value', issue);
 
@@ -526,7 +529,7 @@ class_admin = {
             var arr_palabras_clave = [];
             var obj_palabras_clave = [];
             //palabras clave
-            if ( ['3.3.0', '3.2.0', '3.1.2', '3.0.0'].indexOf(class_admin.var.data.ver) != -1 ){
+            if ( ['3.3.0.11', '3.3.0', '3.2.0', '3.1.2', '3.0.0'].indexOf(class_admin.var.data.ver) != -1 ){
                 arr_palabras_clave = class_utils.filter_prop(class_admin.var.data.c_v_e_s, 'assoc_id', val[class_admin.cons.pub_id[class_admin.var.data.ver]]);
                 $.each(arr_palabras_clave, function(i2, val2){
                     if( obj_palabras_clave[val2.locale] == undefined){
@@ -559,7 +562,7 @@ class_admin = {
             }
 
             //texto completo
-            if ( ['3.3.0', '3.2.0', '3.1.2', '3.0.0'].indexOf(class_admin.var.data.ver) != -1 ){
+            if ( ['3.3.0.11', '3.3.0', '3.2.0', '3.1.2', '3.0.0'].indexOf(class_admin.var.data.ver) != -1 ){
                 var textos = class_utils.filter_prop(class_admin.var.data.pg, class_admin.cons.pub_id[class_admin.var.data.ver], val[class_admin.cons.pub_id[class_admin.var.data.ver]]);
 
                 //Filtro por idioma, pero puede variar y no encontrarlo
@@ -795,8 +798,22 @@ class_admin = {
             obj['resumen'] = (JSON.stringify(objRes) == '{}')?'':JSON.stringify(objRes);
             obj['idiomaResumen'] = val.idioma_resumen;
             obj['disciplinaRevista'] = val.disciplina;
-            obj['palabraClave'] = (val.palabras_clave == undefined)?null:JSON.stringify(val.palabras_clave);
-            obj['keyword'] = (val.palabras_clave == undefined)?null:JSON.stringify(val.keywords);
+            var palabras = [];
+            obj['palabraClave'] = null;
+            if( val.palabras_clave != undefined ){
+                $.each(val.palabras_clave, function(i2, val2){
+                    palabras.push(val2.replaceAll('"', ''));
+                });
+                obj['palabraClave'] = JSON.stringify(palabras);
+            }
+            var keywords = [];
+            obj['keyword'] = null;
+            if( val.keywords != undefined ){
+                $.each(val.keywords, function(i2, val2){
+                    keywords.push(val2.replaceAll('"', ''));
+                });
+                obj['keyword'] = JSON.stringify(keywords);
+            }
             if ('textoPDF' in val){
                 arrURL.push({u: val.textoPDF, y: "Texto completo (Ver PDF)"});
             }
