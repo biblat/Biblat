@@ -530,7 +530,7 @@ class Metametrics extends CI_Controller {
         $doi = $_GET['doi'];
         $url = 'http://doi.org/api/handles/<doi>';
         $url = str_replace('<doi>', $doi, $url);
-        $url = file_get_contents($url);
+        $url = $this->file_get_contents_curl($url);
         echo $url;
     }
     
