@@ -2584,7 +2584,7 @@ class_ver = {
             $.when(
                 //class_utils.getResource('http://biblat.local/verificador/get_doi_validate?doi='+val.setting_value)
                 //class_utils.getResource('https://doi.org/'+val.setting_value)
-                class_utils.getResource('https://doi.org/api/handles/'+val.setting_value)
+                class_utils.getResource('/metametrics/get_doi_validate?doi='+val.setting_value)
             )
             .then(function(resp){
                 var respuesta = resp.responseCode;
