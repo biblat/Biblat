@@ -142,6 +142,8 @@ class Metametrics extends CI_Controller {
             return 0;
         }
         
+        $token = explode('</resumptionToken>', explode('cursor="0">', $url)[1])[0];
+        
         //obtenemos todos los div de la url
         $divs = $dom->getElementsByTagName('varfield');
         $version = '3';
@@ -164,32 +166,57 @@ class Metametrics extends CI_Controller {
         $anio_encontrado = '';
         //Revisión para verificar el formato del año
         $divs2 = $dom->getElementsByTagName('subfield');
-        foreach( $divs2 as $div2 ){
-            if( $div2->getAttribute( 'label' ) === "c" ){
-                $anio_encontrado = $div2->nodeValue;
-                //Si el año no es de longitud 4, se hace la relación
-                if( strlen($anio_encontrado) != 4 ){
-                    $anio_diferente = true;
-                    if($years == 0){
-                        break;
-                    }
-                    $fixs = $dom->getElementsByTagName('fixfield');
-                    foreach( $fixs as $fix ){
-                        if( $fix->getAttribute( 'id' ) === "008" ){
-                            $anio_4 = explode(" ", $fix->nodeValue)[1];
-                            $years = intval($anio_encontrado) + (intval($years)-intval($anio_4));
-                            $url2 = $oai.'?verb=ListRecords&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
-                            $url3 = $oai.'?verb=ListRecords&from='. date("Y").'-01-01T02:00:00Z&until='. date("Y").'-12-01T03:00:00Z&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
-                            $url4 = $oai.'?verb=ListRecords&from='. (date("Y")-1).'-01-01T02:00:00Z&until='. (date("Y")-1).'-12-01T03:00:00Z&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
-                            $exist_div = false;
+        if($exist_div){
+            foreach( $divs2 as $div2 ){
+                if( $div2->getAttribute( 'label' ) === "c" ){
+                    $anio_encontrado = $div2->nodeValue;
+                    //Si el año no es de longitud 4, se hace la relación
+                    if( strlen($anio_encontrado) != 4 ){
+                        $anio_diferente = true;
+                        if($years == 0){
+                            break;
+                        }
+                        $fixs = $dom->getElementsByTagName('fixfield');
+                        foreach( $fixs as $fix ){
+                            if( $fix->getAttribute( 'id' ) === "008" ){
+                                $anio_4 = explode(" ", $fix->nodeValue)[1];
+                                $years = intval($anio_encontrado) + (intval($years)-intval($anio_4));
+                                $url2 = $oai.'?verb=ListRecords&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
+                                $url3 = $oai.'?verb=ListRecords&from='. date("Y").'-01-01T02:00:00Z&until='. date("Y").'-12-01T03:00:00Z&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
+                                $url4 = $oai.'?verb=ListRecords&from='. (date("Y")-1).'-01-01T02:00:00Z&until='. (date("Y")-1).'-12-01T03:00:00Z&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
+                                $exist_div = false;
+                            }
+                            break;
                         }
                         break;
                     }
-                    break;
                 }
             }
         }
         
+        $termina = 10;
+        while($exist_div == false || $termina != 0){
+            $url_token = $oai.'?verb=ListRecords&resumptionToken=<token>&years_'.$years.'&tk_'.rand();
+            $url_tk = str_replace('<token>', $token, $url_token);
+            $url = file_get_contents($url_tk);
+            $dom2 = new DOMDocument();
+            @$dom2->loadHTML($url);
+            $divs = $dom2->getElementsByTagName('varfield');
+            foreach( $divs as $div ){
+                $exist_div = true;
+                if( $div->getAttribute( 'id' ) === "000" ){
+                    $ver = explode("v", $div->nodeValue)[0];
+                    $busca = strpos($div->nodeValue, '2.3.0');
+                    if ($busca !== false){
+                        $version = '2';
+                        break;
+                    }
+                }
+            }
+            $termina = $termina - 1;
+        }
+        
+        /*
         //
         if( $exist_div == false ){
             //while($token !== '' && $exist_div == false){
@@ -250,6 +277,7 @@ class Metametrics extends CI_Controller {
                 }
             //}
         }
+        */
         
         if( $years == 0 ){
             $url = $oai.'?verb=ListRecords&metadataPrefix=oai_biblat&years_'.$anio_encontrado.'&tk_'.rand();
