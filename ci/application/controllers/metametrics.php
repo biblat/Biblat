@@ -189,13 +189,16 @@ class Metametrics extends CI_Controller {
                             break;
                         }
                         break;
+                    }else{
+                        break;
                     }
                 }
             }
         }
         
         $termina = 10;
-        while($exist_div == false || $termina != 0){
+        
+        while($exist_div == false && $termina != 0){
             $url_token = $oai.'?verb=ListRecords&resumptionToken=<token>&years_'.$years.'&tk_'.rand();
             $url_tk = str_replace('<token>', $token, $url_token);
             $url = file_get_contents($url_tk);
