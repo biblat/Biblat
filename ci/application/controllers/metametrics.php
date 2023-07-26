@@ -172,23 +172,34 @@ class Metametrics extends CI_Controller {
                     $anio_encontrado = $div2->nodeValue;
                     //Si el año no es de longitud 4, se hace la relación
                     if( strlen($anio_encontrado) != 4 ){
-                        $anio_diferente = true;
-                        if($years == 0){
-                            break;
+                        $espacio = strpos($anio_encontrado, " ");
+                        
+                        if ($espacio !== false) {
+                            $anio_encontrado = explode(" ", $anio_encontrado)[1];
                         }
-                        $fixs = $dom->getElementsByTagName('fixfield');
-                        foreach( $fixs as $fix ){
-                            if( $fix->getAttribute( 'id' ) === "008" ){
-                                $anio_4 = explode(" ", $fix->nodeValue)[1];
-                                $years = intval($anio_encontrado) + (intval($years)-intval($anio_4));
-                                $url2 = $oai.'?verb=ListRecords&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
-                                $url3 = $oai.'?verb=ListRecords&from='. date("Y").'-01-01T02:00:00Z&until='. date("Y").'-12-01T03:00:00Z&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
-                                $url4 = $oai.'?verb=ListRecords&from='. (date("Y")-1).'-01-01T02:00:00Z&until='. (date("Y")-1).'-12-01T03:00:00Z&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
-                                $exist_div = false;
+                        
+                        if( strlen($anio_encontrado) != 4 ){
+                        
+                            $anio_diferente = true;
+                            if($years == 0){
+                                break;
+                            }
+                            $fixs = $dom->getElementsByTagName('fixfield');
+                            foreach( $fixs as $fix ){
+                                if( $fix->getAttribute( 'id' ) === "008" ){
+                                    $anio_4 = explode(" ", $fix->nodeValue)[1];
+                                    $years = intval($anio_encontrado) + (intval($years)-intval($anio_4));
+                                    $url2 = $oai.'?verb=ListRecords&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
+                                    $url3 = $oai.'?verb=ListRecords&from='. date("Y").'-01-01T02:00:00Z&until='. date("Y").'-12-01T03:00:00Z&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
+                                    $url4 = $oai.'?verb=ListRecords&from='. (date("Y")-1).'-01-01T02:00:00Z&until='. (date("Y")-1).'-12-01T03:00:00Z&metadataPrefix=oai_biblat&years_'.$years.'&tk_'.rand();
+                                    $exist_div = false;
+                                }
+                                break;
                             }
                             break;
+                        }else{
+                            break;
                         }
-                        break;
                     }else{
                         break;
                     }
