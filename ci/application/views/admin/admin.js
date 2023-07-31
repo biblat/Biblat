@@ -555,7 +555,12 @@ class_admin = {
                     if( obj_palabras_clave[locale] == undefined){
                         obj_palabras_clave[locale] = [];
                     }
-                    obj_palabras_clave[locale] = obj_palabras_clave[locale].concat(val2.setting_value.split(';')); 
+                    var arr_pc = val2.setting_value.split(';');
+                    $.each(arr_pc, function(i3, val3){
+                        arr_pc[i3] = val3.trim();
+                    });
+                    
+                    obj_palabras_clave[locale] = obj_palabras_clave[locale].concat(arr_pc); 
                 });
                 doc.palabras_clave = obj_palabras_clave['es_ES'];
                 doc.keywords = obj_palabras_clave['en_US'];

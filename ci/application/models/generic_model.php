@@ -64,7 +64,12 @@ class Generic_model extends CI_Model {
 		}
 	}
         
-        public function insert_if_ne_article($tabla, $arr_where, $data){
+    public function insert_if_ne_article($tabla, $arr_where, $data){
+                $query = "select '".$data[$x]['base']."99' || lpad((cast(max(substring(sistema,6)) as  int)+1)::text,9,'0') as sistema from article";
+                $query = $this->db->query($query);
+                $res = $query->result_array();
+                $sistema = $res[0]['sistema'];
+            
                 $this->db->trans_start();
 		//Acomodo de nombre de campos where con su respectivo valor a buscar
 		foreach ($data as $x => $value){
@@ -78,12 +83,9 @@ class Generic_model extends CI_Model {
 			
                     //Si no existe el registro hace el insert
                     if($q->num_rows() == 0){
-                            $query = "select '".$data[$x]['base']."99' || lpad((cast(max(substring(sistema,6)) as  int)+1)::text,9,'0') as sistema from article";
-                            $query = $this->db->query($query);
-                            $res = $query->result_array();
-                            $data[$x]['sistema'] = $res[0]['sistema'];
+                            $sistema = $sistema + 1;
+                            $data[$x]['sistema'] = $sistema;
                             
-
                             $query = 'insert into article (
                                     "sistema","revista","articulo","issn","doi","paisRevista","idioma","ciudadEditora","institucionEditora","anioRevista",
                                     "descripcionBibliografica","articuloIdiomas","resumen","idiomaResumen","disciplinaRevista","palabraClave","keyword","fechaIngreso","url"
