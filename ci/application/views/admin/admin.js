@@ -746,6 +746,7 @@ class_admin = {
             class_admin.var.registros.doc.push(doc);
         });
         /*console.log(class_admin.data_inserta_article());*/
+        /*
         $.ajax({
                     type: 'POST',
                     url: "<?=site_url('metametrics/ws_insert');?>",
@@ -758,7 +759,50 @@ class_admin = {
                     loading.end();
                     $('#mensajeFin').html('<b>Ocurrió un error al intentar guardar los documentos.</b>');
                     console.log('fail');
-            });
+            });*/
+            
+            
+        async function sendDataInBlocks(dataArray, blockSize) {
+            const totalBlocks = Math.ceil(dataArray['data'].length / blockSize);
+
+            for (let i = 0; i < totalBlocks; i++) {
+                const startIndex = i * blockSize;
+                const endIndex = Math.min(startIndex + blockSize, dataArray['data'].length);
+
+                const blockData = dataArray['data'].slice(startIndex, endIndex);
+
+                const postData = {
+                    tabla: dataArray['tabla'],
+                    where: dataArray['where'], // Aquí debes definir la variable "columns" que contiene los datos para "data['where']"
+                    data: blockData,
+                };
+
+                try {
+                    await $.ajax({
+                        type: 'POST',
+                        url: "<?=site_url('metametrics/ws_insert');?>",
+                        data: postData,
+                    });
+                    console.log(`Block ${i + 1} sent successfully`);
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                } catch (error) {
+                    console.error(`Error sending block ${i + 1}:`, error);
+                    $('#mensajeFin').html('<b>Ocurrió un error al intentar guardar los documentos.</b>');
+                    loading.end();
+                    return; // Exit the function if an error occurs
+                }
+            }
+
+            loading.end();
+            $('#mensajeFin').html('<b>Se han ingresado correctamente ' + dataArray['data'].length + ' documentos.</b>');
+            console.log('All blocks sent successfully');
+        }
+
+        // Uso de la función
+        const dataArray = class_admin.data_inserta_article();
+        const blockSize = 5; // Puedes cambiar el tamaño del bloque aquí (por ejemplo, 5 o 10)
+
+        sendDataInBlocks(dataArray, blockSize);
 
     },
     data_inserta_article: function(){

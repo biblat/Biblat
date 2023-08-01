@@ -65,7 +65,7 @@ class Generic_model extends CI_Model {
 	}
         
     public function insert_if_ne_article($tabla, $arr_where, $data){
-                $query = "select '".$data[$x]['base']."99' || lpad((cast(max(substring(sistema,6)) as  int)+1)::text,9,'0') as sistema from article";
+                $query = "select '99' || lpad((cast(max(substring(sistema,6)) as  int)+1)::text,9,'0') as sistema from article";
                 $query = $this->db->query($query);
                 $res = $query->result_array();
                 $sistema = $res[0]['sistema'];
@@ -84,7 +84,7 @@ class Generic_model extends CI_Model {
                     //Si no existe el registro hace el insert
                     if($q->num_rows() == 0){
                             $sistema = $sistema + 1;
-                            $data[$x]['sistema'] = $sistema;
+                            $data[$x]['sistema'] = $data[$x]['base'] . $sistema;
                             
                             $query = 'insert into article (
                                     "sistema","revista","articulo","issn","doi","paisRevista","idioma","ciudadEditora","institucionEditora","anioRevista",
