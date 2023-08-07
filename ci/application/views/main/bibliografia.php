@@ -1,6 +1,10 @@
 <table class="table table-striped">
+        <tr><td><cite>Flores Chávez, M. A. (2023). <a href="{base_url('archivos/pdf/PrototipoMetaMetrics.pdf')}" target="_blank">MetaMetrics: prototipo de visualización de la calidad de los metadatos en revistas científicas latinoamericanas publicadas en Open Journal System.</a> Biblioteca Universitaria, 26(1), 12-23.</cite></td></tr>
+    
         <tr><td><cite>Sánchez Pereyra, A., Carrillo Romero, O., Durán Muñoz, E., Flores Chávez, M. A. & Argüello Mendoza, M. G. T. (2022). <a href="{base_url('archivos/pdf/Representatividad_Geo_cubierta_articulo.pdf')}" target="_blank">Representatividad geográfica de los índices bibliométricos para el análisis métrico de la ciencia iberoamericana.</a> En Agenda 2022. Temas de indicadores de ciencia y tecnología. [Buenos Aires]: Red Iberoamericana de Indicadores de Ciencia y Tecnología : Organización de Estados Iberoamericanos, Observatorio Iberoamericano de la Ciencia, la Tecnología y la sociedad.</cite></td></tr>
     
+        <tr><td><cite>Cortés Valtierra, A. A., Rivera Pulido, F. J. y Sánchez Islas, L. A. (2021). <a href="{base_url('archivos/pdf/EvolucionBiblat.pdf')}" target="_blank">La evolución de las bases de datos bibliográficas. Visibilidad y métricas a través del portal BIBLAT.</a> En El estante digital, UAQ, 2021.</cite></td></tr>
+        
 	<tr><td><cite>Sánchez, A., Carrillo, O., & Durán, E. (2021, enero-junio). <a href="https://www.ifla.org/files/assets/lac/newsletters/boletin_no_65_ifla_lac_2021-julio.pdf" target="blank">Portal BIBLAT: nueva generación de indicadores bibliométricos para la ciencia latinoamericana y del Caribe.</a> Boletín Académico y de Información, (65), 17-21.</cite></td></tr>
 	
     <tr><td><cite>Chong-Carrillo, O., Vega-Villasante, F., Maciel, C., Álvarez-González, C.A., Michán-Aguirre, L. & Arencibia-Jorge, R. (2018). <a href="{base_url('archivos/pdf/Scientometrics-of-the-genus-Macrobrachium-by-using-the-regional-PERIODICA-database.pdf')}" target="blank">Scientometrics of the genus Macrobrachium by using the regional PERIODICA database.</a> Latin American Journal of Aquatic Research, 46(3), 581-588</cite></td></tr>
