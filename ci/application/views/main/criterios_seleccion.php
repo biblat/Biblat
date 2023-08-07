@@ -365,7 +365,7 @@
                 <p><b>{_('Fuentes')}</b></p>
                 <p>{_('La actualización de la plantilla de evaluación de CLASE, PERIÓDICA y SERIUNAM retomó (en algunos puntos con las mismas palabras incluso) los criterios adoptados por:')}</p>
                 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{_('SciELO-Brasil:')}</b> <a target="_blank" href="http://www.scielo.br/avaliacao/Criterios_SciELO_Brasil_versao_revisada_atualizada_outubro_20171206_EN.pdf"> {_('http://www.scielo.br/avaliacao/Criterios_SciELO_Brasil_versao_revisada_atualizada_outubro_20171206_EN.pdf')} </a></p>
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{_('Latindex - Características del Catálogo 2.0:')}</b> <a target="_blank" href="http://www.latindex.org/latindex/meto2"> {_('http://www.latindex.org/latindex/meto2')}</a></p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{_('Latindex - Características del Catálogo 2.0:')}</b> <a target="_blank" href="https://latindex.org/latindex/postulacion/postulacionCatalogo"> {_('https://latindex.org/latindex/postulacion/postulacionCatalogo')}</a></p>
                 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{_('RedALyC:')}</b> <a target="_blank" href="https://www.redalyc.org/redalyc/editores/evaluacionCriterios.html"> {_('https://www.redalyc.org/redalyc/editores/evaluacionCriterios.html')}</a></p>
                 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>{_('DOAJ:')}</b> <a target="_blank" href="https://www.doaj.org/application/new"> {_('https://www.doaj.org/application/new')}</a></p><br><br>
                 
