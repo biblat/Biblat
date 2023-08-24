@@ -50,7 +50,8 @@ class_ver = {
             //Palabra autor
             'autor' : /^[A|a][U|u][T|t][O|o][R|r]$/,
             //Inicial
-            'inicial' : /([A-z]\.|^[A-z]\s|\s[A-z]\s)/,
+            //'inicial' : /([A-z]\.|^[A-z]\s|\s[A-z]\s)/,
+            'inicial' :   /([A-z]\.|^[A-z]\s|\s(?!y\s)[A-z]\s)/,
             //Orcid
             'orcid' : /^(https?:\/\/orcid.org\/|http:\/\/orcid.org\/)[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9]([0-9]|X)/,
             //Mayúsculas seguidas
