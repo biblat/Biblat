@@ -121,6 +121,38 @@ class Metametrics extends CI_Controller {
         return $html_encoded;*/
     }
     
+    function file_get_contents_curl_proxy($url){
+        $ch = curl_init();
+                
+        // Configura tu propio proxy y puerto
+        $proxy_url = '72.206.181.97'; // Cambia esto con la URL de tu propio proxy
+        $proxy_port = 64943; // Cambia esto con el número de puerto de tu propio proxy
+
+        /*
+        // Configuración de cURL
+        curl_setopt($ch, CURLOPT_URL, $url);
+
+        // Especifica tu propio proxy y puerto
+        curl_setopt($ch, CURLOPT_PROXY, $proxy_url);
+        curl_setopt($ch, CURLOPT_PROXYPORT, $proxy_port);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);*/
+        
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_PROXY, $proxy_url.":".$proxy_port); // Proxy de Tor
+        curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5); // Tipo de proxy SOCKS5
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        
+        $data = curl_exec($ch);
+        curl_close($ch);
+        return $data;
+        /*
+        $data = file_get_contents($url);
+        $html_encoded = htmlentities($data);
+        return $html_encoded;*/
+    }
+    
+    
     public function get_oai(){
         $oai = $_GET['oai'];
         $years = $_GET['years'];
@@ -142,7 +174,9 @@ class Metametrics extends CI_Controller {
             return 0;
         }
         
-        $token = explode('</resumptionToken>', explode('cursor="0">', $url)[1])[0];
+        $token = explode('cursor=', $url)[1];
+        $token = explode('</resumptionToken>', $token)[0];
+        $token = explode('>', $token)[1];
         
         //obtenemos todos los div de la url
         $divs = $dom->getElementsByTagName('varfield');
@@ -212,10 +246,17 @@ class Metametrics extends CI_Controller {
         while($exist_div == false && $termina != 0){
             $url_token = $oai.'?verb=ListRecords&resumptionToken=<token>&years_'.$years.'&tk_'.rand();
             $url_tk = str_replace('<token>', $token, $url_token);
-            $url = file_get_contents($url_tk);
+            //$url = file_get_contents($url_tk);
+            $url = $this->file_get_contents_curl2($url_tk);
             $dom2 = new DOMDocument();
             @$dom2->loadHTML($url);
+            
+            $token = explode('cursor=', $url)[1];
+            $token = explode('</resumptionToken>', $token)[0];
+            $token = explode('>', $token)[1];
+            
             $divs = $dom2->getElementsByTagName('varfield');
+            
             foreach( $divs as $div ){
                 $exist_div = true;
                 if( $div->getAttribute( 'id' ) === "000" ){
@@ -620,6 +661,14 @@ class Metametrics extends CI_Controller {
         if ($this->input->post()) {
             $this->load->model('generic_model');
             $this->generic_model->insert_if_ne_article($this->input->post('tabla'), $this->input->post('where'), $this->input->post('data'));
+        }
+    }
+    
+    public function ws_asigna(){
+        //$this->output->enable_profiler(false);
+        if ($this->input->post()) {
+            $this->load->model('generic_model');
+            echo $this->generic_model->update($this->input->post('tabla'), $this->input->post('where'), $this->input->post('data'));
         }
     }
 }
