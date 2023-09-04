@@ -1137,16 +1137,16 @@ class_ver = {
                 if( obj_palabras_clave[val.locale] == undefined){
                     obj_palabras_clave[val.locale] = [];
                     obj_palabras_clave_arr[val.locale] = [];
-                }else{
-                    if(obj_palabras_clave[val.locale][val.assoc_id] == undefined){
-                        obj_palabras_clave[val.locale][val.assoc_id] = val.setting_value;
-                        val[class_ver.cons.pub_id[class_ver.var.data.ver]] = val.assoc_id;
-                        obj_palabras_clave_arr[val.locale][val.assoc_id] = val;
-                    }else{
-                        obj_palabras_clave[val.locale][val.assoc_id] += ';' + val.setting_value;
-                        obj_palabras_clave_arr[val.locale][val.assoc_id].setting_value += ';' + val.setting_value;
-                    }
                 }
+                if(obj_palabras_clave[val.locale][val.assoc_id] == undefined){
+                    obj_palabras_clave[val.locale][val.assoc_id] = val.setting_value;
+                    val[class_ver.cons.pub_id[class_ver.var.data.ver]] = val.assoc_id;
+                    obj_palabras_clave_arr[val.locale][val.assoc_id] = val;
+                }else{
+                    obj_palabras_clave[val.locale][val.assoc_id] += ';' + val.setting_value;
+                    obj_palabras_clave_arr[val.locale][val.assoc_id].setting_value += ';' + val.setting_value;
+                }
+                
             });
         }
 
