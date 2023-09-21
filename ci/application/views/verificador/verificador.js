@@ -244,9 +244,10 @@ class_ver = {
                     }).then(function(response) {
                         var revistas = response.result.values;
                         var options = '';
+                        var id_revisa = revistas[0].indexOf('Visualizar en Pruebas');
                         $.each(revistas, function(i, val){
                                 if(i>0){
-                                    if(val[14] == '1'){
+                                    if(val[id_revisa] == '1'){
                                         class_ver.var.revistasJSON.push(JSON.parse(JSON.stringify(Object.assign({}, val))));
                                     }
                                 }
