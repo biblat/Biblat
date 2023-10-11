@@ -1443,7 +1443,7 @@ class_ver = {
                 }else{
                     palabras_clave[val] = [];
                 }
-                if(val == idioma_principal){
+                /*if(val == idioma_principal){
                     palabras_clave_idioma1 = palabras_clave[val];
                 }else{
                     $.each(palabras_clave[val],function(i2, val2){
@@ -1452,7 +1452,7 @@ class_ver = {
                                 palabras_clave_idioma2.push(i2);
                         }
                     });
-                }
+                }*/
 
                 if(val == idioma_principal){
                     if(obj_palabras_clave_arr[val] !== undefined){
@@ -1512,6 +1512,13 @@ class_ver = {
 
 
         });
+        
+        if( palabras_clave_idioma2.length == 0){
+            palabras_clave_idioma2 = palabras_clave_idioma2b;
+        }
+        if( palabras_clave_idioma1.length == 0){
+            palabras_clave_idioma1 = palabras_clave_idioma1b;
+        }
 
         //Enlaces
         enlaces = class_ver.var.data.pg;
