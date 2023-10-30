@@ -171,6 +171,15 @@ class_utils= {
     getResource: function(resource) { 
         return $.ajax({url:resource, dataType: 'json', type:'GET', cache:false}); 
     },
+    setResource: function(resource, data) { 
+        return $.ajax({
+                        url:resource, 
+                        type:'POST',
+                        data: data,
+                        cache:false,
+                        dataType:"json"
+                    });
+    },
     setLiTabla: function(id, extra){
         var options_default = {
             "scrollY":        "400px",
@@ -1079,8 +1088,19 @@ class_utils= {
     unique: function(obj,prop){
         var arr = [];
         $.each(obj, function(i, val){
-			if( arr.indexOf(val[prop]) ==	-1){
+			if( arr.indexOf(val[prop]) == -1){
 				arr.push(val[prop]);
+			}
+		});
+		return arr;
+    },
+    unique_obj: function(obj,prop){
+        var arr = [];
+        var arr_prop = [];
+        $.each(obj, function(i, val){
+			if( arr_prop.indexOf(val[prop]) == -1){
+				arr.push(val);
+                                arr_prop.push(val[prop]);
 			}
 		});
 		return arr;
