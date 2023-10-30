@@ -3150,6 +3150,77 @@ class_ver = {
                 publicaciones = class_utils.filter_prop(data.p, 'status', '3');
             }
             
+            //Revisión de issues
+            $.each(resp.i, function(i, val){
+                //Si no tiene año
+                if(!val.hasOwnProperty('year')){
+                    //PEro tiene fecha de publicación
+                    if(val.hasOwnProperty('date_published')){
+                        val.year = val.date_published.split('-')[0];
+                    }
+                }
+            });
+            
+            //issues sólo del año
+            resp.i = class_utils.filter_prop(resp.i, 'year', anio);
+            
+            var issues_pre = class_utils.filter_prop(resp.i, 'published', '1');
+            
+            if(issues_pre.length == 0){
+                publicaciones = [];
+            }
+            
+                    var ss = [];
+                    var p = [];
+                    var ps = [];
+                    var pre_ps = [];
+                    $.each(resp.i, function(i, val){
+                        if(['2.3.0', '2.4.0'].indexOf(resp.ver) !== -1){
+                            ss = ss.concat(class_utils.filter_prop(resp.ss, 'issue_id', val.issue_id));
+                        }
+                        if(['3.0.0', '3.1.2'].indexOf(resp.ver) !== -1){
+                            p = p.concat(class_utils.filter_prop(resp.p, 'issue_id', val.issue_id));
+                        }
+                        if(['3.3.0', '3.2.0', '3.3.0.11'].indexOf(resp.ver) !== -1){
+                            var issues_id = class_utils.filter_prop(resp.ps, 'setting_name', 'issueId');
+                            issues_id = class_utils.filter_prop(issues_id, 'setting_value', val.issue_id);
+                            //alert('issues_id '+issues_id.length);
+                            pre_ps = pre_ps.concat(issues_id);
+                            //alert('pre_ps '+pre_ps.length);
+                        }
+                    });
+                    if(['2.3.0', '2.4.0'].indexOf(resp.ver) !== -1){
+                        $.each(ss, function(i, val){
+                            p = p.concat(class_utils.filter_prop(resp.p, 'article_id', val.article_id));
+                            ps = ps.concat(class_utils.filter_prop(resp.ps, 'article_id', val.article_id));
+                        });
+                        resp.ss = ss;
+                        resp.ps = ps;
+                    }
+                    if(['3.0.0', '3.1.2'].indexOf(resp.ver) !== -1){
+                        $.each(p, function(i, val){
+                            ss = ss.concat(class_utils.filter_prop(resp.ss, 'submission_id', val.submission_id));
+                            ps = ps.concat(class_utils.filter_prop(resp.ps, 'submission_id', val.submission_id));
+                        });
+                        resp.ss = ss;
+                        resp.ps = ps;
+                    }
+                    if(['3.3.0', '3.2.0', '3.3.0.11'].indexOf(resp.ver) !== -1){
+                        $.each(pre_ps, function(i, val){
+                            ps = ps.concat(class_utils.filter_prop(resp.ps, 'publication_id', val.publication_id));
+                            p = p.concat(class_utils.filter_prop(resp.p, 'publication_id', val.publication_id));
+                        });
+                        //alert('ps '+ps.length);
+                        //alert('p '+p.length);
+                        $.each(p, function(i, val){
+                            ss = ss.concat(class_utils.filter_prop(resp.ss, 'submission_id', val.submission_id));
+                        });
+                        //alert('ss '+ss.length);
+                        resp.ss = ss;
+                        resp.ps = ps;
+                    }
+                    resp.p = p;
+            
             //alert(publicaciones.length);
             if(publicaciones.length > 0){
                 if(class_ver.var.data.length == 0){
@@ -3159,7 +3230,25 @@ class_ver = {
                     $.each(class_ver.cons.campos, function(i,val){
                         if(val in class_ver.var.data){
                             //alert('campo' + val);
-                            class_ver.var.data[val] = resp[val].concat(class_ver.var.data[val]);
+                            function concatenarUnicos(arreglo1, arreglo2) {
+                                const conjuntoResultante = new Set();
+                                const arregloResultante = [];
+
+                                // Concatena ambos arreglos
+                                const arregloConcatenado = arreglo1.concat(arreglo2);
+
+                                for (const objeto of arregloConcatenado) {
+                                  const objetoStr = JSON.stringify(objeto);
+                                  if (!conjuntoResultante.has(objetoStr)) {
+                                    conjuntoResultante.add(objetoStr);
+                                    arregloResultante.push(objeto);
+                                  }
+                                }
+
+                                return arregloResultante;
+                              }
+                            class_ver.var.data[val] = concatenarUnicos(class_ver.var.data[val], resp[val]);
+                            //class_ver.var.data[val] = resp[val].concat(class_ver.var.data[val]);
                         }
                     });
                 }
@@ -3195,15 +3284,22 @@ class_ver = {
             }
             
             //total de issues
-            var issues = class_utils.filter_prop(data.i, 'published', '1');
+            //var issues = class_utils.filter_prop(data.i, 'published', '1');
+            if(issues_pre.length == 0){
+                var issues = [];
+            }else{
+                var issues = class_utils.filter_prop(class_ver.var.data.i, 'published', '1');
+            }
             
             //Si con esta petición se obtienen los 3 números sólo se corta el arreglo
             //alert((issues.length + num_issues));
             //alert(evalua);
             if (evalua !== null){
-                if( (issues.length + num_issues) >= evalua){
+                //if( (issues.length + num_issues) >= evalua){
+                if( (issues.length) >= evalua){
                     //alert(issues.length+' '+(3-num_issues));
-                    class_ver.var.data.i = class_ver.var.data.i.slice(issues.length-(evalua-num_issues));
+                    //class_ver.var.data.i = class_ver.var.data.i.slice(issues.length-(evalua-num_issues));
+                    class_ver.var.data.i = class_ver.var.data.i.slice(issues.length-(evalua));
                     var ss = [];
                     var p = [];
                     var ps = [];
@@ -3260,10 +3356,12 @@ class_ver = {
                 }else{
                     //alert('Repetir:' + (issues.length + num_issues));
                     if(publicaciones.length > 0){
-                        class_ver.get_data_anios(anio-1, anio_fin, (issues.length + num_issues), evalua);
+                        //class_ver.get_data_anios(anio-1, anio_fin, (issues.length + num_issues), evalua);
+                        class_ver.get_data_anios(anio-1, anio_fin, (issues.length), evalua);
                     }else{
                         if(repetir >0 ){
-                            class_ver.get_data_anios(anio-1, anio_fin, (issues.length + num_issues), evalua, repetir-1);
+                            //class_ver.get_data_anios(anio-1, anio_fin, (issues.length + num_issues), evalua, repetir-1);
+                            class_ver.get_data_anios(anio-1, anio_fin, (issues.length), evalua, repetir-1);
                         }else{
                             if(class_ver.var.data.i == undefined && !anio_diferente){
                                 //Si no se obtivieron datos, cabe la posibilidad que sea por el formato del año, se hará otro intento considerando esta posibilidad
