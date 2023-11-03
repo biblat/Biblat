@@ -1526,7 +1526,8 @@ class_ver = {
             if( arr_id_pubs.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) !== -1 ){
                 if( enlaces_total.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 ){
                     //Solo enlaces a pdf o html
-                    if(['html', 'pdf'].indexOf(val2.label.toLowerCase()) !== -1){
+                    //if(['html', 'pdf'].indexOf(val2.label.toLowerCase()) !== -1){
+                    if( val2.label.toLowerCase().indexOf('pdf') !== -1 || val2.label.toLowerCase().indexOf('html') !== -1){
                         //Busca la publicación para obtener su idioma original
                         var pub = class_utils.find_prop(class_ver.var.data.p, class_ver.cons.pub_id[class_ver.var.data.ver], val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
                         var idioma_doc = '';
@@ -3289,6 +3290,7 @@ class_ver = {
                 var issues = [];
             }else{
                 var issues = class_utils.filter_prop(class_ver.var.data.i, 'published', '1');
+                class_ver.var.data.i = class_utils.filter_prop(class_ver.var.data.i, 'published', '1');
             }
             
             //Si con esta petición se obtienen los 3 números sólo se corta el arreglo
