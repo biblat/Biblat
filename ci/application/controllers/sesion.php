@@ -16,19 +16,21 @@ class Sesion extends CI_Controller {
     }
     
     public function index(){
-        $data = array();
-        $data['page_title'] = _('Inicio Sesión');
-        $this->template->set_layout('default_sel');
-        $this->template->title(_('Inicio Sesión'));
-        //$data['page_subtitle'] = _('');
-        $this->template->set_meta('description', _('Inicio Sesión'));
-        $this->template->js('assets/js/apigoogle/api.js');
-        $this->template->js('assets/js/apigoogle/getaccesstokenfromserviceaccount.js');
-        $this->template->js('assets/js/apigoogle/client.js');
-        $this->template->css('css/jquery.slider.min.css');
-        $this->template->js('js/env.js');
-        $this->template->set_partial('main_js', 'sesion/sesion.js', array(), TRUE, FALSE);
-        $this->template->build('sesion/sesion', $data);
+        if (in_array($_SERVER['REMOTE_ADDR'], unserialize(IPS))){
+            $data = array();
+            $data['page_title'] = _('Inicio Sesión');
+            $this->template->set_layout('default_sel');
+            $this->template->title(_('Inicio Sesión'));
+            //$data['page_subtitle'] = _('');
+            $this->template->set_meta('description', _('Inicio Sesión'));
+            $this->template->js('assets/js/apigoogle/api.js');
+            $this->template->js('assets/js/apigoogle/getaccesstokenfromserviceaccount.js');
+            $this->template->js('assets/js/apigoogle/client.js');
+            $this->template->css('css/jquery.slider.min.css');
+            $this->template->js('js/env.js');
+            $this->template->set_partial('main_js', 'sesion/sesion.js', array(), TRUE, FALSE);
+            $this->template->build('sesion/sesion', $data);
+        }
         
     }
     
@@ -49,11 +51,12 @@ class Sesion extends CI_Controller {
                 'usuario' => $_POST['usuario'],
                 'nombre' => $_POST['nombre'],
                 'rol' => $_POST['rol'],
+                'usu_base' => $_POST['usu_base'],
                 'logueado' => TRUE
             );
             $this->session->set_userdata($usuario_data);
             
-            if($_POST['rol'] == 'Administrador'){
+            if($_POST['rol'] == 'Administrador' or $_POST['rol'] == 'Analista'){
                 header('Content-Type: application/json');
                 echo json_encode(["page" => "adminb"]);
             }

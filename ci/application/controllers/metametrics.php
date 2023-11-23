@@ -656,7 +656,7 @@ class Metametrics extends CI_Controller {
         echo $response;*/
     }
     
-    public function ws_insert(){
+    public function ws_insert_article(){
         //$this->output->enable_profiler(false);
         if ($this->input->post()) {
             $this->load->model('generic_model');
@@ -664,7 +664,58 @@ class Metametrics extends CI_Controller {
         }
     }
     
+    public function ws_insert_instituciones(){
+        //$this->output->enable_profiler(false);
+        $json = file_get_contents('php://input');
+        $data = json_decode($json, true);
+        if ($data) {
+            $this->load->model('generic_model');
+            //$this->generic_model->delete($this->input->post('tabla_autores'), $this->input->post('where_delete'), $this->input->post('data_autores'));
+            if($data['data_instituciones']){
+                //Primero Borra todas las instituciones
+                $this->generic_model->delete($data['tabla_instituciones'], $data['where_delete'], $data['data_instituciones']);
+                //Inserta todas las que vengan en el arreglo
+                $this->generic_model->insert_if_ne($data['tabla_instituciones'], $data['where'], $data['data_instituciones']);
+                //Para cada una de ellas actualiza los campos "Slug"
+                $this->generic_model->update_function($data['tabla_instituciones'], $data['where_delete'], $data['data_instituciones'],
+                        array('slug', 'paisInstitucionSlug'), array('institucion', 'pais'), 'slug');
+            }else{
+                $this->generic_model->delete($data['tabla_instituciones'], $data['where_delete'], array(array('sistema' => $data['sistema'])));
+            }
+            //Actualiza también los autores pir si hubo cambio de id
+            $this->generic_model->update($data['tabla_autores'], $data['where'], $data['data_autores']);
+        }
+    }
+    
+    public function ws_insert_autores(){
+        //$this->output->enable_profiler(false);
+        $json = file_get_contents('php://input');
+        $data = json_decode($json, true);
+        if ($data) {
+            $this->load->model('generic_model');
+            if($data['data_autores']){
+                //Primero Borra todos los autores
+                $this->generic_model->delete($data['tabla_autores'], $data['where_delete'], $data['data_autores']);
+                //Inserta todas las que vengan en el arreglo
+                $this->generic_model->insert_if_ne($data['tabla_autores'], $data['where'], $data['data_autores']);
+                //Para cada una de ellas actualiza los campos "Slug"
+                $this->generic_model->update_function($data['tabla_autores'], $data['where_delete'], $data['data_autores'],
+                        array('slug'), array('nombre'), 'slug');
+            }else{
+                $this->generic_model->delete($data['tabla_autores'], $data['where_delete'], array(array('sistema' => $data['sistema'])));
+            }
+        }
+    }
+    
     public function ws_asigna(){
+        //$this->output->enable_profiler(false);
+        if ($this->input->post()) {
+            $this->load->model('generic_model');
+            echo $this->generic_model->update_asigna($this->input->post('tabla'), $this->input->post('where'), $this->input->post('data'));
+        }
+    }
+    
+    public function ws_update(){
         //$this->output->enable_profiler(false);
         if ($this->input->post()) {
             $this->load->model('generic_model');
