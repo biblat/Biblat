@@ -1735,11 +1735,9 @@ class_av = {
                             if(val_institucion !== null){
                                 //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
                                 if ($('#institucion-'+id).find("option[value='" + val_institucion.replaceAll('"', "&quot;") + "']").length) {
-                                    alert('encontrada');
                                     $('#institucion-'+id).val(val_institucion).trigger('change');
                                 }else{
                                     var newOption = new Option(val_institucion, val_institucion.replaceAll('"', "&quot;"), true, true);
-                                    alert('no está');
                                     $('#institucion-'+id).append(newOption).trigger('change');
                                 }
                             }
