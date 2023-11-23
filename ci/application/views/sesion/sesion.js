@@ -74,6 +74,7 @@ function handleGoogleSignIn(googleUser) {
 }
 
 function initGoogleSignIn() {
+    loading.start();
   gapi.load('auth2', function() {
     gapi.auth2.init({
       client_id: b(env.C_I),
@@ -88,6 +89,7 @@ function initGoogleSignIn() {
         handleGoogleSignIn(user);
       } else {
             initGoogleAccount("Inicie sesión con su cuenta institucional Biblat");
+            loading.end();
       }
     });
   });
@@ -123,12 +125,14 @@ function LeerSheet(usuario, token){
                                     objUsr.usuario = usuario;
                                     objUsr.nombre = val[2];
                                     objUsr.rol = val[1];
+                                    objUsr.usu_base = val[3];
                                     return false;
                                 }
                             }
                         });
                         if(objUsr.usuario == undefined){
                             initGoogleAccount("Su usuario no está registrado en Biblat");
+                            loading.end();
                         }else{
                             //Existe una sesión y es usuario en Biblat
                             objUsr.id_token = token;
