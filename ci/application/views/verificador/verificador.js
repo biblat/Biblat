@@ -2577,8 +2577,8 @@ class_ver = {
             }
         }
         
-        var rango_fijo = 3;
-        var rango = 3;
+        var rango_fijo = 1;
+        var rango = 1;
         
         if(num == 0)
             total = dois.length;

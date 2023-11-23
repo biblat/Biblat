@@ -203,4 +203,388 @@ class Datos extends REST_Controller {
             $this->response($query->result_array(), 200);
         }
         
+		public function revista_estatus_get(){
+            $data = array();
+            $this->load->database('prueba');
+            
+            $query = 'SELECT max(article.revista::text) AS revista, max(substr(article.sistema,1,3)) as base, max(asignado) as asignado,
+                        slug(article.revista) AS "revistaSlug",
+                        article."anioRevista",
+                        CASE
+                            WHEN (article."descripcionBibliografica" ->> \'a\'::text) IS NULL THEN \'s/v\'::text
+                            WHEN btrim(article."descripcionBibliografica" ->> \'a\'::text) = \'\'::text THEN \'s/v\'::text
+                            ELSE replace(replace(upper(article."descripcionBibliografica" ->> \'a\'::text), \'V\'::text, \'\'::text), \'"\'::text, \'\'::text)
+                        END AS volumen,
+                        CASE
+                            WHEN (article."descripcionBibliografica" ->> \'b\'::text) IS NULL THEN \'\'::text
+                            WHEN btrim(article."descripcionBibliografica" ->> \'b\'::text) = \'\'::text THEN \'\'::text
+                        ELSE replace(replace(upper(article."descripcionBibliografica" ->> \'b\'::text), \'N\'::text, \'\'::text), \'"\'::text, \'\'::text)
+                        END AS numero,
+                        CASE
+                            WHEN (article."descripcionBibliografica" ->> \'d\'::text) IS NULL THEN \'\'::text
+                            WHEN btrim(article."descripcionBibliografica" ->> \'d\'::text) = \'\'::text THEN \'\'::text
+                            WHEN upper(article."descripcionBibliografica" ->> \'d\'::text) ~ \'P.*-\'::text THEN \'\'::text
+                        ELSE replace(replace(article."descripcionBibliografica" ->> \'d\'::text, \'"\'::text, \'\'::text), \' \'::text, \'\'::text)
+                        END AS parte, count(1) articulos
+                        FROM article
+                        WHERE article."anioRevista" IS NOT NULL and sistema ~ \'^(CLA|PER)99.*\'
+						
+                        GROUP BY (slug(article.revista)), article."anioRevista", (
+                        CASE
+                            WHEN (article."descripcionBibliografica" ->> \'a\'::text) IS NULL THEN \'s/v\'::text
+                            WHEN btrim(article."descripcionBibliografica" ->> \'a\'::text) = \'\'::text THEN \'s/v\'::text
+                            ELSE replace(replace(upper(article."descripcionBibliografica" ->> \'a\'::text), \'V\'::text, \'\'::text), \'"\'::text, \'\'::text)
+                        END), (
+                        CASE
+                            WHEN (article."descripcionBibliografica" ->> \'b\'::text) IS NULL THEN \'\'::text
+                            WHEN btrim(article."descripcionBibliografica" ->> \'b\'::text) = \'\'::text THEN \'\'::text
+                            ELSE replace(replace(upper(article."descripcionBibliografica" ->> \'b\'::text), \'N\'::text, \'\'::text), \'"\'::text, \'\'::text)
+                        END), (
+                        CASE
+                            WHEN (article."descripcionBibliografica" ->> \'d\'::text) IS NULL THEN \'\'::text
+                            WHEN btrim(article."descripcionBibliografica" ->> \'d\'::text) = \'\'::text THEN \'\'::text
+                            WHEN upper(article."descripcionBibliografica" ->> \'d\'::text) ~ \'P.*-\'::text THEN \'\'::text
+                            ELSE replace(replace(article."descripcionBibliografica" ->> \'d\'::text, \'"\'::text, \'\'::text), \' \'::text, \'\'::text)
+                        END)
+                    ORDER BY (slug(article.revista)), article."anioRevista", (
+                          CASE
+                              WHEN (article."descripcionBibliografica" ->> \'a\'::text) IS NULL THEN \'s/v\'::text
+                              WHEN btrim(article."descripcionBibliografica" ->> \'a\'::text) = \'\'::text THEN \'s/v\'::text
+                              ELSE replace(replace(upper(article."descripcionBibliografica" ->> \'a\'::text), \'V\'::text, \'\'::text), \'"\'::text, \'\'::text)
+                          END), (NULLIF(regexp_replace(
+                          CASE
+                              WHEN (article."descripcionBibliografica" ->> \'b\'::text) IS NULL THEN \'\'::text
+                              WHEN btrim(article."descripcionBibliografica" ->> \'b\'::text) = \'\'::text THEN \'\'::text
+                              ELSE replace(replace(upper(article."descripcionBibliografica" ->> \'b\'::text), \'N\'::text, \'\'::text), \'"\'::text, \'\'::text)
+                          END, \'\D\'::text, \'\'::text, \'g\'::text), \'\'::text)::numeric), (
+                          CASE
+                              WHEN (article."descripcionBibliografica" ->> \'d\'::text) IS NULL THEN \'\'::text
+                              WHEN btrim(article."descripcionBibliografica" ->> \'d\'::text) = \'\'::text THEN \'\'::text
+                              WHEN upper(article."descripcionBibliografica" ->> \'d\'::text) ~ \'P.*-\'::text THEN \'\'::text
+                              ELSE replace(replace(article."descripcionBibliografica" ->> \'d\'::text, \'"\'::text, \'\'::text), \' \'::text, \'\'::text)
+                          END)';
+            
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);
+        }
+        
+        public function avance_get(){
+            $data = array();
+            $this->load->database('prueba');
+            
+            $query = "
+                    with registros as (
+                        select 
+                        asignado, estatus
+                        from article 
+                        where estatus in ('A', 'R', 'C', 'B')
+                    )
+                    select 
+                        r.asignado analista, 
+                        (select count(1) from registros where asignado = r.asignado) total,
+                        (select count(1) from registros where asignado = r.asignado and estatus ='R') revision,
+                        (select count(1) from registros where asignado = r.asignado and estatus ='C') completados,
+                        (select count(1) from registros where asignado = r.asignado and estatus ='B') borrados
+                    from registros r
+                    group by r.asignado
+                    ";
+            
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);
+        }
+        
+        public function articulos_get(){
+            $data = array();
+            $this->load->database('prueba');
+            $usuario = $this->session->userdata('usu_base');
+            $query = '
+                        select
+                            sistema,
+                            revista,
+                            "anioRevista" 
+                            || coalesce("descripcionBibliografica"->>\'a\', \'\') 
+                            || coalesce("descripcionBibliografica"->>\'b\', \'\')
+                            || coalesce(\' - \' || ("descripcionBibliografica"->>\'c\')::text, \'\') numero,
+                            issn,
+                            articulo,
+                            url->0->>\'u\' url1,
+                            url->1->>\'u\' url2,
+                            estatus
+                        from article
+                        where asignado = \''.$usuario.'\'
+                        order by 1
+                    ';
+            
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);
+        }
+        
+        public function autores_get($sistema){
+            $data = array();
+            $this->load->database('prueba');
+            
+            $query = "
+                        select
+                            sistema,
+                            id,
+                            nombre,
+                            orcid,
+                            \"institucionId\",
+                            email
+                        from author
+                        where sistema = '".$sistema."'
+                        order by 1
+                    ";
+            
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);
+        }
+        
+        public function instituciones_get($sistema){
+            $data = array();
+            $this->load->database('prueba');
+            
+            $query = "
+                        select
+                            sistema,
+                            id,
+                            institucion,
+                            dependencia,
+                            ciudad,
+                            pais
+                        from institution
+                        where sistema = '".$sistema."'
+                        order by 1
+                    ";
+            
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);
+        }
+        
+        public function documento_get($sistema){
+            $data = array();
+            $this->load->database('prueba');
+        
+            $query = '
+                        select 
+                            articulo,
+                            doi,
+                            idioma,
+                            documento->>\'a\' tipo_documento,
+                            case when "articuloIdiomas"->>0 is not null then
+                                    case when "articuloIdiomas"->0->>\'y\' = \'spa\' then
+                                            \'Español\'
+                                    when "articuloIdiomas"->0->>\'y\' = \'eng\' then
+                                            \'Inglés\'
+                                    when "articuloIdiomas"->0->>\'y\' = \'por\' then
+                                            \'Portugués\'
+                                    else
+                                            \'Otro\'
+                                    end
+                            else
+                                    null
+                            end idioma2,
+                            case when "articuloIdiomas"->>0 is not null then
+                                    "articuloIdiomas"->0->>\'a\'
+                            else
+                                    null
+                            end titulo2,
+                            case when "articuloIdiomas"->>1 is not null then
+                                    case when "articuloIdiomas"->1->>\'y\' = \'spa\' then
+                                            \'Español\'
+                                    when "articuloIdiomas"->1->>\'y\' = \'eng\' then
+                                            \'Inglés\'
+                                    when "articuloIdiomas"->1->>\'y\' = \'por\' then
+                                            \'Portugués\'
+                                    else
+                                            \'Otro\'
+                                    end
+                            else
+                                    null
+                            end idioma3,
+                            case when "articuloIdiomas"->>1 is not null then
+                                    "articuloIdiomas"->1->>\'a\'
+                            else
+                                    null
+                            end titulo3,
+                            case when resumen->>\'a\' is not null then
+                                    resumen->>\'a\'
+                            else
+                                    null
+                            end "Resumen español",
+                            case when resumen->>\'i\' is not null then
+                                    resumen->>\'i\'
+                            else
+                                    null
+                            end "Resumen inglés",
+                            case when resumen->>\'p\' is not null then
+                                    resumen->>\'p\'
+                            else
+                                    null
+                            end "Resumen portugués",
+
+                            case when disciplinas->>0 is not null then
+                                    disciplinas->>0
+                            else
+                                    null
+                            end disciplina1,
+                            case when disciplinas->>1 is not null then
+                                    disciplinas->>1
+                            else
+                                    null
+                            end disciplina2,
+                            case when disciplinas->>2 is not null then
+                                    disciplinas->>2
+                            else
+                                    null
+                            end disciplina3,
+
+                            case when "subdisciplinas"->>0 is not null then
+                                    "subdisciplinas"->>0
+                            else
+                                    null
+                            end subdisciplina1,
+                            case when "subdisciplinas"->>1 is not null then
+                                    "subdisciplinas"->>1
+                            else
+                                    null
+                            end subdisciplina2,
+                            case when "subdisciplinas"->>2 is not null then
+                                    "subdisciplinas"->>2
+                            else
+                                    null
+                            end subdisciplina3,
+                            "palabraClave",
+                            "keyword",
+                            case when url->0 is not null then
+                                    case when url->0->>\'y\' like \'%PDF%\' then
+                                            \'pdf\'
+                                    else
+                                            \'html\'
+                                    end
+                            else
+                                    null
+                            end tipourl1,
+
+                            case when url->0 is not null then
+                                    url->0->>\'u\'
+                            else
+                                    null
+                            end url1,
+
+                            case when url->1 is not null then
+                                    case when url->1->>\'y\' like \'%PDF%\' then
+                                            \'pdf\'
+                                    else
+                                            \'html\'
+                                    end
+                            else
+                                    null
+                            end tipourl2,
+
+                            case when url->1 is not null then
+                                    url->1->>\'u\'
+                            else
+                                    null
+                            end url2
+
+                            from article where sistema = \''.$sistema.'\'
+                        ';
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);
+        }
+        
+        public function ciudad_by_pais_get($pais){
+            $data = array();
+            $this->load->database('prueba');
+            
+            /*
+            $query = "
+                    select 
+                        slug(ciudad) slug,
+                        max(ciudad) ciudad
+                    from institution 
+                    where 
+                        \"paisInstitucionSlug\" = slug('".$pais."') and ciudad is not null group by 1 order by 1
+            ";*/
+            
+            $query = "
+                    select 
+                        distinct ciudad
+                    from institution 
+                    where 
+                        \"paisInstitucionSlug\" = slug('".urldecode($pais)."') and ciudad is not null order by 1
+            ";
+            
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);
+        }
+        
+        public function ciudad_by_institucion_get($institucion){
+            $data = array();
+            $this->load->database('prueba');
+            $query = "
+                    select 
+                        distinct ciudad 
+                    from institution 
+                    where 
+                        slug = slug('".urldecode($institucion)."') and ciudad is not null order by 1
+            ";
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);
+        }
+        
+        public function institucion_by_pais_get($pais){
+            $data = array();
+            $this->load->database('prueba');
+            
+            $query = "
+                    select 
+                        distinct institucion
+                    from institution 
+                    where 
+                        \"paisInstitucionSlug\" = slug('".urldecode($pais)."') and institucion is not null order by 1
+            ";
+            
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);
+        }
+        
+        public function dependencia_by_institucion_get($dependencia){
+            $data = array();
+            $this->load->database('prueba');
+            
+            $query = "
+                    select 
+                        distinct dependencia
+                    from institution 
+                    where 
+                        slug = slug('".urldecode($dependencia)."') and dependencia is not null order by 1
+            ";
+            
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);
+        }
+        
+        public function autor_by_nombre_get($nombre, $sistema){
+            $data = array();
+            $this->load->database('prueba');
+            
+            $query = "
+                        select 
+                        distinct
+                        a.nombre,
+                        coalesce(a.orcid, 'Sin ORCID') orcid,
+                        coalesce(i.institucion, '') || coalesce( ' - ' || i.dependencia, '') || ': ' || coalesce(i.pais || '; ', '') || coalesce(i.ciudad, '') institucion
+                        from author a 
+                        inner join 
+                        institution i
+                        on a.sistema = i.sistema and a.\"institucionId\" = i.id
+                        where 
+                        a.sistema <> '".$sistema."' 
+                        and a.slug like replace(slug('".urldecode($nombre)."'),'-','%')
+            ";
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);
+        }									  
 }
