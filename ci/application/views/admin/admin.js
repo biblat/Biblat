@@ -780,7 +780,7 @@ class_admin = {
                 try {
                     await $.ajax({
                         type: 'POST',
-                        url: "<?=site_url('metametrics/ws_insert');?>",
+                        url: "<?=site_url('metametrics/ws_insert_article');?>",
                         data: postData,
                     });
                     console.log(`Block ${i + 1} sent successfully`);
