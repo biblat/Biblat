@@ -25,6 +25,7 @@ class_av = {
     },   
     var: {
         servidor: '',
+        app: 'scielo-claper',
         usuariosJSON: [],
         analistasJSON: [],
         documentoJSON: '',
@@ -425,7 +426,7 @@ class_av = {
                 
                 //Lectura del pdf
                 $.when(
-                    class_utils.setResource(class_av.var.servidor + '/get_pdf/', {url: url_pdf})
+                    class_utils.setResource(class_av.var.servidor + class_av.var.app + '/get_pdf/', {url: url_pdf})
                 ) 
                 .then(function(resp_pdf){    
                     class_av.var.texto_pdf = resp_pdf.result;
@@ -1121,7 +1122,7 @@ class_av = {
             }
             $.when(
                 //class_utils.getResource('http://localhost:5001/texto_en_pdf/'+class_utils.slug(texto.replaceAll(class_av.cons.caracteres,'.'))+'/url/'+url_pdf)
-                class_utils.setResource(class_av.var.servidor + '/texto_en_textopdf/',{texto: class_utils.slug(texto.replaceAll(class_av.cons.caracteres,'.')), textopdf: url_pdf})
+                class_utils.setResource(class_av.var.servidor + class_av.var.app + '/texto_en_textopdf/',{texto: class_utils.slug(texto.replaceAll(class_av.cons.caracteres,'.')), textopdf: url_pdf})
             ).then(function(resp_pdf){
                 setTimeout(function(){
                     $(id + '-load').hide();
@@ -1175,7 +1176,7 @@ class_av = {
             $(id).show();
             
             $.when(
-                class_utils.getResource(class_av.var.servidor + '/texto_idioma/'+texto.replaceAll(class_av.cons.caracteres,''))
+                class_utils.getResource(class_av.var.servidor + class_av.var.app + '/texto_idioma/'+texto.replaceAll(class_av.cons.caracteres,''))
             ).then(function(resp_idioma){
                 setTimeout(function(){
                     $(id + '-load').hide();
@@ -1300,7 +1301,7 @@ class_av = {
             $(id).show();
             
             $.when(
-                class_utils.setResource(class_av.var.servidor + '/orcid_por_nombre/',{nombre: nombre})
+                class_utils.setResource(class_av.var.servidor + class_av.var.app + '/orcid_por_nombre/',{nombre: nombre})
             ).then(function(resp){
                 setTimeout(function(){
                     $(id + '-load').hide();
@@ -1505,7 +1506,7 @@ class_av = {
             $(id).show();
             
             $.when(
-                class_utils.setResource(class_av.var.servidor + '/nombre_por_orcid/',{orcid: orcid})
+                class_utils.setResource(class_av.var.servidor + class_av.var.app + '/nombre_por_orcid/',{orcid: orcid})
             ).then(function(resp){
                 setTimeout(function(){
                     $(id + '-load').hide();
