@@ -14,7 +14,144 @@ class Generic_model extends CI_Model {
 	* arr_where: arreglo de nombres de los campos where
 	* data_ant : valores a biscar en el where
 	*/
-	public function update($tabla, $arr_where, $data, $data_ant = null){
+	public function update_asigna($tabla, $arr_where, $data, $data_ant = null){
+		if(isset($data_ant)){
+			//Acomodo de nombre de campos where con su respectivo valor a buscar
+			foreach ($data_ant as $x => $value){
+				foreach ($arr_where as $aw){
+					$array[$aw] = $value[$aw];
+				}
+				$this->db->where($array);
+				$this->db->update($tabla, $data[$x]);
+			}
+		}else{
+			foreach ($data as $value){
+                                $datos_json = [];
+                                $json = false;
+				foreach ($arr_where as $aw){
+                                    if($aw == 'volumen'){
+                                        if(isset($value['volumen'])){
+                                            $datos_json['a'] = $value['volumen'];
+                                            unset($value['volumen']);
+                                             $json = true;
+                                        }
+                                    }
+                                    if($aw == 'numero'){
+                                        if(isset($value['numero'])){
+                                            $datos_json['b'] = $value['numero'];
+                                            unset($value['numero']);
+                                            $json = true;
+                                        }
+                                    }
+                                    if($aw == 'parte'){
+                                        if(isset($value['parte'])){
+                                            $datos_json['d'] = $value['parte'];
+                                            unset($value['parte']);
+                                            $json = true;
+                                        }
+                                    }
+                                    
+                                    if(isset($value[$aw])){
+                                        $array[$aw] = $value[$aw];
+                                    }
+				}
+                                $descripcion_bibliografica = '';
+                                $jsonb ='';
+                                $arr_datos_json = [];
+                                if($json){
+                                    $josnb = 'jsonb_build_object(';
+                                    if(isset($datos_json['a'])){
+                                        $josnb .= '\'a\', ?';
+                                        array_push($arr_datos_json, $datos_json['a']);
+                                        
+                                    }
+                                    if(isset($datos_json['b'])){
+                                        if(isset($datos_json['a'])){
+                                            $josnb .= ',';
+                                        }
+                                        $josnb .= '\'b\', ?';
+                                        array_push($arr_datos_json, $datos_json['b']);
+                                        
+                                    }
+                                    if(isset($datos_json['d'])){
+                                        if(isset($datos_json['a']) or isset($datos_json['b'])){
+                                            $josnb .= ',';
+                                        }
+                                        array_push($arr_datos_json, $datos_json['d']);
+                                        
+                                    }
+                                    //$value['descripcionBibliografica'] = json_encode($datos_json);
+                                }
+                                 
+                                if($value['asignado'] == 'SIN'){
+                                    $value['asignado'] = NULL;
+                                    $value['estatus'] = NULL;
+                                }
+                                if (!empty($arr_datos_json)) {
+                                    $json_string = json_encode($datos_json);
+                                    $json_string = str_replace("{", "", $json_string);
+                                    $json_string = str_replace("}", "", $json_string);
+                                    echo $json_string;
+                                    $this->db->where("replace(cast(\"descripcionBibliografica\" as text),' ','') like '%$json_string%'");
+                                }
+                                //$valores_a_excluir = array('C', 'B');
+                                //$this->db->where_not_in('estatus', $valores_a_excluir);
+                                $this->db->where("estatus not in ('B', 'C') or estatus is NULL");
+                                $this->db->where($array);
+				$this->db->update($tabla, $value);
+                                return $query_construido;
+			}
+                        
+                        /****
+                         * foreach ($data as $value){
+                                $datos_json = [];
+                                $json = false;
+				foreach ($arr_where as $aw){
+                                    if($aw == 'volumen'){
+                                        if(isset($value['volumen'])){
+                                            $datos_json['a'] = $value['volumen'];
+                                            unset($value['volumen']);
+                                             $json = true;
+                                        }
+                                    }
+                                    if($aw == 'numero'){
+                                        if(isset($value['numero'])){
+                                            $datos_json['b'] = $value['numero'];
+                                            unset($value['numero']);
+                                            $json = true;
+                                        }
+                                    }
+                                    if($aw == 'parte'){
+                                        if(isset($value['parte'])){
+                                            $datos_json['c'] = $value['parte'];
+                                            unset($value['parte']);
+                                            $json = true;
+                                        }
+                                    }
+                                    
+                                    if(isset($value[$aw])){
+					$array[$aw] = $value[$aw];
+                                    }
+				}
+                                if($json){
+                                    $descripcion_bibliografica = $this->db->select('jsonb_build_object(\'a\', ?, \'b\', ?, \'c\', ?) as descripcion_bibliografica', [
+                                                                    $datos_json['a'],
+                                                                    $datos_json['b'],
+                                                                    $datos_json['c']
+                                                                ])->get_compiled_select();
+                                    //$value['descripcionBibliografica'] = json_encode($datos_json);
+                                }
+				$this->db->where($array);
+                                $this->db->where("descripcionBibliografica = ($descripcion_bibliografica)", null, false);
+				$this->db->update($tabla, $value);
+                                return $query_construido;
+			}
+                         */
+                        
+		}
+	}
+        
+        public function update($tabla, $arr_where, $data, $data_ant = null){
 		if(isset($data_ant)){
 			//Acomodo de nombre de campos where con su respectivo valor a buscar
 			foreach ($data_ant as $x => $value){
@@ -27,9 +164,11 @@ class Generic_model extends CI_Model {
 		}else{
 			foreach ($data as $value){
 				foreach ($arr_where as $aw){
-					$array[$aw] = $value[$aw];
+                                    if(isset($value[$aw])){
+                                        $array[$aw] = $value[$aw];
+                                    }
 				}
-				$this->db->where($array);
+                                $this->db->where($array);
 				$this->db->update($tabla, $value);
 			}
 		}
@@ -38,6 +177,17 @@ class Generic_model extends CI_Model {
 	public function insert($tabla, $data){
 		foreach ($data as $x => $value){
 			$this->db->insert($tabla, $value);
+		}
+	}
+        
+        public function update_function($tabla, $arr_where, $data, $columna, $columna_fn, $funcion){
+		foreach ($columna as $x => $value){
+                    foreach ($arr_where as $y => $aw){
+			$array[$aw] = $data[$y][$aw];
+                    }
+                    $this->db->where($array);
+                    $this->db->set($columna[$x], $funcion . '(' . $columna_fn[$x] . ')', FALSE);
+                    $this->db->update($tabla);
 		}
 	}
 	
@@ -58,13 +208,14 @@ class Generic_model extends CI_Model {
 			
 			//Si no existe el registro hace el insert
 			if($q->num_rows() == 0){
-				$this->db->reset_query();
-				$this->db->insert($tabla, $data[$x]);
+							 
+                            $this->db->insert($tabla, $value);
 			}
 		}
 	}
         
-    public function insert_if_ne_article($tabla, $arr_where, $data){
+        public function insert_if_ne_article($tabla, $arr_where, $data){
+                $this->load->database();
                 $query = "select '99' || lpad((cast(max(substring(sistema,6)) as  int)+1)::text,9,'0') as sistema from article";
                 $query = $this->db->query($query);
                 $res = $query->result_array();
