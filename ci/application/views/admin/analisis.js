@@ -24,8 +24,8 @@ class_av = {
         }
     },   
     var: {
-        servidor: '',
-        app: 'scielo-claper',
+        servidor: 'https://biblat.unam.mx',
+        app: '/scielo-claper',
         usuariosJSON: [],
         analistasJSON: [],
         documentoJSON: '',
