@@ -5,7 +5,7 @@ class Adminb extends CI_Controller {
     
     public function __construct(){
             parent::__construct();
-            if (in_array($this->get_ip(), IPS)){
+            if (in_array($this->get_ip(), unserialize(IPS))){
                 $this->output->enable_profiler($this->config->item('enable_profiler'));
                 $this->template->set_partial('biblat_js', 'javascript/biblat', array(), TRUE, FALSE);
                 $this->template->set_partial('submenu', 'layouts/submenu');
