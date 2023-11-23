@@ -64,6 +64,22 @@ $db['default']['swap_pre'] = '';
 $db['default']['autoinit'] = TRUE;
 $db['default']['stricton'] = FALSE;
 
+$db['prueba']['hostname'] = 'localhost';
+$db['prueba']['username'] = 'postgres';
+$db['prueba']['password'] = '';
+$db['prueba']['database'] = 'claper_old';
+$db['prueba']['dbdriver'] = 'postgre';
+$db['prueba']['dbprefix'] = '';
+$db['prueba']['pconnect'] = TRUE;
+$db['prueba']['db_debug'] = TRUE;
+$db['prueba']['cache_on'] = FALSE;
+$db['prueba']['cachedir'] = 'application/cache';
+$db['prueba']['char_set'] = 'utf8';
+$db['prueba']['dbcollat'] = 'utf8_general_ci';
+$db['prueba']['swap_pre'] = '';
+$db['prueba']['autoinit'] = TRUE;
+$db['prueba']['stricton'] = FALSE;
+
 $db['biblat']['hostname'] = 'localhost';
 $db['biblat']['username'] = 'postgres';
 $db['biblat']['password'] = '';
