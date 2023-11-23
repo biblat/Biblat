@@ -205,6 +205,13 @@
 														<li><a href="{site_url('documentos/guias')}">{_('Guías')}</a></li>
                                                     </ul>
                                                 </li>
+                                                <?php 
+                                                    if (in_array($_SERVER['REMOTE_ADDR'], unserialize(IPS))):
+                                                ?>
+                                                    <li class="dropdown">
+                                                        <a href="{site_url('sesion')}"><i class="fa fa-user fa-1x" aria-hidden="true"><acronym title="Iniciar Sesión"></acronym></i></a>
+                                                    </li>
+                                                <?php endif; ?>
                                             </ul>
                                             <div class="visible-xs-block">
                                                 {$template.partials.submenu}
