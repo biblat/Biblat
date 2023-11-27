@@ -5,7 +5,6 @@ error_reporting(0);
 class Generic_model extends CI_Model { 
 	public function __construct() {
 		parent::__construct();
-		$this->load->database('prueba');
 	}
 	
 	/*
@@ -15,6 +14,7 @@ class Generic_model extends CI_Model {
 	* data_ant : valores a biscar en el where
 	*/
 	public function update_asigna($tabla, $arr_where, $data, $data_ant = null){
+                $this->load->database('prueba');
 		if(isset($data_ant)){
 			//Acomodo de nombre de campos where con su respectivo valor a buscar
 			foreach ($data_ant as $x => $value){
@@ -152,6 +152,7 @@ class Generic_model extends CI_Model {
 	}
         
         public function update($tabla, $arr_where, $data, $data_ant = null){
+                $this->load->database('prueba');
 		if(isset($data_ant)){
 			//Acomodo de nombre de campos where con su respectivo valor a buscar
 			foreach ($data_ant as $x => $value){
@@ -175,12 +176,14 @@ class Generic_model extends CI_Model {
 	}
    
 	public function insert($tabla, $data){
+                $this->load->database('prueba');
 		foreach ($data as $x => $value){
 			$this->db->insert($tabla, $value);
 		}
 	}
         
         public function update_function($tabla, $arr_where, $data, $columna, $columna_fn, $funcion){
+                $this->load->database('prueba');
 		foreach ($columna as $x => $value){
                     foreach ($arr_where as $y => $aw){
 			$array[$aw] = $data[$y][$aw];
@@ -198,6 +201,7 @@ class Generic_model extends CI_Model {
 	*/
 	
 	public function insert_if_ne($tabla, $arr_where, $data){
+                $this->load->database('prueba');
 		//Acomodo de nombre de campos where con su respectivo valor a buscar
 		foreach ($data as $x => $value){
 			foreach ($arr_where as $aw){
@@ -208,7 +212,6 @@ class Generic_model extends CI_Model {
 			
 			//Si no existe el registro hace el insert
 			if($q->num_rows() == 0){
-							 
                             $this->db->insert($tabla, $value);
 			}
 		}
@@ -314,6 +317,7 @@ class Generic_model extends CI_Model {
 	*	
 	*/
 	public function insert_after_select	($tabla_where, $arr_where, $data_where, $columns_res, $tabla_insert, $arr_where_insert, $data_insert){
+                $this->load->database('prueba');
 		//Acomodo de nombre de campos where con su respectivo valor a buscar
 		foreach ($data_where as $x => $value){
 			//Obtiene el valor de la columna indicada, este valor sirve de referencia para saber en que registro se hace el insert
@@ -350,8 +354,10 @@ class Generic_model extends CI_Model {
 	}
 	
 	public function delete($tabla, $arr_where, $data){
+                $this->load->database('prueba');
 		foreach ($data as $value){
 			foreach ($arr_where as $aw){
+                                echo $value[$aw];
 				$array[$aw] = $value[$aw];
 			}
 			$this->db->where($array);
