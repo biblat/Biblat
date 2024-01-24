@@ -515,14 +515,15 @@ class_admin = {
             doc.parte = ( num.toUpperCase().indexOf('ESPECIAL') !== -1)?'especial':'';
             doc.mes = '';
             doc.refs = 'Refs.';
+            doc.paginas = '';
             if ( ['2.3.0', '2.4.0', '3.1.2', '3.0.0'].indexOf(class_admin.var.data.ver) != -1 ){
-                doc.paginas = val['pages'].trim();
+                if(val['pages'] !== undefined && val['pages'] !== null){
+                    doc.paginas = val['pages'].trim();
+                }
             }else{
                 var tmp = class_utils.find_prop(ps, 'setting_name', 'pages');
-                if(tmp !== undefined){
+                if(tmp !== undefined && tmp !== null){
                     doc.paginas = tmp['setting_value'].trim();
-                }else{
-                    doc.paginas = '';
                 }
             }
 
@@ -801,7 +802,7 @@ class_admin = {
         // Uso de la función
         const dataArray = class_admin.data_inserta_article();
         const blockSize = 5; // Puedes cambiar el tamaño del bloque aquí (por ejemplo, 5 o 10)
-
+        
         sendDataInBlocks(dataArray, blockSize);
 
     },
