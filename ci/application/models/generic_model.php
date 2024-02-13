@@ -92,11 +92,11 @@ class Generic_model extends CI_Model {
                                     $json_string = str_replace("{", "", $json_string);
                                     $json_string = str_replace("}", "", $json_string);
                                     echo $json_string;
-                                    $this->db->where("replace(cast(\"descripcionBibliografica\" as text),' ','') like '%$json_string%'");
+                                    $this->db->where("(replace(cast(\"descripcionBibliografica\" as text),' ','') like '%$json_string%')");
                                 }
                                 //$valores_a_excluir = array('C', 'B');
                                 //$this->db->where_not_in('estatus', $valores_a_excluir);
-                                $this->db->where("estatus not in ('B', 'C') or estatus is NULL");
+                                $this->db->where("(estatus not in ('B', 'C') or estatus is NULL)");
                                 $this->db->where($array);
 				$this->db->update($tabla, $value);
                                 return $query_construido;
