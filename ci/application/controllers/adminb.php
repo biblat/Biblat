@@ -64,6 +64,22 @@ class Adminb extends CI_Controller {
         }
     }
     
+	public function asignarev(){
+        if($this->session->userdata('usuario')){
+            $this->template->set_breadcrumb(_('Menú Administrador'), site_url('adminb'));
+            $this->template->set_breadcrumb(_('Asignar revista'));
+            $data = array();
+            $data['page_title'] = _('Asignar revista');
+            $this->template->set_layout('default_sel');
+            $this->template->title(_('Asignar revista'));
+            $data['page_subtitle'] = $this->session->userdata('nombre');
+            $this->template->set_meta('description', _('Asignar revista'));
+            $this->template->set_partial('main_js', 'admin/asignarev.js', array(), TRUE, FALSE);
+            $this->template->build('admin/asignarev', $data);
+        }else{
+            redirect('main');
+        }
+    }							
     public function asigna(){
         if($this->session->userdata('usuario')){
             $this->template->set_breadcrumb(_('Menú Administrador'), site_url('adminb'));
