@@ -335,5 +335,12 @@
 			{$template.partials.main_js}
 {/if}
 </script>
+<script>
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
+            window.location.reload();
+        } 
+    });
+</script>
     </body>
 </html>
