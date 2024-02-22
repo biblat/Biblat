@@ -3,7 +3,7 @@
         <a href="<?=site_url("adminb/ayuda_general");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
             <br><br>
             <center>
-                <i class="fa fa-map" style="font-size:95px"></i><br><span style="font-weight: bold">Generales</span>
+                <i class="fa fa-folder" style="font-size:95px"></i><br><span style="font-weight: bold">Generales</span>
             </center>
         </a>
     </div>

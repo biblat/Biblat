@@ -134,13 +134,13 @@ class Adminb extends CI_Controller {
 	public function ayuda(){
         if($this->session->userdata('usuario')){
             $this->template->set_breadcrumb(_('Menú '.$this->session->userdata('rol')), site_url('adminb'));
-            $this->template->set_breadcrumb(_('Ayuda'));
+            $this->template->set_breadcrumb(_('Centro de aprendizaje'));
             $data = array();
-            $data['page_title'] = _('Ayuda');
+            $data['page_title'] = _('Centro de aprendizaje');
             $this->template->set_layout('default_sel');
-            $this->template->title(_('Ayuda'));
+            $this->template->title(_('Centro de aprendizaje'));
             $data['page_subtitle'] = $this->session->userdata('nombre');
-            $this->template->set_meta('description', _('Ayuda'));
+            $this->template->set_meta('description', _('Centro de aprendizaje'));
             $this->template->build('admin/ayuda', $data);
         }else{
             redirect('main');
@@ -150,14 +150,14 @@ class Adminb extends CI_Controller {
     public function ayuda_general(){
         if($this->session->userdata('usuario')){
             $this->template->set_breadcrumb(_('Menú '.$this->session->userdata('rol')), site_url('adminb'));
-            $this->template->set_breadcrumb(_('Ayuda'), site_url('adminb/ayuda'));
+            $this->template->set_breadcrumb(_('Centro de aprendizaje'), site_url('adminb/ayuda'));
             $this->template->set_breadcrumb(_('General'));
             $data = array();
             $data['page_title'] = _('General');
             $this->template->set_layout('default_sel');
             $this->template->title(_('General'));
             $data['page_subtitle'] = $this->session->userdata('nombre');
-            $this->template->set_meta('description', _('Ayuda'));
+            $this->template->set_meta('description', _('Centro de aprendizaje'));
             $this->template->set_partial('main_js', 'admin/videos.js', array(), TRUE, FALSE);
             $this->template->build('admin/ayuda_general', $data);
         }else{
@@ -168,14 +168,14 @@ class Adminb extends CI_Controller {
     public function ayuda_articulos(){
         if($this->session->userdata('usuario')){
             $this->template->set_breadcrumb(_('Menú '.$this->session->userdata('rol')), site_url('adminb'));
-            $this->template->set_breadcrumb(_('Ayuda'), site_url('adminb/ayuda'));
+            $this->template->set_breadcrumb(_('Centro de aprendizaje'), site_url('adminb/ayuda'));
             $this->template->set_breadcrumb(_('Artículos'));
             $data = array();
             $data['page_title'] = _('Artículos');
             $this->template->set_layout('default_sel');
             $this->template->title(_('Artículos'));
             $data['page_subtitle'] = $this->session->userdata('nombre');
-            $this->template->set_meta('description', _('Ayuda'));
+            $this->template->set_meta('description', _('Centro de aprendizaje'));
             $this->template->set_partial('main_js', 'admin/videos.js', array(), TRUE, FALSE);
             $this->template->build('admin/ayuda_articulos', $data);
         }else{
@@ -186,14 +186,14 @@ class Adminb extends CI_Controller {
     public function ayuda_autores(){
         if($this->session->userdata('usuario')){
             $this->template->set_breadcrumb(_('Menú '.$this->session->userdata('rol')), site_url('adminb'));
-            $this->template->set_breadcrumb(_('Ayuda'), site_url('adminb/ayuda'));
+            $this->template->set_breadcrumb(_('Centro de aprendizaje'), site_url('adminb/ayuda'));
             $this->template->set_breadcrumb(_('Autores'));
             $data = array();
             $data['page_title'] = _('Autores');
             $this->template->set_layout('default_sel');
             $this->template->title(_('Autores'));
             $data['page_subtitle'] = $this->session->userdata('nombre');
-            $this->template->set_meta('description', _('Ayuda'));
+            $this->template->set_meta('description', _('Centro de aprendizaje'));
             $this->template->set_partial('main_js', 'admin/videos.js', array(), TRUE, FALSE);
             $this->template->build('admin/ayuda_autores', $data);
         }else{
@@ -204,14 +204,14 @@ class Adminb extends CI_Controller {
     public function ayuda_instituciones(){
         if($this->session->userdata('usuario')){
             $this->template->set_breadcrumb(_('Menú '.$this->session->userdata('rol')), site_url('adminb'));
-            $this->template->set_breadcrumb(_('Ayuda'), site_url('adminb/ayuda'));
+            $this->template->set_breadcrumb(_('Centro de aprendizaje'), site_url('adminb/ayuda'));
             $this->template->set_breadcrumb(_('Instituciones'));
             $data = array();
             $data['page_title'] = _('Instituciones');
             $this->template->set_layout('default_sel');
             $this->template->title(_('Instituciones'));
             $data['page_subtitle'] = $this->session->userdata('nombre');
-            $this->template->set_meta('description', _('Ayuda'));
+            $this->template->set_meta('description', _('Centro de aprendizaje'));
             $this->template->set_partial('main_js', 'admin/videos.js', array(), TRUE, FALSE);
             $this->template->build('admin/ayuda_instituciones', $data);
         }else{
