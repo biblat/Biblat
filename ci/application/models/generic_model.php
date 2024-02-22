@@ -173,6 +173,7 @@ class Generic_model extends CI_Model {
 				$this->db->update($tabla, $value);
 			}
 		}
+		}
                 
         public function update_or_insert($tabla, $arr_where, $data, $data_ant = null){
                 $this->load->database('prueba');
