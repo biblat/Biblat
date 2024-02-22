@@ -2980,11 +2980,11 @@ class_av = {
                                 text: 'Aceptar',
                                 btnClass: 'btn-warning',
                                 action: function(){
-                                    /*$.ajax({
+                                    $.ajax({
                                             type: 'POST',
                                             url: "<?=site_url('metametrics/ws_update');?>",
                                             data: class_av.data_update_article(),
-                                    }).done(function() {*/
+                                    }).done(function() {
                                             class_av.cambio_estatus(class_av.var.sistema, 'B');
                                             $('.'+class_av.var.sistema).removeClass('sistema');
                                             $('.'+class_av.var.sistema).addClass('cerrado');
@@ -2992,7 +2992,7 @@ class_av = {
                                             $('.'+class_av.var.sistema).css('color','');
                                             $('#accordion').hide();
                                             window.location.href="#div_tabla";
-                                    /*});*/
+                                    });
                                 }
                         }
                     }
