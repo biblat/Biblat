@@ -1,4 +1,7 @@
 <div class="row">
+    <center><h3 style="color:#DF6521">Biblat Central</h3></center>    
+</div>
+<div class="row">				 
     {if $rol == "Administrador"}
         <div class="col-xs-4">
             <a href="<?=site_url("adminb/cosecha");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
@@ -16,16 +19,24 @@
                 </center>
             </a>
         </div>
-        <div class="col-xs-4">
-            <a href="<?=site_url("adminb/avance");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
-                <br><br>
-                <center>
-                    <i class="glyphicon glyphicon-tasks" style="font-size:95px"></i><br><span style="font-weight: bold">Avance</span>
-                </center>
-            </a>
-        </div>
+        <div class="col-xs-4" style="display:none">
+            <a href="<?=site_url("adminb/asignarev");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
+				<br><br>
+				<center>
+					<i class="glyphicon glyphicon-book" style="font-size:95px"></i><br><span style="font-weight: bold">Asignar revista</span>
+				</center>
+			</a>
+		</div>
     {/if}
     <div class="col-xs-4">
+        <a href="<?=site_url("adminb/avance");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
+            <br><br>
+            <center>
+                <i class="glyphicon glyphicon-tasks" style="font-size:95px"></i><br><span style="font-weight: bold">Avance</span>
+            </center>
+        </a>
+    </div>
+    <div class="col-xs-4">		  
         <a href="<?=site_url("adminb/analisis");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
             <br><br>
             <center>
@@ -33,10 +44,13 @@
             </center>
         </a>
     </div>
-						  
-															
-							 
-			
-		  
+	<div class="col-xs-4" style="display:none">
+        <a href="<?=site_url("adminb/analisis");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
+            <br><br>
+            <center>
+                <i class="fa fa-question-circle" style="font-size:95px"></i><br><span style="font-weight: bold">Ayuda</span>
+            </center>
+        </a>
+    </div>
 </div>
 
