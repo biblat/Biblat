@@ -2578,6 +2578,7 @@ class_av = {
                             text: 'Aceptar',
                             btnClass: 'btn-warning',
                             action: function(){
+								if(fn !== null){
                                     fn();
                                 }else{
                                     return true;
