@@ -2870,7 +2870,7 @@ class_av = {
 									data['data'] = [{estatus: "C", sistema:class_av.var.sistema}];
                                     $.ajax({
                                             type: 'POST',
-                                            url: "<?=site_url('metametrics/ws_update');?>",
+                                            url: "<?=site_url('metametrics/ws_update_estatus');?>",
                                             data: data,
                                     }).done(function() {
                                             class_av.cambio_estatus(class_av.var.sistema, 'C');
@@ -2992,7 +2992,7 @@ class_av = {
                                     data['data'] = [{estatus: "B", sistema:class_av.var.sistema}];
                                     $.ajax({
                                             type: 'POST',
-                                            url: "<?=site_url('metametrics/ws_update');?>",
+                                            url: "<?=site_url('metametrics/ws_update_estatus');?>",
                                             data: data,
                                     }).done(function() {
                                             class_av.cambio_estatus(class_av.var.sistema, 'B');
