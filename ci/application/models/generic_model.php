@@ -173,6 +173,38 @@ class Generic_model extends CI_Model {
 				$this->db->update($tabla, $value);
 			}
 		}
+                
+        public function update_or_insert($tabla, $arr_where, $data, $data_ant = null){
+                $this->load->database('prueba');
+		if(isset($data_ant)){
+			//Acomodo de nombre de campos where con su respectivo valor a buscar
+			foreach ($data_ant as $x => $value){
+				foreach ($arr_where as $aw){
+					$array[$aw] = $value[$aw];
+				}
+				$this->db->where($array);
+				$this->db->update($tabla, $data[$x]);
+			}
+		}else{
+			foreach ($data as $value){
+				foreach ($arr_where as $aw){
+                                    if(isset($value[$aw])){
+                                        $array[$aw] = $value[$aw];
+                                    }
+				}
+                                $this->db->where($array);
+                                
+                                //Revisa si existe
+                                $q = $this->db->get($tabla);
+			
+                                //Si no existe el registro hace el insert
+                                if($q->num_rows() == 0){
+                                    $this->db->insert($tabla, $value);
+                                }else{                               
+                                    $this->db->update($tabla, $value);
+                                }
+			}
+		}
 	}
    
 	public function insert($tabla, $data){
@@ -306,6 +338,80 @@ class Generic_model extends CI_Model {
                                 }
                             }
 
+                    }
+		}
+                $this->db->trans_complete();
+	}
+        
+        public function insert_if_ne_new_article($tabla, $arr_where, $data){
+                $this->load->database('prueba');
+                $query = "select '99' || lpad((cast(max(substring(sistema,6)) as  int)+1)::text,9,'0') as sistema from article";
+                $query = $this->db->query($query);
+                $res = $query->result_array();
+                $sistema = $res[0]['sistema'];
+            
+                $this->db->trans_start();
+		//Acomodo de nombre de campos where con su respectivo valor a buscar
+		foreach ($data as $x => $value){
+                    foreach ($arr_where as $aw){
+                        if($value[$aw] !== '')
+                            $array[$aw] = $value[$aw];
+                    }
+                    $this->db->where($array);
+                    $q = $this->db->get($tabla);
+                    
+			
+                    //Si no existe el registro hace el insert
+                    if($q->num_rows() == 0){
+                            $sistema = $sistema + 1;
+                            $data[$x]['sistema'] = $data[$x]['base'] . $sistema;
+                            
+                            $usuario = 'DESC';
+                            if( $data[$x]['usuario'] == 'sesion' ){
+                                $usuario = $this->session->userdata('usu_base');
+                            }
+                            
+                            $query = 'insert into article (
+                                    "sistema","revista","articulo","issn","doi","paisRevista","idioma","ciudadEditora","institucionEditora","anioRevista",
+                                    "descripcionBibliografica","articuloIdiomas","resumen","idiomaResumen","disciplinaRevista","palabraClave","keyword","fechaIngreso",
+                                    "estatus", "asignado","url"
+                                    ) values('.
+                                    (($data[$x]['sistema'] == '') ? "null," : "'".$data[$x]['sistema']."',").
+                                    (($data[$x]['revista'] == '') ? "null," : "'".$this->limpia($data[$x]['revista'])."',").
+                                    (($data[$x]['articulo'] == '') ? "null," : "'".$this->limpia($data[$x]['articulo'])."',").
+                                    (($data[$x]['issn'] == '') ? "null," : "'".$data[$x]['issn']."',").
+                                    (($data[$x]['doi'] == '') ? "null," : "'".$data[$x]['doi']."',").
+                                    (($data[$x]['paisRevista'] == '') ? "null," : "'".$data[$x]['paisRevista']."',").
+                                    (($data[$x]['idioma'] == '') ? "null," : "'".$data[$x]['idioma']."',").
+                                    (($data[$x]['ciudadEditora'] == '') ? "null," : "'".$data[$x]['ciudadEditora']."',").
+                                    (($data[$x]['institucionEditora'] == '') ? "null," : "'".$data[$x]['institucionEditora']."',").
+                                    (($data[$x]['anioRevista'] == '') ? "null," : "'".$data[$x]['anioRevista']."',").
+                                    (($data[$x]['descripcionBibliografica'] == '') ? "null," : "'".$data[$x]['descripcionBibliografica']."',").
+                                    (($data[$x]['articuloIdiomas'] == '') ? "null," : "'".$data[$x]['articuloIdiomas']."',").
+                                    (($data[$x]['resumen'] == '') ? "null," : "'".$data[$x]['resumen']."',").
+                                    (($data[$x]['idiomaResumen'] == '') ? "null," : "'".$data[$x]['idiomaResumen']."',").
+                                    (($data[$x]['disciplinaRevista'] == '') ? "null," : "'".$data[$x]['disciplinaRevista']."',").
+                                    (($data[$x]['palabraClave'] == '') ? "null," : "'".$this->limpia($data[$x]['palabraClave'])."',").
+                                    (($data[$x]['keyword'] == '') ? "null," : "'".$this->limpia($data[$x]['keyword'])."',").
+                                    "NOW()::timestamp::date, 'A','".$usuario."',".
+                                    //(($data[$x]['fechaIngreso'] == '') ? "null," : "'".$data[$x]['fechaIngreso']."',").
+                                    (($data[$x]['url'] == '') ? "null)" : "'".$data[$x]['url']."')");
+
+                            $query = $this->db->query($query);
+                            
+                             $query = 'insert into catalogador (
+                                    "sistema","id","nombre","nivel","fecha","hora"
+                                    ) values('.
+                                    (($data[$x]['sistema'] == '') ? "null," : "'".$data[$x]['sistema']."',").
+                                    "1,".
+                                    "'".$usuario."',".
+                                    "10,".
+                                    "NOW()::timestamp::date,".
+                                    "LOCALTIME(0))";
+                            
+                             $query = $this->db->query($query);
+                            
+                            $arr_inst = array();							
                     }
 		}
                 $this->db->trans_complete();
