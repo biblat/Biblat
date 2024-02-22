@@ -741,7 +741,7 @@ class_admin = {
                 }
 
                 doc.autores.push(obj);
-                doc.fechaIngreso = (new Date()).getFullYear()+'-'+((new Date()).getMonth()+1)+'-'+((new Date()).getDate()+'').padStart(2,'0');
+                doc.fechaIngreso = (new Date()).getFullYear()+'-'+(((new Date()).getMonth()+1)+'').padStart(2,'0')+'-'+((new Date()).getDate()+'').padStart(2,'0');
             });
 
             class_admin.var.registros.doc.push(doc);
