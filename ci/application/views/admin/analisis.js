@@ -2867,7 +2867,7 @@ class_av = {
 									var data = {};
 									data['tabla'] = 'article';
 									data['where'] = ['sistema'];
-									data['data'] = [{estatus: "C"}];
+									data['data'] = [{estatus: "C", sistema:class_av.var.sistema}];
                                     $.ajax({
                                             type: 'POST',
                                             url: "<?=site_url('metametrics/ws_update');?>",
@@ -2989,7 +2989,7 @@ class_av = {
 									var data = {};
                                     data['tabla'] = 'article';
                                     data['where'] = ['sistema'];
-                                    data['data'] = [{estatus: "B"}];
+                                    data['data'] = [{estatus: "B", sistema:class_av.var.sistema}];
                                     $.ajax({
                                             type: 'POST',
                                             url: "<?=site_url('metametrics/ws_update');?>",
