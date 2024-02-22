@@ -18,7 +18,7 @@ class Sesion extends CI_Controller {
     public function index(){
         if (in_array($_SERVER['REMOTE_ADDR'], unserialize(IPS))){
             $data = array();
-            $data['page_title'] = _('Inicio Sesión');
+            $data['page_title'] = _('Biblat Central');
             $this->template->set_layout('default_sel');
             $this->template->title(_('Inicio Sesión'));
             //$data['page_subtitle'] = _('');
