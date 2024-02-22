@@ -106,7 +106,7 @@
                   <h5 class="panel-title">
                       <a data-toggle="collapse" data-parent="#accordion" href="#articulo">
                         Artículo
-                      </a>
+                      </a><a href="<?=site_url("adminb/ayuda_articulos");?>" target="_blank" style="padding: 5px"><i class="fa fa-question-circle" style="color: #ff8000;"></i></a>
                       <button id="save-article" type="button" class="btn btn-dark" style="float: right;"><i class="fa fa-file" aria-hidden="true" style="color: #ff8000;"></i><span> Guardar artículo</span></button>
                       <br><br>
                   </h5>
@@ -293,7 +293,7 @@
                   <h5 class="panel-title">
                       <a data-toggle="collapse" data-parent="#accordion" href="#instituciones" id="accordionInstituciones">
                         Instituciones
-                      </a>
+                      </a><a href="<?=site_url("adminb/ayuda_instituciones");?>" target="_blank" style="padding: 5px"><i class="fa fa-question-circle" style="color: #ff8000;"></i></a>
                       <button id="save-instituciones" type="button" class="btn btn-dark" style="float: right;"><i class="fa fa-university" aria-hidden="true" style="color: #ff8000;"></i><span> Guardar instituciones</span></button>
                       <br><br>
                   </h5>
@@ -318,7 +318,7 @@
                   <h5 class="panel-title">
                       <a data-toggle="collapse" data-parent="#accordion" href="#autores" id="accordionAutores">
                         Autores
-                      </a>
+                      </a><a href="<?=site_url("adminb/ayuda_autores");?>" target="_blank" style="padding: 5px"><i class="fa fa-question-circle" style="color: #ff8000;"></i></a>
                       <button id="save-autores" type="button" class="btn btn-dark" style="float: right;"><i class="fa fa-users" aria-hidden="true" style="color: #ff8000;"></i><span> Guardar autores</span></button>
                       <br><br>
                   </h5>
