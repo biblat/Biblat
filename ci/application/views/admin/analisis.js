@@ -2586,6 +2586,7 @@ class_av = {
                             }
                     }
                 }
+			});
     },
     revistas_asignadas: function(){
         loading.start();
