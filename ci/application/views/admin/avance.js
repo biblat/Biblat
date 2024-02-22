@@ -42,7 +42,7 @@ class_av = {
     },
     setTabla: function(data){
         var tbody = '';
-        var total_departamento = 10000;
+        var total_departamento = 30000;
         var total_meta = 0;
         $.each(data, function(i, val){
             var num = parseInt(val['revision']) + parseInt(val['completados']) + parseInt(val['borrados']);

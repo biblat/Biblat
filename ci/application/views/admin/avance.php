@@ -1,5 +1,5 @@
 <div class="row"><br></div>
-<center><div class="row"><b>Meta del departamento:</b> 10000 Registros</div></center>
+<center><div class="row"><b>Meta del departamento:</b> 30,000 Registros</div></center>
 <div class="row"><br></div>
 <div class="row"><br></div>
 <div class="progress">
