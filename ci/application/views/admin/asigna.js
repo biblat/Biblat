@@ -269,7 +269,7 @@ class_asi = {
         var tbody = '';
         $.each(data, function(i, val){
             //Para pruebas de asignación asignado == null
-            if(val.asignado == null){
+            //if(val.asignado == null){
                 var id = val['revista'] + '__' +
                         val['anioRevista'] + '__' +
                         ((val['volumen'] == '' || val['volumen'].toLowerCase().indexOf('s') !== -1 )?'':val['volumen']) + '__' +
@@ -287,7 +287,7 @@ class_asi = {
                                 .replace('"'+val['asignado']+'"', '"'+val['asignado']+'" selected')
                                 .replace('<vacio>', val['asignado']);
                 tbody += tr;
-            }
+            //}
         });
         var tabla = class_asi.var.tabla
                 .replace('<body>', tbody);
