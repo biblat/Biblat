@@ -2861,13 +2861,17 @@ class_av = {
                                 }
                         },
                         aceptar: {
+								var data = {};
+								data['tabla'] = 'article';
+								data['where'] = ['sistema'];
+								data['data'] = [{estatus: "C"}];
                                 text: 'Aceptar',
                                 btnClass: 'btn-warning',
                                 action: function(){
                                     $.ajax({
                                             type: 'POST',
                                             url: "<?=site_url('metametrics/ws_update');?>",
-                                            data: class_av.data_update_article(),
+                                            data: data,
                                     }).done(function() {
                                             class_av.cambio_estatus(class_av.var.sistema, 'C');
                                             $('.'+class_av.var.sistema).removeClass('sistema');
@@ -2982,10 +2986,14 @@ class_av = {
                                 text: 'Aceptar',
                                 btnClass: 'btn-warning',
                                 action: function(){
+									var data = {};
+                                    data['tabla'] = 'article';
+                                    data['where'] = ['sistema'];
+                                    data['data'] = [{estatus: "B"}];
                                     $.ajax({
                                             type: 'POST',
                                             url: "<?=site_url('metametrics/ws_update');?>",
-                                            data: class_av.data_update_article(),
+                                            data: data,
                                     }).done(function() {
                                             class_av.cambio_estatus(class_av.var.sistema, 'B');
                                             $('.'+class_av.var.sistema).removeClass('sistema');
