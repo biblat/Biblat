@@ -1,7 +1,7 @@
 <div class="row">
     <center><h3 style="color:#DF6521">Biblat Central</h3></center>    
 </div>
-<div class="row">				 
+<div class="row">
     {if $rol == "Administrador"}
         <div class="col-xs-4">
             <a href="<?=site_url("adminb/cosecha");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
@@ -20,7 +20,7 @@
             </a>
         </div>
         <div class="col-xs-4" style="display:none">
-            <a href="<?=site_url("adminb/asignarev");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
+			<a href="<?=site_url("adminb/asignarev");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
 				<br><br>
 				<center>
 					<i class="glyphicon glyphicon-book" style="font-size:95px"></i><br><span style="font-weight: bold">Asignar revista</span>
@@ -36,7 +36,7 @@
             </center>
         </a>
     </div>
-    <div class="col-xs-4">		  
+    <div class="col-xs-4">
         <a href="<?=site_url("adminb/analisis");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
             <br><br>
             <center>
@@ -44,8 +44,8 @@
             </center>
         </a>
     </div>
-	<div class="col-xs-4" style="display:none">
-        <a href="<?=site_url("adminb/analisis");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
+    <div class="col-xs-4">
+        <a href="<?=site_url("adminb/ayuda");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
             <br><br>
             <center>
                 <i class="fa fa-question-circle" style="font-size:95px"></i><br><span style="font-weight: bold">Ayuda</span>
@@ -53,4 +53,3 @@
         </a>
     </div>
 </div>
-
