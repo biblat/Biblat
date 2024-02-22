@@ -289,13 +289,13 @@ class Datos extends REST_Controller {
                         (
                             estatus in ('A', 'R')
                             and 
-                            c.nombre in ('OJS', 'SCIELO')
+                            c.nombre in ('OJS', 'SciELO')
                         )
                         or
                         (
                             estatus in ('C', 'B')
                             and
-                            c.nombre <> 'OJS' and c.nombre <> 'SCIELO'
+                            c.nombre <> 'OJS' and c.nombre <> 'SciELO'
                             and
                             extract(year from c.fecha) = extract(year from CURRENT_DATE)
                         )
@@ -340,13 +340,13 @@ class Datos extends REST_Controller {
                         (
                             estatus in (\'A\', \'R\')
                             and 
-                            c.nombre in (\'OJS\', \'SCIELO\')
+                            c.nombre in (\'OJS\', \'SciELO\')
                         )
                         or
                         (
                             estatus in (\'C\', \'B\')
                             and
-                            c.nombre <> \'OJS\' and c.nombre <> \'SCIELO\'
+                            c.nombre <> \'OJS\' and c.nombre <> \'SciELO\'
                             and
                             extract(year from c.fecha) = extract(year from CURRENT_DATE)
                         )
