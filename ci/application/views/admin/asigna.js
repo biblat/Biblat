@@ -76,12 +76,17 @@ class_asi = {
                             class_asi.var.revistasJSON = resp_revista;
                             class_asi.setTabla(class_asi.var.revistasJSON);
                             class_asi.control();
+							loading.end();
                         });
                         
                         $('#revista_sel').show();
                         $('#revista_sel').html(options);
                         $('#revista_sel').select2({ tags: true, placeholder: "Seleccione una Revista", allowClear: true});
+                    }).fail(function(){
+                        location.reload();
                     });
+                }).fail(function(){
+                    location.reload();
                 });
             });
         }
@@ -93,6 +98,7 @@ class_asi = {
             anios += '<option value="'+i+'">'+i+'</option>';
         }
         $('#anio').html(anios);
+		loading.start();
         class_asi.initClient();
     },
     control: function(){
