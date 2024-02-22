@@ -730,11 +730,20 @@ class Metametrics extends CI_Controller {
             echo $this->generic_model->update($this->input->post('tabla'), $this->input->post('where'), $this->input->post('data'));
         }
     }
+	
 	public function ws_update_or_insert(){
         //$this->output->enable_profiler(false);
         if ($this->input->post()) {
             $this->load->model('generic_model');
             echo $this->generic_model->update_or_insert($this->input->post('tabla'), $this->input->post('where'), $this->input->post('data'));
+        }
+    }
+	
+	public function ws_update_estatus(){
+        //$this->output->enable_profiler(false);
+        if ($this->input->post()) {
+            $this->load->model('generic_model');
+            echo $this->generic_model->update_estatus($this->input->post('tabla'), $this->input->post('where'), $this->input->post('data'));
         }
     }
 }
