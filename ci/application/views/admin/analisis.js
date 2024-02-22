@@ -3001,6 +3001,7 @@ class_av = {
                 });
             }
         });
+	},
     agrega_nuevo_articulo: function(){
         if(class_av.var.count_titulos > 0){
             var texto = 'Se guardarán los datos para los nuevos artículos';
