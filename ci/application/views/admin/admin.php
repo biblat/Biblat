@@ -48,7 +48,7 @@
         <a href="<?=site_url("adminb/ayuda");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
             <br><br>
             <center>
-                <i class="fa fa-question-circle" style="font-size:95px"></i><br><span style="font-weight: bold">Ayuda</span>
+                <i class="fa fa-mortar-board" style="font-size:95px"></i><br><span style="font-weight: bold">Centro de aprendizaje</span>
             </center>
         </a>
     </div>
