@@ -207,6 +207,36 @@ class Generic_model extends CI_Model {
 			}
 		}
 	}
+	
+	public function update_estatus($tabla, $arr_where, $data){
+		$this->load->database('prueba');
+		$this->db->trans_start();
+		$usuario = $this->session->userdata('usu_base');
+		
+		foreach ($data as $value){
+				foreach ($arr_where as $aw){
+					if(isset($value[$aw])){
+						$array[$aw] = $value[$aw];
+					}
+				}
+				$this->db->where($array);
+				$this->db->update($tabla, $value);
+				
+				$query = 'insert into catalogador (
+						"sistema","id","nombre","nivel","fecha","hora"
+						) values('.
+						"'".$value['sistema']."',".
+						"(select max(id)+1 from catalogador where sistema='".$value['sistema']."'),".
+						"'".$usuario."',".
+						"10,".
+						"NOW()::timestamp::date,".
+						"LOCALTIME(0))";
+				
+				$query = $this->db->query($query);
+		}
+		
+		$this->db->trans_complete();
+	}
    
 	public function insert($tabla, $data){
                 $this->load->database('prueba');
