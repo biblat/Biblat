@@ -2861,13 +2861,13 @@ class_av = {
                                 }
                         },
                         aceptar: {
-								var data = {};
-								data['tabla'] = 'article';
-								data['where'] = ['sistema'];
-								data['data'] = [{estatus: "C"}];
                                 text: 'Aceptar',
                                 btnClass: 'btn-warning',
                                 action: function(){
+									var data = {};
+									data['tabla'] = 'article';
+									data['where'] = ['sistema'];
+									data['data'] = [{estatus: "C"}];
                                     $.ajax({
                                             type: 'POST',
                                             url: "<?=site_url('metametrics/ws_update');?>",
