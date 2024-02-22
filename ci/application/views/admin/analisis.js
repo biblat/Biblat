@@ -31,12 +31,17 @@ class_av = {
         documentoJSON: '',
         autoresJSON: '',
         institucionesJSON: '',
+		revistasJSON: [],				 
         init: true,
         url_oai: '',
         data: '',
         revistas: '',
+		revistasAsignadas: [],					  
         revista: {},
         registros:{},
+		count_titulos: 0,
+        numeros:'',
+        url_ia:'',																				  
         tabla: '<table id="tbl_articulos" class="display responsive nowrap" style="width:100%;font-size:11px">' +
                             '<thead>' +
                                 '<tr>' +
@@ -216,6 +221,12 @@ class_av = {
                                 <div class="col-xs-5"><hr style="border-width: 5px;"> </div><div class="col-xs-2"><br><center>- <b><span id="numAut-<id>"><id></span></b> -</center></div><div class="col-xs-5"><hr style="border-width: 5px;"> </div>\n\
                             </div>\n\
                     </div>',
+		html_titulo: '      <div id="div_titulo_na-<id>"> \
+                            <br><span><b>Título del artículo:</b></span><br> \
+                            <input id="titulo_na-<id>" style="min-width: 90%" type="text" data-placement="top"> \
+                            <span id="borra-titulo_na-<id>" class="glyphicon glyphicon-remove borra-titulo" aria-hidden="true" style="color: #ff8000;cursor:pointer"></span> \
+                            </div>'
+        ,
         opciones_paises: '',
         a_opciones_instituciones: '',
         texto_pdf: '',
@@ -353,6 +364,37 @@ class_av = {
                 });
         });
     },
+	initRevistas: function() {
+        if (class_av.var.init){
+            class_av.var.init = false;
+            var object = {
+                private_key: env.P_K,
+                client_email: b(env.C_E),
+                scopes: class_av.cons.SCOPES,
+            };
+            gapi.load("client", async function(){
+                gapi.auth.setToken(await GetAccessTokenFromServiceAccount.do(object));
+                gapi.client.init({
+                    discoveryDocs: class_av.cons.DISCOVERY_DOCS,
+                }).then(function () {
+                    //Lectura de hoja de cálculo, se requiere el ID y la hoja de la que leerá
+                    gapi.client.sheets.spreadsheets.values.get({
+                        spreadsheetId: b(env.sId),
+                        range: b(env.s),
+                    }).then(function(response) {
+                        var revistas = response.result.values;
+                        var options = '';
+                        $.each(revistas, function(i, val){
+                                if(i>0){
+                                        class_av.var.revistasJSON.push(JSON.parse(JSON.stringify(Object.assign({}, val))));
+                                }
+                        });
+                        class_av.var.revistasJSON.sort(class_utils.order_by(0));
+                    });
+                });
+            });
+        }
+    },  
     ready: function(){
         loading.start();
         class_av.initClient();
@@ -580,6 +622,56 @@ class_av = {
                             class_av.var.cambios_documento = true;
                     });
                     
+					$('#import-ai').off('click').on('click', function(){
+                        loading.start();
+                        var url ='';
+                        if( ($('#url1').val() !== '' && $("#tipourl1").val() == 'pdf') ){
+                            url = $('#url1').val();
+                        }else if( $('#url2').val() !== '' && $("#tipourl2").val() == 'pdf' ){
+                            url = $('#url2').val();
+                        }
+                        $.when(
+                                 class_utils.setResource(class_av.var.servidor + class_av.var.app + '/ia_metadata/', {url: url})
+                            ) 
+                            .then(function(resp_pdf){
+                                if( resp_pdf.disciplinas[0] !== undefined && $('#disciplina1').val() == '' ){
+                                    $('#disciplina1').val(resp_pdf.disciplinas[0]);
+                                    $('#disciplina1').change();
+                                }
+                                if( resp_pdf.disciplinas[1] !== undefined && $('#disciplina2').val() == ''){
+                                    $('#disciplina2').val(resp_pdf.disciplinas[1]);
+                                    $('#disciplina2').change();
+                                }
+                                if( resp_pdf.disciplinas[2] !== undefined && $('#disciplina3').val() == ''){
+                                    $('#disciplina3').val(resp_pdf.disciplinas[2]);
+                                    $('#disciplina3').change();
+                                }
+                                
+                                if( resp_pdf.idioma !== undefined ){
+                                    $('#idioma').val(resp_pdf.idioma);
+                                    $('#idioma').change();
+                                }
+
+                                if( resp_pdf.palabras !== undefined ){
+                                    $('#div_palabras_clave').show();
+                                    $('#palabras_clave').html(resp_pdf.palabras.join("; "));
+                                    
+                                    $('#div_palabras_clave2').show();
+                                    $('#palabras_clave2').html(resp_pdf.palabras_b.join("; "));
+                                }
+
+                                if( resp_pdf.titulo !== undefined ){
+                                    $('#titulo').val(resp_pdf.titulo);
+                                    $('#titulo').prop("disabled", true);
+                                        tiempo = setTimeout(function() {
+                                            class_av.texto_idioma($('#titulo').val(), $('#idioma').val(), '#check-idioma', '#idioma');
+                                            class_av.busca_en_pdf(url, $('#titulo').val(), '#check-titulo', '#titulo');
+                                            //class_av.busca_en_pdf(class_av.var.texto_pdf, $('#titulo').val(), '#check-titulo', '#titulo');
+                                        }, 1000);
+                                }
+                                loading.end();
+                            });
+                    });   
                     
                     class_av.var.cambios_de_inicio = false;
                     /******************************************************************/
@@ -953,6 +1045,166 @@ class_av = {
             },500);
         });
         class_av.control_guarda();
+        $('#btn_nuevo_articulo').off('click').on('click', function(){
+            $('#accordion').hide();
+            $('#div_nuevo_articulo').show();
+            $('#div_tabla').hide();
+            $('#btn_nuevo_articulo').hide();
+            class_av.revistas_asignadas();
+            class_av.initRevistas();
+        });
+        
+        $('#btn_cancelar_na').off('click').on('click', function(){
+            $('#txt_vol, #txt_num, #txt_num_esp, #txt_num_sup').val('');
+            $('#txt_vol, #txt_num, #txt_num_esp, #txt_num_sup').prop('disabled', false);
+            $('.check').prop('disabled', false);
+            $('.check').prop('checked', false);
+            $('#div_especial, #div_suplemento, #div_estacion').hide();
+            $('#div_nuevo_articulo').hide();
+            $('#div_tabla').show();
+            $('#btn_nuevo_articulo').show();
+        });
+    },
+    control_na: function(){
+        $('#revista_sel, #anio_rev').on('change', function(){
+            var revista = $('#revista_sel').val();
+            var anio = $('#anio_rev').val();
+            if( revista !== '' && anio !== '' ){
+                $('#sel_numero').hide();
+                $.when(
+                    class_utils.getResource('/datos/revista_num/'+class_utils.slug(revista)+'/'+anio)
+                ).then(function(resp){
+                    var numeros = "";
+                    if(resp.length > 0){
+                        numeros = resp[0].numero;
+                        class_av.var.numeros = numeros;
+                    }
+                    class_av.revista_numeros(numeros);
+                    $('#sel_numero').show();
+                });
+            }
+            $('#txt_vol, #txt_num, #txt_num_esp, #txt_num_sup').val('');
+            $('#txt_vol, #txt_num, #txt_num_esp, #txt_num_sup').prop('disabled', false);
+            $('.check').prop('disabled', false);
+            $('.check').prop('checked', false);
+            $('#div_especial, #div_suplemento, #div_estacion').hide();
+        });
+        
+        $('#sel_numero').on('change', function(){
+            if(this.value == ""){
+                $('.check').prop('disabled', false);
+                $('#txt_vol').prop('disabled', false);
+                $('#txt_num').prop('disabled', false);
+            }else{
+                $('.check').prop('disabled', true);
+                $('#txt_vol').val('');
+                $('#txt_vol').prop('disabled', true);
+                $('#txt_num').val('');
+                $('#txt_num').prop('disabled', true);
+                $('.check').prop('checked', false);
+            }
+        });
+        
+        $('#sin_vol').off('change').on('change', function(){
+            if(this.checked){
+                $('#txt_vol').val('');
+                $('#txt_vol').prop('disabled', true);
+            }else{
+                $('#txt_vol').prop('disabled', false);
+            }
+        });
+        
+        $('#sin_num').off('change').on('change', function(){
+            if(this.checked){
+                $('#txt_num').val('');
+                $('#txt_num').prop('disabled', true);
+            }else{
+                $('#txt_num').prop('disabled', false);
+            }
+        });
+        
+        $('#sin_num_esp').off('change').on('change', function(){
+            if(this.checked){
+                $('#txt_num_esp').val('');
+                $('#txt_num_esp').prop('disabled', true);
+            }else{
+                $('#txt_num_esp').prop('disabled', false);
+            }
+        });
+        
+        $('#sin_num_sup').off('change').on('change', function(){
+            if(this.checked){
+                $('#txt_num_sup').val('');
+                $('#txt_num_sup').prop('disabled', true);
+            }else{
+                $('#txt_num_sup').prop('disabled', false);
+            }
+        });
+        
+        $('#p_esp, #p_sup, #p_est, #p_no').off('change').on('change', function(){
+            var clic_id=this.id;
+            var clic_checked=this.checked;
+            $.each(['p_esp', 'p_sup', 'p_est', 'p_no'], function(i, val){
+                if(clic_id !== val && clic_checked){
+                    $('#'+val).prop('checked', false);
+                    if(val == 'p_esp'){
+                        $('#div_especial').hide();
+                        $('#txt_num_esp').val('');
+                        $('#txt_num_esp').prop('disabled', false);
+                        $('#sin_num_esp').prop('checked', false);
+                    }
+                    if(val == 'p_sup'){
+                        $('#div_suplemento').hide();
+                        $('#txt_num_sup').val('');
+                        $('#txt_num_sup').prop('disabled', false);
+                        $('#sin_num_sup').prop('checked', false);
+                    }
+                    if(val == 'p_est'){
+                        $('#div_estacion').hide();
+                    }
+                }else{
+                    if(clic_checked){
+                        if(val == 'p_esp'){
+                            $('#div_especial').show();
+                        }
+                        if(val == 'p_sup'){
+                            $('#div_suplemento').show();
+                        }
+                        if(val == 'p_est'){
+                            $('#div_estacion').show();
+                        }
+                    }else{
+                        $('#div_especial, #div_suplemento, #div_estacion').hide();
+                    }
+                }
+            });
+        });
+        
+        $('#btn_agregar_na').off('click').on('click', function(){
+            class_av.agrega_nuevo_articulo();
+        });
+        
+        $('#agrega_titulo_na').off('click').on('click', function(){
+            class_av.var.count_titulos++;
+            var id_tit = class_av.var.count_titulos;
+            var html_titulo = class_av.var.html_titulo.replaceAll('<id>', id_tit);
+            $('#div_titulos').append(html_titulo);
+            $('.borra-titulo').off('click').on('click', function(){
+                var id_clic = parseInt(this.id.split('-')[2]);
+                $('#div_titulo_na-'+id_clic).remove();
+                $.each($('.borra-titulo'), function(i, val){
+                    //REcorrido de los títulos y reemplaza el id restando 1
+                    var id_ciclo = val.id;
+                    var num_ciclo = parseInt(val.id.split('-')[2]);
+                    if(num_ciclo > id_clic){
+                        $('#'+id_ciclo)[0].id = val.id.replace(num_ciclo, num_ciclo-1);
+                        $('#div_titulo_na-'+num_ciclo)[0].id = 'div_titulo_na-'+(num_ciclo-1);
+                        $('#titulo_na-'+num_ciclo)[0].id = 'titulo_na-'+(num_ciclo-1);
+                    }
+                });
+                class_av.var.count_titulos--;
+            });
+        });  
     },
     borra_institucion: function(id){
         class_av.var.institucionesJSON.splice(id-1,1);
@@ -2317,7 +2569,7 @@ class_av = {
             return false;
         }
     },
-    mensaje:function(texto){
+    mensaje:function(texto, fn=null){
         $.confirm({
                 title: '',
                 content: texto,
@@ -2326,16 +2578,237 @@ class_av = {
                             text: 'Aceptar',
                             btnClass: 'btn-warning',
                             action: function(){
-                                return true;
+                                    fn();
+                                }else{
+                                    return true;
+                                }
                             }
                     }
                 }
+    },
+    revistas_asignadas: function(){
+        loading.start();
+        $.when(
+                class_utils.getResource('/datos/revistas_articulo_by_nombre'),
+                class_utils.getResource('/datos/revistas_by_nombre')
+        ) 
+        .then(function(resp1, resp2){
+            var arr1 = [];
+            if(resp1[0].length > 0){
+                if(resp1[0][0].revistas !== null){
+                    arr1 = JSON.parse(resp1[0][0].revistas);
+                }
+            }
+            
+            var arr2 = [];
+            if(resp2[0].length > 0){
+                if(resp2[0][0].revistas !== null){
+                    arr2 = JSON.parse(resp2[0][0].revistas);
+                }
+            }
+            
+            class_av.var.revistasAsignadas = arr1.concat(arr2).sort();
+            
+            var options = "";
+            
+            options += class_av.cons.option.replace('<opcion>', "").replace("<valor>", "");
+            $.each(class_av.var.revistasAsignadas, function(i, val){
+                try{
+                    options += class_av.cons.option.replace('<opcion>', val).replace("<valor>", val);
+                } catch (error) {
+                    console.log(error);
+                }
             });
+
+            $('#revista_sel').html(options);
+            $('#revista_sel').select2({ tags: false, placeholder: "Seleccione una revista", allowClear: true});
+            
+            options = "";
+            options += class_av.cons.option.replace('<opcion>', "").replace("<valor>", "");
+            for(var anio_i=(new Date().getFullYear()); anio_i >= 1900; anio_i--){
+                options += class_av.cons.option.replace('<opcion>', anio_i).replace("<valor>", anio_i);
+            }
+            
+            $('#anio_rev').html(options);
+            $('#anio_rev').select2({ tags: false, placeholder: "Seleccione un año", allowClear: true});
+            
+            class_av.control_na();
+            class_av.var.count_titulos= 0;
+            loading.end();
+        });
+    },
+    revista_numeros: function(numeros){
+        if(numeros !== ""){
+            numeros = numeros.replace('{','').replace('}','').split(',');
+            var options = "";
+            options += class_av.cons.option.replace('<opcion>', "").replace("<valor>", "");
+            $.each(numeros, function(i,val){
+                options += class_av.cons.option.replace('<opcion>', val).replace("<valor>", val);
+            });
+            $('#sel_numero').html(options);
+            $('#sel_numero').select2({ tags: true, placeholder: "Seleccione un número", allowClear: true});
+            $('#sel_numero').prop('disabled', false);
+            $('#sel_numero').on('change', function(){
+                if($('#sel_numero').val()!==""){
+                    $('#txt_vol').val('');
+                    $('#txt_vol').prop('disabled', true);
+                    $('#txt_num').val('');
+                    $('#txt_num').prop('disabled', true);
+                }else{
+                    $('#txt_vol').prop('disabled', false);
+                    $('#txt_num').prop('disabled', false);
+                }
+            });
+        }else{
+            options += class_av.cons.option.replace('<opcion>', "").replace("<valor>", "");
+            $('#sel_numero').html(options);
+            $('#sel_numero').select2({ tags: true, placeholder: "No existen números", allowClear: true});
+            $('#sel_numero').prop('disabled', true);
+            $('#txt_vol').val('');
+            $('#txt_vol').prop('disabled', false);
+            $('#txt_num').val('');
+            $('#txt_num').prop('disabled', false);
+        }
+    },
+    data_inserta_article: function(){
+        var data = {};
+        var data_int = [];
+        var columns = ['revista', 'articulo', 'issn', 'paisRevista', 'anioRevista', 'disciplinaRevista', ];
+        var revista = $('#revista_sel').val().trim();
+        var datosRevista = class_utils.filter_prop(class_av.var.revistasJSON, 0, revista);
+        
+        var numero = $('#sel_numero').val();
+        var v = numero.split('V')[1].split('N')[0];
+        if(v == '' || v == 's/v'){
+            v = null;
+        }
+        var n = numero.split('N')[1].split(' ')[0];
+        if(n == '' || n == 's/n'){
+            n = null;
+        }
+        var p = numero.split('N')[1].split(' ')[1];
+        if(p == ''){
+            p = null;
+        }
+        
+            var obj = {};
+            var objDes = {};
+            
+            obj['sistema'] = '';
+            obj['usuario'] = 'sesion';
+            obj['revista'] = revista;
+            obj['articulo'] = $('#titulo_na').val().trim();
+            obj['issn'] = (datosRevista.length !== 1)?null:datosRevista[0][5];
+            obj['paisRevista'] = (datosRevista.length !== 1)?null:datosRevista[0][6];
+            obj['ciudadEditora'] = (datosRevista.length !== 1)?null:datosRevista[0][7];
+            obj['institucionEditora'] = (datosRevista.length !== 1)?null:datosRevista[0][8];
+            obj['anioRevista'] = $('#anio_rev').val().trim();
+            obj['base'] = (datosRevista.length !== 1)?null:datosRevista[0][1];
+            
+            var sin_vol = $('#sin_vol').prop('checked');
+            var vol = $('#txt_vol').val().trim();
+            
+            var sin_num = $('#sin_num').prop('checked');
+            var num = $('#txt_num').val().trim();
+            
+            var p_esp = $('#p_esp').prop('checked');
+            var p_sup = $('#p_sup').prop('checked');
+            var p_est = $('#p_est').prop('checked');
+            var p_no = $('#p_no').prop('checked');
+            var sin_num_esp = $('#sin_num_esp').prop('checked');
+            var sin_num_sup = $('#sin_num_sup').prop('checked');
+            var sel_estacion = $('#sel_estacion').val();
+            var txt_num_esp = $('#txt_num_esp').val();
+            var txt_num_sup = $('#txt_num_sup').val();
+            
+            if( vol !== '' && !sin_vol)
+                objDes['a'] = vol;
+            if( num !== '' && !sin_num)
+                objDes['b'] = num;
+            
+            var parte = '';
+            
+            if( !p_no ){
+                
+                if(p_esp){
+                    parte = 'spe'
+                }
+                if( !sin_num_esp ){
+                    if( !isNaN(txt_num_esp)){
+                        parte += txt_num_esp;
+                    }
+                }
+                
+                if(p_sup){
+                    parte = 'supp'
+                }
+                if( !sin_num_sup ){
+                    if( !isNaN(txt_num_sup)){
+                        parte += txt_num_sup;
+                    }
+                }
+                
+                if(p_est){
+                    parte = sel_estacion
+                }
+            }
+            
+            if( parte != '' ){
+                objDes['d'] = parte;
+            }
+            
+            if( numero !== ""){
+                if(v !== null){
+                    objDes['a'] = 'V'+v;
+                }
+                if(n !== null){
+                    objDes['b'] = 'N'+n;
+                }
+                if(p !== null){
+                    objDes['d'] = p;
+                }
+            }
+            
+            obj['descripcionBibliografica'] = JSON.stringify(objDes);
+            obj['fechaIngreso'] = (new Date()).getFullYear()+'-'+(((new Date()).getMonth()+1)+'').padStart(2,'0')+'-'+((new Date()).getDate()+'').padStart(2,'0');
+        
+        data_int.push(obj);
+        
+        //Recorrido por si se agregaron más títulos
+        var num = 1;
+        var encontrados = 0;
+        //var titulos = [];
+        while( encontrados < class_av.var.count_titulos ){
+            if($('#titulo_na-'+num)[0] !== undefined){
+                //titulos.push( $('#titulo_na-'+num).val());
+                var obj2 = {};
+                obj2['sistema'] = obj['sistema'];
+                obj2['usuario'] = obj['usuario'];
+                obj2['revista'] = obj['revista'];
+                obj2['articulo'] = $('#titulo_na-'+num).val().trim();
+                obj2['issn'] = obj['issn'];
+                obj2['paisRevista'] = obj['paisRevista'];
+                obj2['ciudadEditora'] = obj['ciudadEditora'];
+                obj2['institucionEditora'] = obj['institucionEditora'];
+                obj2['anioRevista'] = obj['anioRevista'];
+                obj2['base'] = obj['base'];
+                obj2['descripcionBibliografica'] = obj['descripcionBibliografica'];
+                obj2['fechaIngreso'] = obj['fechaIngreso'];
+                data_int.push(obj2);
+                encontrados++;
+            }
+            num++;
+        }
+        
+        data['tabla'] = 'article';
+        data['where'] = columns;
+        data['data'] = data_int;
+        return data;			
     },
     control_guarda:function(){
         $('#save-article').off('click').on('click', function(){
             
-            var texto = 'Se guardaran los cambios realizados a los metadatos del Artículo';
+            var texto = 'Se guardarán los cambios realizados a los metadatos del Artículo';
             
             $.confirm({
                 title: '',
@@ -2389,11 +2862,11 @@ class_av = {
                                 text: 'Aceptar',
                                 btnClass: 'btn-warning',
                                 action: function(){
-                                    /*$.ajax({
+                                    $.ajax({
                                             type: 'POST',
                                             url: "<?=site_url('metametrics/ws_update');?>",
                                             data: class_av.data_update_article(),
-                                    }).done(function() {*/
+                                    }).done(function() {
                                             class_av.cambio_estatus(class_av.var.sistema, 'C');
                                             $('.'+class_av.var.sistema).removeClass('sistema');
                                             $('.'+class_av.var.sistema).addClass('cerrado');
@@ -2401,7 +2874,7 @@ class_av = {
                                             $('.'+class_av.var.sistema).css('color','');
                                             $('#accordion').hide();
                                             window.location.href="#div_tabla";
-                                    /*});*/
+                                    });
                                 }
                         }
                     }
@@ -2411,7 +2884,7 @@ class_av = {
         
         $('#save-instituciones').off('click').on('click', function(){
             
-            var texto = 'Se guardaran los cambios realizados a los metadatos de Instituciones';
+            var texto = 'Se guardarán los cambios realizados a los metadatos de Instituciones';
             
             $.confirm({
                 title: '',
@@ -2526,6 +2999,45 @@ class_av = {
                 });
             }
         });
+    agrega_nuevo_articulo: function(){
+        if(class_av.var.count_titulos > 0){
+            var texto = 'Se guardarán los datos para los nuevos artículos';
+            var textoFin = 'Artículos nuevos guardados corretamente.';
+        }else{
+            var texto = 'Se guardarán los datos para el nuevo artículo';
+            var textoFin = 'Artículo nuevo guardado corretamente.';
+        }
+            
+        $.confirm({
+            title: '',
+            content: texto,
+            buttons: {
+                cancelar: {
+                        text: 'Cancelar',
+                        //btnClass: 'btn-red',
+                        action: function(){
+
+                        }
+                },
+                aceptar: {
+                        text: 'Aceptar',
+                        btnClass: 'btn-warning',
+                        action: function(){
+                            $.ajax({
+                                    type: 'POST',
+                                    url: "<?=site_url('metametrics/ws_insert_new_article');?>",
+                                    data: class_av.data_inserta_article(),
+                            }).done(function() {
+                                    class_av.mensaje(textoFin, function(){
+                                         window.location.reload();
+                                    });
+                            }).fail(function(){
+                                class_av.mensaje('Ocurrió un error al intentar guardar.');
+                            });
+                        }
+                }
+            }
+        });   
     }
 };
 

@@ -1,10 +1,81 @@
 <div class="row"><br></div>
-<center><div class="row"><b>Meta del departamento:</b> 1000 Registros</div></center>
+<!--center><div class="row"><b>Meta del departamento:</b> 1000 Registros</div></center>
 <div class="row"><br></div>
 <div class="row"><br></div>
 <div class="progress">
   
+</div-->
+
+<div class="row" style="display:none">
+    <div class="col-sm-12">
+        <center>
+        <button id="btn_nuevo_articulo" type="button" class="btn btn-warning">
+            <i class="fa fa-file" aria-hidden="true"></i><span> Agregar artículo </span></button>
+        </center>
+    </div>
 </div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="row" id="div_nuevo_articulo" style="display:none;">
+            <div class="col-sm-12">
+                <span><b>Revista:</b></span><br>
+                <select class="form-control" name="revista" id="revista_sel" style="width:100%" width="100%">
+                </select>
+            </div>
+            <div class="col-sm-12"><br></div>
+            <div class="col-sm-12">
+                <span><b>Año:</b></span><br>
+                <select class="form-control" name="año" id="anio_rev" style="width:50%" width="50%">
+                </select>
+            </div>
+            <div class="col-sm-12"><br></div>
+            <div class="col-sm-12">
+                <span><b>Seleccionar del listado o especificar:</b></span><br><br>
+                <span>Listado:</span><br>
+                <select class="form-control" name="número" id="sel_numero" style="width:50%;" width="50%">
+                </select>
+                <br><br>
+                <div>
+                    <span>Especificar:</span><br>
+                    <span style="width:50px;display:inline-block"><b>Vol. :</b></span><input id='txt_vol' style="width:50px;"><span>&nbsp;&nbsp;</span><input type="checkbox" id="sin_vol" value="0" class="check"><span>&nbsp;</span>Sin volumen<br><br>
+                    <span style="width:50px;display:inline-block"><b>Num. :</b></span><input id='txt_num' style="width:50px;"><span>&nbsp;&nbsp;</span><input type="checkbox" id="sin_num" value="0" class="check"><span>&nbsp;</span>Sin número<br><br>
+                    <span style="width:50px;display:inline-block"><b>Parte :</b></span> <input type="checkbox" id="p_esp" class="check"><span>&nbsp;</span>Especial <span>&nbsp;&nbsp;</span> <input type="checkbox" id="p_sup" class="check"><span>&nbsp;</span>Suplemento <span>&nbsp;&nbsp;</span> <input type="checkbox" id="p_est" class="check"><span>&nbsp;</span>Estación del año <span>&nbsp;&nbsp;</span> <input type="checkbox" id="p_no" class="check"><span>&nbsp;</span>No aplica<br><br>
+                    <div id="div_suplemento" style="display:none"><span style="display:inline-block"><b>Número de suplemento :&nbsp;</b></span><input id='txt_num_sup' style="width:50px;"><span>&nbsp;&nbsp;</span><input type="checkbox" id="sin_num_sup" value="0" class="check"><span>&nbsp;</span>Sin número<br><br></div>
+                    <div id="div_especial" style="display:none"><span style="display:inline-block"><b>Número de especial :&nbsp;</b></span><input id='txt_num_esp' style="width:50px;"><span>&nbsp;&nbsp;</span><input type="checkbox" id="sin_num_esp" value="0" class="check"><span>&nbsp;</span>Sin número<br><br></div>
+                    <div id="div_estacion" style="display:none">
+                    <span style="display:inline-block"><b>Estación :&nbsp;</b></span>
+                    <select class="form-control" name="estacion" id="sel_estacion" style="width:150px;display:inline-block">
+                        <option value="primavera" selected>Primavera</option>
+                        <option value="verano">Verano</option>
+                        <option value="otoño">Otoño</option>
+                        <option value="invierno">Invierno</option>
+                    </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12"><br></div>
+            <div class="col-sm-12" id="div_titulos">
+                <span><b>Título del artículo:</b></span><br>
+                <input id='titulo_na' style="min-width: 100%" type="text" data-placement="top">
+            </div>
+            <div class="col-sm-12"><br><br></div>
+            <center>
+                <button id="agrega_titulo_na" type="button" class="btn btn-default btn-sm"> 
+                    <span class="glyphicon glyphicon-plus" aria-hidden="true" style="color: #ff8000;"></span> Agregar otro título 
+                </button> 
+            </center>
+            <div class="col-sm-12"><br><br><br></div>
+            <div class="col-sm-12">
+                <center>
+                <button id="btn_agregar_na" type="button" class="btn btn-warning"><span> Guardar </span></button>
+                <button id="btn_cancelar_na" type="button" class="btn btn-warning"><span> Cancelar </span></button>
+                </center>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row">
     <div class="col-sm-12">
         <div id="div_tabla" style="display:block">
@@ -13,10 +84,6 @@
 </div>
 
 <div class="row"><br></div>
-
-<div class="row">
-    
-</div>
 
 <div class="row">
     <div class="col-sm-12">
@@ -199,6 +266,24 @@
                                     <option value="pdf" >PDF</option>
                                 </select>
                             </div>
+                        </div>
+                        <div class="row" id="div_palabras_clave" style="display:none">
+                            <br>
+                            <div class="col-xs-12">
+                                <b>Palabras clave IA:</b><span id="palabras_clave"></span>
+                            </div>
+                        </div>
+                        <div class="row" id="div_palabras_clave2" style="display:none">
+                            <br>
+                            <div class="col-xs-12">
+                                <b>Palabras clave AB:</b><span id="palabras_clave2"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <br>
+                            <center>
+                                <button id="import-ai" type="button" class="btn btn-dark" style="display:none"><img class="imagen" src="{base_url('img/aie.png')}" style="filter: invert(0.5) sepia(9) hue-rotate(0deg) saturate(1000%);height:20px;display:inline-block"><span> Extraer de PDF</span></button>
+                            </center>
                         </div>
                     </div>
                 </div>
