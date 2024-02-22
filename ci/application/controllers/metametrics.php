@@ -664,6 +664,14 @@ class Metametrics extends CI_Controller {
         }
     }
     
+	public function ws_insert_new_article(){
+        //$this->output->enable_profiler(false);
+        if ($this->input->post()) {
+            $this->load->model('generic_model');
+            $this->generic_model->insert_if_ne_new_article($this->input->post('tabla'), $this->input->post('where'), $this->input->post('data'));
+        }
+    }
+
     public function ws_insert_instituciones(){
         //$this->output->enable_profiler(false);
         $json = file_get_contents('php://input');
@@ -720,6 +728,13 @@ class Metametrics extends CI_Controller {
         if ($this->input->post()) {
             $this->load->model('generic_model');
             echo $this->generic_model->update($this->input->post('tabla'), $this->input->post('where'), $this->input->post('data'));
+        }
+    }
+	public function ws_update_or_insert(){
+        //$this->output->enable_profiler(false);
+        if ($this->input->post()) {
+            $this->load->model('generic_model');
+            echo $this->generic_model->update_or_insert($this->input->post('tabla'), $this->input->post('where'), $this->input->post('data'));
         }
     }
 }

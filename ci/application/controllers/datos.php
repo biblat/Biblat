@@ -195,7 +195,12 @@ class Datos extends REST_Controller {
                             )
                      SELECT 
                         numeros."anioRevista",
-                            ARRAY_AGG(\'V\' || numeros.volumen || \'N\' || numeros.numero || numeros.parte) as numero
+                            CASE WHEN (numeros.parte <> \'\') THEN
+                                \'V\' || numeros.volumen || \'N\' || numeros.numero || \' \' || numeros.parte
+                            ELSE
+                                \'V\' || numeros.volumen || \'N\' || numeros.numero || numeros.parte
+                            END
+                        ) as numero		   
                        FROM numeros
                        group by numeros."anioRevista"';
             
@@ -227,7 +232,7 @@ class Datos extends REST_Controller {
                         ELSE replace(replace(article."descripcionBibliografica" ->> \'d\'::text, \'"\'::text, \'\'::text), \' \'::text, \'\'::text)
                         END AS parte, count(1) articulos
                         FROM article
-                        WHERE article."anioRevista" IS NOT NULL and sistema ~ \'^(CLA|PER)99.*\'
+                        WHERE article."anioRevista" IS NOT NULL and sistema ~ \'^(CLA|PER)99.*\' and (estatus is null or (estatus <> \'C\' and estatus <> \'B\'))
 						
                         GROUP BY (slug(article.revista)), article."anioRevista", (
                         CASE
@@ -276,8 +281,24 @@ class Datos extends REST_Controller {
                     with registros as (
                         select 
                         asignado, estatus
-                        from article 
-                        where estatus in ('A', 'R', 'C', 'B')
+                        from article a
+                        inner join
+                        catalogador c
+                        on a.sistema = c.sistema
+                        where 
+                        (
+                            estatus in ('A', 'R')
+                            and 
+                            c.nombre in ('OJS', 'SCIELO')
+                        )
+                        or
+                        (
+                            estatus in ('C', 'B')
+                            and
+                            c.nombre <> 'OJS' and c.nombre <> 'SCIELO'
+                            and
+                            extract(year from c.fecha) = extract(year from CURRENT_DATE)
+                        )
                     )
                     select 
                         r.asignado analista, 
@@ -299,7 +320,7 @@ class Datos extends REST_Controller {
             $usuario = $this->session->userdata('usu_base');
             $query = '
                         select
-                            sistema,
+                            a.sistema,
                             revista,
                             "anioRevista" 
                             || coalesce("descripcionBibliografica"->>\'a\', \'\') 
@@ -310,8 +331,27 @@ class Datos extends REST_Controller {
                             url->0->>\'u\' url1,
                             url->1->>\'u\' url2,
                             estatus
-                        from article
-                        where asignado = \''.$usuario.'\'
+                        from article a
+                        inner join
+                        catalogador c
+                        on a.sistema = c.sistema
+                        where
+                        (
+                        (
+                            estatus in (\'A\', \'R\')
+                            and 
+                            c.nombre in (\'OJS\', \'SCIELO\')
+                        )
+                        or
+                        (
+                            estatus in (\'C\', \'B\')
+                            and
+                            c.nombre <> \'OJS\' and c.nombre <> \'SCIELO\'
+                            and
+                            extract(year from c.fecha) = extract(year from CURRENT_DATE)
+                        )
+                        )
+                        and asignado = \''.$usuario.'\' 
                         order by 1
                     ';
             
@@ -587,4 +627,62 @@ class Datos extends REST_Controller {
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);
         }									  
+		public function allrevistas_get(){
+            $data = array();
+            $this->load->database('prueba');
+            
+            //select max(revista) revista from article where revista is not null group by slug(revista) order by 1
+            
+            $query = "          
+                        select max(revista) revista from \"mvNumerosRevista\" where revista is not null group by slug(revista) order by 1
+            ";
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);
+        }
+        
+        public function revistas_articulo_by_nombre_get($nombre=null){
+            $data = array();
+            $this->load->database('prueba');
+            
+            if(!isset($nombre)){
+                $nombre = $this->session->userdata('usu_base');
+            }
+            
+            $query = "
+                with asignadas as(					
+                    select * from article where asignado is not null
+                )
+                select 
+                    json_agg(distinct revista) revistas 
+                from 
+                    asignadas 
+                where
+                    asignado = '".$nombre."'
+            ";
+            
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);  
+        }
+        
+        public function revistas_by_nombre_get($nombre=null){
+            $data = array();
+            $this->load->database('prueba');
+            
+            if(!isset($nombre)){
+                $nombre = $this->session->userdata('usu_base');
+            }
+            
+            //array_to_json(revistas) revistas
+            $query = "
+                select 
+                    revistas
+                from 
+                    usuario_revista
+                where 
+                    usuario = '".$nombre."'
+            ";
+            
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);  
+        }
 }
