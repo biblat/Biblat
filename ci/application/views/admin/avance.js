@@ -35,9 +35,11 @@ class_av = {
         .then(function(resp_analistas){
             class_av.var.analistasJSON = resp_analistas;
             class_av.setTabla(class_av.var.analistasJSON);
+			loading.end();
         });
     },
     ready: function(){
+		loading.start();
         class_av.initClient();
     },
     setTabla: function(data){
