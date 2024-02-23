@@ -199,6 +199,7 @@ class Metametrics extends CI_Controller {
         
         $anio_encontrado = '';
         //Revisión para verificar el formato del año
+		/*Tal vez ya no se requiere esta parte 2024-02											  
         $divs2 = $dom->getElementsByTagName('subfield');
         if($exist_div){
             foreach( $divs2 as $div2 ){
@@ -239,10 +240,10 @@ class Metametrics extends CI_Controller {
                     }
                 }
             }
-        }
+        }*/
         
         $termina = 10;
-        
+        /*OTra que tal vez tampoco 2024-02
         while($exist_div == false && $termina != 0){
             $url_token = $oai.'?verb=ListRecords&resumptionToken=<token>&years_'.$years.'&tk_'.rand();
             $url_tk = str_replace('<token>', $token, $url_token);
@@ -269,7 +270,7 @@ class Metametrics extends CI_Controller {
                 }
             }
             $termina = $termina - 1;
-        }
+        }*/
         
         /*
         //
@@ -334,6 +335,7 @@ class Metametrics extends CI_Controller {
         }
         */
         
+		/*Tampoco 2024-02				 
         if( $years == 0 ){
             $url = $oai.'?verb=ListRecords&metadataPrefix=oai_biblat&years_'.$anio_encontrado.'&tk_'.rand();
             $url = file_get_contents($url);
@@ -351,7 +353,7 @@ class Metametrics extends CI_Controller {
                     }
                 }
             }
-        }
+        }*/
             
         if( $exist_div == false ){
             $response = '{"resp": "Fail"}';
