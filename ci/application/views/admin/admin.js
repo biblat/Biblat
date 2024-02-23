@@ -9,7 +9,7 @@ class_admin = {
         idiomas: {
                     'es_ES' : 'Español',
                     'en_US' : 'Inglés',
-                    'pt_BR' : 'Portugués'
+                    'pt_BR' : 'Portugués',
 					'es' : 'Español',
                     'en' : 'Inglés',
                     'pt' : 'Portugués'			   
