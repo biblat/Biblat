@@ -828,7 +828,7 @@ class_ver = {
         //idiomas en envíos
         var idiomas = class_utils.find_prop(class_ver.var.data.js, 'setting_name', 'supportedSubmissionLocales').setting_value;
         idiomas = idiomas.split('"');
-        var idiomas_envio = [];
+        idiomas_envio = [];
         var s_idiomas_envio = '';
         $.each(idiomas, function(i,val){
 			if(['3.4.0'].indexOf(class_ver.var.data.ver) !== -1){
@@ -1604,7 +1604,7 @@ class_ver = {
         var autores_nombre_id = [];
         var autores_nombre_compara = [];
         autores_pub_id = [];
-        if ( ['3.3.0', '3.3.0.11', '3.2.0', '3.1.2'].indexOf(class_ver.var.data.ver) !== -1 ){
+        if ( ['3.4.0', '3.3.0', '3.3.0.11', '3.2.0', '3.1.2'].indexOf(class_ver.var.data.ver) !== -1 ){
             var autores_nombre_total = [];
             //No importa en qué idioma esté asentado el autor
             $.each(idiomas_envio, function(i,val){
