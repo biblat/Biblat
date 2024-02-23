@@ -10,6 +10,9 @@ class_admin = {
                     'es_ES' : 'Español',
                     'en_US' : 'Inglés',
                     'pt_BR' : 'Portugués'
+					'es' : 'Español',
+                    'en' : 'Inglés',
+                    'pt' : 'Portugués'			   
                 },
         idiomasTit: {
                 'Español' : 'spa',
@@ -22,6 +25,7 @@ class_admin = {
             'Portugués' : 'p'
         },
         pub_id: {
+			'3.4.0': 'publication_id',						  
             '3.3.0.11': 'publication_id',
             '3.3.0': 'publication_id',
             '3.2.0': 'publication_id',
@@ -31,6 +35,7 @@ class_admin = {
             '2.3.0': 'article_id'
         },
         pub_id_auth: {
+			'3.4.0': 'publication_id',						  
             '3.3.0.11': 'publication_id',
             '3.3.0': 'publication_id',
             '3.2.0': 'publication_id',
@@ -40,6 +45,7 @@ class_admin = {
             '2.3.0': 'submission_id'
         },
         pub_id_file: {
+			'3.4.0': 'submission_id',						 
             '3.3.0.11': 'submission_id',
             '3.3.0': 'submission_id',
             '3.2.0': 'submission_id',
@@ -235,7 +241,7 @@ class_admin = {
                 }
 
                 //ids en issues
-                if( ['3.3.0.11', '3.3.0', '3.2.0'].indexOf(resp_ojs.ver) !== -1 ){
+                if( ['3.4.0', '3.3.0.11', '3.3.0', '3.2.0'].indexOf(resp_ojs.ver) !== -1 ){
                     $.each(issue, function(i,val){
                         ids_issue = class_utils.filter_prop(resp_ojs.ps, 'setting_name', 'issueId');
                         ids_issue = class_utils.filter_prop(ids_issue, 'setting_value', val.issue_id + '');
@@ -341,7 +347,7 @@ class_admin = {
         }
 
         //ids en issues
-        if( ['3.3.0.11', '3.3.0', '3.2.0'].indexOf(class_admin.var.data.ver) !== -1 ){
+        if( ['3.4.0', '3.3.0.11', '3.3.0', '3.2.0'].indexOf(class_admin.var.data.ver) !== -1 ){
             ids_issue = class_utils.filter_prop(class_admin.var.data.ps, 'setting_name', 'issueId');
             ids_issue = class_utils.filter_prop(ids_issue, 'setting_value', issue);
 
@@ -536,7 +542,7 @@ class_admin = {
             var arr_palabras_clave = [];
             var obj_palabras_clave = [];
             //palabras clave
-            if ( ['3.3.0.11', '3.3.0', '3.2.0', '3.1.2', '3.0.0'].indexOf(class_admin.var.data.ver) != -1 ){
+            if ( ['3.4.0', '3.3.0.11', '3.3.0', '3.2.0', '3.1.2', '3.0.0'].indexOf(class_admin.var.data.ver) != -1 ){
                 arr_palabras_clave = class_utils.filter_prop(class_admin.var.data.c_v_e_s, 'assoc_id', val[class_admin.cons.pub_id[class_admin.var.data.ver]]);
                 $.each(arr_palabras_clave, function(i2, val2){
                     if( obj_palabras_clave[val2.locale] == undefined){
@@ -574,7 +580,7 @@ class_admin = {
             }
 
             //texto completo
-            if ( ['3.3.0.11', '3.3.0', '3.2.0', '3.1.2', '3.0.0'].indexOf(class_admin.var.data.ver) != -1 ){
+            if ( ['3.4.0', '3.3.0.11', '3.3.0', '3.2.0', '3.1.2', '3.0.0'].indexOf(class_admin.var.data.ver) != -1 ){
                 var textos = class_utils.filter_prop(class_admin.var.data.pg, class_admin.cons.pub_id[class_admin.var.data.ver], val[class_admin.cons.pub_id[class_admin.var.data.ver]]);
 
                 //Filtro por idioma, pero puede variar y no encontrarlo
