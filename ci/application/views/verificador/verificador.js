@@ -3350,7 +3350,7 @@ class_ver = {
                         class_ver.var.data.ss = ss;
                         class_ver.var.data.ps = ps;
                     }
-                    if(['3.3.0', '3.2.0', '3.3.0.11'].indexOf(class_ver.var.data.ver) !== -1){
+                    if(['3.3.0', '3.2.0', '3.3.0.11', '3.4.0'].indexOf(class_ver.var.data.ver) !== -1){
                         $.each(pre_ps, function(i, val){
                             ps = ps.concat(class_utils.filter_prop(class_ver.var.data.ps, 'publication_id', val.publication_id));
                             p = p.concat(class_utils.filter_prop(class_ver.var.data.p, 'publication_id', val.publication_id));
