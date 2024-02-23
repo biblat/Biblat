@@ -195,12 +195,13 @@ class Datos extends REST_Controller {
                             )
                      SELECT 
                         numeros."anioRevista",
-                            CASE WHEN (numeros.parte <> \'\') THEN
+                        ARRAY_AGG(
+                            CASE WHEN numeros.parte <> \'\' THEN
                                 \'V\' || numeros.volumen || \'N\' || numeros.numero || \' \' || numeros.parte
                             ELSE
                                 \'V\' || numeros.volumen || \'N\' || numeros.numero || numeros.parte
                             END
-                        ) as numero		   
+                        ) as numero
                        FROM numeros
                        group by numeros."anioRevista"';
             
