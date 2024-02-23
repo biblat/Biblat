@@ -17,8 +17,13 @@ class_ver = {
                 'pt_BR' : 'Portugués (Brasil)',
                 'fr_CA' : 'Francés',
                 'pt_PT' : 'Portugués (Portugal)',
+				'es' : 'Español',
+                'en' : 'Inglés',
+                'pt' : 'Portugués (Brasil)',
+                'fr' : 'Francés',								  
             },
         pub_id: {
+			'3.4.0': 'publication_id',						  
             '3.3.0.11': 'publication_id',
             '3.3.0': 'publication_id',
             '3.2.0': 'publication_id',
@@ -28,6 +33,7 @@ class_ver = {
             '2.3.0': 'article_id'
         },
         pub_id_auth: {
+			'3.4.0': 'publication_id',						  
             '3.3.0.11': 'publication_id',
             '3.3.0': 'publication_id',
             '3.2.0': 'publication_id',
@@ -685,11 +691,11 @@ class_ver = {
         //idioma
         var idioma = '';
         var idioma_principal = class_ver.var.data.j[0].primary_locale;
-        if( idioma_principal.indexOf('es_') !== -1 )
+        if( idioma_principal.indexOf('es') !== -1 )
             idioma = 'Español';
-        else if( idioma_principal.indexOf('pt_') !== -1 )
+        else if( idioma_principal.indexOf('pt') !== -1 )
             idioma = 'Portugués';
-        else if( idioma_principal.indexOf('en_') !== -1 )
+        else if( idioma_principal.indexOf('en') !== -1 )
             idioma = 'Inglés';
 
         class_ver.var.revista_ojs = revista;
@@ -825,9 +831,16 @@ class_ver = {
         var idiomas_envio = [];
         var s_idiomas_envio = '';
         $.each(idiomas, function(i,val){
-            if (val.indexOf('_') !== -1){
-                idiomas_envio.push(val);
-                s_idiomas_envio += ( (s_idiomas_envio == '')?'':', ' ) + class_ver.cons.idiomas[val];
+			if(['3.4.0'].indexOf(class_ver.var.data.ver) !== -1){
+                if (['', ','].indexOf(val) == -1){
+                    idiomas_envio.push(val);
+                    s_idiomas_envio += ( (s_idiomas_envio == '')?'':', ' ) + class_ver.cons.idiomas[val];
+                }
+            }else{
+                if (val.indexOf('_') !== -1){
+                    idiomas_envio.push(val);
+                    s_idiomas_envio += ( (s_idiomas_envio == '')?'':', ' ) + class_ver.cons.idiomas[val];
+                }
             }
         });
         class_ver.var.idiomase = (s_idiomas_envio == '')?'No especificado':s_idiomas_envio;
@@ -890,7 +903,7 @@ class_ver = {
         $.each(publicaciones, function(i,val){
             var coincide_titulo = false;
             var coincide_titulo_indizable = true;
-            if ( ['3.2.0', '3.3.0', '3.3.0.11'].indexOf(class_ver.var.data.ver) != -1 ){
+            if ( ['3.2.0', '3.3.0', '3.3.0.11', '3.4.0'].indexOf(class_ver.var.data.ver) != -1 ){
                 var idioma_doc = val.locale;
                 if(idioma_doc == '' || idioma_doc == null){
                     var ss = class_utils.find_prop(class_ver.var.data.ss, 'submission_id', val['submission_id']);
@@ -1132,7 +1145,7 @@ class_ver = {
         var obj_palabras_clave_arr = [];
 
         //palabras clave
-        if ( ['3.3.0', '3.3.0.11', '3.2.0', '3.1.2', '3.0.0'].indexOf(class_ver.var.data.ver) != -1 ){
+        if ( ['3.4.0', '3.3.0', '3.3.0.11', '3.2.0', '3.1.2', '3.0.0'].indexOf(class_ver.var.data.ver) != -1 ){
             arr_palabras_clave = class_utils.filter_prop_arr(class_ver.var.data.c_v_e_s, 'assoc_id', arr_id_pubs);
             $.each(arr_palabras_clave, function(i, val){
                 if( obj_palabras_clave[val.locale] == undefined){
@@ -1568,7 +1581,7 @@ class_ver = {
 
         //Búsqueda de autores 1691
         var autores = '';
-        if (['3.2.0', '3.3.0', '3.3.0.11'].indexOf(class_ver.var.data.ver) != -1){
+        if (['3.2.0', '3.3.0', '3.3.0.11', '3.4.0'].indexOf(class_ver.var.data.ver) != -1){
             autores = class_utils.filter_prop_arr(class_ver.var.data.a, 'publication_id', arr_id_pubs);
         }else{
             autores = class_utils.filter_prop_arr(class_ver.var.data.a, 'submission_id', arr_id_pubs);
@@ -1671,7 +1684,7 @@ class_ver = {
         //Autores con orcid 0
         var autores_orcid_tmp = '';
         var autores_orcid_tmp2 = '';
-        if ( ['3.3.0', '3.3.0.11', '3.2.0', '3.1.2', '3.0.0', '2.4.0'].indexOf(class_ver.var.data.ver) !== -1 ){
+        if ( ['3.4.0', '3.3.0', '3.3.0.11', '3.2.0', '3.1.2', '3.0.0', '2.4.0'].indexOf(class_ver.var.data.ver) !== -1 ){
             autores_orcid_tmp = class_utils.filter_prop_arr(autores_s, 'setting_name', "orcid");
             autores_orcid_tmp = class_utils.filterdiff_prop(autores_orcid_tmp, 'setting_value', [null, '', undefined]);
 			
@@ -3182,7 +3195,7 @@ class_ver = {
                         if(['3.0.0', '3.1.2'].indexOf(resp.ver) !== -1){
                             p = p.concat(class_utils.filter_prop(resp.p, 'issue_id', val.issue_id));
                         }
-                        if(['3.3.0', '3.2.0', '3.3.0.11'].indexOf(resp.ver) !== -1){
+                        if(['3.3.0', '3.2.0', '3.3.0.11', '3.4.0'].indexOf(resp.ver) !== -1){
                             var issues_id = class_utils.filter_prop(resp.ps, 'setting_name', 'issueId');
                             issues_id = class_utils.filter_prop(issues_id, 'setting_value', val.issue_id);
                             //alert('issues_id '+issues_id.length);
@@ -3206,7 +3219,7 @@ class_ver = {
                         resp.ss = ss;
                         resp.ps = ps;
                     }
-                    if(['3.3.0', '3.2.0', '3.3.0.11'].indexOf(resp.ver) !== -1){
+                    if(['3.3.0', '3.2.0', '3.3.0.11', '3.4.0'].indexOf(resp.ver) !== -1){
                         $.each(pre_ps, function(i, val){
                             ps = ps.concat(class_utils.filter_prop(resp.ps, 'publication_id', val.publication_id));
                             p = p.concat(class_utils.filter_prop(resp.p, 'publication_id', val.publication_id));
@@ -3313,7 +3326,7 @@ class_ver = {
                         if(['3.0.0', '3.1.2'].indexOf(class_ver.var.data.ver) !== -1){
                             p = p.concat(class_utils.filter_prop(class_ver.var.data.p, 'issue_id', val.issue_id));
                         }
-                        if(['3.3.0', '3.2.0', '3.3.0.11'].indexOf(class_ver.var.data.ver) !== -1){
+                        if(['3.3.0', '3.2.0', '3.3.0.11', '3.4.0'].indexOf(class_ver.var.data.ver) !== -1){
                             var issues_id = class_utils.filter_prop(class_ver.var.data.ps, 'setting_name', 'issueId');
                             issues_id = class_utils.filter_prop(issues_id, 'setting_value', val.issue_id);
                             //alert('issues_id '+issues_id.length);
