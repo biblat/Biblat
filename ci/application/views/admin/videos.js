@@ -6,6 +6,8 @@
 
 $('.video').off('click').on('click', function(e){
    e.preventDefault();
+   $('.video').children('span').css('color', 'black');
+   $(this).children('span').css('color', '#ff8000');
    $('#frame-video').prop('src', this.href);
 });
 
