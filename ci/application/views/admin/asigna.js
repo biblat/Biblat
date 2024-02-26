@@ -154,7 +154,7 @@ class_asi = {
                                         url: "<?=site_url('metametrics/ws_asigna');?>",
                                         data: class_asi.data_valor_actualiza(selected.id, selected.value),
                                 }).done(function() {
-                                        alert('Actualizados');
+                                        class_asi.mensaje('Número actualizado correctamente');
                                 });
                             }
                     }
@@ -327,6 +327,25 @@ class_asi = {
                     }; 
         class_utils.setTabla('tbl_revistas', op);
         
+    },
+    mensaje:function(texto, fn=null){
+        $.confirm({
+                title: '',
+                content: texto,
+                buttons: {
+                    aceptar: {
+                            text: 'Aceptar',
+                            btnClass: 'btn-warning',
+                            action: function(){
+                                if(fn !== null){
+                                    fn();
+                                }else{
+                                    return true;
+                                }
+                            }
+                    }
+                }
+            });
     }
 };
 
