@@ -82,10 +82,10 @@ class_asi = {
                         $('#revista_sel').show();
                         $('#revista_sel').html(options);
                         $('#revista_sel').select2({ tags: true, placeholder: "Seleccione una Revista", allowClear: true});
-                    }).fail(function(){
+                    }).catch(function(){
                         location.reload();
                     });
-                }).fail(function(){
+                }).catch(function(){
                     location.reload();
                 });
             });

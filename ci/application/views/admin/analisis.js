@@ -359,7 +359,11 @@ class_av = {
                             $('.disciplina').select2({ tags: false, placeholder: "Seleccione una disciplina", allowClear: true});
                             
                             loading.end();
+						}).catch(function(){
+                            location.reload();
                         });
+					}).catch(function(){
+                        location.reload();
                     });
                 });
         });
@@ -390,7 +394,11 @@ class_av = {
                                 }
                         });
                         class_av.var.revistasJSON.sort(class_utils.order_by(0));
+				}).catch(function(){
+                        location.reload();
                     });
+                }).catch(function(){
+                    location.reload();					  
                 });
             });
         }

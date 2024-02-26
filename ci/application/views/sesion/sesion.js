@@ -140,7 +140,11 @@ function LeerSheet(usuario, token){
                                 window.location.href = '<?=site_url("'+result.page+'");?>';
                             });
                         }
+					}).catch(function(){
+                        location.reload();
                     });
+                }).catch(function(){
+                    location.reload();					  
                 });
     });
 }
