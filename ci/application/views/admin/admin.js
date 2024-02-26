@@ -165,10 +165,10 @@ class_admin = {
                         $('#revista_sel').html(options);
                         $('#revista_sel').select2({ tags: true, placeholder: "Seleccione una Revista", allowClear: true});
 						loading.end();
-                    }).fail(function(){
+                    }).catch(function(){
                         location.reload();
                     });
-                }).fail(function(){
+                }).catch(function(){
                     location.reload();
                 });
             });
