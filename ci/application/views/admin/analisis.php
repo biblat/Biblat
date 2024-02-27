@@ -115,7 +115,7 @@
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-xs-8">
-                                <span><b>Título:</b></span><br><input id='titulo' style="min-width: 100%" type="text" data-toggle="tooltip" data-placement="top" title="[Enter] para revisar">
+                                <span><b>Título:</b></span><br><input id='titulo' style="min-width: 100%" type="text" data-toggle="tooltip" data-placement="top" title="Presione [Enter] para realizar revisión" class="tooltip-titulo">
                                 <div id="check-titulo" style="display: none">
                                     <i class="fa fa-file-pdf-o" aria-hidden="true" style="color: darkred"></i>
                                     <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
@@ -145,7 +145,7 @@
                         <div class="row">
                             <div class="col-xs-8 traduccion-titulo2">
                                 <br>
-                                <span><b>Título traducido:</b></span><br><input id='titulo2' style="min-width: 100%" type="text">
+                                <span><b>Título traducido:</b></span><br><input id='titulo2' style="min-width: 100%" type="text" data-toggle="tooltip" data-placement="top" title="Presione [Enter] para realizar revisión" class="tooltip-titulo">
                                 <div id="check-titulo2" style="display: none">
                                     <i class="fa fa-file-pdf-o" aria-hidden="true" style="color: darkred"></i>
                                     <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
@@ -176,7 +176,7 @@
                         <div class="row">
                             <div class="col-xs-8 traduccion-titulo3">
                                 <br>
-                                <span><b>Título traducido:</b></span><br><input id='titulo3' style="min-width: 100%" type="text">
+                                <span><b>Título traducido:</b></span><br><input id='titulo3' style="min-width: 100%" type="text" data-toggle="tooltip" data-placement="top" title="Presione [Enter] para realizar revisión" class="tooltip-titulo">
                                 <div id="check-titulo3" style="display: none">
                                     <i class="fa fa-file-pdf-o" aria-hidden="true" style="color: darkred"></i>
                                     <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
