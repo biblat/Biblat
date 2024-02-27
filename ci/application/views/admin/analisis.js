@@ -80,7 +80,7 @@ class_av = {
                                 <div class="col-xs-6"> \n\
                                     <span><b>Ciudad:</b></span><br>\n\
                                     <div id="div-ciudad-<id>" style="display: true" class="institucion">\n\
-                                        <select id="ciudad-<id>" style="width: 100%" class="ciudades form-control institucion"> </select> \n\
+                                        <select id="ciudad-<id>" style="width: 100%" class="ciudades form-control institucion" data-toggle="tooltip" data-placement="top" title="Escriba o desplace y al final de <b>clic</b> en la opción"> </select> \n\
                                     </div>\n\
                                     <i id="ciudad-<id>-load" class="fa fa-spinner fa-pulse institucion" aria-hidden="true" style="color: #ff8000; display: none"></i>\n\
                                 </div> \n\
@@ -149,7 +149,7 @@ class_av = {
                             </div> \n\
                             <div class="row"> \n\
                                 <div class="col-sm-6"> \n\
-                                    <span><b>Nombre:</b></span><br><input id="nombre-<id>" style="min-width: 100%" type="text" class="autor nombres"> \n\
+                                    <span><b>Nombre:</b></span><br><input id="nombre-<id>" style="min-width: 100%" type="text" class="autor nombres" data-toggle="tooltip" data-placement="top" title="Presione [Enter] para realizar revisión"> \n\
                                     <div id="check-nombre-pdf-<id>" style="display: none"> \n\
                                         <i class="fa fa-file-pdf-o" aria-hidden="true" style="color: darkred"></i> \n\
                                         <i class="fa fa-long-arrow-right" aria-hidden="true"></i> \n\
@@ -183,24 +183,24 @@ class_av = {
                                     </div> \n\
                                 </div> \n\
                                 <div class="col-sm-6"> \n\
-                                    <span><b>ORCID:</b></span><br><input id="orcid-<id>" style="min-width: 100%" type="text" class="autor orcids"> \n\
-                                    <div id="check-orcid-pdf-<id>" style="display: none" class="autor"> \n\
+                                    <span><b>ORCID:</b></span><br><input id="orcid-<id>" style="min-width: 100%" type="text" class="autor orcids" data-toggle="tooltip" data-placement="top" title="Presione [Enter] para realizar revisión"> \n\
+                                    <div id="check-orcid-pdf-<id>" style="display: none" class="orcid"> \n\
                                         <i class="fa fa-file-pdf-o" aria-hidden="true" style="color: darkred"></i> \n\
                                         <i class="fa fa-long-arrow-right" aria-hidden="true"></i> \n\
-                                        <i id="check-orcid-pdf-<id>-load" class="fa fa-spinner fa-pulse autor" aria-hidden="true" style="color: #ff8000; display: true"></i> \n\
-                                        <i id="check-orcid-pdf-<id>-broken" class="fa fa-chain-broken autor" aria-hidden="true" style="color: #ff8000; display: none"></i> \n\
-                                        <i id="check-orcid-pdf-<id>-false" class="fa fa-exclamation-circle autor" aria-hidden="true" style="color: #ff8000; display: none"></i> \n\
-                                        <i id="check-orcid-pdf-<id>-true" class="fa fa-star autor" aria-hidden="true" style="color: #ff8000; display: none"></i> \n\
+                                        <i id="check-orcid-pdf-<id>-load" class="fa fa-spinner fa-pulse orcid" aria-hidden="true" style="color: #ff8000; display: true"></i> \n\
+                                        <i id="check-orcid-pdf-<id>-broken" class="fa fa-chain-broken orcid" aria-hidden="true" style="color: #ff8000; display: none"></i> \n\
+                                        <i id="check-orcid-pdf-<id>-false" class="fa fa-exclamation-circle orcid" aria-hidden="true" style="color: #ff8000; display: none"></i> \n\
+                                        <i id="check-orcid-pdf-<id>-true" class="fa fa-star orcid" aria-hidden="true" style="color: #ff8000; display: none"></i> \n\
                                     </div> \n\
-                                    <div id="check-orcid-<id>" style="display: none" class="autor"> \n\
+                                    <div id="check-orcid-<id>" style="display: none" class="orcid"> \n\
                                         <img id="check-orcid-orcid" src="/img/orcid.png" style="height: 15px"/> \n\
                                         <i class="fa fa-long-arrow-right" aria-hidden="true"></i> \n\
-                                        <i id="check-orcid-<id>-load" class="fa fa-spinner fa-pulse autor" aria-hidden="true" style="color: #ff8000; display: true"></i> \n\
-                                        <i id="check-orcid-<id>-broken" class="fa fa-chain-broken autor" aria-hidden="true" style="color: #ff8000; display: none"></i> \n\
-                                        <i id="check-orcid-<id>-false" class="fa fa-exclamation-circle autor" aria-hidden="true" style="color: #ff8000; display: none"></i> \n\
-                                        <i id="check-orcid-<id>-true" class="fa fa-star autor" aria-hidden="true" style="color: #ff8000; display: none"></i> \n\
+                                        <i id="check-orcid-<id>-load" class="fa fa-spinner fa-pulse orcid" aria-hidden="true" style="color: #ff8000; display: true"></i> \n\
+                                        <i id="check-orcid-<id>-broken" class="fa fa-chain-broken orcid" aria-hidden="true" style="color: #ff8000; display: none"></i> \n\
+                                        <i id="check-orcid-<id>-false" class="fa fa-exclamation-circle orcid" aria-hidden="true" style="color: #ff8000; display: none"></i> \n\
+                                        <i id="check-orcid-<id>-true" class="fa fa-star orcid" aria-hidden="true" style="color: #ff8000; display: none"></i> \n\
                                         &nbsp;&nbsp<i id="check-orcid-<id>-expand" class="fa fa-sort-asc" aria-hidden="true" style="cursor: pointer;display:none"></i></span> \n\
-                                        <span id="check-orcid-<id>-texto" style="display:false; font-size:12px" class="autor"></span> \n\
+                                        <span id="check-orcid-<id>-texto" style="display:false; font-size:12px" class="orcid"></span> \n\
                                     </div> \n\
                                 </div> \n\
                             </div> \n\
@@ -296,7 +296,7 @@ class_av = {
                             $('#tipo_documento').on('change', function(){
                                 class_av.var.cambios_documento = (true && !class_av.var.cambios_de_inicio);
                             });
-                            $('#tipo_documento').select2({ tags: true, placeholder: "Seleccione un tipo de documento", allowClear: true});
+                            $('#tipo_documento').select2({ tags: false, placeholder: "Seleccione un tipo de documento", allowClear: true});
                             
                             /**************************************************/
                             options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
@@ -487,6 +487,7 @@ class_av = {
                         class_av.busca_en_pdf(class_av.var.texto_pdf, class_av.var.documentoJSON[0].articulo, '#check-titulo', '#titulo');
                     //}
 
+					$('.tooltip-titulo').tooltip();							   
                     $('#titulo').val(class_av.var.documentoJSON[0].articulo);
                     var tiempo;
                     $('#titulo').off('keyup').on('keyup', function(e){
@@ -728,7 +729,9 @@ class_av = {
                                 $.each(repetidas_ciudades, function(i2, val2){
                                     if(val2.pais == val.pais) {
                                         $('#ciudad-'+val2.id).html(opciones_ciudades[val.pais]);
-                                        $('#ciudad-'+val2.id).select2({ tags: true, placeholder: "Seleccione una ciudad", allowClear: true});
+                                        $('#ciudad-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true});
+                                        $('#select2-ciudad-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                                        $('.select2-container').tooltip();							  
                                         if(val2.ciudad !== null){
                                            $('#ciudad-'+val2.id).val(val2.ciudad).trigger('change');
                                         }
@@ -739,7 +742,9 @@ class_av = {
                                 $.each(repetidas_instituciones, function(i2, val2){
                                     if(val2.pais == val.pais) {
                                         $('#institucion-'+val2.id).html(opciones_instituciones[val.pais]);
-                                        $('#institucion-'+val2.id).select2({ tags: true, placeholder: "Seleccione una institución", allowClear: true/*,  width: 'Auto'*/});
+                                        $('#institucion-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true/*,  width: 'Auto'*/});
+                                        $('#select2-institucion-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                                        $('.select2-container').tooltip();							  
                                         if(val2.institucion !== null){
                                             //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
                                             if ($('#institucion-'+val2.id).find("option[value='" + val2.institucion.replaceAll('"', "&quot;") + "']").length) {
@@ -760,7 +765,9 @@ class_av = {
                                 $.each(repetidas_dependencias, function(i2, val2){
                                     if(val2.institucion == val.institucion) {
                                         $('#dependencia-'+val2.id).html(opciones_dependencias[val.institucion]);
-                                        $('#dependencia-'+val2.id).select2({ tags: true, placeholder: "Seleccione una dependencia", allowClear: true});
+                                        $('#dependencia-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
+                                        $('#select2-dependencia-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                                        $('.select2-container').tooltip();						  
                                         if(val2.dependencia !== null){
                                             $('#dependencia-'+val2.id).val(val2.dependencia).trigger('change');
                                         }
@@ -843,7 +850,9 @@ class_av = {
                                         });
                                         opciones_ciudades[val.pais] = options;
                                         $('#ciudad-'+val.id).html(opciones_ciudades[val.pais]);
-                                        $('#ciudad-'+val.id).select2({ tags: true, placeholder: "Seleccione una ciudad", allowClear: true});
+                                        $('#ciudad-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true});
+                                        $('#select2-ciudad-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                                        $('.select2-container').tooltip();						  
                                         
                                         //Si hay un valor de ciudad se preselecciona
                                         if(val.ciudad !== null){
@@ -857,7 +866,9 @@ class_av = {
                                         });
                                         opciones_instituciones[val.pais] = options;
                                         $('#institucion-'+val.id).html(opciones_instituciones[val.pais]);
-                                        $('#institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione una institución", allowClear: true,  width: 'resolve'});
+                                        $('#institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve'});
+                                        $('#select2-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                                        $('.select2-container').tooltip();							  
                                         
                                         //Si hay un valor de institución se preselecciona
                                         if(val.institucion !== null){
@@ -905,7 +916,9 @@ class_av = {
                                 options += class_av.cons.option.replace('<valor>', val.institucion.replaceAll('"', "&quot;")).replace('<opcion>', val.institucion);
 
                                 $('#institucion-'+val.id).html(options);
-                                $('#institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione una institución", allowClear: true,  width: 'resolve'});
+                                $('#institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve'});
+                                $('#select2-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                                $('.select2-container').tooltip();						  
                                 $('#institucion-'+val.id).val(val.institucion).trigger('change');
                                 //if(url_pdf !== ''){
                                     //class_av.busca_en_pdf(url_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id);
@@ -933,7 +946,9 @@ class_av = {
                                     });
                                     opciones_dependencias[val.institucion] = options;
                                     $('#dependencia-'+val.id).html(opciones_dependencias[val.institucion]);
-                                    $('#dependencia-'+val.id).select2({ tags: true, placeholder: "Seleccione una dependencia", allowClear: true});
+                                    $('#dependencia-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
+                                    $('#select2-dependencia-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                                    $('.select2-container').tooltip();						  
                                     if(val.dependencia !== null){
                                         $('#dependencia-'+val.id).val(val.dependencia).trigger('change');
                                     }
@@ -1021,13 +1036,17 @@ class_av = {
                         var institucion = null;
                         $('#div-autores').append(html_autor);
                         $('#a-institucion-'+val.id).html(class_av.var.a_opciones_instituciones);
-                        $('#a-institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione una institución", allowClear: true});
+                        $('#a-institucion-'+val.id).select2({ tags: false, placeholder: "Seleccione una institución", allowClear: true});
+                        $('#select2-a-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                        $('.select2-container').tooltip();						  
                         if(val['institucionId'] !== null){
                             institucion = class_utils.find_prop(class_av.var.institucionesJSON, 'id',val['institucionId'])['institucion'];
                             $('#a-institucion-'+val.id).val(val['institucionId']).trigger('change');
                         }
                         $('#nombre-'+val.id).val(val.nombre);
                         $('#orcid-'+val.id).val(val.orcid);
+						$('#nombre-'+val.id).tooltip();
+                        $('#orcid-'+val.id).tooltip();							  
                         
                         class_av.orcid_por_nombre(val.nombre, institucion, val.orcid, '#check-nombre-'+val.id, '#nombre-'+val.id);
                         var nombre = val.nombre.split(',');
@@ -1334,12 +1353,16 @@ class_av = {
         var html_autor = class_av.var.html_autor.replaceAll('<id>', id);
         $('#div-autores').append(html_autor);
         $('#a-institucion-'+id).html(class_av.var.a_opciones_instituciones);
-        $('#a-institucion-'+id).select2({ tags: true, placeholder: "Seleccione una institución", allowClear: true});
+        $('#a-institucion-'+id).select2({ tags: false, placeholder: "Seleccione una institución", allowClear: true});
+        $('#select2-a-institucion-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+        $('.select2-container').tooltip();						  
         
         //Debido a que en el evento de borrar hay cambios en los ids, se revisan los anteriores para areglar la parte del select
         for(var id_atras = parseInt(id)-1; id_atras > 0; id_atras--){
             if($('#a-institucion-'+id_atras)){
-                $('#a-institucion-'+id_atras).select2({ tags: true, placeholder: "Seleccione una institución", allowClear: true});
+                $('#a-institucion-'+id_atras).select2({ tags: false, placeholder: "Seleccione una institución", allowClear: true});
+                $('#select2-a-institucion-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                $('.select2-container').tooltip();						  
             }
         }
         
@@ -1391,11 +1414,6 @@ class_av = {
                     }else{
                         $(id + '-broken').hide();
                     }
-                    if(resp_pdf.result == 'no encontrado'){
-                        $(id + '-false').show();
-                    }else{
-                        $(id + '-false').hide();
-                    }
                     if(resp_pdf.result == 'parte'){
                         if($(id + '-half')[0] == undefined){
                             $(id + '-false').show();
@@ -1407,6 +1425,11 @@ class_av = {
                         }
                         $(id + '-half').hide();
                     }
+					if(resp_pdf.result == 'no encontrado'){
+                        $(id + '-false').show();
+                    }else{
+                        $(id + '-false').hide();
+                    }									   
                     if(resp_pdf.result == 'encontrado'){
                         $(id + '-true').show();
                     }else{
@@ -1979,7 +2002,9 @@ class_av = {
                             });
                             opciones_ciudades[pais] = options;
                             $('#ciudad-'+id).html(opciones_ciudades[pais]);
-                            $('#ciudad-'+id).select2({ tags: true, placeholder: "Seleccione una ciudad", allowClear: true});
+                            $('#ciudad-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true});
+                            $('#select2-ciudad-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                            $('.select2-container').tooltip();						  
 
                             /*********institucion*******************/
 
@@ -1989,7 +2014,9 @@ class_av = {
                             });
                             opciones_instituciones[pais] = options;
                             $('#institucion-'+id).html(opciones_instituciones[pais]);
-                            $('#institucion-'+id).select2({ tags: true, placeholder: "Seleccione una institución", allowClear: true,  width: 'resolve'});
+                            $('#institucion-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve'});
+                            $('#select2-institucion-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                            $('.select2-container').tooltip();						  
 
                             //Si hay un valor de institución se preselecciona
                             if(val_institucion !== null){
@@ -2007,10 +2034,14 @@ class_av = {
                 }else{
                     setTimeout(function(){
                         $('#ciudad-'+id).html(opciones_ciudades[pais]);
-                        $('#ciudad-'+id).select2({ tags: true, placeholder: "Seleccione una ciudad", allowClear: true});
+                        $('#ciudad-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true});
+                        $('#select2-ciudad-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                        $('.select2-container').tooltip();						  
 
                         $('#institucion-'+id).html(opciones_instituciones[pais]);
-                        $('#institucion-'+id).select2({ tags: true, placeholder: "Seleccione una institución", allowClear: true/*,  width: 'Auto'*/});
+                        $('#institucion-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true/*,  width: 'Auto'*/});
+                        $('#select2-institucion-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                        $('.select2-container').tooltip();					  
                         if(val_institucion !== null){
                             //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
                             if ($('#institucion-'+id).find("option[value='" + val_institucion.replaceAll('"', "&quot;") + "']").length) {
@@ -2070,7 +2101,9 @@ class_av = {
                         });
                         opciones_dependencias[institucion] = options;
                         $('#dependencia-'+id).html(opciones_dependencias[institucion]);
-                        $('#dependencia-'+id).select2({ tags: true, placeholder: "Seleccione una dependencia", allowClear: true});
+                        $('#dependencia-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
+                        $('#select2-dependencia-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                        $('.select2-container').tooltip();					  
                         
                         $('#check-ins-'+id).show();
                         $('#check-ins-bib-'+id+'-load').hide();
@@ -2119,7 +2152,9 @@ class_av = {
             }else{
                 setTimeout(function(){
                     $('#dependencia-'+id).html(opciones_dependencias[institucion]);
-                    $('#dependencia-'+id).select2({ tags: true, placeholder: "Seleccione una dependencia", allowClear: true});
+                    $('#dependencia-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
+                    $('#select2-dependencia-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                    $('.select2-container').tooltip();						  
                     
                     $('#check-ins-'+id).show();
                     $('#check-ins-bib-'+id+'-load').hide();
@@ -2509,13 +2544,17 @@ class_av = {
             var institucion = null;
             $('#div-autores').append(html_autor);
             $('#a-institucion-'+val.id).html(class_av.var.a_opciones_instituciones);
-            $('#a-institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione una institución", allowClear: true});
+            $('#a-institucion-'+val.id).select2({ tags: false, placeholder: "Seleccione una institución", allowClear: true});
+            $('#select2-a-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+            $('.select2-container').tooltip();					  
             if(val['institucionId'] !== null){
                 institucion = class_utils.find_prop(class_av.var.institucionesJSON, 'id',val['institucionId'])['institucion'];
                 $('#a-institucion-'+val.id).val(val['institucionId']).trigger('change');
             }
             $('#nombre-'+val.id).val(val.nombre);
             $('#orcid-'+val.id).val(val.orcid);
+			$('#nombre-'+val.id).tooltip();
+            $('#orcid-'+val.id).tooltip();						  
 
             class_av.orcid_por_nombre(val.nombre, institucion, val.orcid, '#check-nombre-'+val.id, '#nombre-'+val.id);
             var nombre = val.nombre.split(',');
