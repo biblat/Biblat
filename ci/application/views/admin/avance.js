@@ -48,9 +48,10 @@ class_av = {
         var total_meta = 0;
         $.each(data, function(i, val){
             var num = parseInt(val['revision']) + parseInt(val['completados']) + parseInt(val['borrados']);
+            var num2 = parseInt(val['revision']) + parseInt(val['completados']);
             var avance =  (num - parseInt(val['revision'])) / parseInt(val['total']);
-            var meta = num / total_departamento;
-            total_meta += num;
+            var meta = num2 / total_departamento;
+            total_meta += num2;
             var tr = class_av.var.tr.replace('<usuario>', val['analista'])
                             .replace('<rev>', val['revision'])
                             .replace('<comp>', val['completados'])
