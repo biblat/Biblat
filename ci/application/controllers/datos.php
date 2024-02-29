@@ -213,7 +213,7 @@ class Datos extends REST_Controller {
             $data = array();
             $this->load->database('prueba');
             
-            $query = 'SELECT max(article.revista::text) AS revista, max(substr(article.sistema,1,3)) as base, max(asignado) as asignado,
+            $query = 'SELECT max(article.revista::text) AS revista, max(substr(article.sistema,1,3)) as base, max(asignado) as asignado, max("fechaIngreso") as fecha, max("fechaAsignado") as fecha_asignado,
                         slug(article.revista) AS "revistaSlug",
                         article."anioRevista",
                         CASE
