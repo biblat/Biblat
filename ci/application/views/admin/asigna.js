@@ -26,12 +26,14 @@ class_asi = {
                                     '<th rowspan="1">Número</th>' +
                                     '<th rowspan="1">Parte</th>' +
                                     '<th rowspan="1">Artículos</th>' +
+                                    '<th rowspan="1">Ingreso</th>' +
+                                    '<th rowspan="1">Asignado</th>' +
                                     '<th rowspan="1">Asignar a:</th>' +
                                     '<th></th>' +
                                 '</tr>'+
                             '</thead>' +
                             '<tbody id="body_revistas"><body></tbody></table>',
-        tr: '<tr><td><revista></td><td><base></td><td><anio></td><td><volumen></td><td><numero></td><td><parte></td><td><articulos></td><td><select_asigna></td><td><vacio></td>',
+        tr: '<tr><td><revista></td><td><base></td><td><anio></td><td><volumen></td><td><numero></td><td><parte></td><td><articulos></td><td><ingreso></td><td><asignado></td><td><select_asigna></td><td><vacio></td>',
     },
     initClient: function() {
         if (class_asi.var.init){
@@ -76,7 +78,7 @@ class_asi = {
                             class_asi.var.revistasJSON = resp_revista;
                             class_asi.setTabla(class_asi.var.revistasJSON);
                             class_asi.control();
-							loading.end();
+                            loading.end();
                         });
                         
                         $('#revista_sel').show();
@@ -98,7 +100,7 @@ class_asi = {
             anios += '<option value="'+i+'">'+i+'</option>';
         }
         $('#anio').html(anios);
-		loading.start();
+        loading.start();
         class_asi.initClient();
     },
     control: function(){
@@ -154,7 +156,7 @@ class_asi = {
                                         url: "<?=site_url('metametrics/ws_asigna');?>",
                                         data: class_asi.data_valor_actualiza(selected.id, selected.value),
                                 }).done(function() {
-                                        class_asi.mensaje('Número actualizado correctamente');
+                                    class_asi.mensaje('Número actualizado correctamente', function(){location.reload();});
                                 });
                             }
                     }
@@ -256,7 +258,8 @@ class_asi = {
                             '"revista": ' + '"' + id.split('__')[0] + '"' + ',' +
                             '"anioRevista": ' + id.split('__')[1] + ',' +
                             '"asignado": ' + '"' + val + '"' + ',' +
-                            '"estatus": ' + '"A"' +
+                            '"estatus": ' + '"A"' + ',' +
+                            '"fechaAsignado": ' + '"' + (new Date()).getFullYear()+'-'+(((new Date()).getMonth()+1)+'').padStart(2,'0')+'-'+((new Date()).getDate()+'').padStart(2,'0') + '"' +
                             ((volumen !== '')?(', "volumen": "V' + id.split('__')[2]+'"'):'' )+
                             ((numero !== '')?(', "numero": "N' + id.split('__')[3]+'"'):'' )+
                             ((parte !== '')?(', "parte": "' + id.split('__')[4]+'"'):'' )+
@@ -275,7 +278,7 @@ class_asi = {
         var tbody = '';
         $.each(data, function(i, val){
             //Para pruebas de asignación asignado == null
-            //if(val.asignado == null){
+            //if(val.asignado == null ){
                 var id = val['revista'] + '__' +
                         val['anioRevista'] + '__' +
                         ((val['volumen'] == '' || val['volumen'].toLowerCase().indexOf('s') !== -1 )?'':val['volumen']) + '__' +
@@ -289,7 +292,9 @@ class_asi = {
                                 .replace('<numero>', val['numero'])
                                 .replace('<parte>', val['parte'])
                                 .replace('<articulos>', val['articulos'])
-                                .replace('<select_asigna>', '<span  style="display:none">'+val['asignado']+'</span>'+class_asi.var.select_asigna.replace('<options>', class_asi.var.options_asigna).replace('<id>', id))
+                                .replace('<ingreso>', val['fecha'])
+                                .replace('<asignado>', val['fecha_asignado'])
+                                .replace('<select_asigna>', '<span  style="display:none">'+val['asignado']+'</span>'+class_asi.var.select_asigna.replace('<options>', class_asi.var.options_asigna).replace('<id>', id)).replaceAll('null', '')
                                 .replace('"'+val['asignado']+'"', '"'+val['asignado']+'" selected')
                                 .replace('<vacio>', val['asignado']);
                 tbody += tr;
@@ -300,6 +305,10 @@ class_asi = {
         
         $('#div_tabla').html(tabla);
         var op = {
+                        dom: 'Bfrtip',
+                        buttons: [
+                            'csvHtml5',
+                        ],
                         order: [[ 1, 'asc' ]],
                         bLengthChange: false,
                         pageLength: 10,
@@ -311,12 +320,12 @@ class_asi = {
                                     //Sustituye el valor de la celda por esto agregando un div para que se mantenga dentro del tamaño definido
                                     return '<div style="width: 100%; text-align: left; white-space: normal;">' + data + '</div>';
                                 },
-                                targets: [0,1,2,3,4,5,6,7]
+                                targets: [0,1,2,3,4,5,6,7,8,9]
                             },
                             {
                                 visible: false,
                                 searchable: true,
-                                targets: [8]
+                                targets: [10]
                             }
                         ],
                         //Reajusta el ancho de las columnas
@@ -326,7 +335,7 @@ class_asi = {
                         }
                     }; 
         class_utils.setTabla('tbl_revistas', op);
-        
+        $('.buttons-csv span').html('Descargar .csv');
     },
     mensaje:function(texto, fn=null){
         $.confirm({

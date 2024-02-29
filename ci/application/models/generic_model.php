@@ -86,6 +86,7 @@ class Generic_model extends CI_Model {
                                 if($value['asignado'] == 'SIN'){
                                     $value['asignado'] = NULL;
                                     $value['estatus'] = NULL;
+                                    $value['fechaAsignado'] = NULL;
                                 }
                                 if (!empty($arr_datos_json)) {
                                     $json_string = json_encode($datos_json);
