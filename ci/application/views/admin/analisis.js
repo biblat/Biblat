@@ -3041,7 +3041,10 @@ class_av = {
                                             type: 'POST',
                                             url: "<?=site_url('metametrics/ws_update_estatus');?>",
                                             data: data,
-                                    }).done(function() {
+                                    }).done(function(resp) {
+                                            if(resp.resp == 'session'){
+                                                class_av.mensaje('Su sesión expiró, es necesario iniciar nuevamente.', function(){window.location.reload();});
+                                            }else{  
                                             class_av.cambio_estatus(class_av.var.sistema, 'B');
                                             $('.'+class_av.var.sistema).removeClass('sistema');
                                             $('.'+class_av.var.sistema).addClass('cerrado');
