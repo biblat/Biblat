@@ -743,9 +743,17 @@ class Metametrics extends CI_Controller {
 	
 	public function ws_update_estatus(){
         //$this->output->enable_profiler(false);
-        if ($this->input->post()) {
-            $this->load->model('generic_model');
-            echo $this->generic_model->update_estatus($this->input->post('tabla'), $this->input->post('where'), $this->input->post('data'));
+        if($this->session->userdata('usu_base') == ""){
+            $resp = '{"resp": "session"}';
+        }else{
+        
+            if ($this->input->post()) {
+                $this->load->model('generic_model');
+                $this->generic_model->update_estatus($this->input->post('tabla'), $this->input->post('where'), $this->input->post('data'));
+                $resp = '{"resp": "success"}';
+            }
         }
+        header('Content-Type: application/json; charset=utf-8');
+        echo $resp;
     }
 }
