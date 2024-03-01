@@ -29,7 +29,7 @@ class_asi = {
                                     '<th rowspan="1">Ingreso</th>' +
                                     '<th rowspan="1">Asignado</th>' +
                                     '<th rowspan="1">Asignar a:</th>' +
-                                    '<th></th>' +
+                                    '<th>Analista</th>' +
                                 '</tr>'+
                             '</thead>' +
                             '<tbody id="body_revistas"><body></tbody></table>',
@@ -294,9 +294,9 @@ class_asi = {
                                 .replace('<articulos>', val['articulos'])
                                 .replace('<ingreso>', val['fecha'])
                                 .replace('<asignado>', val['fecha_asignado'])
-                                .replace('<select_asigna>', '<span  style="display:none">'+val['asignado']+'</span>'+class_asi.var.select_asigna.replace('<options>', class_asi.var.options_asigna).replace('<id>', id)).replaceAll('null', '')
+                                .replace('<select_asigna>', '<span  style="display:none">'+val['asignado']+'</span>'+class_asi.var.select_asigna.replace('<options>', class_asi.var.options_asigna).replace('<id>', id))
                                 .replace('"'+val['asignado']+'"', '"'+val['asignado']+'" selected')
-                                .replace('<vacio>', val['asignado']);
+                                .replace('<vacio>', val['asignado']).replaceAll('null', '');
                 tbody += tr;
             //}
         });
@@ -307,7 +307,20 @@ class_asi = {
         var op = {
                         dom: 'Bfrtip',
                         buttons: [
-                            'csvHtml5',
+                            {
+                                extend: 'csvHtml5',
+                                text: 'Exportar CSV',
+                                exportOptions: {
+                                    columns: [0,1,2,3,4,5,6,7,8,10] // Aquí indicas los índices de las columnas a exportar (0, 2 y 3 en este caso)
+                                }
+                            },
+                            {
+                                extend: 'excelHtml5',
+                                text: 'Exportar Excel',
+                                exportOptions: {
+                                    columns: [0,1,2,3,4,5,6,7,8,10] // Igual que en el caso anterior, indicas los índices de las columnas a exportar
+                                }
+                            }
                         ],
                         order: [[ 1, 'asc' ]],
                         bLengthChange: false,
