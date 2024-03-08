@@ -2376,6 +2376,8 @@ class_av = {
             
             if(arrArt.length > 0){
                 obj['articuloIdiomas'] = JSON.stringify(arrArt);
+            }else{
+                obj['articuloIdiomas'] = null;
             }
             
             var tipo_documento = $('#tipo_documento').val();

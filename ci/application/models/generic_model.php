@@ -170,11 +170,16 @@ class Generic_model extends CI_Model {
                                         $array[$aw] = $value[$aw];
                                     }
 				}
+                                foreach ($value as $x => $v){
+                                    if($v == ''){
+                                        $value[$x] = null;
+                                    }
+				}
                                 $this->db->where($array);
 				$this->db->update($tabla, $value);
 			}
 		}
-		}
+        }
                 
         public function update_or_insert($tabla, $arr_where, $data, $data_ant = null){
                 $this->load->database('prueba');
