@@ -682,13 +682,30 @@ class Metametrics extends CI_Controller {
             $this->load->model('generic_model');
             //$this->generic_model->delete($this->input->post('tabla_autores'), $this->input->post('where_delete'), $this->input->post('data_autores'));
             if($data['data_instituciones']){
-                //Primero Borra todas las instituciones
-                $this->generic_model->delete($data['tabla_instituciones'], $data['where_delete'], $data['data_instituciones']);
-                //Inserta todas las que vengan en el arreglo
-                $this->generic_model->insert_if_ne($data['tabla_instituciones'], $data['where'], $data['data_instituciones']);
-                //Para cada una de ellas actualiza los campos "Slug"
-                $this->generic_model->update_function($data['tabla_instituciones'], $data['where_delete'], $data['data_instituciones'],
-                        array('slug', 'paisInstitucionSlug'), array('institucion', 'pais'), 'slug');
+                
+                //Si se marcó como autor corportativo
+                if( $data['corporativo'] == 1 ){
+                    //Inserta todas las que vengan en el arreglo
+                    $this->generic_model->insert_if_ne($data['tabla_corporativo'], $data['where'], $data['data_corporativo']);
+                    //Borra todas las instituciones
+                    $this->generic_model->delete($data['tabla_instituciones'], $data['where_delete'], $data['data_instituciones']);
+                    //Borra todos los autores
+                    $this->generic_model->delete($data['tabla_autores'], $data['where_delete'], $data['data_autores']);
+                    //Para cada una de ellas actualiza los campos "Slug"
+                    $this->generic_model->update_function($data['tabla_corporativo'], $data['where_delete'], $data['data_corporativo'],
+                            array('slug', 'paisSlug'), array('institucion', 'pais'), 'slug');
+                }else{
+                    //Borra todas los corporativos
+                    $this->generic_model->delete($data['tabla_corporativo'], $data['where_delete'], $data['data_corporativo']);
+                    //Primero Borra todas las instituciones
+                    $this->generic_model->delete($data['tabla_instituciones'], $data['where_delete'], $data['data_instituciones']);
+                    //Inserta todas las que vengan en el arreglo
+                    $this->generic_model->insert_if_ne($data['tabla_instituciones'], $data['where'], $data['data_instituciones']);
+                    //Para cada una de ellas actualiza los campos "Slug"
+                    $this->generic_model->update_function($data['tabla_instituciones'], $data['where_delete'], $data['data_instituciones'],
+                            array('slug', 'paisInstitucionSlug'), array('institucion', 'pais'), 'slug');
+                }
+                
             }else{
                 $this->generic_model->delete($data['tabla_instituciones'], $data['where_delete'], array(array('sistema' => $data['sistema'])));
             }
