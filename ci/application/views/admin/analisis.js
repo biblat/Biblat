@@ -41,6 +41,7 @@ class_av = {
         registros:{},
 		count_titulos: 0,
         numeros:'',
+		corporativo: 0,			   
         url_ia:'',																				  
         tabla: '<table id="tbl_articulos" class="display responsive nowrap" style="width:100%;font-size:11px">' +
                             '<thead>' +
@@ -77,10 +78,10 @@ class_av = {
                                 <div class="col-xs-6"> \n\
                                     <span><b>País:</b></span><br><select id="pais-<id>" style="width: 100%" class="form-control paises institucion"> </select> \n\
                                 </div> \n\
-                                <div class="col-xs-6"> \n\
+                                <div class="col-xs-6 div-ciudad" style="display:true;"> \n\
                                     <span><b>Ciudad:</b></span><br>\n\
                                     <div id="div-ciudad-<id>" style="display: true" class="institucion">\n\
-                                        <select id="ciudad-<id>" style="width: 100%" class="ciudades form-control institucion" data-toggle="tooltip" data-placement="top" title="Escriba o desplace y al final de <b>clic</b> en la opción"> </select> \n\
+                                        <select id="ciudad-<id>" style="width: 100%" class="ciudades form-control institucion" data-toggle="tooltip" data-placement="top"> </select> \n\
                                     </div>\n\
                                     <i id="ciudad-<id>-load" class="fa fa-spinner fa-pulse institucion" aria-hidden="true" style="color: #ff8000; display: none"></i>\n\
                                 </div> \n\
@@ -455,9 +456,14 @@ class_av = {
                 class_av.var.documentoJSON = resp_documento[0];
                 class_av.var.autoresJSON = resp_autores[0];
                 class_av.var.institucionesJSON = resp_instituciones[0];
+				var corporativo = 0;					
                 
                 if(class_av.var.institucionesJSON !== undefined){
                     class_av.var.institucionesJSON.sort(class_utils.order_by('id'));
+                    corporativo = class_utils.filter_prop(class_av.var.institucionesJSON, 'corporativo', '1').length;
+                    if(corporativo > 0){
+                        class_av.var.corporativo = 1;
+                    }
                 }
                 
                 if(class_av.var.autoresJSON !== undefined){
@@ -474,6 +480,10 @@ class_av = {
                     url_pdf = class_av.var.documentoJSON[0].url2;
                 }
                 
+				if(class_av.var.corporativo == 1){
+                    $('#es-corporativo')[0].checked = true;
+                    class_av.autor_corporativo(true);
+                }
                 //Lectura del pdf
                 $.when(
                     class_utils.setResource(class_av.var.servidor + class_av.var.app + '/get_pdf/', {url: url_pdf})
@@ -488,7 +498,7 @@ class_av = {
                     //}
 
 					$('.tooltip-titulo').tooltip();							   
-                    $('#titulo').val(class_av.var.documentoJSON[0].articulo);
+                    $('#titulo').val(class_av.var.documentoJSON[0].articulo.replace(/<[^>]+>/g, ''));
                     var tiempo;
                     $('#titulo').off('keyup').on('keyup', function(e){
                         if (e.key === "Enter") {
@@ -520,10 +530,13 @@ class_av = {
 
 
                     /******************************************************************/
-                    $("#idioma").val(class_av.var.documentoJSON[0].idioma);
+                    var idiomas = class_av.var.documentoJSON[0].idioma.split(',').map(function(item) {
+                                                                                        return item.trim().charAt(0).toUpperCase() + item.trim().toLowerCase().slice(1);
+                                                                                    });
+                    $("#idioma").val(idiomas[0]);
                     /****Búsqueda idioma ********/
-                    if(class_av.var.documentoJSON[0].idioma !== ''){
-                        class_av.texto_idioma(class_av.var.documentoJSON[0].articulo, class_av.var.documentoJSON[0].idioma, '#check-idioma', '#idioma');
+                    if(idiomas[0] !== ''){
+                        class_av.texto_idioma(class_av.var.documentoJSON[0].articulo, idiomas[0], '#check-idioma', '#idioma');
                     }
 
                     var tiempo_tit;
@@ -629,8 +642,13 @@ class_av = {
                     
                     $('#url1, #url2, #tipourl1, #tipourl2').off('change').on('change', function(e){
                             class_av.var.cambios_documento = true;
+                            if( ($('#url1').val() !== '' && $("#tipourl1").val() == 'pdf') || ($('#url2').val() !== '' && $("#tipourl2").val() == 'pdf')){
+                                $('#import-ai').show();
+                            }
                     });
                     
+                    $('#idiomaDocumento').select2({ tags: false, placeholder: "Seleccione uno o más idiomas", allowClear: true});
+                    $('#idiomaDocumento').val(idiomas).trigger('change');												 
 					$('#import-ai').off('click').on('click', function(){
                         loading.start();
                         var url ='';
@@ -684,6 +702,14 @@ class_av = {
                     
                     class_av.var.cambios_de_inicio = false;
                     /******************************************************************/
+					$('#es-corporativo').off('click').on('click', function(){
+                        if(this.checked){
+                            class_av.var.corporativo = 1;
+                        }else{
+                            class_av.var.corporativo = 0;
+                        }
+                        class_av.autor_corporativo();
+                    });
                     $('#div-instituciones').html('');
                     opciones_ciudades = {};
                     var repetidas_ciudades = [];
@@ -728,12 +754,15 @@ class_av = {
                                 //Revisa al final las repetidas para agregar el menu
                                 $.each(repetidas_ciudades, function(i2, val2){
                                     if(val2.pais == val.pais) {
-                                        $('#ciudad-'+val2.id).html(opciones_ciudades[val.pais]);
+                                        $('#ciudad-'+val2.id).html(opciones_ciudades[val.pais+'-'+class_av.var.corporativo]);
                                         $('#ciudad-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true});
                                         $('#select2-ciudad-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();							  
                                         if(val2.ciudad !== null){
                                            $('#ciudad-'+val2.id).val(val2.ciudad).trigger('change');
+                                        }
+										if(class_av.var.corporativo == 1){
+                                            $('.div-ciudad').hide();
                                         }
                                     }
                                 });
@@ -741,7 +770,7 @@ class_av = {
                                 //Revisa al final las repetidas para agregar el menu
                                 $.each(repetidas_instituciones, function(i2, val2){
                                     if(val2.pais == val.pais) {
-                                        $('#institucion-'+val2.id).html(opciones_instituciones[val.pais]);
+                                        $('#institucion-'+val2.id).html(opciones_instituciones[val.pais+'-'+class_av.var.corporativo]);
                                         $('#institucion-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true/*,  width: 'Auto'*/});
                                         $('#select2-institucion-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();							  
@@ -764,7 +793,7 @@ class_av = {
                                 //Revisa al final las repetidas para agregar el menu
                                 $.each(repetidas_dependencias, function(i2, val2){
                                     if(val2.institucion == val.institucion) {
-                                        $('#dependencia-'+val2.id).html(opciones_dependencias[val.institucion]);
+                                        $('#dependencia-'+val2.id).html(opciones_dependencias[val.institucion+'-'+class_av.var.corporativo]);
                                         $('#dependencia-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
                                         $('#select2-dependencia-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();						  
@@ -831,14 +860,14 @@ class_av = {
                         if(val.pais !== null){
                             $('#pais-'+val.id).val(val.pais).trigger('change');
                             //Revisa si ya se trajo el catálogo para este país
-                            if( !opciones_ciudades.hasOwnProperty(val.pais) ){
+                            if( !opciones_ciudades.hasOwnProperty(val.pais+'-'+class_av.var.corporativo) ){
                                 peticiones ++;
-                                opciones_ciudades[val.pais] = '';
-                                opciones_instituciones[val.pais] = '';
+                                opciones_ciudades[val.pais+'-'+class_av.var.corporativo] = '';
+                                opciones_instituciones[val.pais+'-'+class_av.var.corporativo] = '';
                                 /*********** Ciudades e instituciones según país *******************/
                                 $.when(
                                     class_utils.getResource('/datos/ciudad_by_pais/'+val.pais.replaceAll(',','')),
-                                    class_utils.getResource('/datos/institucion_by_pais/'+val.pais.replaceAll(',',''))
+                                    class_utils.getResource('/datos/institucion_by_pais/'+val.pais.replaceAll(',','')+'/'+class_av.var.corporativo)
                                 ) 
                                 .then(function(resp_ciudad, resp_institucion){
                                     setTimeout(function(){                     
@@ -848,8 +877,8 @@ class_av = {
                                         $.each(resp_ciudad[0], function(i2, val2){
                                             options += class_av.cons.option.replace('<valor>', val2.ciudad).replace('<opcion>', val2.ciudad);
                                         });
-                                        opciones_ciudades[val.pais] = options;
-                                        $('#ciudad-'+val.id).html(opciones_ciudades[val.pais]);
+                                        opciones_ciudades[val.pais+'-'+class_av.var.corporativo] = options;
+                                        $('#ciudad-'+val.id).html(opciones_ciudades[val.pais+'-'+class_av.var.corporativo]);
                                         $('#ciudad-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true});
                                         $('#select2-ciudad-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();						  
@@ -858,14 +887,17 @@ class_av = {
                                         if(val.ciudad !== null){
                                             $('#ciudad-'+val.id).val(val.ciudad).trigger('change');
                                         }
+										if(class_av.var.corporativo == 1){
+                                            $('.div-ciudad').hide();
+                                        }
 
                                         /*********institucion*******************/
                                         options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
                                         $.each(resp_institucion[0], function(i2, val2){
                                             options += class_av.cons.option.replace('<valor>', val2.institucion.replaceAll('"', "&quot;")).replace('<opcion>', val2.institucion);
                                         });
-                                        opciones_instituciones[val.pais] = options;
-                                        $('#institucion-'+val.id).html(opciones_instituciones[val.pais]);
+                                        opciones_instituciones[val.pais+'-'+class_av.var.corporativo] = options;
+                                        $('#institucion-'+val.id).html(opciones_instituciones[val.pais+'-'+class_av.var.corporativo]);
                                         $('#institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve'});
                                         $('#select2-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();							  
@@ -930,12 +962,12 @@ class_av = {
                         /************************Dependencias*****************/
                         if(val.institucion !== null){
                             //Revisa si ya se trajo el catálogo para este país
-                            if( !opciones_dependencias.hasOwnProperty(val.institucion) ){
+                            if( !opciones_dependencias.hasOwnProperty(val.institucion+'-'+class_av.var.corporativo) ){
                                 peticiones++;
-                                opciones_dependencias[val.institucion] = '';
+                                opciones_dependencias[val.institucion+'-'+class_av.var.corporativo] = '';
                                 /*********** dependencias según institucion *******************/
                                 $.when(
-                                    class_utils.getResource('/datos/dependencia_by_institucion/'+val.institucion.replaceAll(class_av.cons.char_i,'')),
+                                    class_utils.getResource('/datos/dependencia_by_institucion/'+val.institucion.replaceAll(class_av.cons.char_i,'')+'/'+class_av.var.corporativo),
                                     class_utils.getResource('/datos/ciudad_by_institucion/'+val.institucion.replaceAll(class_av.cons.char_i, ''))
                                 ) 
                                 .then(function(resp_dependencias, resp_ciudades){
@@ -944,11 +976,11 @@ class_av = {
                                     $.each(resp_dependencias[0], function(i2, val2){
                                         options += class_av.cons.option.replace('<valor>', val2.dependencia.replace('"', "&quot;")).replace('<opcion>', val2.dependencia);
                                     });
-                                    opciones_dependencias[val.institucion] = options;
-                                    $('#dependencia-'+val.id).html(opciones_dependencias[val.institucion]);
+                                    opciones_dependencias[val.institucion+'-'+class_av.var.corporativo] = options;
+                                    $('#dependencia-'+val.id).html(opciones_dependencias[val.institucion+'-'+class_av.var.corporativo]);
                                     $('#dependencia-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
                                     $('#select2-dependencia-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                                    $('.select2-container').tooltip();						  
+                                    $('.select2-container').tooltip();
                                     if(val.dependencia !== null){
                                         $('#dependencia-'+val.id).val(val.dependencia).trigger('change');
                                     }
@@ -1049,15 +1081,16 @@ class_av = {
                         $('#orcid-'+val.id).tooltip();							  
                         
                         class_av.orcid_por_nombre(val.nombre, institucion, val.orcid, '#check-nombre-'+val.id, '#nombre-'+val.id);
-                        var nombre = val.nombre.split(',');
-                        if(nombre[1]){
-                            nombre = nombre[1] + ' ' + nombre[0];
-                        }
-                        class_av.busca_en_pdf(class_av.var.texto_pdf, nombre, '#check-nombre-pdf-'+val.id, '#nombre-'+val.id);
-                        class_av.busca_en_pdf(class_av.var.texto_pdf, val.orcid, '#check-orcid-pdf-'+val.id, '#orcid-'+val.id);
-                        class_av.nombre_por_orcid(val.orcid, val.nombre, institucion, '#check-orcid-'+val.id, '#orcid-'+val.id);
-                        class_av.biblat_por_nombre(val.nombre, institucion, '#check-nombre-bib-'+val.id, '#nombre-'+val.id);
-                        
+						if(val.nombre !== null){
+                            var nombre = val.nombre.split(',');
+                            if(nombre[1]){
+                                nombre = nombre[1] + ' ' + nombre[0];
+                            }
+                            class_av.busca_en_pdf(class_av.var.texto_pdf, nombre, '#check-nombre-pdf-'+val.id, '#nombre-'+val.id);
+                            class_av.busca_en_pdf(class_av.var.texto_pdf, val.orcid, '#check-orcid-pdf-'+val.id, '#orcid-'+val.id);
+                            class_av.nombre_por_orcid(val.orcid, val.nombre, institucion, '#check-orcid-'+val.id, '#orcid-'+val.id);
+                            class_av.biblat_por_nombre(val.nombre, institucion, '#check-nombre-bib-'+val.id, '#nombre-'+val.id);
+                        }                        
                     });
                       
                     $('#accordionAutores').html('Autores');
@@ -1306,6 +1339,33 @@ class_av = {
             class_av.borra_autor(borra_id);
         });
     },
+	autor_corporativo: function(inicio=false){
+        if(class_av.var.corporativo == 1){
+            $.each(class_av.var.institucionesJSON, function(i, val){
+                $('.div-ciudad').hide();
+                class_av.change_paises(val.id);
+                $('#pais-'+val.id).change();
+                class_av.change_institucion(val.id);
+                $('#institucion-'+val.id).change();
+                $('#avisoAutores').show();
+                $('#panelAutores').hide();
+                if(!inicio)
+                    class_av.var.cambios_institucion = true; 
+            });
+        }else{
+            $.each(class_av.var.institucionesJSON, function(i, val){
+                $('.div-ciudad').show();
+                class_av.change_paises(val.id);
+                $('#pais-'+val.id).change();
+                class_av.change_institucion(val.id);
+                $('#institucion-'+val.id).change();
+                $('#avisoAutores').hide();
+                $('#panelAutores').show();
+                if(!inicio)
+                    class_av.var.cambios_institucion = true; 
+            });
+        }
+    },
     agrega_institucion: function(){
         var id = String(class_av.var.institucionesJSON.length+1);
         
@@ -1385,8 +1445,14 @@ class_av = {
             $(id + '-texto').html('');
             $(id + '-texto').hide();
             
-            if(texto == null || texto == '' || url_pdf == null || url_pdf == ''){
-                return false
+            if(texto == null || texto == '' || texto == undefined || url_pdf == null || url_pdf == '' || url_pdf == undefined){
+                return false;
+            }
+            
+            try{
+                texto = class_utils.slug(texto.replaceAll(class_av.cons.caracteres,'.'));
+            }catch(error){
+                return false;
             }
             
             $(id).show();
@@ -1405,7 +1471,7 @@ class_av = {
             }
             $.when(
                 //class_utils.getResource('http://localhost:5001/texto_en_pdf/'+class_utils.slug(texto.replaceAll(class_av.cons.caracteres,'.'))+'/url/'+url_pdf)
-                class_utils.setResource(class_av.var.servidor + class_av.var.app + '/texto_en_textopdf/',{texto: class_utils.slug(texto.replaceAll(class_av.cons.caracteres,'.')), textopdf: url_pdf})
+                class_utils.setResource(class_av.var.servidor + class_av.var.app + '/texto_en_textopdf/',{texto: texto, textopdf: url_pdf})
             ).then(function(resp_pdf){
                 setTimeout(function(){
                     $(id + '-load').hide();
@@ -1871,6 +1937,7 @@ class_av = {
             var texto2 = (val['url2'] == null)?'':'Ver artículo';
             var art_class = ( ['C','B'].indexOf(val['estatus']) == -1 )?'sistema':'cerrado';
             var art_style = ( ['C','B'].indexOf(val['estatus']) == -1 )?'cursor:pointer;color:#ff8000':'';
+			val['articulo'] = val['articulo'].replace(/<[^>]+>/g, '');														  
             var tr = class_av.var.tr.replace('<revista>', val['revista'])
                             .replace('<issn>', val['issn'])
                             .replace('<numero>', val['numero'])
@@ -1979,17 +2046,14 @@ class_av = {
                 }
             }
 
-            if( !opciones_ciudades.hasOwnProperty(pais) ){
-                    opciones_ciudades[pais] = '';
-                    opciones_instituciones[pais] = '';
-
+            if( !opciones_ciudades.hasOwnProperty(pais+'-'+class_av.var.corporativo) ){
                     $('#div-ciudad-'+id).hide();
                     $('#ciudad-'+id+'-load').show();
 
                     /*********** Ciudades e instituciones según país *******************/
                     $.when(
                         class_utils.getResource('/datos/ciudad_by_pais/'+pais.replaceAll(',','')),
-                        class_utils.getResource('/datos/institucion_by_pais/'+pais.replaceAll(',',''))
+                        class_utils.getResource('/datos/institucion_by_pais/'+pais.replaceAll(',','')+'/'+class_av.var.corporativo)
                     ) 
                     .then(function(resp_ciudad, resp_institucion){
                         setTimeout(function(){                
@@ -2000,11 +2064,12 @@ class_av = {
                             $.each(resp_ciudad[0], function(i2, val2){
                                 options += class_av.cons.option.replace('<valor>', val2.ciudad).replace('<opcion>', val2.ciudad);
                             });
-                            opciones_ciudades[pais] = options;
-                            $('#ciudad-'+id).html(opciones_ciudades[pais]);
+                            opciones_ciudades[pais+'-'+class_av.var.corporativo] = '';
+                            opciones_ciudades[pais+'-'+class_av.var.corporativo] = options;
+                            $('#ciudad-'+id).html(opciones_ciudades[pais+'-'+class_av.var.corporativo]);
                             $('#ciudad-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true});
                             $('#select2-ciudad-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                            $('.select2-container').tooltip();						  
+                            $('.select2-container').tooltip();
 
                             /*********institucion*******************/
 
@@ -2012,11 +2077,12 @@ class_av = {
                             $.each(resp_institucion[0], function(i2, val2){
                                 options += class_av.cons.option.replace('<valor>', val2.institucion.replaceAll('"', "&quot;")).replace('<opcion>', val2.institucion);
                             });
-                            opciones_instituciones[pais] = options;
-                            $('#institucion-'+id).html(opciones_instituciones[pais]);
+                            opciones_instituciones[pais+'-'+class_av.var.corporativo] = '';
+                            opciones_instituciones[pais+'-'+class_av.var.corporativo] = options;
+                            $('#institucion-'+id).html(opciones_instituciones[pais+'-'+class_av.var.corporativo]);
                             $('#institucion-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve'});
                             $('#select2-institucion-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                            $('.select2-container').tooltip();						  
+                            $('.select2-container').tooltip();
 
                             //Si hay un valor de institución se preselecciona
                             if(val_institucion !== null){
@@ -2033,15 +2099,15 @@ class_av = {
                     });
                 }else{
                     setTimeout(function(){
-                        $('#ciudad-'+id).html(opciones_ciudades[pais]);
+                        $('#ciudad-'+id).html(opciones_ciudades[pais+'-'+class_av.var.corporativo]);
                         $('#ciudad-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true});
                         $('#select2-ciudad-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                        $('.select2-container').tooltip();						  
+                        $('.select2-container').tooltip();
 
-                        $('#institucion-'+id).html(opciones_instituciones[pais]);
+                        $('#institucion-'+id).html(opciones_instituciones[pais+'-'+class_av.var.corporativo]);
                         $('#institucion-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true/*,  width: 'Auto'*/});
                         $('#select2-institucion-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                        $('.select2-container').tooltip();					  
+                        $('.select2-container').tooltip();
                         if(val_institucion !== null){
                             //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
                             if ($('#institucion-'+id).find("option[value='" + val_institucion.replaceAll('"', "&quot;") + "']").length) {
@@ -2081,11 +2147,11 @@ class_av = {
             
             class_av.busca_en_pdf(class_av.var.texto_pdf, institucion, '#check-ins-'+id, '#institucion-'+id);
             //Revisa si ya se trajo el catálogo para este país
-            if( !opciones_dependencias.hasOwnProperty(institucion) && institucion !== '' && institucion !== null){
-                opciones_dependencias[institucion] = '';
+            if( !opciones_dependencias.hasOwnProperty(institucion+'-'+class_av.var.corporativo) && institucion !== '' && institucion !== null){
+                opciones_dependencias[institucion+'-'+class_av.var.corporativo] = '';
                 /*********** dependencias según institucion *******************/
                 $.when(
-                    class_utils.getResource('/datos/dependencia_by_institucion/'+institucion.replaceAll(class_av.cons.char_i,'')),
+                    class_utils.getResource('/datos/dependencia_by_institucion/'+institucion.replaceAll(class_av.cons.char_i,'')+'/'+class_av.var.corporativo),
                     class_utils.getResource('/datos/ciudad_by_institucion/'+institucion.replaceAll(class_av.cons.char_i, ''))
                 ) 
                 .then(function(resp_dependencias, resp_ciudades){
@@ -2099,8 +2165,8 @@ class_av = {
                         $.each(resp_dependencias[0], function(i2, val2){
                             options += class_av.cons.option.replace('<valor>', val2.dependencia.replace('"', "&quot;")).replace('<opcion>', val2.dependencia);
                         });
-                        opciones_dependencias[institucion] = options;
-                        $('#dependencia-'+id).html(opciones_dependencias[institucion]);
+                        opciones_dependencias[institucion+'-'+class_av.var.corporativo] = options;
+                        $('#dependencia-'+id).html(opciones_dependencias[institucion+'-'+class_av.var.corporativo]);
                         $('#dependencia-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
                         $('#select2-dependencia-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                         $('.select2-container').tooltip();					  
@@ -2151,7 +2217,7 @@ class_av = {
                 });
             }else{
                 setTimeout(function(){
-                    $('#dependencia-'+id).html(opciones_dependencias[institucion]);
+                    $('#dependencia-'+id).html(opciones_dependencias[institucion+'-'+class_av.var.corporativo]);
                     $('#dependencia-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
                     $('#select2-dependencia-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                     $('.select2-container').tooltip();						  
@@ -2280,7 +2346,8 @@ class_av = {
            
             obj['sistema'] = class_av.var.sistema;
             var titulo = $('#titulo').val();
-            var idioma = $('#idioma').val();
+            //var idioma = $('#idioma').val();
+            var idioma = $('#idiomaDocumento').val().join(', ').charAt(0).toUpperCase() + $('#idiomaDocumento').val().join(', ').toLowerCase().slice(1);																										
             titulo = class_av.limpia(titulo);
             if(titulo){
                 obj['articulo'] = titulo;
@@ -2428,8 +2495,10 @@ class_av = {
     data_update_instituciones: function(){
         var data = {};
         var data_int = [];
+		var data_corp = [];				   
         $.each(class_av.var.institucionesJSON, function(i,val){
             var obj = {};
+			var obj_corp = {};				  
            
             obj['sistema'] = class_av.var.sistema;
             obj['id'] = parseInt(val.id);
@@ -2467,13 +2536,21 @@ class_av = {
             }
             
             data_int.push(obj);
+            
+            obj_corp = JSON.parse(JSON.stringify(obj));
+            delete obj_corp.ciudad;
+            data_corp.push(obj_corp);
+            
         });
         
+		data['corporativo'] = class_av.var.corporativo;
         data['tabla_autores'] = 'author';
         data['tabla_instituciones'] = 'institution';
+        data['tabla_corporativo'] = 'author_coorp';
         data['where'] = ['sistema', 'id'];
         data['where_delete'] = ['sistema'];
         data['data_instituciones'] = data_int;
+        data['data_corporativo'] = data_corp;				 
         
         //Sólo actualiza ids de instituciones
         var arrAutores = [];
@@ -2557,14 +2634,15 @@ class_av = {
             $('#orcid-'+val.id).tooltip();						  
 
             class_av.orcid_por_nombre(val.nombre, institucion, val.orcid, '#check-nombre-'+val.id, '#nombre-'+val.id);
-            var nombre = val.nombre.split(',');
-            if(nombre[1]){
-                nombre = nombre[1] + ' ' + nombre[0];
+            if(val.nombre !== null){
+                var nombre = val.nombre.split(',');
+                if(nombre[1]){
+                    nombre = nombre[1] + ' ' + nombre[0];
+                }
+                class_av.busca_en_pdf(class_av.var.texto_pdf, nombre, '#check-nombre-pdf-'+val.id, '#nombre-'+val.id);
+                class_av.biblat_por_nombre(val.nombre, institucion, '#check-nombre-bib-'+val.id, '#nombre-'+val.id);
+                class_av.nombre_por_orcid(val.orcid, val.nombre, institucion, '#check-orcid-'+val.id, '#orcid-'+val.id);
             }
-            class_av.busca_en_pdf(class_av.var.texto_pdf, nombre, '#check-nombre-pdf-'+val.id, '#nombre-'+val.id);
-            class_av.biblat_por_nombre(val.nombre, institucion, '#check-nombre-bib-'+val.id, '#nombre-'+val.id);
-            class_av.nombre_por_orcid(val.orcid, val.nombre, institucion, '#check-orcid-'+val.id, '#orcid-'+val.id);
-
         });
 
         $('#accordionAutores').html('Autores');
@@ -2962,8 +3040,9 @@ class_av = {
                                         contentType: 'application/json'
                                 }).done(function() {
                                         class_av.cambio_estatus(class_av.var.sistema, 'R');
+										class_av.data_update_autores();
                                         class_av.reset_autores();
-                                        class_av.mensaje('Instituciones guardadas corretamente.');
+                                        class_av.mensaje('Instituciones guardadas correctamente.');
                                 }).fail(function(){
                                     class_av.mensaje('Ocurrió un error al intentar guardar Instituciones');
                                 });
@@ -3000,7 +3079,7 @@ class_av = {
                                         contentType: 'application/json'
                                 }).done(function() {
                                         class_av.cambio_estatus(class_av.var.sistema, 'R');
-                                        class_av.mensaje('Autores guardados corretamente.');
+                                        class_av.mensaje('Autores guardados correctamente.');
                                 }).fail(function(){
                                     class_av.mensaje('Ocurrió un error al intentar guardar Autores');
                                 });
@@ -3064,10 +3143,10 @@ class_av = {
     agrega_nuevo_articulo: function(){
         if(class_av.var.count_titulos > 0){
             var texto = 'Se guardarán los datos para los nuevos artículos';
-            var textoFin = 'Artículos nuevos guardados corretamente.';
+            var textoFin = 'Artículos nuevos guardados correctamente.';
         }else{
             var texto = 'Se guardarán los datos para el nuevo artículo';
-            var textoFin = 'Artículo nuevo guardado corretamente.';
+            var textoFin = 'Artículo nuevo guardado correctamente.';
         }
             
         $.confirm({
