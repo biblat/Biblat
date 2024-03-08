@@ -565,13 +565,19 @@ class_av = {
                         $("#idioma2").val(class_av.var.documentoJSON[0].idioma2);
                         
                         $('#titulo2').off('keyup').on('keyup', function(e){
-                            if (e.key === "Enter") {
-                                clearTimeout(tiempo);
-                                $('#titulo2').prop("disabled", true);
-                                tiempo = setTimeout(function() {
-                                    class_av.texto_idioma($('#titulo2').val(), $('#idioma2').val(), '#check-idioma2', '#idioma2');
-                                    class_av.busca_en_pdf(class_av.var.texto_pdf, $('#titulo2').val(), '#check-titulo2', '#titulo2');
-                                }, 1000);
+                            if (e.key === "Enter" || $('#titulo2').val().trim() == '') {
+                                if($('#titulo2').val().trim() == ''){
+                                    $('#idioma2').val('');
+                                    $('#check-idioma2').hide();
+                                    $('#check-titulo2').hide();
+                                }else{
+                                    clearTimeout(tiempo);
+                                    $('#titulo2').prop("disabled", true);
+                                    tiempo = setTimeout(function() {
+                                        class_av.texto_idioma($('#titulo2').val(), $('#idioma2').val(), '#check-idioma2', '#idioma2');
+                                        class_av.busca_en_pdf(class_av.var.texto_pdf, $('#titulo2').val(), '#check-titulo2', '#titulo2');
+                                    }, 1000);
+                                }
                             }
                             class_av.var.cambios_documento = true;
                         });
@@ -598,13 +604,19 @@ class_av = {
                         $("#idioma3").val(class_av.var.documentoJSON[0].idioma3);
                         
                         $('#titulo3').off('keyup').on('keyup', function(e){
-                            if (e.key === "Enter") {
-                                clearTimeout(tiempo);
-                                $('#titulo3').prop("disabled", true);
-                                tiempo = setTimeout(function() {
-                                    class_av.texto_idioma($('#titulo3').val(), $('#idioma3').val(), '#check-idioma3', '#idioma3');
-                                    class_av.busca_en_pdf(class_av.var.texto_pdf, $('#titulo3').val(), '#check-titulo3', '#titulo3');
-                                }, 1000);
+                            if (e.key === "Enter" || $('#titulo3').val().trim() == '') {
+                                if($('#titulo3').val().trim() == ''){
+                                    $('#idioma3').val('');
+                                    $('#check-idioma3').hide();
+                                    $('#check-titulo3').hide();
+                                }else{
+                                    clearTimeout(tiempo);
+                                    $('#titulo3').prop("disabled", true);
+                                    tiempo = setTimeout(function() {
+                                        class_av.texto_idioma($('#titulo3').val(), $('#idioma3').val(), '#check-idioma3', '#idioma3');
+                                        class_av.busca_en_pdf(class_av.var.texto_pdf, $('#titulo3').val(), '#check-titulo3', '#titulo3');
+                                    }, 1000);
+                                }
                             }
                             class_av.var.cambios_documento = true;
                         });
@@ -2810,18 +2822,24 @@ class_av = {
         var revista = $('#revista_sel').val().trim();
         var datosRevista = class_utils.filter_prop(class_av.var.revistasJSON, 0, revista);
         
+		var v = null;
+        var n = null;
+        var p = null;
         var numero = $('#sel_numero').val();
-        var v = numero.split('V')[1].split('N')[0];
-        if(v == '' || v == 's/v'){
-            v = null;
-        }
-        var n = numero.split('N')[1].split(' ')[0];
-        if(n == '' || n == 's/n'){
-            n = null;
-        }
-        var p = numero.split('N')[1].split(' ')[1];
-        if(p == ''){
-            p = null;
+        
+        if(numero !== '' && numero !== undefined){
+            v = numero.split('V')[1].split('N')[0];
+            if(v == '' || v == 's/v'){
+                v = null;
+            }
+            n = numero.split('N')[1].split(' ')[0];
+            if(n == '' || n == 's/n'){
+                n = null;
+            }
+            p = numero.split('N')[1].split(' ')[1];
+            if(p == ''){
+                p = null;
+            }
         }
         
             var obj = {};
