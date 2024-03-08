@@ -421,6 +421,7 @@ class_av = {
             class_av.var.cambios_documento = false;
             class_av.var.cambios_institucion = false;
             class_av.var.cambios_de_inicio = true;
+			class_av.var.corporativo = 0;
             
             //Cuando ya se marcó como completado o no indizable no se muestra el contenido
             if($('.'+sistema).hasClass('cerrado')){
@@ -457,7 +458,8 @@ class_av = {
                 class_av.var.autoresJSON = resp_autores[0];
                 class_av.var.institucionesJSON = resp_instituciones[0];
 				var corporativo = 0;					
-                
+                class_av.var.corporativo = 0;
+				
                 if(class_av.var.institucionesJSON !== undefined){
                     class_av.var.institucionesJSON.sort(class_utils.order_by('id'));
                     corporativo = class_utils.filter_prop(class_av.var.institucionesJSON, 'corporativo', '1').length;
@@ -643,7 +645,7 @@ class_av = {
                     $('#url1, #url2, #tipourl1, #tipourl2').off('change').on('change', function(e){
                             class_av.var.cambios_documento = true;
                             if( ($('#url1').val() !== '' && $("#tipourl1").val() == 'pdf') || ($('#url2').val() !== '' && $("#tipourl2").val() == 'pdf')){
-                                $('#import-ai').show();
+                                //$('#import-ai').show();
                             }
                     });
                     
