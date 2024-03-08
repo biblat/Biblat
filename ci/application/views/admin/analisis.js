@@ -421,7 +421,6 @@ class_av = {
             class_av.var.cambios_documento = false;
             class_av.var.cambios_institucion = false;
             class_av.var.cambios_de_inicio = true;
-			class_av.var.corporativo = 0;
             
             //Cuando ya se marcó como completado o no indizable no se muestra el contenido
             if($('.'+sistema).hasClass('cerrado')){
@@ -484,8 +483,11 @@ class_av = {
                 
 				if(class_av.var.corporativo == 1){
                     $('#es-corporativo')[0].checked = true;
-                    class_av.autor_corporativo(true);
+                }else{
+                    $('#es-corporativo')[0].checked = false;
                 }
+                class_av.autor_corporativo(true);
+				
                 //Lectura del pdf
                 $.when(
                     class_utils.setResource(class_av.var.servidor + class_av.var.app + '/get_pdf/', {url: url_pdf})
