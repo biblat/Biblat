@@ -392,8 +392,20 @@ class Datos extends REST_Controller {
                             institucion,
                             dependencia,
                             ciudad,
-                            pais
+                            pais,
+                            0 as corporativo
                         from institution
+                        where sistema = '".$sistema."'
+                        union
+                        select
+                            sistema,
+                            id,
+                            institucion,
+                            dependencia,
+                            '' as ciudad,
+                            pais,
+                            1 as corporativo
+                        from author_coorp
                         where sistema = '".$sistema."'
                         order by 1
                     ";
@@ -575,33 +587,53 @@ class Datos extends REST_Controller {
             $this->response($query->result_array(), 200);
         }
         
-        public function institucion_by_pais_get($pais){
+        public function institucion_by_pais_get($pais, $corporativo){
             $data = array();
             $this->load->database('prueba');
-            
-            $query = "
-                    select 
-                        distinct institucion
-                    from institution 
-                    where 
-                        \"paisInstitucionSlug\" = slug('".urldecode($pais)."') and institucion is not null order by 1
-            ";
+
+            if($corporativo == 0){
+                $query = "
+                        select 
+                            distinct institucion
+                        from institution 
+                        where 
+                            \"paisInstitucionSlug\" = slug('".urldecode($pais)."') and institucion is not null order by 1
+                ";
+            }else{
+                $query = "
+                        select 
+                            distinct institucion
+                        from author_coorp 
+                        where 
+                            \"paisSlug\" = slug('".urldecode($pais)."') and institucion is not null order by 1
+                ";
+            }
             
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);
         }
         
-        public function dependencia_by_institucion_get($dependencia){
+        public function dependencia_by_institucion_get($institucion, $corporativo){
             $data = array();
             $this->load->database('prueba');
             
-            $query = "
-                    select 
-                        distinct dependencia
-                    from institution 
-                    where 
-                        slug = slug('".urldecode($dependencia)."') and dependencia is not null order by 1
-            ";
+            if($corporativo == 0){
+                $query = "
+                        select 
+                            distinct dependencia
+                        from institution 
+                        where 
+                            slug = slug('".urldecode($institucion)."') and dependencia is not null order by 1
+                ";
+            }else{
+                $query = "
+                        select 
+                            distinct dependencia
+                        from author_coorp 
+                        where 
+                            slug = slug('".urldecode($institucion)."') and dependencia is not null order by 1
+                ";
+            }
             
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);

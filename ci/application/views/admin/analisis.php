@@ -1,3 +1,28 @@
+<style>
+    input[type="checkbox"]{
+        display: none;
+    }
+    input[type="checkbox"] + label:before {
+    border: 1px solid #7f83a2;
+    content: "\00a0";
+    display: inline-block;
+    font: 16px/1em sans-serif;
+    height: 16px;
+    margin: 0 .25em 0 0;
+    padding: 0;
+    vertical-align: top;
+    width: 16px;
+  }
+  input[type="checkbox"]:checked + label:before {
+    --background: #3d404e;
+    color: #ff8000;
+    content: "\2714";
+    text-align: center;
+  }
+  input[type="checkbox"]:checked + label:after {
+    font-weight: bold;
+  }
+</style>
 <div class="row"><br></div>
 <!--center><div class="row"><b>Meta del departamento:</b> 1000 Registros</div></center>
 <div class="row"><br></div>
@@ -105,7 +130,7 @@
                 <div class="panel-heading">
                   <h5 class="panel-title">
                       <a data-toggle="collapse" data-parent="#accordion" href="#articulo">
-                        Artículo
+                          Artículo
                       </a><a href="<?=site_url("adminb/ayuda_articulos");?>" target="_blank" style="padding: 5px"><i class="fa fa-question-circle" style="color: #ff8000;"></i></a>
                       <button id="save-article" type="button" class="btn btn-dark" style="float: right;"><i class="fa fa-file" aria-hidden="true" style="color: #ff8000;"></i><span> Guardar artículo</span></button>
                       <br><br>
@@ -113,6 +138,22 @@
                 </div>
                 <div id="articulo" class="panel-collapse collapse in">
                     <div class="panel-body">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <span><b>Idioma(s) del documento:</b></span><br>
+                                <select id='idiomaDocumento' multiple="multiple" width="100%" style="width: 100%">
+                                    <option value="Español" >Español</option>
+                                    <option value="Portugués" >Portugués</option>
+                                    <option value="Inglés" >Inglés</option>
+                                    <option value="Francés" >Francés</option>
+                                    <option value="Italiano" >Italiano</option>
+                                    <option value="Alemán" >Alemán</option>
+                                    <option value="Ruso" >Ruso</option>
+                                    <option value="Otro" >Otro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row"><br></div>
                         <div class="row">
                             <div class="col-xs-8">
                                 <span><b>Título:</b></span><br><input id='titulo' style="min-width: 100%" type="text" data-toggle="tooltip" data-placement="top" title="Presione [Enter] para realizar revisión" class="tooltip-titulo">
@@ -301,6 +342,9 @@
                 <div id="instituciones" class="panel-collapse collapse">
                     <ul class="list-group">
                         <li class="list-group-item">
+                            <div class="col-xs-12">
+                                <input type="checkbox" id="es-corporativo" value="corporativo"><label for="es-corporativo" style="padding: 10px;"><b>Es autor corporativo</b></label>
+                            </div>
                             <div class="panel-body" id="div-instituciones">
                                 
                             </div>
@@ -313,7 +357,14 @@
                     </ul>
                 </div>
             </div>
-            <div class="panel panel-default">
+            <div class="panel panel-default" id="avisoAutores" style="display:none">
+                <div class="panel-heading">
+                    <h5 class="panel-title">
+                        <b>Nota:</b> Al indicar en el bloque de Instituciones que se trata de un autor corporativo, el bloque de Autores no es necesario y por lo tanto no se muestra.
+                    </h5>  
+                </div>
+            </div>
+            <div class="panel panel-default" id="panelAutores">
                 <div class="panel-heading">
                   <h5 class="panel-title">
                       <a data-toggle="collapse" data-parent="#accordion" href="#autores" id="accordionAutores">
