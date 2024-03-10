@@ -211,7 +211,8 @@ class Datos extends REST_Controller {
         
 		public function revista_estatus_get(){
             $data = array();
-            $this->load->database('prueba');
+            //$this->load->database('prueba');
+			$this->load->database();
             
             $query = 'SELECT max(article.revista::text) AS revista, max(substr(article.sistema,1,3)) as base, max(asignado) as asignado, max("fechaIngreso") as fecha, max("fechaAsignado") as fecha_asignado,
                         slug(article.revista) AS "revistaSlug",
@@ -276,7 +277,8 @@ class Datos extends REST_Controller {
         
         public function avance_get(){
             $data = array();
-            $this->load->database('prueba');
+            //$this->load->database('prueba');
+			$this->load->database();
             
             $query = "
                     with registros as (
@@ -317,7 +319,9 @@ class Datos extends REST_Controller {
         
         public function articulos_get(){
             $data = array();
-            $this->load->database('prueba');
+            //$this->load->database('prueba');
+			$this->load->database();
+			
             $usuario = $this->session->userdata('usu_base');
             $query = '
                         select
@@ -362,7 +366,8 @@ class Datos extends REST_Controller {
         
         public function autores_get($sistema){
             $data = array();
-            $this->load->database('prueba');
+            //$this->load->database('prueba');
+			$this->load->database();
             
             $query = "
                         select
@@ -383,7 +388,8 @@ class Datos extends REST_Controller {
         
         public function instituciones_get($sistema){
             $data = array();
-            $this->load->database('prueba');
+            //$this->load->database('prueba');
+			$this->load->database();
             
             $query = "
                         select
@@ -416,8 +422,9 @@ class Datos extends REST_Controller {
         
         public function documento_get($sistema){
             $data = array();
-            $this->load->database('prueba');
-        
+            //$this->load->database('prueba');
+			$this->load->database();
+			
             $query = '
                         select 
                             articulo,
@@ -549,7 +556,8 @@ class Datos extends REST_Controller {
         
         public function ciudad_by_pais_get($pais){
             $data = array();
-            $this->load->database('prueba');
+            //$this->load->database('prueba');
+			$this->load->database();
             
             /*
             $query = "
@@ -575,7 +583,8 @@ class Datos extends REST_Controller {
         
         public function ciudad_by_institucion_get($institucion){
             $data = array();
-            $this->load->database('prueba');
+            //$this->load->database('prueba');
+			$this->load->database();
             $query = "
                     select 
                         distinct ciudad 
@@ -589,7 +598,8 @@ class Datos extends REST_Controller {
         
         public function institucion_by_pais_get($pais, $corporativo){
             $data = array();
-            $this->load->database('prueba');
+            //$this->load->database('prueba');
+			$this->load->database();
 
             if($corporativo == 0){
                 $query = "
@@ -615,7 +625,8 @@ class Datos extends REST_Controller {
         
         public function dependencia_by_institucion_get($institucion, $corporativo){
             $data = array();
-            $this->load->database('prueba');
+            //$this->load->database('prueba');
+			$this->load->database();
             
             if($corporativo == 0){
                 $query = "
@@ -641,7 +652,8 @@ class Datos extends REST_Controller {
         
         public function autor_by_nombre_get($nombre, $sistema){
             $data = array();
-            $this->load->database('prueba');
+            //$this->load->database('prueba');
+			$this->load->database();
             
             $query = "
                         select 
@@ -662,7 +674,8 @@ class Datos extends REST_Controller {
         }									  
 		public function allrevistas_get(){
             $data = array();
-            $this->load->database('prueba');
+            //$this->load->database('prueba');
+			$this->load->database();
             
             //select max(revista) revista from article where revista is not null group by slug(revista) order by 1
             
@@ -675,7 +688,8 @@ class Datos extends REST_Controller {
         
         public function revistas_articulo_by_nombre_get($nombre=null){
             $data = array();
-            $this->load->database('prueba');
+            //$this->load->database('prueba');
+			$this->load->database();
             
             if(!isset($nombre)){
                 $nombre = $this->session->userdata('usu_base');
@@ -699,7 +713,8 @@ class Datos extends REST_Controller {
         
         public function revistas_by_nombre_get($nombre=null){
             $data = array();
-            $this->load->database('prueba');
+            //$this->load->database('prueba');
+			$this->load->database();
             
             if(!isset($nombre)){
                 $nombre = $this->session->userdata('usu_base');
