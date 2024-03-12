@@ -213,9 +213,10 @@ class Datos extends REST_Controller {
             $data = array();
             //$this->load->database('prueba');
 			$this->load->database();
-            
+            //and (estatus is null or (estatus <> \'C\' and estatus <> \'B\'))
             $query = 'SELECT max(article.revista::text) AS revista, max(substr(article.sistema,1,3)) as base, max(asignado) as asignado, max("fechaIngreso") as fecha, max("fechaAsignado") as fecha_asignado,
-                        slug(article.revista) AS "revistaSlug",
+                        max(estatus) as estatus,
+						slug(article.revista) AS "revistaSlug",
                         article."anioRevista",
                         CASE
                             WHEN (article."descripcionBibliografica" ->> \'a\'::text) IS NULL THEN \'s/v\'::text
@@ -234,7 +235,7 @@ class Datos extends REST_Controller {
                         ELSE replace(replace(article."descripcionBibliografica" ->> \'d\'::text, \'"\'::text, \'\'::text), \' \'::text, \'\'::text)
                         END AS parte, count(1) articulos
                         FROM article
-                        WHERE article."anioRevista" IS NOT NULL and sistema ~ \'^(CLA|PER)99.*\' and (estatus is null or (estatus <> \'C\' and estatus <> \'B\'))
+                        WHERE article."anioRevista" IS NOT NULL and sistema ~ \'^(CLA|PER)99.*\'
 						
                         GROUP BY (slug(article.revista)), article."anioRevista", (
                         CASE
