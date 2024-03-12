@@ -1371,7 +1371,7 @@ class_av = {
                 $('#institucion-'+val.id).change();
                 $('#avisoAutores').show();
                 $('#panelAutores').hide();
-                if(!inicio){
+                if(!inicio)
                     class_av.var.cambios_institucion = true; 
             });
         }else{
@@ -1383,7 +1383,7 @@ class_av = {
                 $('#institucion-'+val.id).change();
                 $('#avisoAutores').hide();
                 $('#panelAutores').show();
-                if(!inicio){
+                if(!inicio)
                     class_av.var.cambios_institucion = true; 
             });
         }
