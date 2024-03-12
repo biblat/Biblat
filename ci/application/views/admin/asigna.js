@@ -325,6 +325,7 @@ class_asi = {
                         order: [[ 1, 'asc' ]],
                         bLengthChange: false,
                         pageLength: 10,
+						//Opción para introducir el número de página en el footer de la tabla
                         pagingType: 'input',
                         autoWidth: true,
                         columnDefs: [
@@ -344,6 +345,12 @@ class_asi = {
                         //Reajusta el ancho de las columnas
                         drawCallback: function( settings ) {
                             $(this).DataTable().columns.adjust();
+                            //Evento para ocultar o mostrar la paginación si existen o no registros después de una búsqueda
+                            if ($(this).DataTable().page.info().recordsDisplay > 0) {
+                                $('.dataTables_paginate').show();
+                            }else{
+                                $('.dataTables_paginate').hide();
+                            }
                             class_asi.control();
                         }
                     }; 
