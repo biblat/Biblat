@@ -5,7 +5,7 @@ class_av = {
         option: '<option value="<valor>"><opcion></option>',
         //caracteres: /!|#|\$|%|&|\(|\/|\\|\)|=|\?|¿|¡|,|;|:|_|\[|{|}|]|\+|\*|\~|<|>|\'|\"|’/g
         caracteres: /[^a-zA-Z0-9 ]/g,
-        char_i: /\(|\)|,|;|:/g,
+        char_i: /\(|\)|,|;|:|=/g,
         cargando: '<i id="check-titulo-load" class="fa fa-spinner fa-pulse" aria-hidden="true" style="color: #ff8000; display: true"></i>',
         estatus:{
             R: 'En revisión',
