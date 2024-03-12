@@ -90,11 +90,38 @@ class Generic_model extends CI_Model {
                                     $value['fechaAsignado'] = NULL;
                                 }
                                 if (!empty($arr_datos_json)) {
-                                    $json_string = json_encode($datos_json);
-                                    $json_string = str_replace("{", "", $json_string);
-                                    $json_string = str_replace("}", "", $json_string);
-                                    echo $json_string;
-                                    $this->db->where("(replace(cast(\"descripcionBibliografica\" as text),' ','') like '%$json_string%')");
+                                    //$json_string = json_encode($datos_json);
+                                    //$json_string = str_replace("{", "", $json_string);
+                                    //$json_string = str_replace("}", "", $json_string);
+                                    //echo $json_string;
+                                    if(isset($datos_json['a'])){
+                                        $datos_json_w = [];
+                                        $datos_json_w['a'] = $datos_json['a'];
+                                        $json_string = json_encode($datos_json_w);
+                                        $json_string = str_replace("{", "", $json_string);
+                                        $json_string = str_replace("}", "", $json_string);
+                                        echo $json_string;
+                                        $this->db->where("(replace(cast(\"descripcionBibliografica\" as text),' ','') like '%$json_string%')");
+                                    }
+                                    if(isset($datos_json['b'])){
+                                        $datos_json_w = [];
+                                        $datos_json_w['b'] = $datos_json['b'];
+                                        $json_string = json_encode($datos_json_w);
+                                        $json_string = str_replace("{", "", $json_string);
+                                        $json_string = str_replace("}", "", $json_string);
+                                        echo $json_string;
+                                        $this->db->where("(replace(cast(\"descripcionBibliografica\" as text),' ','') like '%$json_string%')");
+                                    }
+                                    if(isset($datos_json['d'])){
+                                        $datos_json_w = [];
+                                        $datos_json_w['d'] = $datos_json['d'];
+                                        $json_string = json_encode($datos_json_w);
+                                        $json_string = str_replace("{", "", $json_string);
+                                        $json_string = str_replace("}", "", $json_string);
+                                        echo $json_string;
+                                        $this->db->where("(replace(cast(\"descripcionBibliografica\" as text),' ','') like '%$json_string%')");
+                                    }
+                                    //$this->db->where("(replace(cast(\"descripcionBibliografica\" as text),' ','') like '%$json_string%')");
                                 }
                                 //$valores_a_excluir = array('C', 'B');
                                 //$this->db->where_not_in('estatus', $valores_a_excluir);
