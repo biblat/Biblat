@@ -2970,7 +2970,7 @@ class_av = {
         $('#save-article').off('click').on('click', function(){
             
             var texto = 'Se guardarán los cambios realizados a los metadatos del Artículo';
-			var envio = true;				 
+            var envio = true;
             
             $.confirm({
                 title: '',
@@ -2987,7 +2987,7 @@ class_av = {
                             text: 'Aceptar',
                             btnClass: 'btn-warning',
                             action: function(){
-								if(envio){
+                                if(envio){
                                     envio = false;
                                     class_av.var.cambios_documento = false;
                                     $.ajax({
@@ -2997,7 +2997,7 @@ class_av = {
                                     }).done(function() {
                                             class_av.cambio_estatus(class_av.var.sistema, 'R');
                                     });
-                                } 
+                                }
                             }
                     }
                 }
@@ -3011,7 +3011,8 @@ class_av = {
             }else{
                 
                 var texto = 'Se marcará el registro como <b>Completado</b>';
-				var envio = true;
+                var envio = true;
+                
                 $.confirm({
                     title: '',
                     content: texto,
@@ -3027,7 +3028,7 @@ class_av = {
                                 text: 'Aceptar',
                                 btnClass: 'btn-warning',
                                 action: function(){
-									if(envio){
+                                    if(envio){
                                         envio = false;
                                         $(this).prop('disabled', true);
                                         loading.start();
@@ -3065,7 +3066,7 @@ class_av = {
         $('#save-instituciones').off('click').on('click', function(){
             
             var texto = 'Se guardarán los cambios realizados a los metadatos de Instituciones';
-			var envio = true;				 
+            var envio = true;
             
             $.confirm({
                 title: '',
@@ -3082,7 +3083,7 @@ class_av = {
                             text: 'Aceptar',
                             btnClass: 'btn-warning',
                             action: function(){
-								if(envio){
+                                if(envio){
                                     envio = false;
                                     class_av.var.cambios_institucion = false;
                                     $.ajax({
@@ -3098,7 +3099,7 @@ class_av = {
                                     }).fail(function(){
                                         class_av.mensaje('Ocurrió un error al intentar guardar Instituciones');
                                     });
-                                } 
+                                }
                             }
                     }
                 }
@@ -3108,7 +3109,7 @@ class_av = {
         $('#save-autores').off('click').on('click', function(){
             
             var texto = 'Se guardaran los cambios realizados a los metadatos de Autores';
-			var envio = true;				 
+            var envio = true;
             
             $.confirm({
                 title: '',
@@ -3125,7 +3126,7 @@ class_av = {
                             text: 'Aceptar',
                             btnClass: 'btn-warning',
                             action: function(){
-								if(envio){
+                                if(envio){
                                     envio = false;
                                     class_av.var.cambios_autor = false;
                                     $.ajax({
@@ -3139,7 +3140,7 @@ class_av = {
                                     }).fail(function(){
                                         class_av.mensaje('Ocurrió un error al intentar guardar Autores');
                                     });
-                                } 
+                                }
                             }
                     }
                 }
@@ -3153,7 +3154,7 @@ class_av = {
             }else{
             
                 var texto = 'Se marcará el registro como <b>No Indizable</b>';
-				var envio = true;				 
+                var envio = true;
 
                 $.confirm({
                     title: '',
@@ -3170,7 +3171,7 @@ class_av = {
                                 text: 'Aceptar',
                                 btnClass: 'btn-warning',
                                 action: function(){
-									if(envio){
+                                    if(envio){
                                         envio = false;
                                         var data = {};
                                         data['tabla'] = 'article';
@@ -3193,7 +3194,7 @@ class_av = {
                                                     window.location.href="#div_tabla";
                                                 }
                                         });
-                                    } 
+                                    }
                                 }
                         }
                     }
