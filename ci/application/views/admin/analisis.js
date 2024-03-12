@@ -2987,6 +2987,7 @@ class_av = {
                             text: 'Aceptar',
                             btnClass: 'btn-warning',
                             action: function(){
+								if(envio){
                                     envio = false;
                                     class_av.var.cambios_documento = false;
                                     $.ajax({
@@ -3026,6 +3027,7 @@ class_av = {
                                 text: 'Aceptar',
                                 btnClass: 'btn-warning',
                                 action: function(){
+									if(envio){
                                         envio = false;
                                         $(this).prop('disabled', true);
                                         loading.start();
@@ -3080,6 +3082,7 @@ class_av = {
                             text: 'Aceptar',
                             btnClass: 'btn-warning',
                             action: function(){
+								if(envio){
                                     envio = false;
                                     class_av.var.cambios_institucion = false;
                                     $.ajax({
@@ -3122,6 +3125,7 @@ class_av = {
                             text: 'Aceptar',
                             btnClass: 'btn-warning',
                             action: function(){
+								if(envio){
                                     envio = false;
                                     class_av.var.cambios_autor = false;
                                     $.ajax({
@@ -3166,6 +3170,7 @@ class_av = {
                                 text: 'Aceptar',
                                 btnClass: 'btn-warning',
                                 action: function(){
+									if(envio){
                                         envio = false;
                                         var data = {};
                                         data['tabla'] = 'article';
