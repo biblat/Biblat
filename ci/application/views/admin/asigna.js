@@ -297,7 +297,12 @@ class_asi = {
                                 .replace('<select_asigna>', '<span  style="display:none">'+val['asignado']+'</span>'+class_asi.var.select_asigna.replace('<options>', class_asi.var.options_asigna).replace('<id>', id))
                                 .replace('"'+val['asignado']+'"', '"'+val['asignado']+'" selected')
                                 .replace('<vacio>', val['asignado']).replaceAll('null', '');
-                tbody += tr;
+                
+				if(val['estatus'] == 'C'){
+                    tr = tr.replace('<select', '<select disabled');
+                }
+				
+				tbody += tr;
             //}
         });
         var tabla = class_asi.var.tabla
