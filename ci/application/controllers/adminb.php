@@ -5,7 +5,8 @@ class Adminb extends CI_Controller {
     
     public function __construct(){
             parent::__construct();
-            if (in_array($this->get_ip(), unserialize(IPS))){
+            //if (in_array($this->get_ip(), unserialize(IPS))){
+			if ($this->session->userdata('usuario')){
                 $this->output->enable_profiler($this->config->item('enable_profiler'));
                 $this->template->set_partial('biblat_js', 'javascript/biblat', array(), TRUE, FALSE);
                 $this->template->set_partial('submenu', 'layouts/submenu');
@@ -48,7 +49,7 @@ class Adminb extends CI_Controller {
     }
     
     public function cosecha(){
-        if($this->session->userdata('usuario')){
+        if($this->session->userdata('usuario') && $this->session->userdata('rol') == 'Administrador'){
             $this->template->set_breadcrumb(_('Menú Administrador'), site_url('adminb'));
             $this->template->set_breadcrumb(_('Cosecha OJS'));
             $data = array();
@@ -65,7 +66,7 @@ class Adminb extends CI_Controller {
     }
     
 	public function asignarev(){
-        if($this->session->userdata('usuario')){
+        if($this->session->userdata('usuario') && $this->session->userdata('rol') == 'Administrador'){
             $this->template->set_breadcrumb(_('Menú Administrador'), site_url('adminb'));
             $this->template->set_breadcrumb(_('Asignar revista'));
             $data = array();
@@ -81,7 +82,7 @@ class Adminb extends CI_Controller {
         }
     }							
     public function asigna(){
-        if($this->session->userdata('usuario')){
+        if($this->session->userdata('usuario') && $this->session->userdata('rol') == 'Administrador'){
             $this->template->set_breadcrumb(_('Menú Administrador'), site_url('adminb'));
             $this->template->set_breadcrumb(_('Asignación'));
             $data = array();
