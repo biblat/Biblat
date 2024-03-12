@@ -213,7 +213,7 @@ class Datos extends REST_Controller {
             $data = array();
             //$this->load->database('prueba');
 			$this->load->database();
-            //ELSE replace(replace(article."descripcionBibliografica" ->> \'d\'::text, \'"\'::text, \'\'::text), \' \'::text, \'\'::text)
+            
             $query = 'SELECT max(article.revista::text) AS revista, max(substr(article.sistema,1,3)) as base, max(asignado) as asignado, max("fechaIngreso") as fecha, max("fechaAsignado") as fecha_asignado,
                         slug(article.revista) AS "revistaSlug",
                         article."anioRevista",
@@ -231,7 +231,7 @@ class Datos extends REST_Controller {
                             WHEN (article."descripcionBibliografica" ->> \'d\'::text) IS NULL THEN \'\'::text
                             WHEN btrim(article."descripcionBibliografica" ->> \'d\'::text) = \'\'::text THEN \'\'::text
                             WHEN upper(article."descripcionBibliografica" ->> \'d\'::text) ~ \'P.*-\'::text THEN \'\'::text
-                        ELSE replace(article."descripcionBibliografica" ->> \'d\'::text, \'"\'::text, \'\'::text)
+                        ELSE replace(replace(article."descripcionBibliografica" ->> \'d\'::text, \'"\'::text, \'\'::text), \' \'::text, \'\'::text)
                         END AS parte, count(1) articulos
                         FROM article
                         WHERE article."anioRevista" IS NOT NULL and sistema ~ \'^(CLA|PER)99.*\' and (estatus is null or (estatus <> \'C\' and estatus <> \'B\'))
@@ -251,7 +251,7 @@ class Datos extends REST_Controller {
                             WHEN (article."descripcionBibliografica" ->> \'d\'::text) IS NULL THEN \'\'::text
                             WHEN btrim(article."descripcionBibliografica" ->> \'d\'::text) = \'\'::text THEN \'\'::text
                             WHEN upper(article."descripcionBibliografica" ->> \'d\'::text) ~ \'P.*-\'::text THEN \'\'::text
-                            ELSE replace(article."descripcionBibliografica" ->> \'d\'::text, \'"\'::text, \'\'::text)
+                            ELSE replace(replace(article."descripcionBibliografica" ->> \'d\'::text, \'"\'::text, \'\'::text), \' \'::text, \'\'::text)
                         END)
                     ORDER BY (slug(article.revista)), article."anioRevista", (
                           CASE
@@ -268,7 +268,7 @@ class Datos extends REST_Controller {
                               WHEN (article."descripcionBibliografica" ->> \'d\'::text) IS NULL THEN \'\'::text
                               WHEN btrim(article."descripcionBibliografica" ->> \'d\'::text) = \'\'::text THEN \'\'::text
                               WHEN upper(article."descripcionBibliografica" ->> \'d\'::text) ~ \'P.*-\'::text THEN \'\'::text
-                              ELSE replace(article."descripcionBibliografica" ->> \'d\'::text, \'"\'::text, \'\'::text)
+                              ELSE replace(replace(article."descripcionBibliografica" ->> \'d\'::text, \'"\'::text, \'\'::text), \' \'::text, \'\'::text)
                           END)';
             
             $query = $this->db->query($query);
