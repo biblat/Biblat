@@ -716,7 +716,7 @@ class_av = {
                             });
                     });   
                     
-                    class_av.var.cambios_de_inicio = false;
+                    
                     /******************************************************************/
 					$('#es-corporativo').off('click').on('click', function(){
                         if(this.checked){
@@ -1114,6 +1114,12 @@ class_av = {
                     class_av.evento_borra_autor();
                     class_av.change_nombre();
                     class_av.change_orcid();
+					$('#save-no-indizable').show();
+                    $('#save-full').show();
+                    $('#save-article').show();
+                    $('#save-instituciones').show();
+                    $('#save-autores').show();
+                    class_av.var.cambios_de_inicio = false;						   
                 });
             });
             
@@ -1365,7 +1371,7 @@ class_av = {
                 $('#institucion-'+val.id).change();
                 $('#avisoAutores').show();
                 $('#panelAutores').hide();
-                if(!inicio)
+                if(!inicio){
                     class_av.var.cambios_institucion = true; 
             });
         }else{
@@ -1377,7 +1383,7 @@ class_av = {
                 $('#institucion-'+val.id).change();
                 $('#avisoAutores').hide();
                 $('#panelAutores').show();
-                if(!inicio)
+                if(!inicio){
                     class_av.var.cambios_institucion = true; 
             });
         }
@@ -2137,7 +2143,9 @@ class_av = {
                         $('#div-ciudad-'+id).show();
                     }, 1000);
                 }
-                class_av.var.cambios_institucion = true;
+                if(!class_av.var.cambios_de_inicio){
+                    class_av.var.cambios_institucion = true;
+                }
         });
     },
     change_institucion: function(id= null){
@@ -2279,7 +2287,9 @@ class_av = {
                     class_av.busca_en_pdf(class_av.var.texto_pdf, institucion, '#check-ins-'+id, '#institucion-'+id);
                 },1000);
             }
-            class_av.var.cambios_institucion = true;
+            if(!class_av.var.cambios_de_inicio){
+                class_av.var.cambios_institucion = true;
+            }
         });
     },
     change_nombre: function(id=null){
@@ -2960,6 +2970,7 @@ class_av = {
         $('#save-article').off('click').on('click', function(){
             
             var texto = 'Se guardarán los cambios realizados a los metadatos del Artículo';
+			var envio = true;				 
             
             $.confirm({
                 title: '',
@@ -2976,14 +2987,16 @@ class_av = {
                             text: 'Aceptar',
                             btnClass: 'btn-warning',
                             action: function(){
-                                class_av.var.cambios_documento = false;
-                                $.ajax({
-                                        type: 'POST',
-                                        url: "<?=site_url('metametrics/ws_update');?>",
-                                        data: class_av.data_update_article(),
-                                }).done(function() {
-                                        class_av.cambio_estatus(class_av.var.sistema, 'R');
-                                });
+                                    envio = false;
+                                    class_av.var.cambios_documento = false;
+                                    $.ajax({
+                                            type: 'POST',
+                                            url: "<?=site_url('metametrics/ws_update');?>",
+                                            data: class_av.data_update_article(),
+                                    }).done(function() {
+                                            class_av.cambio_estatus(class_av.var.sistema, 'R');
+                                    });
+                                } 
                             }
                     }
                 }
@@ -2997,7 +3010,7 @@ class_av = {
             }else{
                 
                 var texto = 'Se marcará el registro como <b>Completado</b>';
-
+				var envio = true;
                 $.confirm({
                     title: '',
                     content: texto,
@@ -3013,23 +3026,33 @@ class_av = {
                                 text: 'Aceptar',
                                 btnClass: 'btn-warning',
                                 action: function(){
-									var data = {};
-									data['tabla'] = 'article';
-									data['where'] = ['sistema'];
-									data['data'] = [{estatus: "C", sistema:class_av.var.sistema}];
-                                    $.ajax({
-                                            type: 'POST',
-                                            url: "<?=site_url('metametrics/ws_update_estatus');?>",
-                                            data: data,
-                                    }).done(function() {
-                                            class_av.cambio_estatus(class_av.var.sistema, 'C');
-                                            $('.'+class_av.var.sistema).removeClass('sistema');
-                                            $('.'+class_av.var.sistema).addClass('cerrado');
-                                            $('.'+class_av.var.sistema).css('cursor','');
-                                            $('.'+class_av.var.sistema).css('color','');
-                                            $('#accordion').hide();
-                                            window.location.href="#div_tabla";
-                                    });
+                                        envio = false;
+                                        $(this).prop('disabled', true);
+                                        loading.start();
+                                        var data = {};
+                                        data['tabla'] = 'article';
+                                        data['where'] = ['sistema'];
+                                        data['data'] = [{estatus: "C", sistema:class_av.var.sistema}];
+                                        $.ajax({
+                                                type: 'POST',
+                                                url: "<?=site_url('metametrics/ws_update_estatus');?>",
+                                                data: data,
+                                        }).done(function() {
+                                                class_av.cambio_estatus(class_av.var.sistema, 'C');
+                                                $('.'+class_av.var.sistema).removeClass('sistema');
+                                                $('.'+class_av.var.sistema).addClass('cerrado');
+                                                $('.'+class_av.var.sistema).css('cursor','');
+                                                $('.'+class_av.var.sistema).css('color','');
+                                                $('#accordion').hide();
+                                                $('#save-no-indizable').hide();
+                                                $('#save-full').hide();
+                                                $('#save-article').hide();
+                                                $('#save-instituciones').hide();
+                                                $('#save-autores').hide();
+                                                loading.end();
+                                                window.location.href="#div_tabla";
+                                        });
+                                    }
                                 }
                         }
                     }
@@ -3040,6 +3063,7 @@ class_av = {
         $('#save-instituciones').off('click').on('click', function(){
             
             var texto = 'Se guardarán los cambios realizados a los metadatos de Instituciones';
+			var envio = true;				 
             
             $.confirm({
                 title: '',
@@ -3056,20 +3080,22 @@ class_av = {
                             text: 'Aceptar',
                             btnClass: 'btn-warning',
                             action: function(){
-                                class_av.var.cambios_institucion = false;
-                                $.ajax({
-                                        type: 'POST',
-                                        url: "<?=site_url('metametrics/ws_insert_instituciones');?>",
-                                        data: JSON.stringify(class_av.data_update_instituciones()),
-                                        contentType: 'application/json'
-                                }).done(function() {
-                                        class_av.cambio_estatus(class_av.var.sistema, 'R');
-										class_av.data_update_autores();
-                                        class_av.reset_autores();
-                                        class_av.mensaje('Instituciones guardadas correctamente.');
-                                }).fail(function(){
-                                    class_av.mensaje('Ocurrió un error al intentar guardar Instituciones');
-                                });
+                                    envio = false;
+                                    class_av.var.cambios_institucion = false;
+                                    $.ajax({
+                                            type: 'POST',
+                                            url: "<?=site_url('metametrics/ws_insert_instituciones');?>",
+                                            data: JSON.stringify(class_av.data_update_instituciones()),
+                                            contentType: 'application/json'
+                                    }).done(function() {
+                                            class_av.cambio_estatus(class_av.var.sistema, 'R');
+                                            class_av.data_update_autores();
+                                            class_av.reset_autores();
+                                            class_av.mensaje('Instituciones guardadas correctamente.');
+                                    }).fail(function(){
+                                        class_av.mensaje('Ocurrió un error al intentar guardar Instituciones');
+                                    });
+                                } 
                             }
                     }
                 }
@@ -3079,6 +3105,7 @@ class_av = {
         $('#save-autores').off('click').on('click', function(){
             
             var texto = 'Se guardaran los cambios realizados a los metadatos de Autores';
+			var envio = true;				 
             
             $.confirm({
                 title: '',
@@ -3095,18 +3122,20 @@ class_av = {
                             text: 'Aceptar',
                             btnClass: 'btn-warning',
                             action: function(){
-                                class_av.var.cambios_autor = false;
-                                $.ajax({
-                                        type: 'POST',
-                                        url: "<?=site_url('metametrics/ws_insert_autores');?>",
-                                        data: JSON.stringify(class_av.data_update_autores()),
-                                        contentType: 'application/json'
-                                }).done(function() {
-                                        class_av.cambio_estatus(class_av.var.sistema, 'R');
-                                        class_av.mensaje('Autores guardados correctamente.');
-                                }).fail(function(){
-                                    class_av.mensaje('Ocurrió un error al intentar guardar Autores');
-                                });
+                                    envio = false;
+                                    class_av.var.cambios_autor = false;
+                                    $.ajax({
+                                            type: 'POST',
+                                            url: "<?=site_url('metametrics/ws_insert_autores');?>",
+                                            data: JSON.stringify(class_av.data_update_autores()),
+                                            contentType: 'application/json'
+                                    }).done(function() {
+                                            class_av.cambio_estatus(class_av.var.sistema, 'R');
+                                            class_av.mensaje('Autores guardados correctamente.');
+                                    }).fail(function(){
+                                        class_av.mensaje('Ocurrió un error al intentar guardar Autores');
+                                    });
+                                } 
                             }
                     }
                 }
@@ -3120,6 +3149,7 @@ class_av = {
             }else{
             
                 var texto = 'Se marcará el registro como <b>No Indizable</b>';
+				var envio = true;				 
 
                 $.confirm({
                     title: '',
@@ -3136,27 +3166,29 @@ class_av = {
                                 text: 'Aceptar',
                                 btnClass: 'btn-warning',
                                 action: function(){
-									var data = {};
-                                    data['tabla'] = 'article';
-                                    data['where'] = ['sistema'];
-                                    data['data'] = [{estatus: "B", sistema:class_av.var.sistema}];
-                                    $.ajax({
-                                            type: 'POST',
-                                            url: "<?=site_url('metametrics/ws_update_estatus');?>",
-                                            data: data,
-                                    }).done(function(resp) {
-                                            if(resp.resp == 'session'){
-                                                class_av.mensaje('Su sesión expiró, es necesario iniciar nuevamente.', function(){window.location.reload();});
-                                            }else{
-                                                class_av.cambio_estatus(class_av.var.sistema, 'B');
-                                                $('.'+class_av.var.sistema).removeClass('sistema');
-                                                $('.'+class_av.var.sistema).addClass('cerrado');
-                                                $('.'+class_av.var.sistema).css('cursor','');
-                                                $('.'+class_av.var.sistema).css('color','');
-                                                $('#accordion').hide();
-                                                window.location.href="#div_tabla";
-                                            } 
-                                    });
+                                        envio = false;
+                                        var data = {};
+                                        data['tabla'] = 'article';
+                                        data['where'] = ['sistema'];
+                                        data['data'] = [{estatus: "B", sistema:class_av.var.sistema}];
+                                        $.ajax({
+                                                type: 'POST',
+                                                url: "<?=site_url('metametrics/ws_update_estatus');?>",
+                                                data: data,
+                                        }).done(function(resp) {
+                                                if(resp.resp == 'session'){
+                                                    class_av.mensaje('Su sesión expiró, es necesario iniciar nuevamente.', function(){window.location.reload();});
+                                                }else{
+                                                    class_av.cambio_estatus(class_av.var.sistema, 'B');
+                                                    $('.'+class_av.var.sistema).removeClass('sistema');
+                                                    $('.'+class_av.var.sistema).addClass('cerrado');
+                                                    $('.'+class_av.var.sistema).css('cursor','');
+                                                    $('.'+class_av.var.sistema).css('color','');
+                                                    $('#accordion').hide();
+                                                    window.location.href="#div_tabla";
+                                                }
+                                        });
+                                    } 
                                 }
                         }
                     }
