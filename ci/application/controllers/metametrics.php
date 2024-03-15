@@ -773,4 +773,11 @@ class Metametrics extends CI_Controller {
         header('Content-Type: application/json; charset=utf-8');
         echo $resp;
     }
+	
+	public function ws_bitacora(){
+        if ($this->input->post()) {
+            $this->load->model('generic_model');
+            $this->generic_model->insert_bitacora($this->input->post('evento'), $this->input->post('sistema'));
+        }
+    }
 }
