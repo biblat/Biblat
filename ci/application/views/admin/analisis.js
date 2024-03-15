@@ -945,7 +945,7 @@ class_av = {
                                         if( peticiones == 0 ){
                                             revisaRepetidas();
                                         }
-                                    }, 1000);
+                                    }, 3000);
                                 });
                             }else{
                                 //Pone en pendientes las que sean del mismo país
@@ -995,6 +995,7 @@ class_av = {
                                     class_utils.getResource('/datos/ciudad_by_institucion/'+val.institucion.replaceAll(class_av.cons.char_i, ''))
                                 ) 
                                 .then(function(resp_dependencias, resp_ciudades){
+									setTimeout(function(){
                                     peticiones--;
                                     var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
                                     $.each(resp_dependencias[0], function(i2, val2){
@@ -1046,6 +1047,7 @@ class_av = {
                                     if( peticiones == 0 ){
                                         revisaRepetidas();
                                     }
+									}, 3000);
                                 });
                             }else{
                                 //Pone en pendientes las que sean de la misma institución
@@ -2251,7 +2253,7 @@ class_av = {
                         //options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
                         
                         //$('#sug-ciudad-'+id).select2({ tags: true, placeholder: "Sugerencias encontradas", allowClear: true})
-                    },1000);
+                    },3000);
                 });
             }else{
                 setTimeout(function(){
