@@ -1655,7 +1655,7 @@ class_av = {
                             }
                         });
                     }
-                }, 1000);
+                }, 3000);
             }).fail(function(){
                 $(id + '-load').hide();
                 $(id + '-texto').html('Sin comparar');
