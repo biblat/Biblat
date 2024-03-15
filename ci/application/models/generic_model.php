@@ -544,11 +544,26 @@ class Generic_model extends CI_Model {
 			$this->db->delete($tabla);
 		}
 	}
+	
+	public function insert_bitacora($evento, $sistema=''){
+		$usuario = $this->session->userdata('usu_base');
+		$hora = 'LOCALTIME(0)';
+		$this->load->database();
+		$query = 'insert into bitacora (
+						"usuario", "sistema", "evento", "hora"
+						) values('.
+						"'".$usuario."',".
+						"'".$sistema."',".
+						"'".$evento."',".
+						$hora.
+						")";
+		$query = $this->db->query($query);
+	}
         
-        public function limpia($string){
-            $string = str_replace('\"', '"', $string);
-            $string = str_replace("'", "''", $string);
-            return $string;
+	public function limpia($string){
+		$string = str_replace('\"', '"', $string);
+		$string = str_replace("'", "''", $string);
+		return $string;
 	}
 	   
 }
