@@ -416,6 +416,14 @@ class_av = {
             if(class_av.cambios_sin_guardar('sistema', this)){
                 return false;
             }
+			
+			$.ajax({
+                    type: 'POST',
+                    url: "<?=site_url('metametrics/ws_bitacora');?>",
+                    data: {'evento': 'Inicio de análisis', 'sistema': sistema}
+            }).done(function() {
+                console.log('Inicio');
+            });
             
             class_av.var.cambios_autor = false;
             class_av.var.cambios_documento = false;
