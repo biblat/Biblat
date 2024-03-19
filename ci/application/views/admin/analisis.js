@@ -18,7 +18,7 @@ class_av = {
             B: 'darkred'
         },
         idiomas:{
-            'Español': 'esp',
+            'Español': 'spa',
             'Portugués': 'por',
             'Inglés': 'eng'
         }
@@ -2195,7 +2195,8 @@ class_av = {
                     val_institucion = null;
                 }
             }
-
+            
+            if(pais !== null && pais !== '' && pais !== undefined){
                 if( !opciones_ciudades.hasOwnProperty(pais+'-'+class_av.var.corporativo) ){
                     $('#div-ciudad-'+id).hide();
                     $('#ciudad-'+id+'-load').show();
@@ -2271,6 +2272,7 @@ class_av = {
                         $('#div-ciudad-'+id).show();
                     }, 1000);
                 }
+            }
                 if(!class_av.var.cambios_de_inicio){
                     class_av.var.cambios_institucion = true;
                 }
