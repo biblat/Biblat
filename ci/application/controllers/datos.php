@@ -435,6 +435,8 @@ class Datos extends REST_Controller {
                             case when "articuloIdiomas"->>0 is not null then
                                     case when "articuloIdiomas"->0->>\'y\' = \'spa\' then
                                             \'Español\'
+									when "articuloIdiomas"->0->>\'y\' = \'esp\' then
+                                            \'Español\'
                                     when "articuloIdiomas"->0->>\'y\' = \'eng\' then
                                             \'Inglés\'
                                     when "articuloIdiomas"->0->>\'y\' = \'por\' then
@@ -452,6 +454,8 @@ class Datos extends REST_Controller {
                             end titulo2,
                             case when "articuloIdiomas"->>1 is not null then
                                     case when "articuloIdiomas"->1->>\'y\' = \'spa\' then
+                                            \'Español\'
+									when "articuloIdiomas"->1->>\'y\' = \'esp\' then
                                             \'Español\'
                                     when "articuloIdiomas"->1->>\'y\' = \'eng\' then
                                             \'Inglés\'
