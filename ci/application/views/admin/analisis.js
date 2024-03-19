@@ -24,6 +24,8 @@ class_av = {
         }
     },   
     var: {
+        //servidor: 'http://localhost:5001',
+        //app: '',
         servidor: 'https://biblat.unam.mx',
         app: '/scielo-claper',
         usuariosJSON: [],
@@ -31,18 +33,18 @@ class_av = {
         documentoJSON: '',
         autoresJSON: '',
         institucionesJSON: '',
-		revistasJSON: [],				 
+        revistasJSON: [],
         init: true,
         url_oai: '',
         data: '',
         revistas: '',
-		revistasAsignadas: [],					  
+        revistasAsignadas: [],
         revista: {},
         registros:{},
-		count_titulos: 0,
+        count_titulos: 0,
         numeros:'',
-		corporativo: 0,			   
-        url_ia:'',																				  
+        corporativo: 0,
+        url_ia:'',
         tabla: '<table id="tbl_articulos" class="display responsive nowrap" style="width:100%;font-size:11px">' +
                             '<thead>' +
                                 '<tr>' +
@@ -222,10 +224,13 @@ class_av = {
                                 <div class="col-xs-5"><hr style="border-width: 5px;"> </div><div class="col-xs-2"><br><center>- <b><span id="numAut-<id>"><id></span></b> -</center></div><div class="col-xs-5"><hr style="border-width: 5px;"> </div>\n\
                             </div>\n\
                     </div>',
-		html_titulo: '      <div id="div_titulo_na-<id>"> \
+        html_titulo: '      <div id="div_titulo_na-<id>"> \
                             <br><span><b>Título del artículo:</b></span><br> \
                             <input id="titulo_na-<id>" style="min-width: 90%" type="text" data-placement="top"> \
                             <span id="borra-titulo_na-<id>" class="glyphicon glyphicon-remove borra-titulo" aria-hidden="true" style="color: #ff8000;cursor:pointer"></span> \
+                            <br><span><b>Páginas artículo:</b></span><br> \
+                            <input id="de_na-<id>" style="min-width: 10%" type="text" data-placement="top" placeholder="Página inicial"> - \
+                            <input id="a_na-<id>" style="min-width: 10%" type="text" data-placement="top" placeholder="Página final"> \
                             </div>'
         ,
         opciones_paises: '',
@@ -360,16 +365,16 @@ class_av = {
                             $('.disciplina').select2({ tags: false, placeholder: "Seleccione una disciplina", allowClear: true});
                             
                             loading.end();
-						}).catch(function(){
+                        }).catch(function(){
                             location.reload();
                         });
-					}).catch(function(){
+                    }).catch(function(){
                         location.reload();
                     });
                 });
         });
     },
-	initRevistas: function() {
+    initRevistas: function() {
         if (class_av.var.init){
             class_av.var.init = false;
             var object = {
@@ -395,20 +400,41 @@ class_av = {
                                 }
                         });
                         class_av.var.revistasJSON.sort(class_utils.order_by(0));
-				}).catch(function(){
+                    }).catch(function(){
                         location.reload();
                     });
                 }).catch(function(){
-                    location.reload();					  
+                    location.reload();
                 });
             });
         }
-    },  
+    },
     ready: function(){
         loading.start();
         class_av.initClient();
     },
     control: function(){
+        /*
+        var textarea = document.getElementById('resumen_esp');
+        // Clonamos el elemento textarea para conservar sus atributos y valores
+        var nuevoTextarea = textarea.cloneNode(true);
+        // Reemplazamos el textarea original con el clon
+        textarea.parentNode.replaceChild(nuevoTextarea, textarea);
+        
+        textarea = document.getElementById('resumen_ing');
+        nuevoTextarea = textarea.cloneNode(true);
+        textarea.parentNode.replaceChild(nuevoTextarea, textarea);
+        
+        textarea = document.getElementById('resumen_por');
+        nuevoTextarea = textarea.cloneNode(true);
+        textarea.parentNode.replaceChild(nuevoTextarea, textarea);
+        
+        textarea = document.getElementById('resumen_otro');
+        nuevoTextarea = textarea.cloneNode(true);
+        textarea.parentNode.replaceChild(nuevoTextarea, textarea);
+        
+        $('#resumen_esp, #resumen_ing, #resumen_por, #resumen_otro').css('overflow-y', 'scroll');
+        */
         $('.sistema').off('click').on('click', function(e){
             var _id = this.id;
             var sistema = _id.split('__')[0];
@@ -416,8 +442,8 @@ class_av = {
             if(class_av.cambios_sin_guardar('sistema', this)){
                 return false;
             }
-			
-			$.ajax({
+            
+            $.ajax({
                     type: 'POST',
                     url: "<?=site_url('metametrics/ws_bitacora');?>",
                     data: {'evento': 'Inicio de análisis', 'sistema': sistema}
@@ -462,13 +488,23 @@ class_av = {
             ) 
             .then(function(resp_documento, resp_autores, resp_instituciones){
                 class_av.var.documentoJSON = resp_documento[0];
-                class_av.var.autoresJSON = resp_autores[0];
-                class_av.var.institucionesJSON = resp_instituciones[0];
-				var corporativo = 0;					
+                class_av.var.autoresJSON = resp_autores[0].map(function(item){
+                                                                    return {
+                                                                            ...item, // Copiar todas las propiedades del elemento original
+                                                                            id2: parseInt(item.id) // Agregar la nueva propiedad id2 con el valor numérico de id
+                                                                    };
+                                                                });
+                class_av.var.institucionesJSON = resp_instituciones[0].map(function(item){
+                                                                            return {
+                                                                                ...item, // Copiar todas las propiedades del elemento original
+                                                                                id2: parseInt(item.id) // Agregar la nueva propiedad id2 con el valor numérico de id
+                                                                            };
+                                                                        });
+                var corporativo = 0;
                 class_av.var.corporativo = 0;
-				
+                
                 if(class_av.var.institucionesJSON !== undefined){
-                    class_av.var.institucionesJSON.sort(class_utils.order_by('id'));
+                    class_av.var.institucionesJSON.sort(class_utils.order_by('id2'));
                     corporativo = class_utils.filter_prop(class_av.var.institucionesJSON, 'corporativo', '1').length;
                     if(corporativo > 0){
                         class_av.var.corporativo = 1;
@@ -476,7 +512,7 @@ class_av = {
                 }
                 
                 if(class_av.var.autoresJSON !== undefined){
-                    class_av.var.autoresJSON.sort(class_utils.order_by('id'));
+                    class_av.var.autoresJSON.sort(class_utils.order_by('id2'));
                 }
                 
                 /******************************************************************/
@@ -489,18 +525,18 @@ class_av = {
                     url_pdf = class_av.var.documentoJSON[0].url2;
                 }
                 
-				if(class_av.var.corporativo == 1){
+                if(class_av.var.corporativo == 1){
                     $('#es-corporativo')[0].checked = true;
                 }else{
                     $('#es-corporativo')[0].checked = false;
                 }
                 class_av.autor_corporativo(true);
-				
+                
                 //Lectura del pdf
                 $.when(
                     class_utils.setResource(class_av.var.servidor + class_av.var.app + '/get_pdf/', {url: url_pdf})
                 ) 
-                .then(function(resp_pdf){    
+                .then(function(resp_pdf){
                     class_av.var.texto_pdf = resp_pdf.result;
 
                     /**** Búsqueda de título en pdf *********/
@@ -509,7 +545,7 @@ class_av = {
                         class_av.busca_en_pdf(class_av.var.texto_pdf, class_av.var.documentoJSON[0].articulo, '#check-titulo', '#titulo');
                     //}
 
-					$('.tooltip-titulo').tooltip();							   
+                    $('.tooltip-titulo').tooltip();
                     $('#titulo').val(class_av.var.documentoJSON[0].articulo.replace(/<[^>]+>/g, ''));
                     var tiempo;
                     $('#titulo').off('keyup').on('keyup', function(e){
@@ -542,9 +578,12 @@ class_av = {
 
 
                     /******************************************************************/
-                    var idiomas = class_av.var.documentoJSON[0].idioma.split(',').map(function(item) {
+                    var idiomas = [''];
+                    if(class_av.var.documentoJSON[0].idioma !== null && class_av.var.documentoJSON[0].idioma !== undefined){
+                        idiomas = class_av.var.documentoJSON[0].idioma.split(',').map(function(item) {
                                                                                         return item.trim().charAt(0).toUpperCase() + item.trim().toLowerCase().slice(1);
                                                                                     });
+                    }
                     $("#idioma").val(idiomas[0]);
                     /****Búsqueda idioma ********/
                     if(idiomas[0] !== ''){
@@ -672,8 +711,9 @@ class_av = {
                     });
                     
                     $('#idiomaDocumento').select2({ tags: false, placeholder: "Seleccione uno o más idiomas", allowClear: true});
-                    $('#idiomaDocumento').val(idiomas).trigger('change');												 
-					$('#import-ai').off('click').on('click', function(){
+                    $('#idiomaDocumento').val(idiomas).trigger('change');
+                    
+                    $('#import-ai').off('click').on('click', function(){
                         loading.start();
                         var url ='';
                         if( ($('#url1').val() !== '' && $("#tipourl1").val() == 'pdf') ){
@@ -722,11 +762,10 @@ class_av = {
                                 }
                                 loading.end();
                             });
-                    });   
-                    
+                    });
                     
                     /******************************************************************/
-					$('#es-corporativo').off('click').on('click', function(){
+                    $('#es-corporativo').off('click').on('click', function(){
                         if(this.checked){
                             class_av.var.corporativo = 1;
                         }else{
@@ -734,6 +773,8 @@ class_av = {
                         }
                         class_av.autor_corporativo();
                     });
+                    
+                    
                     $('#div-instituciones').html('');
                     opciones_ciudades = {};
                     var repetidas_ciudades = [];
@@ -762,7 +803,7 @@ class_av = {
                     
                     loading.end();
 
-                    $('#accordionInstituciones').html('Cargando Instituciones...');
+                    $('#accordionInstituciones').html('Cargando Instituciones (0/'+class_av.var.institucionesJSON.length+') ...');
                     $('#accordionInstituciones').prop('href', '');
                     
                     if(class_av.var.institucionesJSON.length == 0){
@@ -781,11 +822,11 @@ class_av = {
                                         $('#ciudad-'+val2.id).html(opciones_ciudades[val.pais+'-'+class_av.var.corporativo]);
                                         $('#ciudad-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true});
                                         $('#select2-ciudad-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                                        $('.select2-container').tooltip();							  
+                                        $('.select2-container').tooltip();
                                         if(val2.ciudad !== null){
                                            $('#ciudad-'+val2.id).val(val2.ciudad).trigger('change');
                                         }
-										if(class_av.var.corporativo == 1){
+                                        if(class_av.var.corporativo == 1){
                                             $('.div-ciudad').hide();
                                         }
                                     }
@@ -797,7 +838,7 @@ class_av = {
                                         $('#institucion-'+val2.id).html(opciones_instituciones[val.pais+'-'+class_av.var.corporativo]);
                                         $('#institucion-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true/*,  width: 'Auto'*/});
                                         $('#select2-institucion-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                                        $('.select2-container').tooltip();							  
+                                        $('.select2-container').tooltip();
                                         if(val2.institucion !== null){
                                             //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
                                             if ($('#institucion-'+val2.id).find("option[value='" + val2.institucion.replaceAll('"', "&quot;") + "']").length) {
@@ -820,7 +861,7 @@ class_av = {
                                         $('#dependencia-'+val2.id).html(opciones_dependencias[val.institucion+'-'+class_av.var.corporativo]);
                                         $('#dependencia-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
                                         $('#select2-dependencia-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                                        $('.select2-container').tooltip();						  
+                                        $('.select2-container').tooltip();
                                         if(val2.dependencia !== null){
                                             $('#dependencia-'+val2.id).val(val2.dependencia).trigger('change');
                                         }
@@ -864,10 +905,21 @@ class_av = {
                         class_av.change_paises();
                         class_av.change_institucion();
                     };
-
-                    var peticiones = 0;
-
-                    $.each(class_av.var.institucionesJSON, function(i,val){
+                    
+                    var total = 0;
+                    //$.each(class_av.var.institucionesJSON, function(i,val){
+                    var recorrido_instituciones = function(arr_instituciones){
+                        if(arr_instituciones.length == 0){
+                            revisaRepetidas();
+                            return true;
+                        }
+                        
+                        total ++;
+                        $('#accordionInstituciones').html('Cargando Instituciones ('+total+'/'+class_av.var.institucionesJSON.length+') ...');
+                        var peticiones = 2;
+                        var val = arr_instituciones.slice(0,1)[0];
+                        var resto_val = arr_instituciones.slice(1);
+                        
                         var html_institucion = class_av.var.html_institucion.replaceAll('<id>', val.id);
                         $('#div-instituciones').append(html_institucion);
                         $('#pais-'+val.id).html(class_av.var.opciones_paises);
@@ -881,11 +933,11 @@ class_av = {
                             }
                         }
 
-                        if(val.pais !== null){
+                        if(val.pais !== null && val.pais !== '' && val.pais !== undefined){
                             $('#pais-'+val.id).val(val.pais).trigger('change');
                             //Revisa si ya se trajo el catálogo para este país
                             if( !opciones_ciudades.hasOwnProperty(val.pais+'-'+class_av.var.corporativo) ){
-                                peticiones ++;
+                                //peticiones ++;
                                 opciones_ciudades[val.pais+'-'+class_av.var.corporativo] = '';
                                 opciones_instituciones[val.pais+'-'+class_av.var.corporativo] = '';
                                 /*********** Ciudades e instituciones según país *******************/
@@ -894,7 +946,7 @@ class_av = {
                                     class_utils.getResource('/datos/institucion_by_pais/'+val.pais.replaceAll(',','')+'/'+class_av.var.corporativo)
                                 ) 
                                 .then(function(resp_ciudad, resp_institucion){
-                                    setTimeout(function(){                     
+                                    //setTimeout(function(){                
                                         peticiones --;
                                         /*********ciudad*******************/
                                         var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
@@ -905,13 +957,13 @@ class_av = {
                                         $('#ciudad-'+val.id).html(opciones_ciudades[val.pais+'-'+class_av.var.corporativo]);
                                         $('#ciudad-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true});
                                         $('#select2-ciudad-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                                        $('.select2-container').tooltip();						  
+                                        $('.select2-container').tooltip();
                                         
                                         //Si hay un valor de ciudad se preselecciona
                                         if(val.ciudad !== null){
                                             $('#ciudad-'+val.id).val(val.ciudad).trigger('change');
                                         }
-										if(class_av.var.corporativo == 1){
+                                        if(class_av.var.corporativo == 1){
                                             $('.div-ciudad').hide();
                                         }
 
@@ -924,7 +976,7 @@ class_av = {
                                         $('#institucion-'+val.id).html(opciones_instituciones[val.pais+'-'+class_av.var.corporativo]);
                                         $('#institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve'});
                                         $('#select2-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                                        $('.select2-container').tooltip();							  
+                                        $('.select2-container').tooltip();
                                         
                                         //Si hay un valor de institución se preselecciona
                                         if(val.institucion !== null){
@@ -943,11 +995,13 @@ class_av = {
                                         
                                         //Ya que se terminan las peticiones por país, se revisan instituciones del mismo país
                                         if( peticiones == 0 ){
-                                            revisaRepetidas();
+                                            //revisaRepetidas();
+                                            recorrido_instituciones(resto_val);
                                         }
-                                    }, 3000);
+                                    //}, 3000);
                                 });
                             }else{
+                                peticiones --;
                                 //Pone en pendientes las que sean del mismo país
                                 var obj_repetidas_ciudades = {};
                                 obj_repetidas_ciudades['id'] = val.id;
@@ -961,8 +1015,13 @@ class_av = {
                                 obj_repetidas_instituciones['pais'] = val.pais;
                                 obj_repetidas_instituciones['institucion'] = val.institucion;
                                 repetidas_instituciones.push(obj_repetidas_instituciones);
+                                if( peticiones == 0 ){
+                                    //revisaRepetidas();
+                                    recorrido_instituciones(resto_val);
+                                }
                             }
                         }else{
+                            peticiones --;
                             //Generalmente no hay país puesto que no existe un campo de donde extraerlo,
                             //Si no se encontró tampoco dentro del texto de institución
                             /*********institucion*******************/
@@ -974,20 +1033,25 @@ class_av = {
                                 $('#institucion-'+val.id).html(options);
                                 $('#institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve'});
                                 $('#select2-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                                $('.select2-container').tooltip();						  
+                                $('.select2-container').tooltip();
                                 $('#institucion-'+val.id).val(val.institucion).trigger('change');
                                 //if(url_pdf !== ''){
                                     //class_av.busca_en_pdf(url_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id);
                                     class_av.busca_en_pdf(class_av.var.texto_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id);
                                 //}
                             }
+                            
+                            if( peticiones == 0 ){
+                                //revisaRepetidas();
+                                recorrido_instituciones(resto_val);
+                            }
                         }                    
 
                         /************************Dependencias*****************/
-                        if(val.institucion !== null){
+                        if(val.institucion !== null && val.institucion !== '' && val.institucion !== undefined){
                             //Revisa si ya se trajo el catálogo para este país
                             if( !opciones_dependencias.hasOwnProperty(val.institucion+'-'+class_av.var.corporativo) ){
-                                peticiones++;
+                                //peticiones++;
                                 opciones_dependencias[val.institucion+'-'+class_av.var.corporativo] = '';
                                 /*********** dependencias según institucion *******************/
                                 $.when(
@@ -995,61 +1059,63 @@ class_av = {
                                     class_utils.getResource('/datos/ciudad_by_institucion/'+val.institucion.replaceAll(class_av.cons.char_i, ''))
                                 ) 
                                 .then(function(resp_dependencias, resp_ciudades){
-									setTimeout(function(){
-                                    peticiones--;
-                                    var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
-                                    $.each(resp_dependencias[0], function(i2, val2){
-                                        options += class_av.cons.option.replace('<valor>', val2.dependencia.replace('"', "&quot;")).replace('<opcion>', val2.dependencia);
-                                    });
-                                    opciones_dependencias[val.institucion+'-'+class_av.var.corporativo] = options;
-                                    $('#dependencia-'+val.id).html(opciones_dependencias[val.institucion+'-'+class_av.var.corporativo]);
-                                    $('#dependencia-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
-                                    $('#select2-dependencia-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                                    $('.select2-container').tooltip();
-                                    if(val.dependencia !== null){
-                                        $('#dependencia-'+val.id).val(val.dependencia).trigger('change');
-                                    }
-                                    
-                                    $('#check-ins-bib-'+val.id).show();
-                                    $('#check-ins-bib-'+val.id+'-load').hide();
-                                    if(resp_ciudades[0].length > 0){
-                                        $('#check-ins-bib-'+val.id+'-true').show();
-                                        $('#div-sug-ciudad-'+val.id).show();
-                                        $('#check-ins-bib-'+val.id+'-expand').show();
-                                        $('#check-ins-bib-'+val.id+'-expand').on('click', function(){
-                                           if($('#check-ins-bib-'+val.id+'-expand').hasClass('fa fa-sort-desc')){
-                                                $('#check-ins-bib-'+val.id+'-expand').removeClass('fa-sort-desc');
-                                                $('#check-ins-bib-'+val.id+'-expand').addClass('fa-sort-asc');  
-                                             }else{
-                                                $('#check-ins-bib-'+val.id+'-expand').addClass('fa-sort-desc');
-                                                $('#check-ins-bib-'+val.id+'-expand').removeClass('fa-sort-asc');
-                                             }
-                                           if( $('#sug-ciudad-'+val.id).css('display') == 'none' ){
-                                               $('#sug-ciudad-'+val.id).show();
-                                           }else{
-                                               $('#sug-ciudad-'+val.id).hide();
-                                           }
+                                    //setTimeout(function(){   
+                                        peticiones--;
+                                        var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                                        $.each(resp_dependencias[0], function(i2, val2){
+                                            options += class_av.cons.option.replace('<valor>', val2.dependencia.replace('"', "&quot;")).replace('<opcion>', val2.dependencia);
                                         });
-                                    }else{
-                                        $('#check-ins-bib-'+val.id+'-false').show();
-                                        $('#div-sug-ciudad-'+val.id).hide();
-                                    }
-                                    //options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
-                                    options = '';
-                                    $.each(resp_ciudades[0], function(i2, val2){
-                                        //options += class_av.cons.option.replace('<valor>', val2.ciudad.replace('"', "&quot;")).replace('<opcion>', val2.ciudad);
-                                        options += '<li>' + val2.ciudad + '</li>';
-                                    });
-                                    opciones_sug_ciudades[val.institucion] = options;
-                                    $('#sug-ciudad-'+val.id).html(opciones_sug_ciudades[val.institucion]);
-                                    //$('#sug-ciudad-'+val.id).select2({ tags: true, placeholder: "Sugerencias encontradas", allowClear: true});
+                                        opciones_dependencias[val.institucion+'-'+class_av.var.corporativo] = options;										 
+                                        $('#dependencia-'+val.id).html(opciones_dependencias[val.institucion+'-'+class_av.var.corporativo]);
+                                        $('#dependencia-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
+                                        $('#select2-dependencia-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                                        $('.select2-container').tooltip();
+                                        if(val.dependencia !== null){
+                                            $('#dependencia-'+val.id).val(val.dependencia).trigger('change');
+                                        }
 
-                                    if( peticiones == 0 ){
-                                        revisaRepetidas();
-                                    }
-									}, 3000);
+                                        $('#check-ins-bib-'+val.id).show();
+                                        $('#check-ins-bib-'+val.id+'-load').hide();
+                                        if(resp_ciudades[0].length > 0){
+                                            $('#check-ins-bib-'+val.id+'-true').show();
+                                            $('#div-sug-ciudad-'+val.id).show();
+                                            $('#check-ins-bib-'+val.id+'-expand').show();
+                                            $('#check-ins-bib-'+val.id+'-expand').on('click', function(){
+                                               if($('#check-ins-bib-'+val.id+'-expand').hasClass('fa fa-sort-desc')){
+                                                    $('#check-ins-bib-'+val.id+'-expand').removeClass('fa-sort-desc');
+                                                    $('#check-ins-bib-'+val.id+'-expand').addClass('fa-sort-asc');  
+                                                 }else{
+                                                    $('#check-ins-bib-'+val.id+'-expand').addClass('fa-sort-desc');
+                                                    $('#check-ins-bib-'+val.id+'-expand').removeClass('fa-sort-asc');
+                                                 }
+                                               if( $('#sug-ciudad-'+val.id).css('display') == 'none' ){
+                                                   $('#sug-ciudad-'+val.id).show();
+                                               }else{
+                                                   $('#sug-ciudad-'+val.id).hide();
+                                               }
+                                            });
+                                        }else{
+                                            $('#check-ins-bib-'+val.id+'-false').show();
+                                            $('#div-sug-ciudad-'+val.id).hide();
+                                        }
+                                        //options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                                        options = '';
+                                        $.each(resp_ciudades[0], function(i2, val2){
+                                            //options += class_av.cons.option.replace('<valor>', val2.ciudad.replace('"', "&quot;")).replace('<opcion>', val2.ciudad);
+                                            options += '<li>' + val2.ciudad + '</li>';
+                                        });
+                                        opciones_sug_ciudades[val.institucion] = options;
+                                        $('#sug-ciudad-'+val.id).html(opciones_sug_ciudades[val.institucion]);
+                                        //$('#sug-ciudad-'+val.id).select2({ tags: true, placeholder: "Sugerencias encontradas", allowClear: true});
+
+                                        if( peticiones == 0 ){
+                                            //revisaRepetidas();
+                                            recorrido_instituciones(resto_val);
+                                        }
+                                    //}, 1000);
                                 });
                             }else{
+                                peticiones --;
                                 //Pone en pendientes las que sean de la misma institución
                                 var obj_repetidas_dependencias = {};
                                 obj_repetidas_dependencias['id'] = val.id;
@@ -1065,71 +1131,98 @@ class_av = {
                                 repetidas_sug_ciudades.push(obj_repetidas_ciudades);
 
                                 if( peticiones == 0 ){
-                                    revisaRepetidas();
+                                    //revisaRepetidas();
+                                    recorrido_instituciones(resto_val);
                                 }
                             }
                         }else{
                             setTimeout(function(){
                                 if( peticiones == 0 ){
-                                    revisaRepetidas();
+                                    //revisaRepetidas();
+                                    recorrido_instituciones(resto_val);
                                 } 
                             }, 2000);
                         }
-                    });
+                    };//);
+                    
+                    recorrido_instituciones(class_av.var.institucionesJSON);
                     
                     /******************************************************************/
                     $('#div-autores').html('');
 
-                    $('#accordionAutores').html('Cargando Autores...');
+                    $('#accordionAutores').html('Cargando Autores (0/'+class_av.var.autoresJSON.length+') ...');
                     $('#accordionAutores').prop('href', '');
 
                     /*********institucion*******************/
                     class_av.var.a_opciones_instituciones = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
                     $.each(class_av.var.institucionesJSON, function(i,val){
-                        class_av.var.a_opciones_instituciones += class_av.cons.option.replace('<valor>', val.id).replace('<opcion>', val.institucion);
+                        var op_institucion = val.institucion;
+                        if(val.dependencia !== undefined && val.dependencia !== null && val.dependencia !== ''){
+                            op_institucion = op_institucion + ' - ' + val.dependencia;
+                        }
+                        class_av.var.a_opciones_instituciones += class_av.cons.option.replace('<valor>', val.id).replace('<opcion>', op_institucion);
                     });
-
-                    $.each(class_av.var.autoresJSON, function(i,val){
+                    
+                    var total2 = 0;
+                    //$.each(class_av.var.autoresJSON, function(i,val){
+                    var recorrido_autores = function(arr_autores){
+                        if(arr_autores.length == 0){
+                            $('#accordionAutores').html('Autores');
+                            $('#accordionAutores').prop('href', '#autores');
+                            return true;
+                        }
+                        
+                        total2 ++;
+                        $('#accordionAutores').html('Cargando Autores ('+total2+'/'+class_av.var.autoresJSON.length+') ...');
+                        var val = arr_autores.slice(0,1)[0];
+                        var resto_val = arr_autores.slice(1);
+                        
                         var html_autor = class_av.var.html_autor.replaceAll('<id>', val.id);
                         var institucion = null;
                         $('#div-autores').append(html_autor);
                         $('#a-institucion-'+val.id).html(class_av.var.a_opciones_instituciones);
                         $('#a-institucion-'+val.id).select2({ tags: false, placeholder: "Seleccione una institución", allowClear: true});
                         $('#select2-a-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                        $('.select2-container').tooltip();						  
+                        $('.select2-container').tooltip();
                         if(val['institucionId'] !== null){
                             institucion = class_utils.find_prop(class_av.var.institucionesJSON, 'id',val['institucionId'])['institucion'];
                             $('#a-institucion-'+val.id).val(val['institucionId']).trigger('change');
                         }
                         $('#nombre-'+val.id).val(val.nombre);
                         $('#orcid-'+val.id).val(val.orcid);
-						$('#nombre-'+val.id).tooltip();
-                        $('#orcid-'+val.id).tooltip();							  
+                        $('#nombre-'+val.id).tooltip();
+                        $('#orcid-'+val.id).tooltip();
                         
                         class_av.orcid_por_nombre(val.nombre, institucion, val.orcid, '#check-nombre-'+val.id, '#nombre-'+val.id);
-						if(val.nombre !== null){
+                        if(val.nombre !== null && val.nombre !== '' && val.nombre !== undefined){
                             var nombre = val.nombre.split(',');
                             if(nombre[1]){
                                 nombre = nombre[1] + ' ' + nombre[0];
                             }
                             class_av.busca_en_pdf(class_av.var.texto_pdf, nombre, '#check-nombre-pdf-'+val.id, '#nombre-'+val.id);
                             class_av.busca_en_pdf(class_av.var.texto_pdf, val.orcid, '#check-orcid-pdf-'+val.id, '#orcid-'+val.id);
-                            class_av.nombre_por_orcid(val.orcid, val.nombre, institucion, '#check-orcid-'+val.id, '#orcid-'+val.id);
-                            class_av.biblat_por_nombre(val.nombre, institucion, '#check-nombre-bib-'+val.id, '#nombre-'+val.id);
-                        }                        
-                    });
+                            class_av.nombre_por_orcid(val.orcid, val.nombre, institucion, '#check-orcid-'+val.id, '#orcid-'+val.id)
+                            class_av.biblat_por_nombre(val.nombre, institucion, '#check-nombre-bib-'+val.id, '#nombre-'+val.id)
+                            .finally(function(){
+                                    recorrido_autores(resto_val);
+                            });
+                        }else{
+                            recorrido_autores(resto_val);
+                        }
+                    };//});
+                    
+                    recorrido_autores(class_av.var.autoresJSON);
                       
-                    $('#accordionAutores').html('Autores');
-                    $('#accordionAutores').prop('href', '#autores');
                     class_av.evento_borra_autor();
                     class_av.change_nombre();
                     class_av.change_orcid();
-					$('#save-no-indizable').show();
+                    
+                    $('#save-no-indizable').show();
                     $('#save-full').show();
                     $('#save-article').show();
                     $('#save-instituciones').show();
                     $('#save-autores').show();
-                    class_av.var.cambios_de_inicio = false;						   
+                    class_av.var.cambios_de_inicio = false;
                 });
             });
             
@@ -1137,6 +1230,7 @@ class_av = {
             },500);
         });
         class_av.control_guarda();
+        
         $('#btn_nuevo_articulo').off('click').on('click', function(){
             $('#accordion').hide();
             $('#div_nuevo_articulo').show();
@@ -1292,11 +1386,13 @@ class_av = {
                         $('#'+id_ciclo)[0].id = val.id.replace(num_ciclo, num_ciclo-1);
                         $('#div_titulo_na-'+num_ciclo)[0].id = 'div_titulo_na-'+(num_ciclo-1);
                         $('#titulo_na-'+num_ciclo)[0].id = 'titulo_na-'+(num_ciclo-1);
+                        $('#de_na-'+num_ciclo)[0].id = 'de_na-'+(num_ciclo-1);
+                        $('#a_na-'+num_ciclo)[0].id = 'a_na-'+(num_ciclo-1);
                     }
                 });
                 class_av.var.count_titulos--;
             });
-        });  
+        });
     },
     borra_institucion: function(id){
         class_av.var.institucionesJSON.splice(id-1,1);
@@ -1371,7 +1467,7 @@ class_av = {
             class_av.borra_autor(borra_id);
         });
     },
-	autor_corporativo: function(inicio=false){
+    autor_corporativo: function(inicio=false){
         if(class_av.var.corporativo == 1){
             $.each(class_av.var.institucionesJSON, function(i, val){
                 $('.div-ciudad').hide();
@@ -1381,8 +1477,9 @@ class_av = {
                 $('#institucion-'+val.id).change();
                 $('#avisoAutores').show();
                 $('#panelAutores').hide();
-                if(!inicio)
+                if(!inicio){
                     class_av.var.cambios_institucion = true; 
+                }
             });
         }else{
             $.each(class_av.var.institucionesJSON, function(i, val){
@@ -1393,8 +1490,9 @@ class_av = {
                 $('#institucion-'+val.id).change();
                 $('#avisoAutores').hide();
                 $('#panelAutores').show();
-                if(!inicio)
+                if(!inicio){
                     class_av.var.cambios_institucion = true; 
+                }
             });
         }
     },
@@ -1447,14 +1545,14 @@ class_av = {
         $('#a-institucion-'+id).html(class_av.var.a_opciones_instituciones);
         $('#a-institucion-'+id).select2({ tags: false, placeholder: "Seleccione una institución", allowClear: true});
         $('#select2-a-institucion-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-        $('.select2-container').tooltip();						  
+        $('.select2-container').tooltip();
         
         //Debido a que en el evento de borrar hay cambios en los ids, se revisan los anteriores para areglar la parte del select
         for(var id_atras = parseInt(id)-1; id_atras > 0; id_atras--){
             if($('#a-institucion-'+id_atras)){
                 $('#a-institucion-'+id_atras).select2({ tags: false, placeholder: "Seleccione una institución", allowClear: true});
                 $('#select2-a-institucion-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                $('.select2-container').tooltip();						  
+                $('.select2-container').tooltip();
             }
         }
         
@@ -1523,11 +1621,11 @@ class_av = {
                         }
                         $(id + '-half').hide();
                     }
-					if(resp_pdf.result == 'no encontrado'){
+                    if(resp_pdf.result == 'no encontrado'){
                         $(id + '-false').show();
                     }else{
                         $(id + '-false').hide();
-                    }									   
+                    }
                     if(resp_pdf.result == 'encontrado'){
                         $(id + '-true').show();
                     }else{
@@ -1584,6 +1682,7 @@ class_av = {
             });
     },
     biblat_por_nombre: function(nombre, institucion, id, id_h){
+        return new Promise(function(resolve, reject) {
             $(id).hide();
             $(id + '-load').show();
             $(id + '-broken').hide();
@@ -1593,8 +1692,9 @@ class_av = {
             $(id + '-texto').html('');
             $(id + '-texto').hide();
             
-            if(nombre == null || nombre == ''){    
-                return false
+            if(nombre == null || nombre == ''){
+                resolve();
+                return false;
             }
             
             $(id).show();
@@ -1602,7 +1702,7 @@ class_av = {
             $.when(
                 class_utils.getResource('/datos/autor_by_nombre/'+nombre.replaceAll(class_av.cons.char_i, '')+'/'+class_av.var.sistema)
             ).then(function(resp){
-                setTimeout(function(){
+                //setTimeout(function(){
                     $(id + '-load').hide();
                     if(resp.length == 0){
                         $(id + '-false').show();
@@ -1655,16 +1755,19 @@ class_av = {
                             }
                         });
                     }
-                }, 3000);
+                //}, 1000);
             }).fail(function(){
                 $(id + '-load').hide();
                 $(id + '-texto').html('Sin comparar');
                 $(id + '-texto').show();
             }).always(function(){
                 $(id_h).prop("disabled", false);
+                resolve();
             });
+        });
     },
     orcid_por_nombre: function(nombre, institucion, orcid, id, id_h){
+        return new Promise(function(resolve, reject) {
             $(id).hide();
             $(id + '-load').show();
             $(id + '-broken').hide();
@@ -1676,7 +1779,8 @@ class_av = {
             $(id + '-texto').hide();
             
             if(nombre == null || nombre == ''){    
-                return false
+                resolve();
+                return false;
             }
             
             $(id).show();
@@ -1684,7 +1788,7 @@ class_av = {
             $.when(
                 class_utils.setResource(class_av.var.servidor + class_av.var.app + '/orcid_por_nombre/',{nombre: nombre})
             ).then(function(resp){
-                setTimeout(function(){
+                //setTimeout(function(){
                     $(id + '-load').hide();
                     if(resp.result == 'fallo'){
                         $(id + '-broken').show();
@@ -1861,16 +1965,19 @@ class_av = {
                         $(id + '-texto').html(texto);
                         $(id + '-texto').show();*/
                     }
-                }, 1000);
+                //}, 1000);
             }).fail(function(){
                 $(id + '-load').hide();
                 $(id + '-texto').html('Sin comparar');
                 $(id + '-texto').show();
             }).always(function(){
                 $(id_h).prop("disabled", false);
+                resolve();
             });
+        });
     },
     nombre_por_orcid: function(orcid, nombre, institucion, id, id_h){
+        return new Promise(function(resolve, reject) {
             $(id).hide();
             $(id + '-load').show();
             $(id + '-broken').hide();
@@ -1880,8 +1987,9 @@ class_av = {
             $(id + '-texto').html('');
             $(id + '-texto').hide();
             
-            if(orcid == null || orcid == ''){    
-                return false
+            if(orcid == null || orcid == ''){
+                resolve();
+                return false;
             }
             
             $(id).show();
@@ -1889,7 +1997,7 @@ class_av = {
             $.when(
                 class_utils.setResource(class_av.var.servidor + class_av.var.app + '/nombre_por_orcid/',{orcid: orcid})
             ).then(function(resp){
-                setTimeout(function(){
+                //setTimeout(function(){
                     $(id + '-load').hide();
                     if(resp.result == 'fallo'){
                         $(id + '-broken').show();
@@ -1951,14 +2059,16 @@ class_av = {
                             }
                         });
                     }
-                }, 1000);
+                //}, 1000);
             }).fail(function(){
                 $(id + '-load').hide();
                 $(id + '-texto').html('Sin comparar');
                 $(id + '-texto').show();
             }).always(function(){
                 $(id_h).prop("disabled", false);
+                resolve();
             });
+        });
     },
     setTabla: function(data){
         var tbody = '';
@@ -1968,8 +2078,10 @@ class_av = {
             var texto1 = (val['url1'] == null)?'':'Ver artículo';
             var texto2 = (val['url2'] == null)?'':'Ver artículo';
             var art_class = ( ['C','B'].indexOf(val['estatus']) == -1 )?'sistema':'cerrado';
+            //var art_class = 'sistema';
             var art_style = ( ['C','B'].indexOf(val['estatus']) == -1 )?'cursor:pointer;color:#ff8000':'';
-			val['articulo'] = val['articulo'].replace(/<[^>]+>/g, '');														  
+            //var art_style = 'cursor:pointer;color:#ff8000';
+            val['articulo'] = val['articulo'].replace(/<[^>]+>/g, '');
             var tr = class_av.var.tr.replace('<revista>', val['revista'])
                             .replace('<issn>', val['issn'])
                             .replace('<numero>', val['numero'])
@@ -2019,7 +2131,7 @@ class_av = {
                         //Reajusta el ancho de las columnas
                         drawCallback: function( settings ) {
                             $(this).DataTable().columns.adjust();
-							//Evento para ocultar o mostrar la paginación si existen o no registros después de una búsqueda
+                            //Evento para ocultar o mostrar la paginación si existen o no registros después de una búsqueda
                             if ($(this).DataTable().page.info().recordsDisplay > 0) {
                                 $('.dataTables_paginate').show();
                             }else{
@@ -2084,7 +2196,7 @@ class_av = {
                 }
             }
 
-            if( !opciones_ciudades.hasOwnProperty(pais+'-'+class_av.var.corporativo) ){
+                if( !opciones_ciudades.hasOwnProperty(pais+'-'+class_av.var.corporativo) ){
                     $('#div-ciudad-'+id).hide();
                     $('#ciudad-'+id+'-load').show();
 
@@ -2209,7 +2321,7 @@ class_av = {
                         $('#dependencia-'+id).html(opciones_dependencias[institucion+'-'+class_av.var.corporativo]);
                         $('#dependencia-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
                         $('#select2-dependencia-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                        $('.select2-container').tooltip();					  
+                        $('.select2-container').tooltip();
                         
                         $('#check-ins-'+id).show();
                         $('#check-ins-bib-'+id+'-load').hide();
@@ -2253,14 +2365,14 @@ class_av = {
                         //options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
                         
                         //$('#sug-ciudad-'+id).select2({ tags: true, placeholder: "Sugerencias encontradas", allowClear: true})
-                    },3000);
+                    },1000);
                 });
             }else{
                 setTimeout(function(){
                     $('#dependencia-'+id).html(opciones_dependencias[institucion+'-'+class_av.var.corporativo]);
                     $('#dependencia-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
                     $('#select2-dependencia-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                    $('.select2-container').tooltip();						  
+                    $('.select2-container').tooltip();
                     
                     $('#check-ins-'+id).show();
                     $('#check-ins-bib-'+id+'-load').hide();
@@ -2389,7 +2501,7 @@ class_av = {
             obj['sistema'] = class_av.var.sistema;
             var titulo = $('#titulo').val();
             //var idioma = $('#idioma').val();
-            var idioma = $('#idiomaDocumento').val().join(', ').charAt(0).toUpperCase() + $('#idiomaDocumento').val().join(', ').toLowerCase().slice(1);																										
+            var idioma = $('#idiomaDocumento').val().join(', ').charAt(0).toUpperCase() + $('#idiomaDocumento').val().join(', ').toLowerCase().slice(1);
             titulo = class_av.limpia(titulo);
             if(titulo){
                 obj['articulo'] = titulo;
@@ -2539,10 +2651,10 @@ class_av = {
     data_update_instituciones: function(){
         var data = {};
         var data_int = [];
-		var data_corp = [];				   
+        var data_corp = [];
         $.each(class_av.var.institucionesJSON, function(i,val){
             var obj = {};
-			var obj_corp = {};				  
+            var obj_corp = {};
            
             obj['sistema'] = class_av.var.sistema;
             obj['id'] = parseInt(val.id);
@@ -2587,14 +2699,14 @@ class_av = {
             
         });
         
-		data['corporativo'] = class_av.var.corporativo;
+        data['corporativo'] = class_av.var.corporativo;
         data['tabla_autores'] = 'author';
         data['tabla_instituciones'] = 'institution';
         data['tabla_corporativo'] = 'author_coorp';
         data['where'] = ['sistema', 'id'];
         data['where_delete'] = ['sistema'];
         data['data_instituciones'] = data_int;
-        data['data_corporativo'] = data_corp;				 
+        data['data_corporativo'] = data_corp;
         
         //Sólo actualiza ids de instituciones
         var arrAutores = [];
@@ -2657,7 +2769,11 @@ class_av = {
         $('#div-autores').html('');
         class_av.var.a_opciones_instituciones = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
         $.each(class_av.var.institucionesJSON, function(i,val){
-            class_av.var.a_opciones_instituciones += class_av.cons.option.replace('<valor>', val.id).replace('<opcion>', val.institucion);
+            var op_institucion = val.institucion;
+            if(val.dependencia !== undefined && val.dependencia !== null && val.dependencia !== ''){
+                op_institucion = op_institucion + ' - ' + val.dependencia;
+            }
+            class_av.var.a_opciones_instituciones += class_av.cons.option.replace('<valor>', val.id).replace('<opcion>', op_institucion);
         });
 
         $.each(class_av.var.autoresJSON, function(i,val){
@@ -2667,15 +2783,15 @@ class_av = {
             $('#a-institucion-'+val.id).html(class_av.var.a_opciones_instituciones);
             $('#a-institucion-'+val.id).select2({ tags: false, placeholder: "Seleccione una institución", allowClear: true});
             $('#select2-a-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-            $('.select2-container').tooltip();					  
+            $('.select2-container').tooltip();
             if(val['institucionId'] !== null){
                 institucion = class_utils.find_prop(class_av.var.institucionesJSON, 'id',val['institucionId'])['institucion'];
                 $('#a-institucion-'+val.id).val(val['institucionId']).trigger('change');
             }
             $('#nombre-'+val.id).val(val.nombre);
             $('#orcid-'+val.id).val(val.orcid);
-			$('#nombre-'+val.id).tooltip();
-            $('#orcid-'+val.id).tooltip();						  
+            $('#nombre-'+val.id).tooltip();
+            $('#orcid-'+val.id).tooltip();
 
             class_av.orcid_por_nombre(val.nombre, institucion, val.orcid, '#check-nombre-'+val.id, '#nombre-'+val.id);
             if(val.nombre !== null){
@@ -2747,7 +2863,7 @@ class_av = {
                             text: 'Aceptar',
                             btnClass: 'btn-warning',
                             action: function(){
-								if(fn !== null){
+                                if(fn !== null){
                                     fn();
                                 }else{
                                     return true;
@@ -2755,7 +2871,7 @@ class_av = {
                             }
                     }
                 }
-			});
+            });
     },
     revistas_asignadas: function(){
         loading.start();
@@ -2845,29 +2961,11 @@ class_av = {
         var data = {};
         var data_int = [];
         var columns = ['revista', 'articulo', 'issn', 'paisRevista', 'anioRevista', 'disciplinaRevista', ];
-        var revista = $('#revista_sel').val().trim();
+        var revista_sel = $('#revista_sel').val().trim();
+        var revista = revista_sel.split('#')[0].trim();
         var datosRevista = class_utils.filter_prop(class_av.var.revistasJSON, 0, revista);
         
-		var v = null;
-        var n = null;
-        var p = null;
-        var numero = $('#sel_numero').val();
-        
-        if(numero !== '' && numero !== undefined){
-            v = numero.split('V')[1].split('N')[0];
-            if(v == '' || v == 's/v'){
-                v = null;
-            }
-            n = numero.split('N')[1].split(' ')[0];
-            if(n == '' || n == 's/n'){
-                n = null;
-            }
-            p = numero.split('N')[1].split(' ')[1];
-            if(p == ''){
-                p = null;
-            }
-        }
-        
+       
             var obj = {};
             var objDes = {};
             
@@ -2879,71 +2977,72 @@ class_av = {
             obj['paisRevista'] = (datosRevista.length !== 1)?null:datosRevista[0][6];
             obj['ciudadEditora'] = (datosRevista.length !== 1)?null:datosRevista[0][7];
             obj['institucionEditora'] = (datosRevista.length !== 1)?null:datosRevista[0][8];
-            obj['anioRevista'] = $('#anio_rev').val().trim();
             obj['base'] = (datosRevista.length !== 1)?null:datosRevista[0][1];
             
-            var sin_vol = $('#sin_vol').prop('checked');
-            var vol = $('#txt_vol').val().trim();
+            var anio = revista_sel.split('#')[1].trim();
+            obj['anioRevista'] = anio;
             
-            var sin_num = $('#sin_num').prop('checked');
-            var num = $('#txt_num').val().trim();
+            var descripcion = revista_sel.split('#')[2].trim();
             
-            var p_esp = $('#p_esp').prop('checked');
-            var p_sup = $('#p_sup').prop('checked');
-            var p_est = $('#p_est').prop('checked');
-            var p_no = $('#p_no').prop('checked');
-            var sin_num_esp = $('#sin_num_esp').prop('checked');
-            var sin_num_sup = $('#sin_num_sup').prop('checked');
-            var sel_estacion = $('#sel_estacion').val();
-            var txt_num_esp = $('#txt_num_esp').val();
-            var txt_num_sup = $('#txt_num_sup').val();
-            
-            if( vol !== '' && !sin_vol)
-                objDes['a'] = vol;
-            if( num !== '' && !sin_num)
-                objDes['b'] = num;
-            
-            var parte = '';
-            
-            if( !p_no ){
-                
-                if(p_esp){
-                    parte = 'spe'
-                }
-                if( !sin_num_esp ){
-                    if( !isNaN(txt_num_esp)){
-                        parte += txt_num_esp;
-                    }
-                }
-                
-                if(p_sup){
-                    parte = 'supp'
-                }
-                if( !sin_num_sup ){
-                    if( !isNaN(txt_num_sup)){
-                        parte += txt_num_sup;
-                    }
-                }
-                
-                if(p_est){
-                    parte = sel_estacion
-                }
+            var v = descripcion.split('V')[1];
+            if(v !== null && v !== undefined){
+                v = v.split('N')[0];
+                v = v.trim();
+            }
+            if(v == '' || v == 's/v'){
+                v = null;
+            }
+
+            var n = descripcion.split('N')[1];
+            if( n !== null && n !== undefined ){
+                n = n.split(' ')[0];
+                n = n.trim();
+            }
+            if(n == '' || n == 's/n'){
+                n = null;
+            }
+
+            var m = descripcion.split(' Mes:')[1]
+            if( m !== null && m !== undefined ){
+                m = m.split(' Parte:')[0];
+                m = m.trim();
+            }
+            if(m == '' ){
+                m = null;
+            }
+
+            var p = descripcion.split(' Parte:')[1];
+            if(p !== null && p !== undefined){
+                p = p.trim();
+            }
+            if(p == '' ){
+                p = null;
             }
             
-            if( parte != '' ){
-                objDes['d'] = parte;
+            if(v !== null){
+                objDes['a'] = 'V'+v;
+            }
+            if(n !== null){
+                objDes['b'] = 'N'+n;
+            }
+            if(m !== null){
+                objDes['c'] = m;
+            }
+            if(p !== null){
+                objDes['d'] = p;
             }
             
-            if( numero !== ""){
-                if(v !== null){
-                    objDes['a'] = 'V'+v;
+            var p_ini = $('#de_p').val().trim();
+            var p_fin = $('#a_p').val().trim();
+            
+            if(p_ini !== ''){
+                p_ini = 'P' + p_ini;
+            
+                if(p_fin !== ''){
+                    p_ini = p_ini + '-' + p_fin;
                 }
-                if(n !== null){
-                    objDes['b'] = 'N'+n;
-                }
-                if(p !== null){
-                    objDes['d'] = p;
-                }
+                
+                objDes['e'] = p_ini;
             }
             
             obj['descripcionBibliografica'] = JSON.stringify(objDes);
@@ -2969,8 +3068,22 @@ class_av = {
                 obj2['institucionEditora'] = obj['institucionEditora'];
                 obj2['anioRevista'] = obj['anioRevista'];
                 obj2['base'] = obj['base'];
-                obj2['descripcionBibliografica'] = obj['descripcionBibliografica'];
                 obj2['fechaIngreso'] = obj['fechaIngreso'];
+                
+                var p_ini = $('#de_na-'+num).val().trim();
+                var p_fin = $('#a_na-'+num).val().trim();
+
+                if(p_ini !== ''){
+                    p_ini = 'P' + p_ini;
+
+                    if(p_fin !== ''){
+                        p_ini = p_ini + '-' + p_fin;
+                    }
+                    var num_des = obj['descripcionBibliografica'].indexOf(':"P');
+                    obj2['descripcionBibliografica'] = obj['descripcionBibliografica'].substring(0, num_des+2) + p_ini + '"}';
+                }else{
+                    obj2['descripcionBibliografica'] = obj['descripcionBibliografica'];
+                }
                 data_int.push(obj2);
                 encontrados++;
             }
@@ -2980,7 +3093,7 @@ class_av = {
         data['tabla'] = 'article';
         data['where'] = columns;
         data['data'] = data_int;
-        return data;			
+        return data;
     },
     control_guarda:function(){
         $('#save-article').off('click').on('click', function(){
@@ -3217,7 +3330,7 @@ class_av = {
                 });
             }
         });
-	},
+    },
     agrega_nuevo_articulo: function(){
         if(class_av.var.count_titulos > 0){
             var texto = 'Se guardarán los datos para los nuevos artículos';
@@ -3256,7 +3369,7 @@ class_av = {
                         }
                 }
             }
-        });   
+        });
     }
 };
 
