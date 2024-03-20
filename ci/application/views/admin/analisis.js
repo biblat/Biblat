@@ -20,8 +20,13 @@ class_av = {
         idiomas:{
             'Español': 'spa',
             'Portugués': 'por',
-            'Inglés': 'eng'
-        }
+            'Inglés': 'eng',
+            'Italiano': 'ita',
+            'Francés': 'fre',
+            'Alemán': 'ger',
+            'Ruso': 'rus'
+        },
+        palabra_clave: '<span id="<palabra>" class="badge badge-secondary palabra_clave" style="margin-left:5px; cursor: pointer"><palabra></span><i id="e-<palabra>" class="fa fa-pencil edita_palabra" aria-hidden="true"></i>'
     },   
     var: {
         //servidor: 'http://localhost:5001',
@@ -725,17 +730,19 @@ class_av = {
                                  class_utils.setResource(class_av.var.servidor + class_av.var.app + '/ia_metadata/', {url: url})
                             ) 
                             .then(function(resp_pdf){
-                                if( resp_pdf.disciplinas[0] !== undefined && $('#disciplina1').val() == '' ){
-                                    $('#disciplina1').val(resp_pdf.disciplinas[0]);
-                                    $('#disciplina1').change();
-                                }
-                                if( resp_pdf.disciplinas[1] !== undefined && $('#disciplina2').val() == ''){
-                                    $('#disciplina2').val(resp_pdf.disciplinas[1]);
-                                    $('#disciplina2').change();
-                                }
-                                if( resp_pdf.disciplinas[2] !== undefined && $('#disciplina3').val() == ''){
-                                    $('#disciplina3').val(resp_pdf.disciplinas[2]);
-                                    $('#disciplina3').change();
+                                if( resp_pdf.disciplinas !== undefined){
+                                    if( resp_pdf.disciplinas[0] !== undefined && $('#disciplina1').val() == '' ){
+                                        $('#disciplina1').val(resp_pdf.disciplinas[0]);
+                                        $('#disciplina1').change();
+                                    }
+                                    if( resp_pdf.disciplinas[1] !== undefined && $('#disciplina2').val() == ''){
+                                        $('#disciplina2').val(resp_pdf.disciplinas[1]);
+                                        $('#disciplina2').change();
+                                    }
+                                    if( resp_pdf.disciplinas[2] !== undefined && $('#disciplina3').val() == ''){
+                                        $('#disciplina3').val(resp_pdf.disciplinas[2]);
+                                        $('#disciplina3').change();
+                                    }
                                 }
                                 
                                 if( resp_pdf.idioma !== undefined ){
@@ -745,10 +752,38 @@ class_av = {
 
                                 if( resp_pdf.palabras !== undefined ){
                                     $('#div_palabras_clave').show();
-                                    $('#palabras_clave').html(resp_pdf.palabras.join("; "));
+                                    var html = '';
+                                    $.each(resp_pdf.palabras, function(i, val){
+                                        html += class_av.cons.palabra_clave.replaceAll('<palabra>', val);
+                                    });
+                                    
+                                    //$('#palabras_clave').html(resp_pdf.palabras.join("; "));
+                                    $('#palabras_clave').html(html);
                                     
                                     $('#div_palabras_clave2').show();
-                                    $('#palabras_clave2').html(resp_pdf.palabras_b.join("; "));
+                                    
+                                    html = '';
+                                    $.each(resp_pdf.palabras_b, function(i, val){
+                                        html += class_av.cons.palabra_clave.replaceAll('<palabra>', val);
+                                    });
+                                    //$('#palabras_clave2').html(resp_pdf.palabras_b.join("; "));
+                                    $('#palabras_clave2').html(html);
+                                    
+                                    $('.palabra_clave').off('click').on('click', function(){
+                                        if( $(this).hasClass('badge-secondary') ){
+                                            $(this).removeClass('badge-secondary');
+                                            $(this).addClass('badge-warning');
+                                            $(this).css('background-color', 'goldenrod');
+                                        }else{
+                                            $(this).removeClass('badge-warning');
+                                            $(this).addClass('badge-secondary');
+                                            $(this).css('background-color', '#777');
+                                        }
+                                    });
+                                    
+                                    $('.edita_palabra').off('click').on('click', function(){
+                                       class_av.prompt(this.id);
+                                    });
                                 }
 
                                 if( resp_pdf.titulo !== undefined ){
@@ -2875,6 +2910,48 @@ class_av = {
                     }
                 }
             });
+    },
+    prompt: function(id){
+        id = id.split('-')[1];
+        $.confirm({
+            title: '',
+            content: '' +
+            '<form action="" class="formName">' +
+            '<div class="form-group">' +
+            'Escribe un término más adecuado para <b>' +id+ '</b>:' +
+            '<input type="text" placeholder="Nueva palabra" class="name form-control" required />' +
+            '</div>' +
+            '</form>',
+            buttons: {
+                cancelar: {
+                    text: 'Cerrar',
+                    //btnClass: 'btn-red',
+                    action: function(){
+                    }
+                },
+                formSubmit: {
+                    text: 'Enviar',
+                    btnClass: 'btn-warning',
+                    action: function () {
+                        var name = this.$content.find('.name').val().trim();
+                        if(!name){
+                            $.alert('No es una palabra válida');
+                            return false;
+                        }
+                        $.alert('Your name is ' + name);
+                    }
+                },
+            },
+            onContentReady: function () {
+                // bind to events
+                var jc = this;
+                this.$content.find('form').on('submit', function (e) {
+                    // if the user submits the form by pressing enter in the field.
+                    e.preventDefault();
+                    jc.$$formSubmit.trigger('click'); // reference the button and click it
+                });
+            }
+        });
     },
     revistas_asignadas: function(){
         loading.start();

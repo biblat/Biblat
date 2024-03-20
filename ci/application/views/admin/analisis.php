@@ -22,6 +22,13 @@
   input[type="checkbox"]:checked + label:after {
     font-weight: bold;
   }
+  .edita_palabra{
+      color: gray;
+      cursor: pointer;
+  }
+  .edita_palabra:hover{
+      color: #ff8000;
+  }
 </style>
 <div class="row"><br></div>
 <!--center><div class="row"><b>Meta del departamento:</b> 1000 Registros</div></center>
@@ -49,7 +56,7 @@
                 </select>
             </div>
             <div class="col-sm-12"><br></div>
-            <div class="col-sm-12">
+            <!--div class="col-sm-12">
                 <span><b>Año:</b></span><br>
                 <select class="form-control" name="año" id="anio_rev" style="width:50%" width="50%">
                 </select>
@@ -79,11 +86,14 @@
                     </div>
                 </div>
             </div>
-            <div class="col-sm-12"><br></div>
+            <div class="col-sm-12"><br></div-->
             <div class="col-sm-12" id="div_titulos">
                 <span><b>Título del artículo:</b></span><br>
                 <input id='titulo_na' style="min-width: 100%" type="text" data-placement="top">
-            </div>
+                <br><span><b>Páginas del artículo:</b></span><br>
+                <input id="de_p" style="min-width: 10%" type="text" data-placement="top" placeholder="Página inicial"> - 
+                <input id="a_p" style="min-width: 10%" type="text" data-placement="top" placeholder="Página final">
+                </div>
             <div class="col-sm-12"><br><br></div>
             <center>
                 <button id="agrega_titulo_na" type="button" class="btn btn-default btn-sm"> 
@@ -174,6 +184,10 @@
                                         <option value="Español" >Español</option>
                                         <option value="Inglés" >Inglés</option>
                                         <option value="Portugués" >Portugués</option>
+                                        <option value="Francés" >Francés</option>
+                                        <option value="Italiano" >Italiano</option>
+                                        <option value="Alemán" >Alemán</option>
+                                        <option value="Ruso" >Ruso</option>
                                     </select>
                                 <div id="check-idioma" style="display: none">
                                     <i id="check-idioma-load" class="fa fa-spinner fa-pulse" aria-hidden="true" style="color: #ff8000; display: true"></i>
@@ -205,6 +219,10 @@
                                         <option value="Español" >Español</option>
                                         <option value="Inglés" >Inglés</option>
                                         <option value="Portugués" >Portugués</option>
+                                        <option value="Francés" >Francés</option>
+                                        <option value="Italiano" >Italiano</option>
+                                        <option value="Alemán" >Alemán</option>
+                                        <option value="Ruso" >Ruso</option>
                                     </select>
                                 <div id="check-idioma2" style="display: none">
                                     <i id="check-idioma2-load" class="fa fa-spinner fa-pulse" aria-hidden="true" style="color: #ff8000; display: true"></i>
@@ -236,6 +254,10 @@
                                         <option value="Español" >Español</option>
                                         <option value="Inglés" >Inglés</option>
                                         <option value="Portugués" >Portugués</option>
+                                        <option value="Francés" >Francés</option>
+                                        <option value="Italiano" >Italiano</option>
+                                        <option value="Alemán" >Alemán</option>
+                                        <option value="Ruso" >Ruso</option>
                                     </select>
                                 <div id="check-idioma3" style="display: none">
                                     <i id="check-idioma3-load" class="fa fa-spinner fa-pulse" aria-hidden="true" style="color: #ff8000; display: true"></i>
@@ -308,16 +330,46 @@
                                 </select>
                             </div>
                         </div>
+                        <!--div class="row" id="div_resumen_esp" style="display:block">
+                            <br>
+                            <div class="col-xs-12">
+                                <span><b>Resumen en español:</b></span><br>
+                                <textarea id="resumen_esp" style="width: 100%; height: 100px; overflow-y: scroll;"></textarea>
+                            </div>
+                        </div>
+                        <div class="row" id="div_resumen_ing" style="display:block">
+                            <br>
+                            <div class="col-xs-12">
+                                <span><b>Resumen en inglés:</b></span><br>
+                                <textarea id="resumen_ing" style="width: 100%; height: 100px; overflow-y: scroll;"></textarea>
+                            </div>
+                        </div>
+                        <div class="row" id="div_resumen_por" style="display:block">
+                            <br>
+                            <div class="col-xs-12">
+                                <span><b>Resumen en portugués:</b></span><br>
+                                <textarea id="resumen_por" style="width: 100%; height: 100px; overflow-y: scroll;"></textarea>
+                            </div>
+                        </div>
+                        <div class="row" id="div_resumen_otro" style="display:block">
+                            <br>
+                            <div class="col-xs-12">
+                                <span><b>Resumen en otro idioma:</b></span><br>
+                                <textarea id="resumen_otro" style="width: 100%; height: 100px; overflow-y: scroll;"></textarea>
+                            </div>
+                        </div>
+                        
                         <div class="row" id="div_palabras_clave" style="display:none">
                             <br>
                             <div class="col-xs-12">
-                                <b>Palabras clave IA:</b><span id="palabras_clave"></span>
+                                <span><b>Palabras clave:</b></span><br>
+                                <span id="palabras_clave"></span>
                             </div>
                         </div>
                         <div class="row" id="div_palabras_clave2" style="display:none">
                             <br>
                             <div class="col-xs-12">
-                                <b>Palabras clave AB:</b><span id="palabras_clave2"></span>
+                                <span id="palabras_clave2"></span>
                             </div>
                         </div>
                         <div class="row">
@@ -325,7 +377,7 @@
                             <center>
                                 <button id="import-ai" type="button" class="btn btn-dark" style="display:none"><img class="imagen" src="{base_url('img/aie.png')}" style="filter: invert(0.5) sepia(9) hue-rotate(0deg) saturate(1000%);height:20px;display:inline-block"><span> Extraer de PDF</span></button>
                             </center>
-                        </div>
+                        </div-->
                     </div>
                 </div>
             </div>
