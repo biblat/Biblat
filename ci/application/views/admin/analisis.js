@@ -925,7 +925,7 @@ class_av = {
                         $('#pais-'+val.id).html(class_av.var.opciones_paises);
                         $('#pais-'+val.id).select2({ tags: false, placeholder: "Seleccione un país", allowClear: true});
 
-                        if(val.pais == null){
+                        if( val.pais == null && (val.institucion !== null && val.institucion !== undefined && val.institucion !== '') ){
                             //Si existe un país válido en el texto de institución, lo asigna a país
                             var res_pais = class_av.busca_pais(val.institucion);
                             if( res_pais ){
@@ -1136,6 +1136,7 @@ class_av = {
                                 }
                             }
                         }else{
+                            peticiones --;
                             setTimeout(function(){
                                 if( peticiones == 0 ){
                                     //revisaRepetidas();
