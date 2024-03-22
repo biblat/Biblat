@@ -11,7 +11,7 @@
   <div class="carousel-inner" role="listbox">
     <div id="aviso" style="height:80px;color:white;background-color:red;text-align: center; padding: 10px; font-weight: bold;font-size: 16px" class="item">
         <br>
-        AVISO DE POSIBLE INTERRUPCIÓN DE RED: Lunes 22 de Marzo, a partir de las 8:00 y hasta las 15:00 horas.
+        AVISO DE POSIBLE INTERRUPCIÓN DE RED: Lunes 25 de Marzo, a partir de las 8:00 y hasta las 15:00 horas.
     </div>
     <div id="primer" style="height:80px" class="item active">
        <a target="_blank" href="{site_url('sobre-metametrics')}"><img class="img-responsive center-block" src="{base_url('img/slides/banner-metametrics.jpg')}"/></a>
