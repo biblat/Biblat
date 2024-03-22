@@ -1,5 +1,5 @@
 var anio_actual = ((new Date()).getFullYear());
-var anio_hasta = 2022;
+var anio_hasta = 2024;
 var dia_actual=(new Date()).getDate();
 var dia_hasta=25;
 var mes_actual=(new Date()).getMonth()+1;
