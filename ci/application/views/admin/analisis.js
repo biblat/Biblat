@@ -1,8 +1,10 @@
+// cambios 38,40,41, 2230, 2232
 class_av = {
     cons: {
         DISCOVERY_DOCS: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
         SCOPES: ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'],
         option: '<option value="<valor>"><opcion></option>',
+        option_badge: '<option value="<valor>"><opcion> i-badge<num>f-badge</option>',
         //caracteres: /!|#|\$|%|&|\(|\/|\\|\)|=|\?|¿|¡|,|;|:|_|\[|{|}|]|\+|\*|\~|<|>|\'|\"|’/g
         caracteres: /[^a-zA-Z0-9 ]/g,
         char_i: /\(|\)|,|;|:|=|'/g,
@@ -26,7 +28,11 @@ class_av = {
             'Alemán': 'ger',
             'Ruso': 'rus'
         },
-        palabra_clave: '<span id="<palabra>" class="badge badge-secondary palabra_clave" style="margin-left:5px; cursor: pointer"><palabra></span><i id="e-<palabra>" class="fa fa-pencil edita_palabra" aria-hidden="true"></i>'
+        palabra_clave: '<button id="<palabra>" class="btn badge-secondary palabra_clave" style="margin-left:5px; margin-bottom: 5px; cursor: pointer" type="button">'+
+                        '<palabra> <span class="badge"><num></span>'+
+                        '<div id="<palabra-slug>-sustituye"></div>'+
+                        '</button><i id="e-<palabra>" class="fa fa-pencil edita_palabra" aria-hidden="true"></i>',
+        palabra_clave_sustituye: '<br><center><i class="fa fa-arrow-down" aria-hidden="true"></i><center><br><palabra> <span class="badge"><num></span>'
     },   
     var: {
         //servidor: 'http://localhost:5001',
@@ -44,6 +50,8 @@ class_av = {
         data: '',
         revistas: '',
         revistasAsignadas: [],
+        palabras_clave: [],
+        palabras_clave0: [],
         revista: {},
         registros:{},
         count_titulos: 0,
@@ -727,9 +735,19 @@ class_av = {
                             url = $('#url2').val();
                         }
                         $.when(
-                                 class_utils.setResource(class_av.var.servidor + class_av.var.app + '/ia_metadata/', {url: url})
+                                class_utils.setResource(class_av.var.servidor + class_av.var.app + '/ia_metadata/', {url: url}),
+                                class_utils.getResource('/datos/palabras')
                             ) 
-                            .then(function(resp_pdf){
+                            .then(function(resp_pdf, resp_palabras){
+                                resp_palabras = resp_palabras[0];
+                                resp_pdf = resp_pdf[0];
+                                
+                                class_av.var.palabras_clave0 = resp_palabras;
+                                class_av.var.palabras_clave = class_av.cons.option_badge.replace('<valor>', '').replace('<opcion>', '').replace('<num>', '');
+                                $.each(resp_palabras, function(i, val){
+                                    class_av.var.palabras_clave += class_av.cons.option_badge.replace('<valor>', val.valor).replace('<opcion>', val.valor).replace('<num>', val.num);
+                                });
+                                                                
                                 if( resp_pdf.disciplinas !== undefined){
                                     if( resp_pdf.disciplinas[0] !== undefined && $('#disciplina1').val() == '' ){
                                         $('#disciplina1').val(resp_pdf.disciplinas[0]);
@@ -749,42 +767,88 @@ class_av = {
                                     $('#idioma').val(resp_pdf.idioma);
                                     $('#idioma').change();
                                 }
-
-                                if( resp_pdf.palabras !== undefined ){
-                                    $('#div_palabras_clave').show();
+                                
+                                var palabras_doc = [];
+                                
+                                if (class_av.var.documentoJSON[0].palabraClave !== undefined && class_av.var.documentoJSON[0].palabraClave !== null && class_av.var.documentoJSON[0].palabraClave !== ''){
+                                    palabras_doc = JSON.parse(class_av.var.documentoJSON[0].palabraClave);
+                                    $('#div_palabras_clave_autor').show();
                                     var html = '';
+                                    $.each(palabras_doc, function(i, val){
+                                        var busca = class_utils.find_prop(resp_palabras,'valor',val);
+                                        if(busca !== undefined){
+                                            html += class_av.cons.palabra_clave.replaceAll('<palabra>', val).replaceAll('<num>', busca.num).replaceAll('<palabra-slug>', class_utils.slug(val));
+                                        }else{
+                                            html += class_av.cons.palabra_clave.replaceAll('<palabra>', val).replaceAll('<num>', '0').replaceAll('<palabra-slug>', class_utils.slug(val));
+                                        }
+                                    });
+                                    $('#palabras_clave_autores').html(html);
+                                }
+                                
+                                
+                                $('#div_palabras_clave').show();
+                                var palabras_pdf=[];
+                                if( resp_pdf.palabras !== undefined && resp_pdf.palabras !== "Sin resultado"){
                                     $.each(resp_pdf.palabras, function(i, val){
-                                        html += class_av.cons.palabra_clave.replaceAll('<palabra>', val);
+                                        var busca = palabras_doc.indexOf(val);
+                                        if( busca == -1 ){
+                                            palabras_pdf.push(val);
+                                        }
+                                    });
+                                    
+                                    html = '';
+                                    $.each(palabras_pdf, function(i, val){
+                                        var busca = class_utils.find_prop(resp_palabras,'valor',val);
+                                        if(busca !== undefined){
+                                            html += class_av.cons.palabra_clave.replaceAll('<palabra>', val).replaceAll('<num>', busca.num);
+                                        }else{
+                                            html += class_av.cons.palabra_clave.replaceAll('<palabra>', val).replaceAll('<num>', '0');
+                                        }
                                     });
                                     
                                     //$('#palabras_clave').html(resp_pdf.palabras.join("; "));
                                     $('#palabras_clave').html(html);
-                                    
+                                }
+                                
+                                if( resp_pdf.palabras_b !== undefined && resp_pdf.palabras_b !== "Sin resultado"){
                                     $('#div_palabras_clave2').show();
+                                    var palabrasb_pdf=[];
+                                    $.each(resp_pdf.palabras_b, function(i, val){
+                                        var busca = palabras_doc.indexOf(val);
+                                        var busca2 = palabras_pdf.indexOf(val);
+                                        if( busca == -1 && busca2 == -1 ){
+                                            palabrasb_pdf.push(val);
+                                        }
+                                    });
                                     
                                     html = '';
-                                    $.each(resp_pdf.palabras_b, function(i, val){
-                                        html += class_av.cons.palabra_clave.replaceAll('<palabra>', val);
+                                    $.each(palabrasb_pdf, function(i, val){
+                                        var busca = class_utils.find_prop(resp_palabras,'valor',val);
+                                        if(busca !== undefined){
+                                            html += class_av.cons.palabra_clave.replaceAll('<palabra>', val).replaceAll('<num>', busca.num);
+                                        }else{
+                                            html += class_av.cons.palabra_clave.replaceAll('<palabra>', val).replaceAll('<num>', '0');
+                                        }
                                     });
                                     //$('#palabras_clave2').html(resp_pdf.palabras_b.join("; "));
                                     $('#palabras_clave2').html(html);
+                                }
                                     
                                     $('.palabra_clave').off('click').on('click', function(){
                                         if( $(this).hasClass('badge-secondary') ){
                                             $(this).removeClass('badge-secondary');
                                             $(this).addClass('badge-warning');
-                                            $(this).css('background-color', 'goldenrod');
+                                            $(this).css('background-color', '#ff8000');
                                         }else{
                                             $(this).removeClass('badge-warning');
                                             $(this).addClass('badge-secondary');
-                                            $(this).css('background-color', '#777');
+                                            $(this).css('background-color', '#F0F0F0');
                                         }
                                     });
                                     
                                     $('.edita_palabra').off('click').on('click', function(){
                                        class_av.prompt(this.id);
                                     });
-                                }
 
                                 if( resp_pdf.titulo !== undefined ){
                                     $('#titulo').val(resp_pdf.titulo);
@@ -833,7 +897,7 @@ class_av = {
                     
                     $('#agrega-autor').off('click').on('click', function(){
                         class_av.agrega_autor();
-                        class_av.var.cambios_autor = true;
+                        class_av.var.cambios_autor = (true && !class_av.var.cambios_de_inicio);
                     });
                     
                     loading.end();
@@ -847,7 +911,7 @@ class_av = {
                     }
 
                     var revisaRepetidas = function(){
-
+                        var es_inicio = true;
                         $.each(class_av.var.institucionesJSON, function(i,val){
 
                             if(val.pais !== null){
@@ -861,6 +925,9 @@ class_av = {
                                         if(val2.ciudad !== null){
                                            $('#ciudad-'+val2.id).val(val2.ciudad).trigger('change');
                                         }
+                                        $('#ciudad-'+val2.id).on('change', function(){
+                                            class_av.var.cambios_institucion = (true && !es_inicio);
+                                        });
                                         if(class_av.var.corporativo == 1){
                                             $('.div-ciudad').hide();
                                         }
@@ -885,6 +952,9 @@ class_av = {
                                            //$('#institucion-'+val2.id).val(val2.institucion).trigger('change');
                                            class_av.busca_en_pdf(class_av.var.texto_pdf, val2.institucion, '#check-ins-'+val2.id, '#institucion-'+val2.id);
                                         }
+                                        $('#institucion-'+val2.id).on('change', function(){
+                                            class_av.var.cambios_institucion = (true && !es_inicio);
+                                        });
                                     }
                                 });
                             }
@@ -900,6 +970,9 @@ class_av = {
                                         if(val2.dependencia !== null){
                                             $('#dependencia-'+val2.id).val(val2.dependencia).trigger('change');
                                         }
+                                        $('#dependencia-'+val2.id).on('change', function(){
+                                            class_av.var.cambios_institucion = (true && !es_inicio);
+                                        });
                                     }
                                 });
 
@@ -907,7 +980,7 @@ class_av = {
                                 $.each(repetidas_sug_ciudades, function(i2, val2){
                                     if(val2.institucion == val.institucion) {
                                         $('#sug-ciudad-'+val2.id).html(opciones_sug_ciudades[val.institucion]);
-                                        $('#sug-ciudad-'+val2.id).select2({ tags: true, placeholder: "Sugerencias encontradas", allowClear: true});
+                                        //$('#sug-ciudad-'+val2.id).select2({ tags: true, placeholder: "Sugerencias encontradas", allowClear: true});
                                         $('#check-ins-bib-'+val2.id+'-expand').show();
                                         $('#check-ins-bib-'+val2.id+'-expand').on('click', function(){
                                             if($('#check-ins-bib-'+val2.id+'-expand').hasClass('fa fa-sort-desc')){
@@ -928,6 +1001,8 @@ class_av = {
                             }
 
                         });
+                        
+                        es_inicio = false;
 
                         $('.select2-container').css('max-width','100%');
 
@@ -944,6 +1019,7 @@ class_av = {
                     var total = 0;
                     //$.each(class_av.var.institucionesJSON, function(i,val){
                     var recorrido_instituciones = function(arr_instituciones){
+                        var es_inicio = true;
                         if(arr_instituciones.length == 0){
                             revisaRepetidas();
                             return true;
@@ -967,9 +1043,13 @@ class_av = {
                                 val.pais = res_pais;
                             }
                         }
-
+                        
                         if(val.pais !== null && val.pais !== '' && val.pais !== undefined){
+                            espera_cambios = false;
                             $('#pais-'+val.id).val(val.pais).trigger('change');
+                            $('#pais-'+val.id).on('change', function(){
+                                class_av.var.cambios_institucion = (true && !es_inicio);
+                            });
                             //Revisa si ya se trajo el catálogo para este país
                             if( !opciones_ciudades.hasOwnProperty(val.pais+'-'+class_av.var.corporativo) ){
                                 //peticiones ++;
@@ -998,6 +1078,9 @@ class_av = {
                                         if(val.ciudad !== null){
                                             $('#ciudad-'+val.id).val(val.ciudad).trigger('change');
                                         }
+                                        $('#ciudad-'+val.id).on('change', function(){
+                                            class_av.var.cambios_institucion = (true && !es_inicio);
+                                        });
                                         if(class_av.var.corporativo == 1){
                                             $('.div-ciudad').hide();
                                         }
@@ -1027,10 +1110,14 @@ class_av = {
                                                 class_av.busca_en_pdf(class_av.var.texto_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id);
                                             //}
                                         }
+                                        $('#institucion-'+val.id).on('change', function(){
+                                            class_av.var.cambios_institucion = (true && !es_inicio);
+                                        });
                                         
                                         //Ya que se terminan las peticiones por país, se revisan instituciones del mismo país
                                         if( peticiones == 0 ){
                                             //revisaRepetidas();
+                                            es_inicio = false;
                                             recorrido_instituciones(resto_val);
                                         }
                                     //}, 3000);
@@ -1052,6 +1139,7 @@ class_av = {
                                 repetidas_instituciones.push(obj_repetidas_instituciones);
                                 if( peticiones == 0 ){
                                     //revisaRepetidas();
+                                    es_inicio = false;
                                     recorrido_instituciones(resto_val);
                                 }
                             }
@@ -1070,6 +1158,9 @@ class_av = {
                                 $('#select2-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                 $('.select2-container').tooltip();
                                 $('#institucion-'+val.id).val(val.institucion).trigger('change');
+                                $('#institucion-'+val.id).on('change', function(){
+                                    class_av.var.cambios_institucion = (true && !es_inicio);
+                                });
                                 //if(url_pdf !== ''){
                                     //class_av.busca_en_pdf(url_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id);
                                     class_av.busca_en_pdf(class_av.var.texto_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id);
@@ -1078,9 +1169,10 @@ class_av = {
                             
                             if( peticiones == 0 ){
                                 //revisaRepetidas();
+                                es_inicio = false;
                                 recorrido_instituciones(resto_val);
                             }
-                        }                    
+                        }
 
                         /************************Dependencias*****************/
                         if(val.institucion !== null && val.institucion !== '' && val.institucion !== undefined){
@@ -1108,6 +1200,9 @@ class_av = {
                                         if(val.dependencia !== null){
                                             $('#dependencia-'+val.id).val(val.dependencia).trigger('change');
                                         }
+                                        $('#dependencia-'+val.id).on('change', function(){
+                                            class_av.var.cambios_institucion = (true && !es_inicio);
+                                        });
 
                                         $('#check-ins-bib-'+val.id).show();
                                         $('#check-ins-bib-'+val.id+'-load').hide();
@@ -1145,6 +1240,7 @@ class_av = {
 
                                         if( peticiones == 0 ){
                                             //revisaRepetidas();
+                                            es_inicio = false;
                                             recorrido_instituciones(resto_val);
                                         }
                                     //}, 1000);
@@ -1167,6 +1263,7 @@ class_av = {
 
                                 if( peticiones == 0 ){
                                     //revisaRepetidas();
+                                    es_inicio = false;
                                     recorrido_instituciones(resto_val);
                                 }
                             }
@@ -1175,6 +1272,7 @@ class_av = {
                             setTimeout(function(){
                                 if( peticiones == 0 ){
                                     //revisaRepetidas();
+                                    es_inicio = false;
                                     recorrido_instituciones(resto_val);
                                 } 
                             }, 2000);
@@ -1202,6 +1300,7 @@ class_av = {
                     var total2 = 0;
                     //$.each(class_av.var.autoresJSON, function(i,val){
                     var recorrido_autores = function(arr_autores){
+                        var es_inicio = true;
                         if(arr_autores.length == 0){
                             $('#accordionAutores').html('Autores');
                             $('#accordionAutores').prop('href', '#autores');
@@ -1224,6 +1323,9 @@ class_av = {
                             institucion = class_utils.find_prop(class_av.var.institucionesJSON, 'id',val['institucionId'])['institucion'];
                             $('#a-institucion-'+val.id).val(val['institucionId']).trigger('change');
                         }
+                        $('#a-institucion-'+val.id).on('change', function(){
+                                class_av.var.cambios_autor = (true && !es_inicio);
+                            });
                         $('#nombre-'+val.id).val(val.nombre);
                         $('#orcid-'+val.id).val(val.orcid);
                         $('#nombre-'+val.id).tooltip();
@@ -1240,9 +1342,11 @@ class_av = {
                             class_av.nombre_por_orcid(val.orcid, val.nombre, institucion, '#check-orcid-'+val.id, '#orcid-'+val.id)
                             class_av.biblat_por_nombre(val.nombre, institucion, '#check-nombre-bib-'+val.id, '#nombre-'+val.id)
                             .finally(function(){
-                                    recorrido_autores(resto_val);
+                                es_inicio = false;
+                                recorrido_autores(resto_val);
                             });
                         }else{
+                            es_inicio = false;
                             recorrido_autores(resto_val);
                         }
                     };//});
@@ -1258,6 +1362,7 @@ class_av = {
                     $('#save-article').show();
                     $('#save-instituciones').show();
                     $('#save-autores').show();
+                    
                     class_av.var.cambios_de_inicio = false;
                 });
             });
@@ -1489,7 +1594,7 @@ class_av = {
             }
         });
         class_av.evento_borra_autor();
-        class_av.var.cambios_autor = true;
+        class_av.var.cambios_autor = (true && !class_av.var.cambios_de_inicio);
     },
     evento_borra_institucion: function(){
         $('.borra-institucion').off('click').on('click', function(){
@@ -1548,6 +1653,9 @@ class_av = {
         var html_institucion = class_av.var.html_institucion.replaceAll('<id>', obj_inst.id);
         $('#div-instituciones').append(html_institucion);
         $('#pais-'+id).html(class_av.var.opciones_paises);
+        $('#pais-'+id).on('change', function(){
+            class_av.var.cambios_institucion = (true && !class_av.var.cambios_de_inicio);
+        });
         $('#pais-'+id).select2({ tags: false, placeholder: "Seleccione un país", allowClear: true});
         
         //Debido a que en el evento de borrar hay cambios en los ids, se revisan los anteriores para areglar la parte del select
@@ -1579,6 +1687,9 @@ class_av = {
         var html_autor = class_av.var.html_autor.replaceAll('<id>', id);
         $('#div-autores').append(html_autor);
         $('#a-institucion-'+id).html(class_av.var.a_opciones_instituciones);
+        $('#a-institucion-'+id).on('change', function(){
+            class_av.var.cambios_autor = (true && !class_av.var.cambios_de_inicio);
+        });
         $('#a-institucion-'+id).select2({ tags: false, placeholder: "Seleccione una institución", allowClear: true});
         $('#select2-a-institucion-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
         $('.select2-container').tooltip();
@@ -1586,6 +1697,9 @@ class_av = {
         //Debido a que en el evento de borrar hay cambios en los ids, se revisan los anteriores para areglar la parte del select
         for(var id_atras = parseInt(id)-1; id_atras > 0; id_atras--){
             if($('#a-institucion-'+id_atras)){
+                $('#a-institucion-'+id_atras).on('change', function(){
+                    class_av.var.cambios_autor = (true && !class_av.var.cambios_de_inicio);
+                });
                 $('#a-institucion-'+id_atras).select2({ tags: false, placeholder: "Seleccione una institución", allowClear: true});
                 $('#select2-a-institucion-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                 $('.select2-container').tooltip();
@@ -1598,7 +1712,7 @@ class_av = {
         
         class_av.change_nombre(id);
         class_av.change_orcid(id);
-        class_av.var.cambios_autor = true;
+        class_av.var.cambios_autor = (true && !class_av.var.cambios_de_inicio);
     },
     busca_en_pdf: function(url_pdf, texto, id, id_h){
             $(id).hide();
@@ -2232,6 +2346,15 @@ class_av = {
                 }
             }
             
+            var val_ciudad = $('#ciudad-'+id).val();
+            if(val_ciudad == undefined){
+                val_ciudad = null;
+            }else{
+                if(val_ciudad == ''){
+                    val_ciudad = null;
+                }
+            }
+            
             if(pais !== null && pais !== '' && pais !== undefined){
                 if( !opciones_ciudades.hasOwnProperty(pais+'-'+class_av.var.corporativo) ){
                     $('#div-ciudad-'+id).hide();
@@ -2254,9 +2377,26 @@ class_av = {
                             opciones_ciudades[pais+'-'+class_av.var.corporativo] = '';
                             opciones_ciudades[pais+'-'+class_av.var.corporativo] = options;
                             $('#ciudad-'+id).html(opciones_ciudades[pais+'-'+class_av.var.corporativo]);
+                            $('#ciudad-'+id).on('change', function(){
+                                class_av.var.cambios_institucion = (true && !class_av.var.cambios_de_inicio);
+                            });
                             $('#ciudad-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true});
                             $('#select2-ciudad-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                             $('.select2-container').tooltip();
+                            
+                            //Si hay un valor de ciudad se preselecciona
+                            if(val_ciudad !== null){
+                                //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
+                                if ($('#ciudad-'+id).find("option[value='" + val_ciudad.replaceAll('"', "&quot;") + "']").length) {
+                                    $('#ciudad-'+id).val(val_ciudad).trigger('change');
+                                }else{
+                                    var newOption = new Option(val_ciudad, val_ciudad.replaceAll('"', "&quot;"), true, true);
+                                    $('#ciudad-'+id).append(newOption).trigger('change');
+                                }
+                            }
+                            $('#ciudad-'+id).on('change', function(){
+                                class_av.var.cambios_institucion = (true && !class_av.var.cambios_de_inicio);
+                            });
 
                             /*********institucion*******************/
 
@@ -2281,15 +2421,35 @@ class_av = {
                                     $('#institucion-'+id).append(newOption).trigger('change');
                                 }
                             }
+                            $('#institucion-'+id).on('change', function(){
+                                class_av.var.cambios_institucion = (true && !class_av.var.cambios_de_inicio);
+                            });
 
                         }, 1000);
                     });
                 }else{
                     setTimeout(function(){
                         $('#ciudad-'+id).html(opciones_ciudades[pais+'-'+class_av.var.corporativo]);
+                        $('#ciudad-'+id).on('change', function(){
+                            class_av.var.cambios_institucion = (true && !class_av.var.cambios_de_inicio);
+                        });
                         $('#ciudad-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true});
                         $('#select2-ciudad-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                         $('.select2-container').tooltip();
+                        
+                        //Si hay un valor de ciudad se preselecciona
+                        if(val_ciudad !== null){
+                            //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
+                            if ($('#ciudad-'+id).find("option[value='" + val_ciudad.replaceAll('"', "&quot;") + "']").length) {
+                                $('#ciudad-'+id).val(val_ciudad).trigger('change');
+                            }else{
+                                var newOption = new Option(val_ciudad, val_ciudad.replaceAll('"', "&quot;"), true, true);
+                                $('#ciudad-'+id).append(newOption).trigger('change');
+                            }
+                        }
+                        $('#ciudad-'+id).on('change', function(){
+                            class_av.var.cambios_institucion = (true && !class_av.var.cambios_de_inicio);
+                        });
 
                         $('#institucion-'+id).html(opciones_instituciones[pais+'-'+class_av.var.corporativo]);
                         $('#institucion-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true/*,  width: 'Auto'*/});
@@ -2304,6 +2464,9 @@ class_av = {
                                 $('#institucion-'+id).append(newOption).trigger('change');
                             }
                         }
+                        $('#institucion-'+id).on('change', function(){
+                            class_av.var.cambios_institucion = (true && !class_av.var.cambios_de_inicio);
+                        });
                         $('#ciudad-'+id+'-load').hide();
                         $('#div-ciudad-'+id).show();
                     }, 1000);
@@ -2335,6 +2498,15 @@ class_av = {
             $('#sug-ciudad-'+id+'-load').show();
             $('#dependencia-'+id+'-load').show();
             
+            var val_dependencia = $('#dependencia-'+id).val();
+            if(val_dependencia == undefined){
+                val_dependencia = null;
+            }else{
+                if(val_dependencia == ''){
+                    val_dependencia = null;
+                }
+            }
+            
             class_av.busca_en_pdf(class_av.var.texto_pdf, institucion, '#check-ins-'+id, '#institucion-'+id);
             //Revisa si ya se trajo el catálogo para este país
             if( !opciones_dependencias.hasOwnProperty(institucion+'-'+class_av.var.corporativo) && institucion !== '' && institucion !== null){
@@ -2357,9 +2529,23 @@ class_av = {
                         });
                         opciones_dependencias[institucion+'-'+class_av.var.corporativo] = options;
                         $('#dependencia-'+id).html(opciones_dependencias[institucion+'-'+class_av.var.corporativo]);
+                        $('#dependencia-'+id).on('change', function(){
+                            class_av.var.cambios_institucion = (true && !class_av.var.cambios_de_inicio);
+                        });
                         $('#dependencia-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
                         $('#select2-dependencia-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                         $('.select2-container').tooltip();
+                        
+                        //Si hay un valor de dependencia se preselecciona
+                        if(val_dependencia !== null){
+                            //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
+                            if ($('#dependencia-'+id).find("option[value='" + val_dependencia.replaceAll('"', "&quot;") + "']").length) {
+                                $('#dependencia-'+id).val(val_dependencia).trigger('change');
+                            }else{
+                                var newOption = new Option(val_dependencia, val_dependencia.replaceAll('"', "&quot;"), true, true);
+                                $('#dependencia-'+id).append(newOption).trigger('change');
+                            }
+                        }
                         
                         $('#check-ins-'+id).show();
                         $('#check-ins-bib-'+id+'-load').hide();
@@ -2408,9 +2594,23 @@ class_av = {
             }else{
                 setTimeout(function(){
                     $('#dependencia-'+id).html(opciones_dependencias[institucion+'-'+class_av.var.corporativo]);
+                    $('#dependencia-'+id).on('change', function(){
+                        class_av.var.cambios_institucion = (true && !class_av.var.cambios_de_inicio);
+                    });
                     $('#dependencia-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
                     $('#select2-dependencia-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                     $('.select2-container').tooltip();
+                    
+                    //Si hay un valor de dependencia se preselecciona
+                    if(val_dependencia !== null){
+                        //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
+                        if ($('#dependencia-'+id).find("option[value='" + val_dependencia.replaceAll('"', "&quot;") + "']").length) {
+                            $('#dependencia-'+id).val(val_dependencia).trigger('change');
+                        }else{
+                            var newOption = new Option(val_dependencia, val_dependencia.replaceAll('"', "&quot;"), true, true);
+                            $('#dependencia-'+id).append(newOption).trigger('change');
+                        }
+                        }
                     
                     $('#check-ins-'+id).show();
                     $('#check-ins-bib-'+id+'-load').hide();
@@ -2475,7 +2675,7 @@ class_av = {
                     class_av.biblat_por_nombre($('#nombre-'+id).val(), $('#a-institucion-'+id).val(), '#check-nombre-bib-'+id, '#nombre-'+id);
                 }, 1000);
             }
-            class_av.var.cambios_autor = true;
+            class_av.var.cambios_autor = (true && !class_av.var.cambios_de_inicio);
         });
     },
     change_orcid: function(id=null){
@@ -2494,7 +2694,7 @@ class_av = {
                     class_av.nombre_por_orcid($('#orcid-'+id).val(), $('#nombre-'+id).val(), $('#a-institucion-'+id).val(), '#check-orcid-'+id, '#orcid-'+id);
                 }, 1000);
             }
-            class_av.var.cambios_autor = true;
+            class_av.var.cambios_autor = (true && !class_av.var.cambios_de_inicio);
         });
     },
     limpia: function(palabra){
@@ -2690,6 +2890,10 @@ class_av = {
         var data = {};
         var data_int = [];
         var data_corp = [];
+        var error = '';
+        var confirma_i = '';
+        var revisa_duplicado = [];
+        
         $.each(class_av.var.institucionesJSON, function(i,val){
             var obj = {};
             var obj_corp = {};
@@ -2717,8 +2921,23 @@ class_av = {
             institucion = class_av.limpia(institucion);
             val.institucion = null;
             if(institucion){
+                if( 
+                    institucion.toLowerCase().indexOf('departamento') !== -1 ||
+                    institucion.toLowerCase().indexOf('facultad') !== -1 ||
+                    institucion.toLowerCase().indexOf('. ') !== -1
+                ){
+                    if(confirma_i == ''){
+                        confirma_i = 'Confirma que estas Instituciones son correctas:';
+                    }
+                    confirma_i += '<br>('+(i+1)+') <b>' + institucion + '</b>';
+                    error == 'corregir';
+                }
+                
                 obj['institucion'] = institucion;
                 val.institucion = institucion;
+            }else{
+                error = 'Falta nombre de <b>Institución</b> ' + (i+1);
+                return false;
             }
             
             var pais = $('#pais-'+val.id).val();
@@ -2727,6 +2946,9 @@ class_av = {
             if(pais){
                 obj['pais'] = pais;
                 val.pais = pais;
+            }else{
+                error = 'Falta <b>País</b> de Institución ' + (i+1);
+                return false;
             }
             
             data_int.push(obj);
@@ -2735,7 +2957,19 @@ class_av = {
             delete obj_corp.ciudad;
             data_corp.push(obj_corp);
             
+            if( revisa_duplicado.indexOf(obj.pais + '-' + obj.ciudad + '-' + obj.institucion + '-' + obj.dependencia) == -1 ){
+                revisa_duplicado.push(obj.pais + '-' + obj.ciudad + '-' + obj.institucion + '-' + obj.dependencia);
+            }else{
+                error = 'Existen <b>Instituciones</b> duplicadas<br>Mantenga sólo un registro y elimine las demás';
+                return false;
+            }
         });
+        
+        if(error !== ''){
+            if(error !== 'corregir'){
+                return error;
+            }
+        }
         
         data['corporativo'] = class_av.var.corporativo;
         data['tabla_autores'] = 'author';
@@ -2757,11 +2991,15 @@ class_av = {
         });
         data['data_autores'] = arrAutores;
         data['sistema'] = class_av.var.sistema;
-        return data;
+        
+        return {data: data, confirma: confirma_i};
     },
-    data_update_autores: function(){
+    data_update_autores: function(revisa = false){
         var data = {};
         var data_int = [];
+        var error = '';
+        var confirma_i = '';
+        
         $.each(class_av.var.autoresJSON, function(i,val){
             var obj = {};
            
@@ -2773,6 +3011,13 @@ class_av = {
             orcid = class_av.limpia(orcid);
             val.ciudad = null;
             if(orcid){
+                if(revisa){
+                    var er_orcid = /^[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9]([0-9]|X)/;
+                    if( !er_orcid.test(orcid) ){
+                        error = 'Error en <b>ORCID</b> ' + (i+1);
+                        return false;
+                    }
+                }
                 obj['orcid'] = orcid;
                 val.orcid = orcid;
             }
@@ -2781,13 +3026,30 @@ class_av = {
             nombre = class_av.limpia(nombre);
             val.nombre = null;
             if(nombre){
+                if(revisa){
+                    if( 
+                        nombre.toLowerCase().indexOf('-') !== -1
+                    ){
+                        if(confirma_i == ''){
+                            confirma_i = 'Se encontraron guiones "-", confirma que estos Nombres son correctos:';
+                        }
+                        confirma_i += '<br>('+(i+1)+') <b>' + nombre + '</b>';
+                        error == 'corregir';
+                    }
+                }
+                
                 obj['nombre'] = nombre;
                 val.nombre = nombre;
+            }else{
+                if(revisa){
+                    error = 'Falta nombre de <b>Autor</b> ' + (i+1);
+                    return false;
+                }
             }
             
             var institucion = $('#a-institucion-'+val.id).val();
             institucion = class_av.limpia(institucion);
-            val.institucion = null;
+            val.institucionId = null;
             if(institucion){
                 obj['institucionId'] = institucion;
                 val.institucionId = institucion;
@@ -2796,12 +3058,18 @@ class_av = {
             data_int.push(obj);
         });
         
+        if(error !== ''){
+            if(error !== 'corregir'){
+                return error;
+            }
+        }
+        
         data['tabla_autores'] = 'author';
         data['where'] = ['sistema', 'id'];
         data['where_delete'] = ['sistema'];
         data['data_autores'] = data_int;
         data['sistema'] = class_av.var.sistema;
-        return data;
+        return {data: data, confirma: confirma_i};
     },
     reset_autores: function(){
         $('#div-autores').html('');
@@ -2826,6 +3094,9 @@ class_av = {
                 institucion = class_utils.find_prop(class_av.var.institucionesJSON, 'id',val['institucionId'])['institucion'];
                 $('#a-institucion-'+val.id).val(val['institucionId']).trigger('change');
             }
+            $('#a-institucion-'+val.id).on('change', function(){
+                class_av.var.cambios_autor = (true && !class_av.var.cambios_de_inicio);
+            });
             $('#nombre-'+val.id).val(val.nombre);
             $('#orcid-'+val.id).val(val.orcid);
             $('#nombre-'+val.id).tooltip();
@@ -2913,36 +3184,113 @@ class_av = {
     },
     prompt: function(id){
         id = id.split('-')[1];
+        
         $.confirm({
             title: '',
             content: '' +
             '<form action="" class="formName">' +
             '<div class="form-group">' +
-            'Escribe un término más adecuado para <b>' +id+ '</b>:' +
-            '<input type="text" placeholder="Nueva palabra" class="name form-control" required />' +
+            'Asignar un término más adecuado para<br> <b>' +id+ '</b>:' +
+            '<br><select class="name form-control" name="palabra_clave_sel" id="palabra_clave_sel" style="width:100%" width="100%" required>' +
+            '</select>' +
             '</div>' +
             '</form>',
             buttons: {
                 cancelar: {
-                    text: 'Cerrar',
+                    text: 'Restablecer',
                     //btnClass: 'btn-red',
                     action: function(){
+                        $('#'+class_utils.slug(id)+'-sustituye').html('');
                     }
                 },
                 formSubmit: {
                     text: 'Enviar',
                     btnClass: 'btn-warning',
                     action: function () {
-                        var name = this.$content.find('.name').val().trim();
-                        if(!name){
+                        var name = this.$content.find('.name').val();
+                        if(!name || name == id){
                             $.alert('No es una palabra válida');
                             return false;
+                        }else{
+                            name = name.trim();
+                            var num = class_utils.find_prop(class_av.var.palabras_clave0,'valor',name);
+                            if(num == undefined){num=0;}else{num=num.num;}
+                            $('#'+class_utils.slug(id)+'-sustituye').html(class_av.cons.palabra_clave_sustituye.replaceAll('<palabra>', name).replaceAll('<num>', num));
                         }
-                        $.alert('Your name is ' + name);
                     }
                 },
             },
             onContentReady: function () {
+                //$('#palabra_clave_sel').html(class_av.var.palabras_clave);
+                //$('#palabra_clave_sel').select2({ tags: true, placeholder: "Seleccione o escriba una palabra", allowClear: true});
+                //$('#palabra_clave_sel-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                //$('.select2-container').tooltip();
+                //this.$content.find('#palabra_clave_sel').html(class_av.var.palabras_clave);
+                
+                //this.$content.find('#palabra_clave_sel').select2({ tags: true, placeholder: "Seleccione o escriba una palabra", allowClear: true});
+                //this.$content.find('#palabra_clave_sel-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                //this.$content.find('.select2-container').tooltip();
+                
+                
+                /*var html_sel = $('.select2-results').html();
+                html_sel = html_sel.replaceAll('i-badge', '<span class="badge">').replaceAll('f-badge', '</span>');
+                $('.select2-results').html(html_sel);
+                $('.jconfirm').css('z-index',0);*/
+                
+                $("#palabra_clave_sel").select2({
+                tags: true,
+                allowClear: true,
+                placeholder: "Selecciona o escribe una palabra clave",
+                ajax: {
+                  url: '/datos/vacio',
+                  dataType: 'json',
+                  delay: 1000,
+                  data: (params) => {
+                    return {
+                      q: params.term,
+                    }
+                  },
+                  processResults: (data, params) => {
+                    const results = class_utils.filter_prop_er(class_av.var.palabras_clave0,'valor',new RegExp("^" + params.term + ".*", "i")).map(item => {
+                      return {
+                        id: item.valor,
+                        text: item.valor,
+                        num: item.num
+                      };
+                    });
+                    return {
+                      results: results,
+                    }
+                  }
+                },
+                language: {
+                            inputTooShort: function () {
+                            return "";
+                            }
+                        },
+                minimumInputLength: 2,
+                templateResult: formatRepo,
+                });
+                
+                function formatRepo (repo) {
+                    if (repo.loading) {
+                      return repo.text;
+                    }
+                    
+                    var $container = $(
+                        "<div class='select2-result-repository__title'>" + repo.text + ' <span class="badge">' + ((repo.num == undefined)?0:repo.num) + '</span></div>'
+                    );
+
+                    return $container;
+                  };
+                
+                  /*
+                  function formatRepoSelection (repo) {
+                    return repo.valor;
+                  }*/
+                  
+                  $('.jconfirm').css('z-index',0);
+                
                 // bind to events
                 var jc = this;
                 this.$content.find('form').on('submit', function (e) {
@@ -3175,8 +3523,43 @@ class_av = {
         data['data'] = data_int;
         return data;
     },
+    revisa: function(campos){
+        var error = false;
+        
+        $.each(campos, function(i, val){
+            var texto = $(val.e).val();
+            if( texto == undefined || texto == null ){
+                error = val.c;
+                return false;
+            }else{
+                if(typeof(texto) !== 'object'){
+                    texto = texto.trim();
+                    if(texto == ''){
+                        error = val.c;
+                        return false;
+                    }
+                }
+            }
+        });
+        
+        return error;
+    },
     control_guarda:function(){
         $('#save-article').off('click').on('click', function(){
+            
+            var campos = [
+                            {e:'#idiomaDocumento', c:'Idioma(s) del documento'},
+                            {e:'#tipo_documento', c:'Tipo de documento'},
+                            {e:'#titulo', c:'Título'},
+                            {e:'#disciplina1', c:'Disciplina'}
+                        ];
+            
+            var revisa = class_av.revisa(campos);
+            
+            if(typeof(revisa) == 'string'){
+                class_av.mensaje('Falta: <b>'+revisa+'</b>');
+                return false;
+            }
             
             var texto = 'Se guardarán los cambios realizados a los metadatos del Artículo';
             var envio = true;
@@ -3219,6 +3602,20 @@ class_av = {
                 return true;
             }else{
                 
+                var revisa = false;
+                $.each(class_av.var.institucionesJSON, function(i, val){
+                    var busca = class_utils.filter_prop(class_av.var.autoresJSON, 'institucionId', val.id);
+                    if(busca.length == 0){
+                        revisa = true;
+                        class_av.mensaje('Existen <b>Instituciones</b> sin relación con algún <b>Autor</b><br>Indique la relación o elimínelas');
+                        return false;
+                    }
+                });
+                
+                if(revisa){
+                    return true;
+                }
+                
                 var texto = 'Se marcará el registro como <b>Completado</b>';
                 var envio = true;
                 
@@ -3249,7 +3646,8 @@ class_av = {
                                                 type: 'POST',
                                                 url: "<?=site_url('metametrics/ws_update_estatus');?>",
                                                 data: data,
-                                        }).done(function() {
+                                        }).done(function(resp) {
+                                            if(resp.resp == 'success'){
                                                 class_av.cambio_estatus(class_av.var.sistema, 'C');
                                                 $('.'+class_av.var.sistema).removeClass('sistema');
                                                 $('.'+class_av.var.sistema).addClass('cerrado');
@@ -3262,7 +3660,13 @@ class_av = {
                                                 $('#save-instituciones').hide();
                                                 $('#save-autores').hide();
                                                 loading.end();
+                                                class_av.mensaje('Artículo completado correctamente.');
                                                 window.location.href="#div_tabla";
+                                            }else{
+                                                class_av.mensaje('Ocurrió un error, intente completar nuevamente');
+                                            }
+                                        }).fail(function(){
+                                            class_av.mensaje('Ocurrió un error, intente completar nuevamente');
                                         });
                                     }
                                 }
@@ -3274,86 +3678,156 @@ class_av = {
         
         $('#save-instituciones').off('click').on('click', function(){
             
-            var texto = 'Se guardarán los cambios realizados a los metadatos de Instituciones';
-            var envio = true;
-            
-            $.confirm({
-                title: '',
-                content: texto,
-                buttons: {
-                    cancelar: {
-                            text: 'Cancelar',
-                            //btnClass: 'btn-red',
-                            action: function(){
-                                
-                            }
-                    },
-                    aceptar: {
-                            text: 'Aceptar',
-                            btnClass: 'btn-warning',
-                            action: function(){
-                                if(envio){
-                                    envio = false;
-                                    class_av.var.cambios_institucion = false;
-                                    $.ajax({
-                                            type: 'POST',
-                                            url: "<?=site_url('metametrics/ws_insert_instituciones');?>",
-                                            data: JSON.stringify(class_av.data_update_instituciones()),
-                                            contentType: 'application/json'
-                                    }).done(function() {
-                                            class_av.cambio_estatus(class_av.var.sistema, 'R');
-                                            class_av.data_update_autores();
-                                            class_av.reset_autores();
-                                            class_av.mensaje('Instituciones guardadas correctamente.');
-                                    }).fail(function(){
-                                        class_av.mensaje('Ocurrió un error al intentar guardar Instituciones');
-                                    });
+            var concluye = function(){
+                var texto = 'Se guardarán los cambios realizados a los metadatos de Instituciones';
+                var envio = true;
+
+                $.confirm({
+                    title: '',
+                    content: texto,
+                    buttons: {
+                        cancelar: {
+                                text: 'Cancelar',
+                                //btnClass: 'btn-red',
+                                action: function(){
+
                                 }
-                            }
+                        },
+                        aceptar: {
+                                text: 'Aceptar',
+                                btnClass: 'btn-warning',
+                                action: function(){
+                                    if(envio){
+                                        envio = false;
+                                        class_av.var.cambios_institucion = false;
+                                        $.ajax({
+                                                type: 'POST',
+                                                url: "<?=site_url('metametrics/ws_insert_instituciones');?>",
+                                                data: JSON.stringify(instituciones.data),
+                                                contentType: 'application/json'
+                                        }).done(function() {
+                                                class_av.cambio_estatus(class_av.var.sistema, 'R');
+                                                class_av.data_update_autores();
+                                                class_av.reset_autores();
+                                                class_av.mensaje('Instituciones guardadas correctamente.');
+                                        }).fail(function(){
+                                            class_av.mensaje('Ocurrió un error al intentar guardar Instituciones');
+                                        });
+                                    }
+                                }
+                        }
                     }
+                });
+            };
+            
+            var instituciones = class_av.data_update_instituciones();
+            
+            if( typeof(instituciones) == 'string' ){
+                class_av.mensaje(instituciones);
+                return false;
+            }else{
+                if(instituciones.confirma !== ''){
+                    $.confirm({
+                        title: '',
+                        content: instituciones.confirma,
+                        buttons: {
+                            cancelar: {
+                                    text: 'Revisar',
+                                    //btnClass: 'btn-red',
+                                    action: function(){
+
+                                    }
+                            },
+                            aceptar: {
+                                    text: 'Confirmar',
+                                    btnClass: 'btn-warning',
+                                    action: function(){
+                                        concluye();
+                                    }
+                            }
+                        }
+                    });
+                }else{
+                    concluye();
                 }
-            });
+            }
+            
         });
         
         $('#save-autores').off('click').on('click', function(){
             
-            var texto = 'Se guardaran los cambios realizados a los metadatos de Autores';
-            var envio = true;
-            
-            $.confirm({
-                title: '',
-                content: texto,
-                buttons: {
-                    cancelar: {
-                            text: 'Cancelar',
-                            //btnClass: 'btn-red',
-                            action: function(){
-                                
-                            }
-                    },
-                    aceptar: {
-                            text: 'Aceptar',
-                            btnClass: 'btn-warning',
-                            action: function(){
-                                if(envio){
-                                    envio = false;
-                                    class_av.var.cambios_autor = false;
-                                    $.ajax({
-                                            type: 'POST',
-                                            url: "<?=site_url('metametrics/ws_insert_autores');?>",
-                                            data: JSON.stringify(class_av.data_update_autores()),
-                                            contentType: 'application/json'
-                                    }).done(function() {
-                                            class_av.cambio_estatus(class_av.var.sistema, 'R');
-                                            class_av.mensaje('Autores guardados correctamente.');
-                                    }).fail(function(){
-                                        class_av.mensaje('Ocurrió un error al intentar guardar Autores');
-                                    });
+            var concluye = function(){
+                var texto = 'Se guardaran los cambios realizados a los metadatos de Autores';
+                var envio = true;
+
+                $.confirm({
+                    title: '',
+                    content: texto,
+                    buttons: {
+                        cancelar: {
+                                text: 'Cancelar',
+                                //btnClass: 'btn-red',
+                                action: function(){
+
                                 }
-                            }
+                        },
+                        aceptar: {
+                                text: 'Aceptar',
+                                btnClass: 'btn-warning',
+                                action: function(){
+                                    if(envio){
+                                        envio = false;
+                                        class_av.var.cambios_autor = false;
+                                        $.ajax({
+                                                type: 'POST',
+                                                url: "<?=site_url('metametrics/ws_insert_autores');?>",
+                                                data: JSON.stringify(autores.data),
+                                                contentType: 'application/json'
+                                        }).done(function() {
+                                                class_av.cambio_estatus(class_av.var.sistema, 'R');
+                                                class_av.mensaje('Autores guardados correctamente.');
+                                        }).fail(function(){
+                                            class_av.mensaje('Ocurrió un error al intentar guardar Autores');
+                                        });
+                                    }
+                                }
+                        }
                     }
+                });
+            };
+            
+            var autores = class_av.data_update_autores(true);
+            
+            if( typeof(autores) == 'string' ){
+                class_av.mensaje(autores);
+                return false;
+            }else{
+                if(autores.confirma !== ''){
+                    $.confirm({
+                        title: '',
+                        content: autores.confirma,
+                        buttons: {
+                            cancelar: {
+                                    text: 'Revisar',
+                                    //btnClass: 'btn-red',
+                                    action: function(){
+
+                                    }
+                            },
+                            aceptar: {
+                                    text: 'Confirmar',
+                                    btnClass: 'btn-warning',
+                                    action: function(){
+                                        concluye();
+                                    }
+                            }
+                        }
+                    });
+                }else{
+                    concluye();
                 }
-            });
+            }
+            
         });
         
         $('#save-no-indizable').off('click').on('click', function(){
