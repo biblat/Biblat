@@ -351,13 +351,14 @@ class Datos extends REST_Controller {
                         )
                         or
                         (
-                            estatus in (\'C\', \'B\')
+                            estatus in (\'A\', \'R\', \'C\', \'B\')
                             and
                             c.nombre <> \'OJS\' and c.nombre <> \'SciELO\'
                             and
                             extract(year from c.fecha) = extract(year from CURRENT_DATE)
                         )
                         )
+						and a.sistema ~ \'^(PER|CLA)99\'
                         and asignado = \''.$usuario.'\' 
                         order by 1
                     ';
