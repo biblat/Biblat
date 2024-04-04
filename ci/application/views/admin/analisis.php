@@ -112,6 +112,42 @@
 </div>
 
 <div class="row">
+    <div class="col-xs-12" id="div-filtro" style="">
+        <div class="btn-group" role="group">
+        <!-- Split button -->
+        <div class="btn-group">
+            <button type="button" class="btn btn-warning" id="btn-filtro" style="width:150px;border-radius:5px">Filtrar por :</button>
+            <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-radius:5px">
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu" style="border-radius:5px">
+                <li><a class="li-filtro" id="estatus">Estatus</a></li>
+                <li><a class="li-filtro" id="fechaAsignado">Fecha asignado</a></li>
+                <li><a class="li-filtro" id="revista">Revista</a></li>
+            </ul>
+        </div>
+        </div>
+        <div class="btn-group" role="group">
+            <!-- Split button -->
+            <div class="btn-group">
+              <button type="button" class="btn" id="btn-filtro2" style="border-radius:5px">Seleccione</button>
+              <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-radius:5px">
+                <span class="caret"></span>
+                <span class="sr-only">Toggle Dropdown</span>
+              </button>
+              <ul class="dropdown-menu" id="ul-filtro" style="border-radius:5px">
+              </ul>
+            </div>
+        </div>
+        <br><br>
+            <button id="remove" type="button" class="btn btn-default btn-sm" style="display: none">
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Quitar filtro
+            </button>
+    </div>
+</div>
+
+<div class="row">
     <div class="col-sm-12">
         <div id="div_tabla" style="display:block">
         </div>
@@ -330,28 +366,29 @@
                                 </select>
                             </div>
                         </div>
-                        <!--div class="row" id="div_resumen_esp" style="display:block">
+                        <!--comentar-->
+                        <div class="row" id="div_resumen_esp" style="display:none">
                             <br>
                             <div class="col-xs-12">
                                 <span><b>Resumen en español:</b></span><br>
                                 <textarea id="resumen_esp" style="width: 100%; height: 100px; overflow-y: scroll;"></textarea>
                             </div>
                         </div>
-                        <div class="row" id="div_resumen_ing" style="display:block">
+                        <div class="row" id="div_resumen_ing" style="display:none">
                             <br>
                             <div class="col-xs-12">
                                 <span><b>Resumen en inglés:</b></span><br>
                                 <textarea id="resumen_ing" style="width: 100%; height: 100px; overflow-y: scroll;"></textarea>
                             </div>
                         </div>
-                        <div class="row" id="div_resumen_por" style="display:block">
+                        <div class="row" id="div_resumen_por" style="display:none">
                             <br>
                             <div class="col-xs-12">
                                 <span><b>Resumen en portugués:</b></span><br>
                                 <textarea id="resumen_por" style="width: 100%; height: 100px; overflow-y: scroll;"></textarea>
                             </div>
                         </div>
-                        <div class="row" id="div_resumen_otro" style="display:block">
+                        <div class="row" id="div_resumen_otro" style="display:none">
                             <br>
                             <div class="col-xs-12">
                                 <span><b>Resumen en otro idioma:</b></span><br>
@@ -359,10 +396,17 @@
                             </div>
                         </div>
                         
+                        <div class="row" id="div_palabras_clave_autor" style="display:none">
+                            <br>
+                            <div class="col-xs-12">
+                                <span><b>Palabras clave de autor(es):</b></span><br>
+                                <span id="palabras_clave_autores"></span>
+                            </div>
+                        </div>
                         <div class="row" id="div_palabras_clave" style="display:none">
                             <br>
                             <div class="col-xs-12">
-                                <span><b>Palabras clave:</b></span><br>
+                                <span><b>Palabras clave sugeridas de acuerdo al texto:</b></span><br>
                                 <span id="palabras_clave"></span>
                             </div>
                         </div>
@@ -377,7 +421,8 @@
                             <center>
                                 <button id="import-ai" type="button" class="btn btn-dark" style="display:none"><img class="imagen" src="{base_url('img/aie.png')}" style="filter: invert(0.5) sepia(9) hue-rotate(0deg) saturate(1000%);height:20px;display:inline-block"><span> Extraer de PDF</span></button>
                             </center>
-                        </div-->
+                        </div>
+                        <!--comentar-->
                     </div>
                 </div>
             </div>
