@@ -1,4 +1,4 @@
-// cambios 38,40,41, 2230, 2232
+// cambios 38,40,41, 2234, 2236
 class_av = {
     cons: {
         DISCOVERY_DOCS: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
@@ -10,6 +10,7 @@ class_av = {
         char_i: /\(|\)|,|;|:|=|'/g,
         cargando: '<i id="check-titulo-load" class="fa fa-spinner fa-pulse" aria-hidden="true" style="color: #ff8000; display: true"></i>',
         estatus:{
+            A: 'Sin movimiento',
             R: 'En revisión',
             C: 'Completado',
             B: 'No indizable'
@@ -67,6 +68,7 @@ class_av = {
                                     '<th rowspan="1" >Artículo</th>' +
                                     '<th rowspan="1" style="max-width:100px">Url 1</th>' +
                                     '<th rowspan="1" style="max-width:100px">Url 2</th>' +
+                                    '<th rowspan="1" style="max-width:100px">Fecha asignado</th>' +
                                     '<th rowspan="1" style="max-width:100px">Estatus</th>' +
                                 '</tr>'+
                             '</thead>' +
@@ -77,6 +79,7 @@ class_av = {
             <td><span id="<id>" class="<class> <sistema>" style="<style>" ><art></span></td>\n\
             <td><a href="<url1>" target="_blank"><texto1></a></td>\n\
             <td><a href="<url2>" target="_blank"><texto2></a></td>\n\
+            <td><fecha></td>\n\
             <td><span id="estatus-<id_estatus>" style="background-color:<color>" class="badge"><estatus></span></td>',
         barra_avance:   '<div class="progress-bar progress-bar-warning progress-bar-striped" role="progressbar" aria-valuenow="<avance>" aria-valuemin="0" aria-valuemax="100" style="width: <avance>%">' +
                         '<span style="color:black"><b><avance> %</b></span>' +
@@ -244,8 +247,8 @@ class_av = {
                             <br><span><b>Páginas artículo:</b></span><br> \
                             <input id="de_na-<id>" style="min-width: 10%" type="text" data-placement="top" placeholder="Página inicial"> - \
                             <input id="a_na-<id>" style="min-width: 10%" type="text" data-placement="top" placeholder="Página final"> \
-                            </div>'
-        ,
+                            </div>',
+        li: '<li><a class="li-filtro2" id="<id>"><val></a></li>',
         opciones_paises: '',
         a_opciones_instituciones: '',
         texto_pdf: '',
@@ -425,6 +428,7 @@ class_av = {
     ready: function(){
         loading.start();
         class_av.initClient();
+        class_av.filtro();
     },
     control: function(){
         /*
@@ -2243,6 +2247,7 @@ class_av = {
                             .replace('<url2>', val['url2'])
                             .replace('<texto1>', texto1)
                             .replace('<texto2>', texto2)
+                            .replace('<fecha>', val['fechaAsignado'])
                             .replace('<estatus>', '<estatus>'+val['estatus'])
                             .replace('<color>', '<color>'+val['estatus'])
                             .replace('<estatus>R', 'En revisión')
@@ -3923,6 +3928,36 @@ class_av = {
                         }
                 }
             }
+        });
+    },
+    filtro: function(){
+        $(".li-filtro").off('click').on('click', function(){
+            $('#btn-filtro').html($(this).html() + ' :');
+            var id_filtro1 = this.id;
+            var sel = class_utils.unique(class_av.var.articulosJSON, this.id).sort();
+            var lis = '';
+            $.each(sel, function(i,val){
+                var valor = val;
+               if(id_filtro1 == 'estatus'){
+                   valor = class_av.cons.estatus[val];
+               }
+               lis += class_av.var.li.replace('<id>', val).replace('<val>', valor);
+            });
+            $("#ul-filtro").html(lis);
+            $('#btn-filtro2').html("Seleccione");
+            $(".li-filtro2").off('click').on('click', function(){
+                $('#btn-filtro2').html($(this).html());
+                var filtro = class_utils.filter_prop(class_av.var.articulosJSON, id_filtro1, this.id);
+                class_av.setTabla(filtro);
+                $('#remove').show();
+            });
+        });
+        $("#remove").off('click').on('click', function(){
+            $('#remove').hide();
+            $('#btn-filtro').html("Filtrar por :");
+            $('#btn-filtro2').html("Seleccione");
+            $("#ul-filtro").html("");
+            class_av.setTabla(class_av.var.articulosJSON);
         });
     }
 };
