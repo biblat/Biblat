@@ -1,4 +1,4 @@
-// cambios 38,40,41, 2234, 2236
+// cambios 38,40,41, 2321, 2323
 class_av = {
     cons: {
         DISCOVERY_DOCS: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
@@ -59,6 +59,7 @@ class_av = {
         numeros:'',
         corporativo: 0,
         url_ia:'',
+        arr_busca_pdf: [],
         tabla: '<table id="tbl_articulos" class="display responsive nowrap" style="width:100%;font-size:11px">' +
                             '<thead>' +
                                 '<tr>' +
@@ -776,6 +777,7 @@ class_av = {
                                 
                                 if (class_av.var.documentoJSON[0].palabraClave !== undefined && class_av.var.documentoJSON[0].palabraClave !== null && class_av.var.documentoJSON[0].palabraClave !== ''){
                                     palabras_doc = JSON.parse(class_av.var.documentoJSON[0].palabraClave);
+                                    $('#div_palabras_clave_texto').show();
                                     $('#div_palabras_clave_autor').show();
                                     var html = '';
                                     $.each(palabras_doc, function(i, val){
@@ -913,16 +915,18 @@ class_av = {
                         $('#accordionInstituciones').html('Instituciones');
                         $('#accordionInstituciones').prop('href', '#instituciones');
                     }
-
+                    
+                    
+                    var total = 0;
                     var revisaRepetidas = function(){
                         var es_inicio = true;
-                        $.each(class_av.var.institucionesJSON, function(i,val){
+                        //$.each(class_av.var.institucionesJSON, function(i,val){
 
-                            if(val.pais !== null){
+                            //if(val.pais !== null){
                                 //Revisa al final las repetidas para agregar el menu
                                 $.each(repetidas_ciudades, function(i2, val2){
-                                    if(val2.pais == val.pais) {
-                                        $('#ciudad-'+val2.id).html(opciones_ciudades[val.pais+'-'+class_av.var.corporativo]);
+                                    if(val2.pais !== null) {
+                                        $('#ciudad-'+val2.id).html(opciones_ciudades[val2.pais+'-'+class_av.var.corporativo]);
                                         $('#ciudad-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true});
                                         $('#select2-ciudad-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();
@@ -937,12 +941,12 @@ class_av = {
                                         }
                                     }
                                 });
-
+                                    
                                 //Revisa al final las repetidas para agregar el menu
-                                $.each(repetidas_instituciones, function(i2, val2){
+                                /*$.each(repetidas_instituciones, function(i2, val2){
                                     if(val2.pais == val.pais) {
                                         $('#institucion-'+val2.id).html(opciones_instituciones[val.pais+'-'+class_av.var.corporativo]);
-                                        $('#institucion-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true/*,  width: 'Auto'*/});
+                                        $('#institucion-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true});
                                         $('#select2-institucion-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();
                                         if(val2.institucion !== null){
@@ -954,20 +958,21 @@ class_av = {
                                                 $('#institucion-'+val2.id).append(newOption).trigger('change');
                                             }
                                            //$('#institucion-'+val2.id).val(val2.institucion).trigger('change');
+                                           alert('en repetidas');
                                            class_av.busca_en_pdf(class_av.var.texto_pdf, val2.institucion, '#check-ins-'+val2.id, '#institucion-'+val2.id);
                                         }
                                         $('#institucion-'+val2.id).on('change', function(){
                                             class_av.var.cambios_institucion = (true && !es_inicio);
                                         });
                                     }
-                                });
-                            }
+                                });*/
+                            //}
 
-                            if(val.institucion !== null){
+                            //if(val.institucion !== null){
                                 //Revisa al final las repetidas para agregar el menu
                                 $.each(repetidas_dependencias, function(i2, val2){
-                                    if(val2.institucion == val.institucion) {
-                                        $('#dependencia-'+val2.id).html(opciones_dependencias[val.institucion+'-'+class_av.var.corporativo]);
+                                    if(val2.institucion !== null) {
+                                        $('#dependencia-'+val2.id).html(opciones_dependencias[val2.institucion+'-'+class_av.var.corporativo]);
                                         $('#dependencia-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
                                         $('#select2-dependencia-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();
@@ -982,45 +987,84 @@ class_av = {
 
                                 //Revisa al final las repetidas para agregar el menu
                                 $.each(repetidas_sug_ciudades, function(i2, val2){
-                                    if(val2.institucion == val.institucion) {
-                                        $('#sug-ciudad-'+val2.id).html(opciones_sug_ciudades[val.institucion]);
+                                    if(val2.institucion !== null) {
+                                        $('#sug-ciudad-'+val2.id).html(opciones_sug_ciudades[val2.institucion]);
                                         //$('#sug-ciudad-'+val2.id).select2({ tags: true, placeholder: "Sugerencias encontradas", allowClear: true});
-                                        $('#check-ins-bib-'+val2.id+'-expand').show();
-                                        $('#check-ins-bib-'+val2.id+'-expand').on('click', function(){
-                                            if($('#check-ins-bib-'+val2.id+'-expand').hasClass('fa fa-sort-desc')){
-                                               $('#check-ins-bib-'+val2.id+'-expand').removeClass('fa-sort-desc');
-                                               $('#check-ins-bib-'+val2.id+'-expand').addClass('fa-sort-asc');  
-                                            }else{
-                                               $('#check-ins-bib-'+val2.id+'-expand').addClass('fa-sort-desc');
-                                               $('#check-ins-bib-'+val2.id+'-expand').removeClass('fa-sort-asc');
-                                            }
-                                           if( $('#sug-ciudad-'+val2.id).css('display') == 'none' ){
-                                               $('#sug-ciudad-'+val2.id).show();
-                                           }else{
-                                               $('#sug-ciudad-'+val2.id).hide();
-                                           }
-                                        });
+                                        $('#check-ins-bib-'+val2.id).show();
+                                        $('#check-ins-bib-'+val2.id+'-load').hide();
+                                        $('#check-ins-bib-'+val2.id+'-true').show();
+                                            $('#div-sug-ciudad-'+val2.id).show();
+                                            $('#check-ins-bib-'+val2.id+'-expand').show();
+                                            $('#check-ins-bib-'+val2.id+'-expand').on('click', function(){
+                                               if($('#check-ins-bib-'+val2.id+'-expand').hasClass('fa fa-sort-desc')){
+                                                    $('#check-ins-bib-'+val2.id+'-expand').removeClass('fa-sort-desc');
+                                                    $('#check-ins-bib-'+val2.id+'-expand').addClass('fa-sort-asc');  
+                                                 }else{
+                                                    $('#check-ins-bib-'+val2.id+'-expand').addClass('fa-sort-desc');
+                                                    $('#check-ins-bib-'+val2.id+'-expand').removeClass('fa-sort-asc');
+                                                 }
+                                               if( $('#sug-ciudad-'+val2.id).css('display') == 'none' ){
+                                                   $('#sug-ciudad-'+val2.id).show();
+                                               }else{
+                                                   $('#sug-ciudad-'+val2.id).hide();
+                                               }
+                                            });
                                     }
                                 });
-                            }
+                            //}
 
-                        });
+                        //});
+                        
+                        var recorrido_inst = function(arr_inst){
+                            var es_inicio = true;
+                            if(arr_inst.length == 0){
+                                $('.select2-container').css('max-width','100%');
+                                /********* función para borrar *************/
+                                class_av.evento_borra_institucion();
+
+                                $('#accordionInstituciones').html('Instituciones');
+                                $('#accordionInstituciones').prop('href', '#instituciones');
+
+                                class_av.change_paises();
+                                class_av.change_institucion();
+                                return true;
+                            }
+                            
+                            total ++;
+                            $('#accordionInstituciones').html('Cargando Instituciones ('+total+'/'+class_av.var.institucionesJSON.length+') ...');
+                            var val2 = arr_inst.slice(0,1)[0];
+                            var resto_val = arr_inst.slice(1);
+                            
+                                $('#institucion-'+val2.id).html(opciones_instituciones[val2.pais+'-'+class_av.var.corporativo]);
+                                $('#institucion-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true});
+                                $('#select2-institucion-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                                $('.select2-container').tooltip();
+                                if(val2.institucion !== null){
+                                    //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
+                                    if ($('#institucion-'+val2.id).find("option[value='" + val2.institucion.replaceAll('"', "&quot;") + "']").length) {
+                                        $('#institucion-'+val2.id).val(val2.institucion).trigger('change');
+                                    }else{
+                                        var newOption = new Option(val2.institucion, val2.institucion.replaceAll('"', "&quot;"), true, true);
+                                        $('#institucion-'+val2.id).append(newOption).trigger('change');
+                                    }
+                                   //$('#institucion-'+val2.id).val(val2.institucion).trigger('change');
+                                    class_av.busca_en_pdf(class_av.var.texto_pdf, val2.institucion, '#check-ins-'+val2.id, '#institucion-'+val2.id)
+                                    .then(function(){
+                                        $('#institucion-'+val2.id).on('change', function(){
+                                             class_av.var.cambios_institucion = (true && !es_inicio);
+                                         });
+                                         recorrido_inst(resto_val);
+                                   });
+                                }else{
+                                    recorrido_inst(resto_val);
+                                }
+                        }
+                        
+                        recorrido_inst(repetidas_instituciones);
                         
                         es_inicio = false;
-
-                        $('.select2-container').css('max-width','100%');
-
-                        /********* función para borrar *************/
-                        class_av.evento_borra_institucion();
-
-                        $('#accordionInstituciones').html('Instituciones');
-                        $('#accordionInstituciones').prop('href', '#instituciones');
-                        
-                        class_av.change_paises();
-                        class_av.change_institucion();
                     };
                     
-                    var total = 0;
                     //$.each(class_av.var.institucionesJSON, function(i,val){
                     var recorrido_instituciones = function(arr_instituciones){
                         var es_inicio = true;
@@ -1029,8 +1073,6 @@ class_av = {
                             return true;
                         }
                         
-                        total ++;
-                        $('#accordionInstituciones').html('Cargando Instituciones ('+total+'/'+class_av.var.institucionesJSON.length+') ...');
                         var peticiones = 2;
                         var val = arr_instituciones.slice(0,1)[0];
                         var resto_val = arr_instituciones.slice(1);
@@ -1056,6 +1098,8 @@ class_av = {
                             });
                             //Revisa si ya se trajo el catálogo para este país
                             if( !opciones_ciudades.hasOwnProperty(val.pais+'-'+class_av.var.corporativo) ){
+                                total ++;
+                                $('#accordionInstituciones').html('Cargando Instituciones ('+total+'/'+class_av.var.institucionesJSON.length+') ...');
                                 //peticiones ++;
                                 opciones_ciudades[val.pais+'-'+class_av.var.corporativo] = '';
                                 opciones_instituciones[val.pais+'-'+class_av.var.corporativo] = '';
@@ -1111,18 +1155,31 @@ class_av = {
                                             }
                                             //if(url_pdf !== ''){
                                                 //class_av.busca_en_pdf(url_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id);
-                                                class_av.busca_en_pdf(class_av.var.texto_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id);
+                                                class_av.busca_en_pdf(class_av.var.texto_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id)
+                                                .then(function(){
+                                                    $('#institucion-'+val.id).on('change', function(){
+                                                        class_av.var.cambios_institucion = (true && !es_inicio);
+                                                    });
+
+                                                    //Ya que se terminan las peticiones por país, se revisan instituciones del mismo país
+                                                    if( peticiones == 0 ){
+                                                        //revisaRepetidas();
+                                                        es_inicio = false;
+                                                        recorrido_instituciones(resto_val);
+                                                    }
+                                                });
                                             //}
-                                        }
-                                        $('#institucion-'+val.id).on('change', function(){
-                                            class_av.var.cambios_institucion = (true && !es_inicio);
-                                        });
-                                        
-                                        //Ya que se terminan las peticiones por país, se revisan instituciones del mismo país
-                                        if( peticiones == 0 ){
-                                            //revisaRepetidas();
-                                            es_inicio = false;
-                                            recorrido_instituciones(resto_val);
+                                        }else{
+                                            $('#institucion-'+val.id).on('change', function(){
+                                                class_av.var.cambios_institucion = (true && !es_inicio);
+                                            });
+
+                                            //Ya que se terminan las peticiones por país, se revisan instituciones del mismo país
+                                            if( peticiones == 0 ){
+                                                //revisaRepetidas();
+                                                es_inicio = false;
+                                                recorrido_instituciones(resto_val);
+                                            }
                                         }
                                     //}, 3000);
                                 });
@@ -1148,6 +1205,8 @@ class_av = {
                                 }
                             }
                         }else{
+                            total ++;
+                            $('#accordionInstituciones').html('Cargando Instituciones ('+total+'/'+class_av.var.institucionesJSON.length+') ...');
                             peticiones --;
                             //Generalmente no hay país puesto que no existe un campo de donde extraerlo,
                             //Si no se encontró tampoco dentro del texto de institución
@@ -1167,14 +1226,21 @@ class_av = {
                                 });
                                 //if(url_pdf !== ''){
                                     //class_av.busca_en_pdf(url_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id);
-                                    class_av.busca_en_pdf(class_av.var.texto_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id);
+                                    class_av.busca_en_pdf(class_av.var.texto_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id)
+                                    .then(function(){
+                                        if( peticiones == 0 ){
+                                            //revisaRepetidas();
+                                            es_inicio = false;
+                                            recorrido_instituciones(resto_val);
+                                        }
+                                    });
                                 //}
-                            }
-                            
-                            if( peticiones == 0 ){
-                                //revisaRepetidas();
-                                es_inicio = false;
-                                recorrido_instituciones(resto_val);
+                            }else{
+                                if( peticiones == 0 ){
+                                    //revisaRepetidas();
+                                    es_inicio = false;
+                                    recorrido_instituciones(resto_val);
+                                }
                             }
                         }
 
@@ -1335,24 +1401,28 @@ class_av = {
                         $('#nombre-'+val.id).tooltip();
                         $('#orcid-'+val.id).tooltip();
                         
-                        class_av.orcid_por_nombre(val.nombre, institucion, val.orcid, '#check-nombre-'+val.id, '#nombre-'+val.id);
-                        if(val.nombre !== null && val.nombre !== '' && val.nombre !== undefined){
-                            var nombre = val.nombre.split(',');
-                            if(nombre[1]){
-                                nombre = nombre[1] + ' ' + nombre[0];
-                            }
-                            class_av.busca_en_pdf(class_av.var.texto_pdf, nombre, '#check-nombre-pdf-'+val.id, '#nombre-'+val.id);
-                            class_av.busca_en_pdf(class_av.var.texto_pdf, val.orcid, '#check-orcid-pdf-'+val.id, '#orcid-'+val.id);
-                            class_av.nombre_por_orcid(val.orcid, val.nombre, institucion, '#check-orcid-'+val.id, '#orcid-'+val.id)
-                            class_av.biblat_por_nombre(val.nombre, institucion, '#check-nombre-bib-'+val.id, '#nombre-'+val.id)
-                            .finally(function(){
+                        class_av.orcid_por_nombre(val.nombre, institucion, val.orcid, '#check-nombre-'+val.id, '#nombre-'+val.id)
+                        .then(function(){
+                            if(val.nombre !== null && val.nombre !== '' && val.nombre !== undefined){
+                                var nombre = val.nombre.split(',');
+                                if(nombre[1]){
+                                    nombre = nombre[1] + ' ' + nombre[0];
+                                }
+                                class_av.busca_en_pdf(class_av.var.texto_pdf, nombre, '#check-nombre-pdf-'+val.id, '#nombre-'+val.id);
+                                class_av.busca_en_pdf(class_av.var.texto_pdf, val.orcid, '#check-orcid-pdf-'+val.id, '#orcid-'+val.id);
+                                class_av.nombre_por_orcid(val.orcid, val.nombre, institucion, '#check-orcid-'+val.id, '#orcid-'+val.id)
+                                .then(function(){
+                                    class_av.biblat_por_nombre(val.nombre, institucion, '#check-nombre-bib-'+val.id, '#nombre-'+val.id)
+                                    .then(function(){
+                                        es_inicio = false;
+                                        recorrido_autores(resto_val);
+                                    });
+                                });
+                            }else{
                                 es_inicio = false;
                                 recorrido_autores(resto_val);
-                            });
-                        }else{
-                            es_inicio = false;
-                            recorrido_autores(resto_val);
-                        }
+                            }
+                        });
                     };//});
                     
                     recorrido_autores(class_av.var.autoresJSON);
@@ -1719,6 +1789,7 @@ class_av = {
         class_av.var.cambios_autor = (true && !class_av.var.cambios_de_inicio);
     },
     busca_en_pdf: function(url_pdf, texto, id, id_h){
+        return new Promise(function(resolve, reject) {
             $(id).hide();
             $(id + '-load').show();
             $(id + '-load').show();
@@ -1730,12 +1801,14 @@ class_av = {
             $(id + '-texto').hide();
             
             if(texto == null || texto == '' || texto == undefined || url_pdf == null || url_pdf == '' || url_pdf == undefined){
+                resolve();
                 return false;
             }
             
             try{
                 texto = class_utils.slug(texto.replaceAll(class_av.cons.caracteres,'.'));
             }catch(error){
+                resolve();
                 return false;
             }
             
@@ -1744,6 +1817,7 @@ class_av = {
             if(url_pdf == 'fallo'){
                 $(id + '-load').hide();
                 $(id + '-broken').show();
+                resolve();
                 return false;
             }
             
@@ -1751,8 +1825,19 @@ class_av = {
                 $(id + '-load').hide();
                 $(id + '-texto').html('Título corto');
                 $(id + '-texto').show();
+                resolve();
                 return false;
             }
+            
+            /*if(class_av.var.arr_busca_pdf.indexOf(texto) !== -1){
+                 $(id + '-load').hide();
+                 $(id_h).prop("disabled", false);
+                 resolve();
+                return false;
+            }else{
+                class_av.var.arr_busca_pdf.push(texto);
+            }*/
+            
             $.when(
                 //class_utils.getResource('http://localhost:5001/texto_en_pdf/'+class_utils.slug(texto.replaceAll(class_av.cons.caracteres,'.'))+'/url/'+url_pdf)
                 class_utils.setResource(class_av.var.servidor + class_av.var.app + '/texto_en_textopdf/',{texto: texto, textopdf: url_pdf})
@@ -1791,8 +1876,10 @@ class_av = {
                 $(id + '-texto').html('Sin comparar');
                 $(id + '-texto').show();
             }).always(function(){
+                resolve();
                 $(id_h).prop("disabled", false);
             });
+        });
     },
     texto_idioma: function(texto, idioma, id, id_h){
             $(id).hide();
