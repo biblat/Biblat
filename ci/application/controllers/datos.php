@@ -336,7 +336,8 @@ class Datos extends REST_Controller {
                             articulo,
                             url->0->>\'u\' url1,
                             url->1->>\'u\' url2,
-                            estatus
+                            estatus,
+							"fechaAsignado"
                         from article a
                         inner join
                         catalogador c
