@@ -2937,7 +2937,7 @@ class_av = {
             }
             
             obj['subdisciplinas'] = JSON.stringify(arrSubdisc);
-            //obj['palabraClave'] = JSON.stringify(palabras_clave);
+            obj['palabraClave'] = JSON.stringify(palabras_clave);
             class_av.var.documentoJSON[0].palabraClave = JSON.stringify(palabras_clave);
 
             var url1 = $('#url1').val();
