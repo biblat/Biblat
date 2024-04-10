@@ -1163,6 +1163,7 @@ class_av = {
 
                                                     //Ya que se terminan las peticiones por país, se revisan instituciones del mismo país
                                                     if( peticiones == 0 ){
+														peticiones--;
                                                         //revisaRepetidas();
                                                         es_inicio = false;
                                                         recorrido_instituciones(resto_val);
@@ -1176,6 +1177,7 @@ class_av = {
 
                                             //Ya que se terminan las peticiones por país, se revisan instituciones del mismo país
                                             if( peticiones == 0 ){
+												peticiones--;
                                                 //revisaRepetidas();
                                                 es_inicio = false;
                                                 recorrido_instituciones(resto_val);
@@ -1199,6 +1201,7 @@ class_av = {
                                 obj_repetidas_instituciones['institucion'] = val.institucion;
                                 repetidas_instituciones.push(obj_repetidas_instituciones);
                                 if( peticiones == 0 ){
+									peticiones--;
                                     //revisaRepetidas();
                                     es_inicio = false;
                                     recorrido_instituciones(resto_val);
@@ -1229,6 +1232,7 @@ class_av = {
                                     class_av.busca_en_pdf(class_av.var.texto_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id)
                                     .then(function(){
                                         if( peticiones == 0 ){
+											peticiones--;
                                             //revisaRepetidas();
                                             es_inicio = false;
                                             recorrido_instituciones(resto_val);
@@ -1237,6 +1241,7 @@ class_av = {
                                 //}
                             }else{
                                 if( peticiones == 0 ){
+									peticiones--;
                                     //revisaRepetidas();
                                     es_inicio = false;
                                     recorrido_instituciones(resto_val);
@@ -1309,6 +1314,7 @@ class_av = {
                                         //$('#sug-ciudad-'+val.id).select2({ tags: true, placeholder: "Sugerencias encontradas", allowClear: true});
 
                                         if( peticiones == 0 ){
+											peticiones--;
                                             //revisaRepetidas();
                                             es_inicio = false;
                                             recorrido_instituciones(resto_val);
@@ -1332,6 +1338,7 @@ class_av = {
                                 repetidas_sug_ciudades.push(obj_repetidas_ciudades);
 
                                 if( peticiones == 0 ){
+									peticiones--;
                                     //revisaRepetidas();
                                     es_inicio = false;
                                     recorrido_instituciones(resto_val);
@@ -1341,6 +1348,7 @@ class_av = {
                             peticiones --;
                             setTimeout(function(){
                                 if( peticiones == 0 ){
+									peticiones--;
                                     //revisaRepetidas();
                                     es_inicio = false;
                                     recorrido_instituciones(resto_val);
