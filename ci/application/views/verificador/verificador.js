@@ -17,13 +17,13 @@ class_ver = {
                 'pt_BR' : 'Portugués (Brasil)',
                 'fr_CA' : 'Francés',
                 'pt_PT' : 'Portugués (Portugal)',
-				'es' : 'Español',
+                'es' : 'Español',
                 'en' : 'Inglés',
                 'pt' : 'Portugués (Brasil)',
-                'fr' : 'Francés',								  
+                'fr' : 'Francés',                
             },
         pub_id: {
-			'3.4.0': 'publication_id',						  
+            '3.4.0': 'publication_id',
             '3.3.0.11': 'publication_id',
             '3.3.0': 'publication_id',
             '3.2.0': 'publication_id',
@@ -33,7 +33,7 @@ class_ver = {
             '2.3.0': 'article_id'
         },
         pub_id_auth: {
-			'3.4.0': 'publication_id',						  
+            '3.4.0': 'publication_id',
             '3.3.0.11': 'publication_id',
             '3.3.0': 'publication_id',
             '3.2.0': 'publication_id',
@@ -41,6 +41,16 @@ class_ver = {
             '3.0.0': 'submission_id',
             '2.4.0': 'submission_id',
             '2.3.0': 'submission_id'
+        },
+        pub_id_file: {
+            '3.4.0': 'submission_id',
+            '3.3.0.11': 'submission_id',
+            '3.3.0': 'submission_id',
+            '3.2.0': 'submission_id',
+            '3.1.2': 'submission_id',
+            '3.0.0': 'submission_id',
+            '2.4.0': 'article_id',
+            '2.3.0': 'article_id'
         },
         campos:['a', 'as', 'c_v_e_s', 'i', 'is', 'p', 'pg', 'ps', 'ss', 'pf', 's', 'ses']
         ,
@@ -831,7 +841,7 @@ class_ver = {
         idiomas_envio = [];
         var s_idiomas_envio = '';
         $.each(idiomas, function(i,val){
-			if(['3.4.0'].indexOf(class_ver.var.data.ver) !== -1){
+            if(['3.4.0'].indexOf(class_ver.var.data.ver) !== -1){
                 if (['', ','].indexOf(val) == -1){
                     idiomas_envio.push(val);
                     s_idiomas_envio += ( (s_idiomas_envio == '')?'':', ' ) + class_ver.cons.idiomas[val];
@@ -890,6 +900,44 @@ class_ver = {
 
         //total de publicaciones
         var publicaciones = class_utils.filter_prop(class_ver.var.data.p, 'status', '3');
+        var pubs_tmp = [];
+        $.each(publicaciones, function(i,val){
+            //Revisión de que sólo existe una versión
+            var num_envios = class_utils.filter_prop(publicaciones, class_ver.cons.pub_id_file[class_ver.var.data.ver], val[class_ver.cons.pub_id_file[class_ver.var.data.ver]]);
+            if(num_envios.length > 1){
+                num_envios = num_envios.sort(class_utils.order_by(class_ver.cons.pub_id[class_ver.var.data.ver]));
+            }
+
+            //Revisión si es contenido indizable
+            var indizable = class_utils.filter_prop(class_ver.var.data.ps, class_ver.cons.pub_id[class_ver.var.data.ver], val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
+            indizable = class_utils.filter_prop(indizable, 'setting_name', 'title');
+            var coincide_titulo = false;
+            $.each(class_ver.cons.er.titulo_completo, function(i_er, val_er){
+                $.each(indizable, function(i_tit, val_tit){
+                    try{
+                        if( val_er.test(val_tit.setting_value.toLowerCase().trim()) ){
+                            coincide_titulo = true;
+                            return false;
+                        }
+                    }catch(e){
+
+                    }
+                });
+            });
+
+            if(!coincide_titulo){
+                //Si existe la propiedad versión se tomará la mayor
+                if('version' in val){
+                    if(val.version == num_envios[num_envios.length-1].version){
+                        pubs_tmp.push(val);
+                    }
+                }else{
+                        pubs_tmp.push(val);
+                }
+            }
+        });
+        
+        publicaciones = pubs_tmp;
         var publicaciones_totales = JSON.parse(JSON.stringify(publicaciones));
         
         //Ids de las publicaciones vigentes
@@ -905,7 +953,7 @@ class_ver = {
             var coincide_titulo_indizable = true;
             if ( ['3.2.0', '3.3.0', '3.3.0.11', '3.4.0'].indexOf(class_ver.var.data.ver) != -1 ){
                 var idioma_doc = val.locale;
-                if(idioma_doc == '' || idioma_doc == null){
+                if(idioma_doc == '' || idioma_doc == null || idioma_doc == undefined){
                     var ss = class_utils.find_prop(class_ver.var.data.ss, 'submission_id', val['submission_id']);
                     idioma_doc = (ss.locale == null)?idioma_principal:ss.locale
                 }
@@ -2621,7 +2669,7 @@ class_ver = {
                     res.push(val);
                     if(recibidos == rango){
                         if(rango == rango_fijo && dois.length !== rango){
-                            setTimeout(function(){class_ver.valida_dois(dois.slice(rango), res, total, num);},100);
+                            setTimeout(function(){class_ver.valida_dois(dois.slice(rango), res, total, num);},1000);
                         }else{
                             class_ver.var.salida.pd = res;
                             class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-doi'+'-'+class_ver.var.id_anio, class_ver.var.salida.pd, class_ver.cons.expiry);
@@ -2664,7 +2712,7 @@ class_ver = {
                         res.push(val);
                         if(recibidos == rango){
                             if(rango == rango_fijo && dois.length !== rango){
-                                class_ver.valida_dois(dois.slice(rango), res, total, num);
+                                setTimeout(function(){class_ver.valida_dois(dois.slice(rango), res, total, num)},1000);
                             }else{
                                 class_ver.var.salida.pd = res;
                                 class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-doi'+'-'+class_ver.var.id_anio, class_ver.var.salida.pd, class_ver.cons.expiry);
@@ -2686,7 +2734,7 @@ class_ver = {
                 res.push(val);
                 if(recibidos == rango){
                     if(rango == rango_fijo && dois.length !== rango){
-                        class_ver.valida_dois(dois.slice(rango), res, total, num);
+                        setTimeout(function(){class_ver.valida_dois(dois.slice(rango), res, total, num),1000});
                     }else{
                         class_ver.var.salida.pd = res;
                         class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-doi'+'-'+class_ver.var.id_anio, class_ver.var.salida.pd, class_ver.cons.expiry);
@@ -2998,7 +3046,7 @@ class_ver = {
             .then(function(resp){
                 if(resp.resp == 'Fail'){
                     if(!repite){
-                        setTimeout(function(){class_ver.valida_enlace(enlaces, res, total, num, true);}, 100);
+                        setTimeout(function(){class_ver.valida_enlace(enlaces, res, total, num, true);}, 1000);
                         return 0;
                     }
                     
@@ -3016,7 +3064,7 @@ class_ver = {
                 res.push(val);
                 if(recibidos == rango){
                     if(rango == rango_fijo && enlaces.length !== rango){
-                        setTimeout(function(){class_ver.valida_enlace(enlaces.slice(rango), res, total, num);},100);
+                        setTimeout(function(){class_ver.valida_enlace(enlaces.slice(rango), res, total, num);},1000);
                     }else{
                         class_ver.var.salida.val_enl = res;
                         class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-enl'+'-'+class_ver.var.id_anio, class_ver.var.salida.val_enl, class_ver.cons.expiry);
