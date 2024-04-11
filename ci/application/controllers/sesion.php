@@ -34,10 +34,12 @@ class Sesion extends CI_Controller {
         
     }
 	
-	public function editores(){
+	public function editores($inicio='inicio'){
+        if($inicio == 'inicio'){
+            $this->session->unset_userdata('codigo');
+        }
         $data = array();
         $data['encabezado'] = 'Ingrese su correo registrado como editor en Biblat';
-        //$this->session->unset_userdata('codigo');
         if ($this->session->userdata('codigo')) {
             $data['encabezado'] = 'Ingrese el código que recibió en su correo';
             $data['codigo'] = TRUE;
@@ -84,94 +86,92 @@ class Sesion extends CI_Controller {
     }
     
     function inicio_editores(){
-        $this->session->unset_userdata('codigo');
-        if( isset($_POST['correo']) ){
-            $correos = $_POST['correo'];
-            putenv("GOOGLE_APPLICATION_CREDENTIALS=credentials2.json");
-            $client = new Google_Client();
-            $client->setApplicationName('Biblat');
-            $client->setScopes(Google_Service_Sheets::SPREADSHEETS_READONLY);
-            $client->useApplicationDefaultCredentials();
+        if( isset($_POST['correo']) || isset($_POST['codigo'])){
+            if( isset($_POST['correo']) ){
+                $correos = $_POST['correo'];
+                putenv("GOOGLE_APPLICATION_CREDENTIALS=credentials2.json");
+                $client = new Google_Client();
+                $client->setApplicationName('Biblat');
+                $client->setScopes(Google_Service_Sheets::SPREADSHEETS_READONLY);
+                $client->useApplicationDefaultCredentials();
 
-            // Inicializar el cliente
-            $service = new Google_Service_Sheets($client);
+                // Inicializar el cliente
+                $service = new Google_Service_Sheets($client);
 
-            // ID de la hoja de cálculo
-            $spreadsheetId = sheetEditores;
+                // ID de la hoja de cálculo
+                $spreadsheetId = sheetEditores;
 
-            // Rango de celdas 
-            $range = hojaEditores;
+                // Rango de celdas 
+                $range = hojaEditores;
 
-            // Leer datos de la hoja de cálculo
-            $response = $service->spreadsheets_values->get($spreadsheetId, $range);
-            $values = $response->getValues();
+                // Leer datos de la hoja de cálculo
+                $response = $service->spreadsheets_values->get($spreadsheetId, $range);
+                $values = $response->getValues();
 
-            $columnas = [];
-            $codigo = mt_rand(100000, 999999).'';
-            $existe = FALSE;
+                $columnas = [];
+                $codigo = mt_rand(100000, 999999).'';
+                $existe = FALSE;
 
-            if (empty($values)) {
-                echo json_encode(["res" => "error"]);
-            } else {
-                foreach ($values as $x => $v){
-                    //Recorrido de los encabezados
-                    if($x == 0){
-                        foreach ($v as $x2 => $v2){
-                            $columnas[$x2] = $v2;
-                        }
-                        $idx_usuario = array_search('Usuario', $columnas);
-                        $idx_rol = array_search('Rol', $columnas);
-                        $idx_nombre = array_search('Nombre', $columnas);
-                        $idx_aleph = array_search('Aleph', $columnas);
-                    }
-
-                    foreach ($v as $x2 => $v2){
-                        if($x2 == $idx_usuario){
-                            if($v2 == $correos && $v[$idx_rol] == 'Editor'){
-                                $usuario_data = array(
-                                    'usuario' => $v[$idx_usuario],
-                                    'nombre' => $v[$idx_nombre],
-                                    'rol' => $v[$idx_rol],
-                                    'usu_base' => $v[$idx_aleph],
-                                    'pal_cla' => TRUE,
-                                    'res' => TRUE,
-                                    'logueado' => FALSE,
-                                    'codigo'=> $codigo
-                                );
-                                $existe = TRUE;
-                                $this->session->set_userdata($usuario_data);
+                if (empty($values)) {
+                    echo json_encode(["res" => "error"]);
+                } else {
+                    foreach ($values as $x => $v){
+                        //Recorrido de los encabezados
+                        if($x == 0){
+                            foreach ($v as $x2 => $v2){
+                                $columnas[$x2] = $v2;
                             }
-                            break;
+                            $idx_usuario = array_search('Usuario', $columnas);
+                            $idx_rol = array_search('Rol', $columnas);
+                            $idx_nombre = array_search('Nombre', $columnas);
+                            $idx_aleph = array_search('Aleph', $columnas);
+                        }
+
+                        foreach ($v as $x2 => $v2){
+                            if($x2 == $idx_usuario){
+                                if($v2 == $correos && $v[$idx_rol] == 'Editor'){
+                                    $usuario_data = array(
+                                        'usuario' => $v[$idx_usuario],
+                                        'nombre' => $v[$idx_nombre],
+                                        'rol' => $v[$idx_rol],
+                                        'usu_base' => $v[$idx_aleph],
+                                        'pal_cla' => TRUE,
+                                        'res' => TRUE,
+                                        'logueado' => FALSE,
+                                        'codigo'=> $codigo
+                                    );
+                                    $existe = TRUE;
+                                    $this->session->set_userdata($usuario_data);
+                                }
+                                break;
+                            }
                         }
                     }
                 }
-            }
-            if( $existe ){
-                $mensaje = "Estimado(a) editor(a):<br><br>".
-                        "Su código de inicio es el siguiente: " . $codigo;
-
-                $this->multi_attach_mail($correos,
-                        "Código de Inicio",
-                        $mensaje,
-                        "inicio@biblat.unam.mx",
-                        "Inicio Editores Biblat",
-                        null
-                        );
-                echo json_encode(["res" => "success"]);
-            }else{
-                echo json_encode(["res" => "error"]);
-            }
-        }
-    }
+                if( $existe ){
+                    $mensaje = "Estimado(a) editor(a):<br><br>".
+                            "Su código de inicio es el siguiente: " . $codigo;
     
-    function codigo_editores(){
-        if( isset($_POST['codigo']) ){
-            if( $this->session->userdata('codigo') ){
-                if( $_POST['codigo'] == $this->session->userdata('codigo') ){
-                    $this->session->unset_userdata('codigo');
+                    $this->multi_attach_mail($correos,
+                            "Código de Inicio",
+                            $mensaje,
+                            "inicio@biblat.unam.mx",
+                            "Inicio Editores Biblat",
+                            null
+                            );
                     echo json_encode(["res" => "success"]);
                 }else{
                     echo json_encode(["res" => "error"]);
+                }
+            }
+            if( isset($_POST['codigo']) ){
+                if( $this->session->userdata('codigo') ){
+                    if( $_POST['codigo'] == $this->session->userdata('codigo') ){
+                        $this->session->unset_userdata('codigo');
+                        echo json_encode(["res" => "success"]);
+                    }else{
+                        echo json_encode(["res" => "error"]);
+                    }
                 }
             }
         }
