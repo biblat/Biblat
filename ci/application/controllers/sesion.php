@@ -142,7 +142,7 @@ class Sesion extends CI_Controller {
                     $this->multi_attach_mail($correos,
                             "Código de Inicio",
                             $mensaje,
-                            "inicio@biblat.unam.mx",
+                            "biblat_comite@dgb.unam.mx",
                             "Inicio Editores Biblat",
                             null
                             );
