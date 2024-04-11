@@ -33,6 +33,149 @@ class Sesion extends CI_Controller {
         }
         
     }
+	
+	public function editores(){
+        $data = array();
+        $data['encabezado'] = 'Ingrese su correo registrado como editor en Biblat';
+        //$this->session->unset_userdata('codigo');
+        if ($this->session->userdata('codigo')) {
+            $data['encabezado'] = 'Ingrese el código que recibió en su correo';
+            $data['codigo'] = TRUE;
+        }
+        
+        $data['page_title'] = _('Inicio de sesión para editores');
+        $this->template->set_layout('default_sel');
+        $this->template->title(_('Inicio de sesión para editores'));
+        //$data['page_subtitle'] = _('');
+        $this->template->set_meta('description', _('Inicio Sesión'));
+        $this->template->js('assets/js/apigoogle/api.js');
+        $this->template->js('assets/js/apigoogle/getaccesstokenfromserviceaccount.js');
+        $this->template->js('assets/js/apigoogle/client.js');
+        $this->template->css('css/jquery.slider.min.css');
+        $this->template->js('js/env.js');
+        $this->template->js('assets/js/highcharts/phantomjs/highcharts8.js');
+        $this->template->js('assets/js/utils/utils.js');
+        $this->template->set_partial('main_js', 'sesion/editor.js', array(), TRUE, FALSE);
+        $this->template->build('sesion/editor', $data);
+    }
+    
+    function multi_attach_mail($to, $subject, $message, $senderMail, $senderName, $files){
+        $headers = "From: INICIO EDITORES BIBLAT<inicio@biblat.unam.mx>";
+
+        // boundary 
+        $semi_rand = md5(time()); 
+        $mime_boundary = "==Multipart_Boundary_x{$semi_rand}x"; 
+
+        // headers for attachment 
+        $headers .= "\nMIME-Version: 1.0\n" . "Content-Type: multipart/mixed;\n" . " boundary=\"{$mime_boundary}\""; 
+
+        // multipart boundary 
+        $message = "--{$mime_boundary}\n" . "Content-Type: text/html; charset=\"UTF-8\"\n" .
+        "Content-Transfer-Encoding: 7bit\n\n" . $message . "\n\n"; 
+
+        $message .= "--{$mime_boundary}--";
+        $returnpath = "-f" . $senderMail;
+
+        //send email
+        $mail = @mail($to, $subject, $message, $headers, $returnpath); 
+
+        //function return true, if email sent, otherwise return fasle
+        if($mail){ return TRUE; } else { return FALSE; }
+    }
+    
+    function inicio_editores(){
+        if( isset($_POST['correo']) || isset($_POST['codigo'])){
+            if( isset($_POST['correo']) ){
+                $correos = $_POST['correo'];
+                putenv("GOOGLE_APPLICATION_CREDENTIALS=credentials2.json");
+                $client = new Google_Client();
+                $client->setApplicationName('Biblat');
+                $client->setScopes(Google_Service_Sheets::SPREADSHEETS_READONLY);
+                $client->useApplicationDefaultCredentials();
+
+                // Inicializar el cliente
+                $service = new Google_Service_Sheets($client);
+
+                // ID de la hoja de cálculo
+                $spreadsheetId = sheetEditores;
+
+                // Rango de celdas 
+                $range = hojaEditores;
+
+                // Leer datos de la hoja de cálculo
+                $response = $service->spreadsheets_values->get($spreadsheetId, $range);
+                $values = $response->getValues();
+
+                $columnas = [];
+                $codigo = mt_rand(100000, 999999).'';
+                $existe = FALSE;
+
+                if (empty($values)) {
+                    echo json_encode(["res" => "error"]);
+                } else {
+                    foreach ($values as $x => $v){
+                        //Recorrido de los encabezados
+                        if($x == 0){
+                            foreach ($v as $x2 => $v2){
+                                $columnas[$x2] = $v2;
+                            }
+                            $idx_usuario = array_search('Usuario', $columnas);
+                            $idx_rol = array_search('Rol', $columnas);
+                            $idx_nombre = array_search('Nombre', $columnas);
+                            $idx_aleph = array_search('Aleph', $columnas);
+                        }
+
+                        foreach ($v as $x2 => $v2){
+                            if($x2 == $idx_usuario){
+                                if($v2 == $correos && $v[$idx_rol] == 'Editor'){
+                                    $usuario_data = array(
+                                        'usuario' => $v[$idx_usuario],
+                                        'nombre' => $v[$idx_nombre],
+                                        'rol' => $v[$idx_rol],
+                                        'usu_base' => $v[$idx_aleph],
+                                        'pal_cla' => TRUE,
+                                        'res' => TRUE,
+                                        'logueado' => FALSE,
+                                        'codigo'=> $codigo
+                                    );
+                                    $existe = TRUE;
+                                    $this->session->set_userdata($usuario_data);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                $mensaje = "Estimado(a) editor(a):<br><br>".
+                            "Su código de inicio es el siguiente: " . $codigo;
+    
+                $this->multi_attach_mail($correos,
+                            "Código de Inicio",
+                            $mensaje,
+                            "inicio@biblat.unam.mx",
+                            "Inicio Editores Biblat",
+                            null
+                            );
+          
+                if( $existe ){
+                    echo json_encode(["res" => "success"]);
+                }else{
+                    echo json_encode(["res" => "error"]);
+                }
+            }
+            if( isset($_POST['codigo']) ){
+                if( $this->session->userdata('codigo') ){
+                    if( $_POST['codigo'] == $this->session->userdata('codigo') ){
+                        $this->session->unset_userdata('codigo');
+                        echo json_encode(["res" => "success"]);
+                    }else{
+                        echo json_encode(["res" => "error"]);
+                    }
+                }
+            }
+        }
+    }
     
     public function valida(){      
         putenv("GOOGLE_APPLICATION_CREDENTIALS=credentials2.json");
