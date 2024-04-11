@@ -213,6 +213,8 @@ $route[$langs.'/postular-revista/metametrics'] = 'metametrics/index/';
 $route[$langs.'/preevaluacion/simulador'] = 'main/preevaluacion';
 $route[$langs.'/metametrics/estadisticas'] = 'tableros/metametrics';
 $route[$langs.'/nucleorevistas'] = 'tableros/nucleorevistas';
+$route[$langs.'/editores'] = 'sesion/editores';
+
 // URI like '/en/about' -> use controller 'about'
 $route[$langs.'/(.+)$'] = "$1";
 /* End of file routes.php */
