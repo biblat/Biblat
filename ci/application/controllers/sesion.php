@@ -63,7 +63,13 @@ class Sesion extends CI_Controller {
     
     function multi_attach_mail($to, $subject, $message, $senderMail, $senderName, $files){
         $asunto = 'INICIO EDITORES BIBLAT';
-        $cabeceras = 'From: '. $senderMail . "\r\n";
+        $cabeceras = 'From: BIBLAT <'. $senderMail . ">\r\n";
+        $cabeceras  .= 'MIME-Version: 1.0' . "\r\n";
+        $cabeceras .= 'Content-type: text/html; charset=UTF-8' . "\r\n";
+        $cabeceras .= 'SPF: pass' . "\r\n";
+        $cabeceras .= 'DKIM-Signature: <your-dkim-signature>' . "\r\n";
+        $cabeceras .= 'DMARC-Filter: OpenDMARC Filter v1.3.2' . "\r\n";
+        $cabeceras .= 'Bounce-Tag: tag' . "\r\n";
 
         // Envía el correo
         $mail = mail($to, $asunto, $message, $cabeceras);
