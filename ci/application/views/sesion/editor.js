@@ -41,7 +41,7 @@ class_editor = {
                 var codigo = $('#codigo').val();
                 $.ajax({
                         type: 'POST',
-                        url: "<?=site_url('sesion/inicio_editores');?>",
+                        url: "<?=site_url('sesion/codigo_editores');?>",
                         data: {codigo: codigo},
                 }).done(function(resp) {
                     resp = JSON.parse(resp);
