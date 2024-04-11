@@ -17,7 +17,7 @@ class_editor = {
                     if(resp.res == 'success'){
                         loading.end();
                         $('#no-registrado').hide();
-                        window.location.reload();
+                        window.location.href = 'editores/codigo';
                     }else{
                         loading.end();
                         cont++;
