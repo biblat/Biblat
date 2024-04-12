@@ -18,19 +18,23 @@ class Sesion extends CI_Controller {
     
     public function index(){
         if (in_array($_SERVER['REMOTE_ADDR'], unserialize(IPS))){
-            $data = array();
-            $data['page_title'] = _('Biblat Central');
-            $this->template->set_layout('default_sel');
-            $this->template->title(_('Inicio Sesión'));
-            //$data['page_subtitle'] = _('');
-            $this->template->set_meta('description', _('Inicio Sesión'));
-            $this->template->js('assets/js/apigoogle/api.js');
-            $this->template->js('assets/js/apigoogle/getaccesstokenfromserviceaccount.js');
-            $this->template->js('assets/js/apigoogle/client.js');
-            $this->template->css('css/jquery.slider.min.css');
-            $this->template->js('js/env.js');
-            $this->template->set_partial('main_js', 'sesion/sesion.js', array(), TRUE, FALSE);
-            $this->template->build('sesion/sesion', $data);
+            if( $this->session->userdata('rol') == 'Editor'){
+                $this->editores();
+            }else{
+                $data = array();
+                $data['page_title'] = _('Biblat Central');
+                $this->template->set_layout('default_sel');
+                $this->template->title(_('Inicio Sesión'));
+                //$data['page_subtitle'] = _('');
+                $this->template->set_meta('description', _('Inicio Sesión'));
+                $this->template->js('assets/js/apigoogle/api.js');
+                $this->template->js('assets/js/apigoogle/getaccesstokenfromserviceaccount.js');
+                $this->template->js('assets/js/apigoogle/client.js');
+                $this->template->css('css/jquery.slider.min.css');
+                $this->template->js('js/env.js');
+                $this->template->set_partial('main_js', 'sesion/sesion.js', array(), TRUE, FALSE);
+                $this->template->build('sesion/sesion', $data);
+            }
         }
         
     }
