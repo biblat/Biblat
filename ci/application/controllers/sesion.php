@@ -2,6 +2,7 @@
 error_reporting(0);
 require 'vendor/autoload.php';
 require 'vendor/google-api/vendor/autoload.php';
+require 'vendor/phpgangsta/vendor/autoload.php';
 
 class Sesion extends CI_Controller {
     
