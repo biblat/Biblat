@@ -168,17 +168,35 @@ class_utils= {
                                 }
                         });
     },
-    getResource: function(resource) { 
-        return $.ajax({url:resource, dataType: 'json', type:'GET', cache:false}); 
+    getResource: function(resource, cancela=false) { 
+        var peticion = $.ajax({url:resource, dataType: 'json', type:'GET', cache:false});
+        if(cancela){
+            class_utils.peticionActiva.push(peticion);
+        }
+        return peticion;
     },
-    setResource: function(resource, data) { 
-        return $.ajax({
+    peticionActiva: [],
+    setResource: function(resource, data, cancela=false) { 
+        var peticion = $.ajax({
                         url:resource, 
                         type:'POST',
                         data: data,
                         cache:false,
                         dataType:"json"
                     });
+        if(cancela){
+            class_utils.peticionActiva.push(peticion);
+        }
+        return peticion;
+    },
+    cancelaPeticiones: function(){
+        class_utils.peticionActiva.forEach(function(peticion) {
+            if (peticion && peticion.readyState !== 4) {
+                peticion.abort(); // Cancelar la solicitud
+            }
+        });
+        // Limpiar el array de solicitudes activas
+        class_utils.peticionActiva = [];
     },
     setLiTabla: function(id, extra){
         var options_default = {
