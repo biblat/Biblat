@@ -90,7 +90,7 @@ class_asir = {
                             options += class_asir.cons.option_revista.replace('<revista>', "").replace("<val>", "");
                             $.each(class_asir.var.revistasJSON, function(i, val){
                                 try{
-                                    options += class_asir.cons.option_revista.replace('<revista>', val[0].trim()).replace('<url>',val[9].trim());
+                                    options += class_asir.cons.option_revista.replace('<revista>', val[0].trim()).replace("<val>", val[0].trim());
                                 } catch (error) {
                                     console.log(error);
                                 }
