@@ -1,4 +1,4 @@
-// cambios 38,40,41, 2321, 2323
+// cambios 51,52, 2271, 2373
 class_av = {
     cons: {
         DISCOVERY_DOCS: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
@@ -29,10 +29,22 @@ class_av = {
             'Alemán': 'ger',
             'Ruso': 'rus'
         },
-        palabra_clave: '<button id="<palabra>" class="btn badge-secondary palabra_clave" style="margin-left:5px; margin-bottom: 5px; cursor: pointer" type="button">'+
+        palabra_clave: '<div class="col-xs-3"><button id="<palabra-slug>" class="btn badge-secondary esp palabra_clave" style="margin-left:5px; margin-bottom: 5px; cursor: pointer; width:90%; word-wrap: break-word; white-space: normal;" type="button">'+
                         '<palabra> <span class="badge"><num></span>'+
                         '<div id="<palabra-slug>-sustituye"></div>'+
-                        '</button><i id="e-<palabra>" class="fa fa-pencil edita_palabra" aria-hidden="true"></i>',
+                        '</button><i id="e-<palabra>-<palabra-slug>" class="fa fa-pencil edita_palabra" aria-hidden="true"></i></div>',
+        palabra_clave_n: '<div class="col-xs-3"><button id="<palabra-slug>" class="btn new_p badge-secondary esp palabra_clave" style="margin-left:5px; margin-bottom: 5px; cursor: pointer; width:100%; word-wrap: break-word; white-space: normal;" type="button">'+
+                        '<palabra> <span class="badge"><num></span>'+
+                        '<div id="<palabra-slug>-sustituye"></div>'+
+                        '</button></div>',
+        keyword: '<div class="col-xs-3"><button id="<palabra-slug>" class="btn badge-secondary keyword palabra_clave" style="margin-left:5px; margin-bottom: 5px; cursor: pointer; width:90%; word-wrap: break-word; white-space: normal;" type="button">'+
+                        '<palabra> <span class="badge"><num></span>'+
+                        '<div id="<palabra-slug>-sustituye"></div>'+
+                        '</button><i id="e-<palabra>-<palabra-slug>" class="fa fa-pencil edita_keyword" aria-hidden="true"></i></div>',
+        keyword_n: '<div class="col-xs-3"><button id="<palabra-slug>" class="btn new_k badge-secondary keyword palabra_clave" style="margin-left:5px; margin-bottom: 5px; cursor: pointer; width:90%; word-wrap: break-word; white-space: normal;" type="button">'+
+                        '<palabra> <span class="badge"><num></span>'+
+                        '<div id="<palabra-slug>-sustituye"></div>'+
+                        '</button></div>',
         palabra_clave_sustituye: '<br><center><i class="fa fa-arrow-down" aria-hidden="true"></i><center><br><palabra> <span class="badge"><num></span>'
     },   
     var: {
@@ -53,6 +65,12 @@ class_av = {
         revistasAsignadas: [],
         palabras_clave: [],
         palabras_clave0: [],
+        palabras_clave_n: [],
+        keywords: [],
+        keywords0: [],
+        keywords_n: [],
+        count_palabras_clave: 0,
+        count_keywords: 0,
         revista: {},
         registros:{},
         count_titulos: 0,
@@ -256,6 +274,7 @@ class_av = {
         catalogos: { 
                         tipo_documento: [],
                         disciplina: [],
+                        disciplina_eng: [],
                         pais: [],
                         pais_slug: [],
                     },
@@ -292,6 +311,7 @@ class_av = {
                             		
                             var id_tipo_documento = catalogos[0].indexOf('Tipo de documento');
                             var id_disciplina = catalogos[0].indexOf('Disciplina');
+                            var id_disciplina_eng = catalogos[0].indexOf('Discipline');
                             var id_pais = catalogos[0].indexOf('País');
                             $.each(catalogos, function(i, val){
                                 if(i>0){
@@ -302,6 +322,12 @@ class_av = {
                                         var arr_disc = val[id_disciplina].split(';');
                                         var disc = arr_disc[0].trim();
                                         class_av.var.catalogos['disciplina'].push(disc);
+                                        class_av.var.catalogos[disc] = arr_disc.splice(1);
+                                    }
+                                    if(val[id_disciplina_eng].trim() != ''){
+                                        var arr_disc = val[id_disciplina_eng].split(';');
+                                        var disc = arr_disc[0].trim();
+                                        class_av.var.catalogos['disciplina_eng'].push(disc);
                                         class_av.var.catalogos[disc] = arr_disc.splice(1);
                                     }
                                     if(val[id_pais].trim() != ''){
@@ -432,28 +458,8 @@ class_av = {
         class_av.filtro();
     },
     control: function(){
-        /*
-        var textarea = document.getElementById('resumen_esp');
-        // Clonamos el elemento textarea para conservar sus atributos y valores
-        var nuevoTextarea = textarea.cloneNode(true);
-        // Reemplazamos el textarea original con el clon
-        textarea.parentNode.replaceChild(nuevoTextarea, textarea);
-        
-        textarea = document.getElementById('resumen_ing');
-        nuevoTextarea = textarea.cloneNode(true);
-        textarea.parentNode.replaceChild(nuevoTextarea, textarea);
-        
-        textarea = document.getElementById('resumen_por');
-        nuevoTextarea = textarea.cloneNode(true);
-        textarea.parentNode.replaceChild(nuevoTextarea, textarea);
-        
-        textarea = document.getElementById('resumen_otro');
-        nuevoTextarea = textarea.cloneNode(true);
-        textarea.parentNode.replaceChild(nuevoTextarea, textarea);
-        
-        $('#resumen_esp, #resumen_ing, #resumen_por, #resumen_otro').css('overflow-y', 'scroll');
-        */
         $('.sistema').off('click').on('click', function(e){
+            class_utils.cancelaPeticiones();
             var _id = this.id;
             var sistema = _id.split('__')[0];
             
@@ -473,6 +479,21 @@ class_av = {
             class_av.var.cambios_documento = false;
             class_av.var.cambios_institucion = false;
             class_av.var.cambios_de_inicio = true;
+            class_av.var.count_palabras_clave = 0;
+            class_av.var.count_keywords = 0;
+            class_av.var.palabras_clave_n = [];
+            class_av.var.keywords_n = [];
+            
+            $('#keywords_n').empty();
+            $('#palabras_clave_n').empty();
+            $('#div-instituciones').find('*').off('change');
+            $('#div-instituciones').empty();
+            $('#div-autores').find('*').off('change');
+            $('#div-autores').empty();
+            
+            $.each(['#div_palabras_clave_autor', '#div_palabras_clave', '#div_palabras_clave2', '#div_palabras_clave_n', '#div_keywords_n', '#div_keywords', '#add-palabra', '#add-keyword'], function(i,val){
+                    $(val).hide();
+                });
             
             //Cuando ya se marcó como completado o no indizable no se muestra el contenido
             if($('.'+sistema).hasClass('cerrado')){
@@ -552,7 +573,7 @@ class_av = {
                 
                 //Lectura del pdf
                 $.when(
-                    class_utils.setResource(class_av.var.servidor + class_av.var.app + '/get_pdf/', {url: url_pdf})
+                    class_utils.setResource(class_av.var.servidor + class_av.var.app + '/get_pdf/', {url: url_pdf}, true)
                 ) 
                 .then(function(resp_pdf){
                     class_av.var.texto_pdf = resp_pdf.result;
@@ -721,152 +742,13 @@ class_av = {
                     $("#tipourl1").val(class_av.var.documentoJSON[0].tipourl1);
                     $("#tipourl2").val(class_av.var.documentoJSON[0].tipourl2);
                     
-                    $('#url1, #url2, #tipourl1, #tipourl2').off('change').on('change', function(e){
-                            class_av.var.cambios_documento = true;
-                            if( ($('#url1').val() !== '' && $("#tipourl1").val() == 'pdf') || ($('#url2').val() !== '' && $("#tipourl2").val() == 'pdf')){
-                                //$('#import-ai').show();
-                            }
-                    });
+                    class_av.control_aa();
                     
                     $('#idiomaDocumento').select2({ tags: false, placeholder: "Seleccione uno o más idiomas", allowClear: true});
                     $('#idiomaDocumento').val(idiomas).trigger('change');
                     
                     $('#import-ai').off('click').on('click', function(){
-                        loading.start();
-                        var url ='';
-                        if( ($('#url1').val() !== '' && $("#tipourl1").val() == 'pdf') ){
-                            url = $('#url1').val();
-                        }else if( $('#url2').val() !== '' && $("#tipourl2").val() == 'pdf' ){
-                            url = $('#url2').val();
-                        }
-                        $.when(
-                                class_utils.setResource(class_av.var.servidor + class_av.var.app + '/ia_metadata/', {url: url}),
-                                class_utils.getResource('/datos/palabras')
-                            ) 
-                            .then(function(resp_pdf, resp_palabras){
-                                resp_palabras = resp_palabras[0];
-                                resp_pdf = resp_pdf[0];
-                                
-                                class_av.var.palabras_clave0 = resp_palabras;
-                                class_av.var.palabras_clave = class_av.cons.option_badge.replace('<valor>', '').replace('<opcion>', '').replace('<num>', '');
-                                $.each(resp_palabras, function(i, val){
-                                    class_av.var.palabras_clave += class_av.cons.option_badge.replace('<valor>', val.valor).replace('<opcion>', val.valor).replace('<num>', val.num);
-                                });
-                                                                
-                                if( resp_pdf.disciplinas !== undefined){
-                                    if( resp_pdf.disciplinas[0] !== undefined && $('#disciplina1').val() == '' ){
-                                        $('#disciplina1').val(resp_pdf.disciplinas[0]);
-                                        $('#disciplina1').change();
-                                    }
-                                    if( resp_pdf.disciplinas[1] !== undefined && $('#disciplina2').val() == ''){
-                                        $('#disciplina2').val(resp_pdf.disciplinas[1]);
-                                        $('#disciplina2').change();
-                                    }
-                                    if( resp_pdf.disciplinas[2] !== undefined && $('#disciplina3').val() == ''){
-                                        $('#disciplina3').val(resp_pdf.disciplinas[2]);
-                                        $('#disciplina3').change();
-                                    }
-                                }
-                                
-                                if( resp_pdf.idioma !== undefined ){
-                                    $('#idioma').val(resp_pdf.idioma);
-                                    $('#idioma').change();
-                                }
-                                
-                                var palabras_doc = [];
-                                
-                                if (class_av.var.documentoJSON[0].palabraClave !== undefined && class_av.var.documentoJSON[0].palabraClave !== null && class_av.var.documentoJSON[0].palabraClave !== ''){
-                                    palabras_doc = JSON.parse(class_av.var.documentoJSON[0].palabraClave);
-                                    $('#div_palabras_clave_texto').show();
-                                    $('#div_palabras_clave_autor').show();
-                                    var html = '';
-                                    $.each(palabras_doc, function(i, val){
-                                        var busca = class_utils.find_prop(resp_palabras,'valor',val);
-                                        if(busca !== undefined){
-                                            html += class_av.cons.palabra_clave.replaceAll('<palabra>', val).replaceAll('<num>', busca.num).replaceAll('<palabra-slug>', class_utils.slug(val));
-                                        }else{
-                                            html += class_av.cons.palabra_clave.replaceAll('<palabra>', val).replaceAll('<num>', '0').replaceAll('<palabra-slug>', class_utils.slug(val));
-                                        }
-                                    });
-                                    $('#palabras_clave_autores').html(html);
-                                }
-                                
-                                
-                                $('#div_palabras_clave').show();
-                                var palabras_pdf=[];
-                                if( resp_pdf.palabras !== undefined && resp_pdf.palabras !== "Sin resultado"){
-                                    $.each(resp_pdf.palabras, function(i, val){
-                                        var busca = palabras_doc.indexOf(val);
-                                        if( busca == -1 ){
-                                            palabras_pdf.push(val);
-                                        }
-                                    });
-                                    
-                                    html = '';
-                                    $.each(palabras_pdf, function(i, val){
-                                        var busca = class_utils.find_prop(resp_palabras,'valor',val);
-                                        if(busca !== undefined){
-                                            html += class_av.cons.palabra_clave.replaceAll('<palabra>', val).replaceAll('<num>', busca.num);
-                                        }else{
-                                            html += class_av.cons.palabra_clave.replaceAll('<palabra>', val).replaceAll('<num>', '0');
-                                        }
-                                    });
-                                    
-                                    //$('#palabras_clave').html(resp_pdf.palabras.join("; "));
-                                    $('#palabras_clave').html(html);
-                                }
-                                
-                                if( resp_pdf.palabras_b !== undefined && resp_pdf.palabras_b !== "Sin resultado"){
-                                    $('#div_palabras_clave2').show();
-                                    var palabrasb_pdf=[];
-                                    $.each(resp_pdf.palabras_b, function(i, val){
-                                        var busca = palabras_doc.indexOf(val);
-                                        var busca2 = palabras_pdf.indexOf(val);
-                                        if( busca == -1 && busca2 == -1 ){
-                                            palabrasb_pdf.push(val);
-                                        }
-                                    });
-                                    
-                                    html = '';
-                                    $.each(palabrasb_pdf, function(i, val){
-                                        var busca = class_utils.find_prop(resp_palabras,'valor',val);
-                                        if(busca !== undefined){
-                                            html += class_av.cons.palabra_clave.replaceAll('<palabra>', val).replaceAll('<num>', busca.num);
-                                        }else{
-                                            html += class_av.cons.palabra_clave.replaceAll('<palabra>', val).replaceAll('<num>', '0');
-                                        }
-                                    });
-                                    //$('#palabras_clave2').html(resp_pdf.palabras_b.join("; "));
-                                    $('#palabras_clave2').html(html);
-                                }
-                                    
-                                    $('.palabra_clave').off('click').on('click', function(){
-                                        if( $(this).hasClass('badge-secondary') ){
-                                            $(this).removeClass('badge-secondary');
-                                            $(this).addClass('badge-warning');
-                                            $(this).css('background-color', '#ff8000');
-                                        }else{
-                                            $(this).removeClass('badge-warning');
-                                            $(this).addClass('badge-secondary');
-                                            $(this).css('background-color', '#F0F0F0');
-                                        }
-                                    });
-                                    
-                                    $('.edita_palabra').off('click').on('click', function(){
-                                       class_av.prompt(this.id);
-                                    });
-
-                                if( resp_pdf.titulo !== undefined ){
-                                    $('#titulo').val(resp_pdf.titulo);
-                                    $('#titulo').prop("disabled", true);
-                                        tiempo = setTimeout(function() {
-                                            class_av.texto_idioma($('#titulo').val(), $('#idioma').val(), '#check-idioma', '#idioma');
-                                            class_av.busca_en_pdf(url, $('#titulo').val(), '#check-titulo', '#titulo');
-                                            //class_av.busca_en_pdf(class_av.var.texto_pdf, $('#titulo').val(), '#check-titulo', '#titulo');
-                                        }, 1000);
-                                }
-                                loading.end();
-                            });
+                        
                     });
                     
                     /******************************************************************/
@@ -925,11 +807,13 @@ class_av = {
                             //if(val.pais !== null){
                                 //Revisa al final las repetidas para agregar el menu
                                 $.each(repetidas_ciudades, function(i2, val2){
-                                    if(val2.pais !== null) {
+                                    if(val2.pais !== null && val2.pais !== undefined && val2.pais !== '') {
                                         $('#ciudad-'+val2.id).html(opciones_ciudades[val2.pais+'-'+class_av.var.corporativo]);
                                         $('#ciudad-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true});
                                         $('#select2-ciudad-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();
+                                        $('.select2-selection--single').css('-webkit-user-select', 'text');
+                                        $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
                                         if(val2.ciudad !== null){
                                            $('#ciudad-'+val2.id).val(val2.ciudad).trigger('change');
                                         }
@@ -971,11 +855,13 @@ class_av = {
                             //if(val.institucion !== null){
                                 //Revisa al final las repetidas para agregar el menu
                                 $.each(repetidas_dependencias, function(i2, val2){
-                                    if(val2.institucion !== null) {
+                                    if(val2.institucion !== null && val2.institucion !== undefined && val2.institucion !== '') {
                                         $('#dependencia-'+val2.id).html(opciones_dependencias[val2.institucion+'-'+class_av.var.corporativo]);
                                         $('#dependencia-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
                                         $('#select2-dependencia-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();
+                                        $('.select2-selection--single').css('-webkit-user-select', 'text');
+                                        $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
                                         if(val2.dependencia !== null){
                                             $('#dependencia-'+val2.id).val(val2.dependencia).trigger('change');
                                         }
@@ -987,7 +873,7 @@ class_av = {
 
                                 //Revisa al final las repetidas para agregar el menu
                                 $.each(repetidas_sug_ciudades, function(i2, val2){
-                                    if(val2.institucion !== null) {
+                                    if(val2.institucion !== null && val2.institucion !== undefined && val2.institucion !== '') {
                                         $('#sug-ciudad-'+val2.id).html(opciones_sug_ciudades[val2.institucion]);
                                         //$('#sug-ciudad-'+val2.id).select2({ tags: true, placeholder: "Sugerencias encontradas", allowClear: true});
                                         $('#check-ins-bib-'+val2.id).show();
@@ -1039,7 +925,9 @@ class_av = {
                                 $('#institucion-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true});
                                 $('#select2-institucion-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                 $('.select2-container').tooltip();
-                                if(val2.institucion !== null){
+                                $('.select2-selection--single').css('-webkit-user-select', 'text');
+                                $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
+                                if(val2.institucion !== null && val2.institucion !== undefined && val2.institucion !== ''){
                                     //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
                                     if ($('#institucion-'+val2.id).find("option[value='" + val2.institucion.replaceAll('"', "&quot;") + "']").length) {
                                         $('#institucion-'+val2.id).val(val2.institucion).trigger('change');
@@ -1105,8 +993,8 @@ class_av = {
                                 opciones_instituciones[val.pais+'-'+class_av.var.corporativo] = '';
                                 /*********** Ciudades e instituciones según país *******************/
                                 $.when(
-                                    class_utils.getResource('/datos/ciudad_by_pais/'+val.pais.replaceAll(',','')),
-                                    class_utils.getResource('/datos/institucion_by_pais/'+val.pais.replaceAll(',','')+'/'+class_av.var.corporativo)
+                                    class_utils.getResource('/datos/ciudad_by_pais/'+val.pais.replaceAll(',',''), true),
+                                    class_utils.getResource('/datos/institucion_by_pais/'+val.pais.replaceAll(',','')+'/'+class_av.var.corporativo, true)
                                 ) 
                                 .then(function(resp_ciudad, resp_institucion){
                                     //setTimeout(function(){                
@@ -1123,7 +1011,7 @@ class_av = {
                                         $('.select2-container').tooltip();
                                         
                                         //Si hay un valor de ciudad se preselecciona
-                                        if(val.ciudad !== null){
+                                        if(val.ciudad !== null && val.ciudad !== undefined && val.ciudad !== ''){
                                             $('#ciudad-'+val.id).val(val.ciudad).trigger('change');
                                         }
                                         $('#ciudad-'+val.id).on('change', function(){
@@ -1143,9 +1031,11 @@ class_av = {
                                         $('#institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve'});
                                         $('#select2-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();
+                                        $('.select2-selection--single').css('-webkit-user-select', 'text');
+                                        $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
                                         
                                         //Si hay un valor de institución se preselecciona
-                                        if(val.institucion !== null){
+                                        if(val.institucion !== null && val.institucion !== undefined && val.institucion !== ''){
                                             //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
                                             if ($('#institucion-'+val.id).find("option[value='" + val.institucion.replaceAll('"', "&quot;") + "']").length) {
                                                 $('#institucion-'+val.id).val(val.institucion).trigger('change');
@@ -1163,7 +1053,7 @@ class_av = {
 
                                                     //Ya que se terminan las peticiones por país, se revisan instituciones del mismo país
                                                     if( peticiones == 0 ){
-														peticiones--;
+                                                        peticiones --;
                                                         //revisaRepetidas();
                                                         es_inicio = false;
                                                         recorrido_instituciones(resto_val);
@@ -1177,7 +1067,7 @@ class_av = {
 
                                             //Ya que se terminan las peticiones por país, se revisan instituciones del mismo país
                                             if( peticiones == 0 ){
-												peticiones--;
+                                                peticiones --;
                                                 //revisaRepetidas();
                                                 es_inicio = false;
                                                 recorrido_instituciones(resto_val);
@@ -1201,7 +1091,7 @@ class_av = {
                                 obj_repetidas_instituciones['institucion'] = val.institucion;
                                 repetidas_instituciones.push(obj_repetidas_instituciones);
                                 if( peticiones == 0 ){
-									peticiones--;
+                                    peticiones --;
                                     //revisaRepetidas();
                                     es_inicio = false;
                                     recorrido_instituciones(resto_val);
@@ -1214,7 +1104,7 @@ class_av = {
                             //Generalmente no hay país puesto que no existe un campo de donde extraerlo,
                             //Si no se encontró tampoco dentro del texto de institución
                             /*********institucion*******************/
-                            if(val.institucion !== null){
+                            if(val.institucion !== null && val.institucion !== undefined && val.institucion !== ''){
                                 var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
                                 options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
                                 options += class_av.cons.option.replace('<valor>', val.institucion.replaceAll('"', "&quot;")).replace('<opcion>', val.institucion);
@@ -1223,6 +1113,8 @@ class_av = {
                                 $('#institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve'});
                                 $('#select2-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                 $('.select2-container').tooltip();
+                                $('.select2-selection--single').css('-webkit-user-select', 'text');
+                                $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
                                 $('#institucion-'+val.id).val(val.institucion).trigger('change');
                                 $('#institucion-'+val.id).on('change', function(){
                                     class_av.var.cambios_institucion = (true && !es_inicio);
@@ -1232,7 +1124,7 @@ class_av = {
                                     class_av.busca_en_pdf(class_av.var.texto_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id)
                                     .then(function(){
                                         if( peticiones == 0 ){
-											peticiones--;
+                                            peticiones --;
                                             //revisaRepetidas();
                                             es_inicio = false;
                                             recorrido_instituciones(resto_val);
@@ -1241,7 +1133,7 @@ class_av = {
                                 //}
                             }else{
                                 if( peticiones == 0 ){
-									peticiones--;
+                                    peticiones --;
                                     //revisaRepetidas();
                                     es_inicio = false;
                                     recorrido_instituciones(resto_val);
@@ -1257,8 +1149,8 @@ class_av = {
                                 opciones_dependencias[val.institucion+'-'+class_av.var.corporativo] = '';
                                 /*********** dependencias según institucion *******************/
                                 $.when(
-                                    class_utils.getResource('/datos/dependencia_by_institucion/'+val.institucion.replaceAll(class_av.cons.char_i,'')+'/'+class_av.var.corporativo),
-                                    class_utils.getResource('/datos/ciudad_by_institucion/'+val.institucion.replaceAll(class_av.cons.char_i, ''))
+                                    class_utils.getResource('/datos/dependencia_by_institucion/'+val.institucion.replaceAll(class_av.cons.char_i,'')+'/'+class_av.var.corporativo, true),
+                                    class_utils.getResource('/datos/ciudad_by_institucion/'+val.institucion.replaceAll(class_av.cons.char_i, ''), true)
                                 ) 
                                 .then(function(resp_dependencias, resp_ciudades){
                                     //setTimeout(function(){   
@@ -1272,6 +1164,8 @@ class_av = {
                                         $('#dependencia-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
                                         $('#select2-dependencia-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();
+                                        $('.select2-selection--single').css('-webkit-user-select', 'text');
+                                        $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
                                         if(val.dependencia !== null){
                                             $('#dependencia-'+val.id).val(val.dependencia).trigger('change');
                                         }
@@ -1314,7 +1208,7 @@ class_av = {
                                         //$('#sug-ciudad-'+val.id).select2({ tags: true, placeholder: "Sugerencias encontradas", allowClear: true});
 
                                         if( peticiones == 0 ){
-											peticiones--;
+                                            peticiones --;
                                             //revisaRepetidas();
                                             es_inicio = false;
                                             recorrido_instituciones(resto_val);
@@ -1338,7 +1232,7 @@ class_av = {
                                 repetidas_sug_ciudades.push(obj_repetidas_ciudades);
 
                                 if( peticiones == 0 ){
-									peticiones--;
+                                    peticiones --;
                                     //revisaRepetidas();
                                     es_inicio = false;
                                     recorrido_instituciones(resto_val);
@@ -1348,7 +1242,7 @@ class_av = {
                             peticiones --;
                             setTimeout(function(){
                                 if( peticiones == 0 ){
-									peticiones--;
+                                    peticiones --;
                                     //revisaRepetidas();
                                     es_inicio = false;
                                     recorrido_instituciones(resto_val);
@@ -1408,6 +1302,8 @@ class_av = {
                         $('#orcid-'+val.id).val(val.orcid);
                         $('#nombre-'+val.id).tooltip();
                         $('#orcid-'+val.id).tooltip();
+                        $('.select2-selection--single').css('-webkit-user-select', 'text');
+                        $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
                         
                         class_av.orcid_por_nombre(val.nombre, institucion, val.orcid, '#check-nombre-'+val.id, '#nombre-'+val.id)
                         .then(function(){
@@ -1473,6 +1369,48 @@ class_av = {
             $('#div_tabla').show();
             $('#btn_nuevo_articulo').show();
         });
+    },
+    control_aa: function(){
+        if(cons.res.val == "1"){
+            var textarea = document.getElementById('resumen_esp');
+            // Clonamos el elemento textarea para conservar sus atributos y valores
+            var nuevoTextarea = textarea.cloneNode(true);
+            // Reemplazamos el textarea original con el clon
+            textarea.parentNode.replaceChild(nuevoTextarea, textarea);
+
+            textarea = document.getElementById('resumen_ing');
+            nuevoTextarea = textarea.cloneNode(true);
+            textarea.parentNode.replaceChild(nuevoTextarea, textarea);
+
+            textarea = document.getElementById('resumen_por');
+            nuevoTextarea = textarea.cloneNode(true);
+            textarea.parentNode.replaceChild(nuevoTextarea, textarea);
+
+            textarea = document.getElementById('resumen_otro');
+            nuevoTextarea = textarea.cloneNode(true);
+            textarea.parentNode.replaceChild(nuevoTextarea, textarea);
+
+            $('#resumen_esp, #resumen_ing, #resumen_por, #resumen_otro').css('overflow-y', 'scroll');
+            
+            $.each(['#div_resumen_esp', '#div_resumen_ing', '#div_resumen_por', '#div_resumen_otro'], function(i,val){
+                $(val).show();
+            });
+        }
+         
+        if(cons.pal_cla.val == "1"){
+            $('#url1, #url2, #tipourl1, #tipourl2').off('change').on('change', function(e){
+                    class_av.var.cambios_documento = true;
+                    if( ($('#url1').val() !== '' && $("#tipourl1").val() == 'pdf') || ($('#url2').val() !== '' && $("#tipourl2").val() == 'pdf')){
+                        class_av.palabras_clave();
+                        //$('#import-ai').show();
+                    }
+            });
+            
+            if( ($('#url1').val() !== '' && $("#tipourl1").val() == 'pdf') || ($('#url2').val() !== '' && $("#tipourl2").val() == 'pdf')){
+                class_av.palabras_clave();
+                //$('#import-ai').show();
+            }
+        }
     },
     control_na: function(){
         $('#revista_sel, #anio_rev').on('change', function(){
@@ -1788,6 +1726,9 @@ class_av = {
             }
         }
         
+        $('.select2-selection--single').css('-webkit-user-select', 'text');
+        $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
+        
         $('#borra-autor-'+id).off('click').on('click', function(){
             class_av.borra_autor(id);
         });
@@ -1949,7 +1890,7 @@ class_av = {
             $(id).show();
             
             $.when(
-                class_utils.getResource('/datos/autor_by_nombre/'+nombre.replaceAll(class_av.cons.char_i, '')+'/'+class_av.var.sistema)
+                class_utils.getResource('/datos/autor_by_nombre/'+nombre.replaceAll(class_av.cons.char_i, '')+'/'+class_av.var.sistema, true)
             ).then(function(resp){
                 //setTimeout(function(){
                     $(id + '-load').hide();
@@ -2035,7 +1976,7 @@ class_av = {
             $(id).show();
             
             $.when(
-                class_utils.setResource(class_av.var.servidor + class_av.var.app + '/orcid_por_nombre/',{nombre: nombre})
+                class_utils.setResource(class_av.var.servidor + class_av.var.app + '/orcid_por_nombre/',{nombre: nombre}, true)
             ).then(function(resp){
                 //setTimeout(function(){
                     $(id + '-load').hide();
@@ -2244,7 +2185,7 @@ class_av = {
             $(id).show();
             
             $.when(
-                class_utils.setResource(class_av.var.servidor + class_av.var.app + '/nombre_por_orcid/',{orcid: orcid})
+                class_utils.setResource(class_av.var.servidor + class_av.var.app + '/nombre_por_orcid/',{orcid: orcid}, true)
             ).then(function(resp){
                 //setTimeout(function(){
                     $(id + '-load').hide();
@@ -2462,8 +2403,8 @@ class_av = {
 
                     /*********** Ciudades e instituciones según país *******************/
                     $.when(
-                        class_utils.getResource('/datos/ciudad_by_pais/'+pais.replaceAll(',','')),
-                        class_utils.getResource('/datos/institucion_by_pais/'+pais.replaceAll(',','')+'/'+class_av.var.corporativo)
+                        class_utils.getResource('/datos/ciudad_by_pais/'+pais.replaceAll(',',''), true),
+                        class_utils.getResource('/datos/institucion_by_pais/'+pais.replaceAll(',','')+'/'+class_av.var.corporativo, true)
                     ) 
                     .then(function(resp_ciudad, resp_institucion){
                         setTimeout(function(){                
@@ -2510,6 +2451,8 @@ class_av = {
                             $('#institucion-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve'});
                             $('#select2-institucion-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                             $('.select2-container').tooltip();
+                            $('.select2-selection--single').css('-webkit-user-select', 'text');
+                            $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
 
                             //Si hay un valor de institución se preselecciona
                             if(val_institucion !== null){
@@ -2555,6 +2498,8 @@ class_av = {
                         $('#institucion-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true/*,  width: 'Auto'*/});
                         $('#select2-institucion-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                         $('.select2-container').tooltip();
+                        $('.select2-selection--single').css('-webkit-user-select', 'text');
+                        $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
                         if(val_institucion !== null){
                             //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
                             if ($('#institucion-'+id).find("option[value='" + val_institucion.replaceAll('"', "&quot;") + "']").length) {
@@ -2613,8 +2558,8 @@ class_av = {
                 opciones_dependencias[institucion+'-'+class_av.var.corporativo] = '';
                 /*********** dependencias según institucion *******************/
                 $.when(
-                    class_utils.getResource('/datos/dependencia_by_institucion/'+institucion.replaceAll(class_av.cons.char_i,'')+'/'+class_av.var.corporativo),
-                    class_utils.getResource('/datos/ciudad_by_institucion/'+institucion.replaceAll(class_av.cons.char_i, ''))
+                    class_utils.getResource('/datos/dependencia_by_institucion/'+institucion.replaceAll(class_av.cons.char_i,'')+'/'+class_av.var.corporativo, true),
+                    class_utils.getResource('/datos/ciudad_by_institucion/'+institucion.replaceAll(class_av.cons.char_i, ''), true)
                 ) 
                 .then(function(resp_dependencias, resp_ciudades){
                     setTimeout(function(){
@@ -2635,6 +2580,8 @@ class_av = {
                         $('#dependencia-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
                         $('#select2-dependencia-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                         $('.select2-container').tooltip();
+                        $('.select2-selection--single').css('-webkit-user-select', 'text');
+                        $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
                         
                         //Si hay un valor de dependencia se preselecciona
                         if(val_dependencia !== null){
@@ -2700,6 +2647,8 @@ class_av = {
                     $('#dependencia-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
                     $('#select2-dependencia-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                     $('.select2-container').tooltip();
+                    $('.select2-selection--single').css('-webkit-user-select', 'text');
+                    $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
                     
                     //Si hay un valor de dependencia se preselecciona
                     if(val_dependencia !== null){
@@ -2873,27 +2822,39 @@ class_av = {
             
             var disciplina1 = $('#disciplina1').val();
             disciplina1 = class_av.limpia(disciplina1);
+            var busca_idx1 = -1;
             if(disciplina1){
                 arrDisc.push(disciplina1);
+                //Busca la correspondiente en inglés
+                busca_idx1 = class_av.var.catalogos['disciplina'].indexOf(disciplina1);
             }
             
             var disciplina2 = $('#disciplina2').val();
             disciplina2 = class_av.limpia(disciplina2);
+            var busca_idx2 = -1;
             if(disciplina2){
                 arrDisc.push(disciplina2);
+                busca_idx2 = class_av.var.catalogos['disciplina'].indexOf(disciplina2);
             }
             
             var disciplina3 = $('#disciplina3').val();
             disciplina3 = class_av.limpia(disciplina3);
+            var busca_idx3 = -1;
             if(disciplina3){
                 arrDisc.push(disciplina3);
+                busca_idx3 = class_av.var.catalogos['disciplina'].indexOf(disciplina3);
             }
             
             obj['disciplinas'] = JSON.stringify(arrDisc);
             
             var palabras_clave = JSON.parse(class_av.var.documentoJSON[0].palabraClave);
-            if(palabras_clave == null){
+            if(palabras_clave == null || cons.pal_cla.val == "1"){
                 palabras_clave = [];
+            }
+            
+            var keywords = JSON.parse(class_av.var.documentoJSON[0].keyword);
+            if(keywords == null || cons.pal_cla.val == "1"){
+                keywords = [];
             }
             
             var subdisciplina1 = $('#subdisciplina1').val();
@@ -2910,6 +2871,10 @@ class_av = {
                     }
                 }
                 palabras_clave.push(subdisciplina1);
+                var disc_eng = class_av.var.catalogos['disciplina_eng'][busca_idx1];
+                var idx_sub = class_av.var.catalogos[disciplina1].indexOf(subdisciplina1);
+                keywords.push( class_av.var.catalogos[disc_eng][idx_sub] );
+                keywords = [...new Set(keywords)];
             }
             
             var subdisciplina2 = $('#subdisciplina2').val();
@@ -2926,6 +2891,10 @@ class_av = {
                     }
                 }
                 palabras_clave.push(subdisciplina2);
+                var disc_eng = class_av.var.catalogos['disciplina_eng'][busca_idx2];
+                var idx_sub = class_av.var.catalogos[disciplina2].indexOf(subdisciplina2);
+                keywords.push( class_av.var.catalogos[disc_eng][idx_sub] );
+                keywords = [...new Set(keywords)];
             }
             
             var subdisciplina3 = $('#subdisciplina3').val();
@@ -2942,11 +2911,15 @@ class_av = {
                     }
                 }
                 palabras_clave.push(subdisciplina3);
+                var disc_eng = class_av.var.catalogos['disciplina_eng'][busca_idx3];
+                var idx_sub = class_av.var.catalogos[disciplina3].indexOf(subdisciplina3);
+                keywords.push( class_av.var.catalogos[disc_eng][idx_sub] );
+                keywords = [...new Set(keywords)];
             }
             
             obj['subdisciplinas'] = JSON.stringify(arrSubdisc);
-            obj['palabraClave'] = JSON.stringify(palabras_clave);
-            class_av.var.documentoJSON[0].palabraClave = JSON.stringify(palabras_clave);
+            //obj['palabraClave'] = JSON.stringify(palabras_clave);
+            //class_av.var.documentoJSON[0].palabraClave = JSON.stringify(palabras_clave);
 
             var url1 = $('#url1').val();
             var tipourl1 = $('#tipourl1').val();
@@ -2976,6 +2949,54 @@ class_av = {
             
             obj['url'] = JSON.stringify(arrURL);
             
+            if(cons.pal_cla.val == "1"){
+                arr_palabras_clave = [];
+                $('.esp.palabra_clave.badge-warning').each(function() {
+                    var palabra = $(this).html(); // Obtener el texto dentro del botón actual
+                    var palabra_sustituye = '';
+                    //busca si hay sustitución de palabra
+                    if( palabra.indexOf('fa-arrow-down') !== -1 ){
+                        palabra_sustituye = palabra.split('<br>')[2].split('<span')[0].trim();
+                    }
+                    palabra = palabra.split('<span')[0].trim();
+                    if(palabra_sustituye !== ''){
+                        palabra = palabra + '-sustituye-' + palabra_sustituye;
+                    }
+                    arr_palabras_clave.push(palabra);
+                });
+                
+                arr_keywords = [];
+                $('.keyword.palabra_clave.badge-warning').each(function() {
+                    var palabra = $(this).html(); // Obtener el texto dentro del botón actual
+                    var palabra_sustituye = '';
+                    //busca si hay sustitución de palabra
+                    if( palabra.indexOf('fa-arrow-down') !== -1 ){
+                        palabra_sustituye = palabra.split('<br>')[2].split('<span')[0].trim();
+                    }
+                    palabra = palabra.split('<span')[0].trim();
+                    if(palabra_sustituye !== ''){
+                        palabra = palabra + '-sustituye-' + palabra_sustituye;
+                    }
+                    arr_keywords.push(palabra);
+                });
+                
+                arr_palabras_clave = arr_palabras_clave.concat(palabras_clave);
+                arr_keywords = arr_keywords.concat(keywords);
+                
+                arr_palabras_clave = [...new Set(arr_palabras_clave)];
+                arr_keywords = [...new Set(arr_keywords)];
+                
+                obj['palabraClave'] = JSON.stringify(arr_palabras_clave);
+                class_av.var.documentoJSON[0].palabraClave = JSON.stringify(arr_palabras_clave);
+                obj['keyword'] = JSON.stringify(arr_keywords);
+                class_av.var.documentoJSON[0].keyword = JSON.stringify(arr_keywords);
+            }else{
+                obj['palabraClave'] = JSON.stringify(palabras_clave);
+                obj['keyword'] = JSON.stringify(keywords);
+                class_av.var.documentoJSON[0].palabraClave = JSON.stringify(palabras_clave);
+                class_av.var.documentoJSON[0].keyword = JSON.stringify(keywords);
+            }
+            
             obj['estatus'] = 'R';
             
             data_int.push(obj);
@@ -3001,6 +3022,17 @@ class_av = {
             obj['sistema'] = class_av.var.sistema;
             obj['id'] = parseInt(val.id);
             
+            var pais = $('#pais-'+val.id).val();
+            pais = class_av.limpia(pais);
+            val.pais = null;
+            if(pais){
+                obj['pais'] = pais;
+                val.pais = pais;
+            }else{
+                error = 'Falta <b>País</b> de Institución ' + (i+1);
+                return false;
+            }
+            
             var ciudad = $('#ciudad-'+val.id).val();
             ciudad = class_av.limpia(ciudad);
             val.ciudad = null;
@@ -3020,14 +3052,16 @@ class_av = {
             var institucion = $('#institucion-'+val.id).val();
             institucion = class_av.limpia(institucion);
             val.institucion = null;
+            alert(institucion);
             if(institucion){
                 if( 
                     institucion.toLowerCase().indexOf('departamento') !== -1 ||
                     institucion.toLowerCase().indexOf('facultad') !== -1 ||
-                    institucion.toLowerCase().indexOf('. ') !== -1
+                    institucion.toLowerCase().indexOf('. ') !== -1 ||
+                    institucion.toLowerCase().indexOf(', '+pais.toLowerCase()) !== -1
                 ){
                     if(confirma_i == ''){
-                        confirma_i = 'Confirma que estas Instituciones son correctas:';
+                        confirma_i = 'Al parecer el campo contiene información adicional<br>Confirma que estas Instituciones son correctas:';
                     }
                     confirma_i += '<br>('+(i+1)+') <b>' + institucion + '</b>';
                     error == 'corregir';
@@ -3040,16 +3074,7 @@ class_av = {
                 return false;
             }
             
-            var pais = $('#pais-'+val.id).val();
-            pais = class_av.limpia(pais);
-            val.pais = null;
-            if(pais){
-                obj['pais'] = pais;
-                val.pais = pais;
-            }else{
-                error = 'Falta <b>País</b> de Institución ' + (i+1);
-                return false;
-            }
+            
             
             data_int.push(obj);
             
@@ -3201,6 +3226,8 @@ class_av = {
             $('#orcid-'+val.id).val(val.orcid);
             $('#nombre-'+val.id).tooltip();
             $('#orcid-'+val.id).tooltip();
+            $('.select2-selection--single').css('-webkit-user-select', 'text');
+            $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
 
             class_av.orcid_por_nombre(val.nombre, institucion, val.orcid, '#check-nombre-'+val.id, '#nombre-'+val.id);
             if(val.nombre !== null){
@@ -3282,9 +3309,9 @@ class_av = {
                 }
             });
     },
-    prompt: function(id){
+    prompt: function(id, idioma, arr_sustituye){
+        var id_s = id.split('-').slice(2).join('-')+'-sustituye';
         id = id.split('-')[1];
-        
         $.confirm({
             title: '',
             content: '' +
@@ -3300,7 +3327,7 @@ class_av = {
                     text: 'Restablecer',
                     //btnClass: 'btn-red',
                     action: function(){
-                        $('#'+class_utils.slug(id)+'-sustituye').html('');
+                        $('#'+id_s).html('');
                     }
                 },
                 formSubmit: {
@@ -3308,35 +3335,67 @@ class_av = {
                     btnClass: 'btn-warning',
                     action: function () {
                         var name = this.$content.find('.name').val();
+                        var name_ant = '';
                         if(!name || name == id){
                             $.alert('No es una palabra válida');
                             return false;
                         }else{
                             name = name.trim();
-                            var num = class_utils.find_prop(class_av.var.palabras_clave0,'valor',name);
-                            if(num == undefined){num=0;}else{num=num.num;}
-                            $('#'+class_utils.slug(id)+'-sustituye').html(class_av.cons.palabra_clave_sustituye.replaceAll('<palabra>', name).replaceAll('<num>', num));
+                            
+                            var duplicada = false;
+                            var clase ='.esp.palabra_clave';
+                            var var_palabras_clave = class_av.var.palabras_clave_n;
+                            if(idioma == 'eng'){
+                                clase ='.keyword.palabra_clave';
+                                var_palabras_clave = class_av.var.keywords_n;
+                            }
+                            
+                            //Revisa si existe una palabra más apropiada
+                            var sustituye = class_utils.find_prop(arr_sustituye, 'palabra', name);
+                            if(sustituye !== undefined){
+                                name_ant = name;
+                                name = sustituye.palabra_adecuada;    
+                            }
+
+                            $(clase).each(function() {
+                                var palabra = $(this).html();
+                                var palabra1 = palabra.split('<span')[0].trim();
+                                var palabra2 = palabra.split('<br>');
+
+                                if( palabra2[2] !== undefined){
+                                    palabra2 = palabra2[2].split('<span')[0].trim();
+                                }
+
+                                if(palabra1 == name || palabra2 == name || var_palabras_clave.indexOf(name) !== -1){
+                                    duplicada = true;
+                                    return true;
+                                }
+                            });
+                            
+                            if(duplicada){
+                                if(sustituye !== undefined){
+                                    class_av.mensaje('Se encontró una palabra que fue considerada más adecuada: <b>'+name+'</b><br><br>Esta palabra ya se encuentra en las opciones para seleccionar');
+                                }else{
+                                    class_av.mensaje('La palabra ya se encuentra en las opciones para seleccionar');
+                                }
+                                return false;
+                            }else{
+                                var num = class_utils.find_prop(class_av.var.palabras_clave0,'valor',name);
+                                if(num == undefined){num=0;}else{num=num.num;}
+                                $('#'+id_s).html(class_av.cons.palabra_clave_sustituye.replaceAll('<palabra>', name).replaceAll('<num>', num));
+                                if(sustituye !== undefined){
+                                    class_av.mensaje('Se encontró una palabra que fue considerada más adecuada:<br><br>\n\
+                                                        <b>'+id+'</b> no será sustituida por <b>' + name_ant +'</b><br><br>\n\
+                                                        <b>'+id+'</b> será sustituida por <b>' + name +'</b>');
+                                }else{
+                                    class_av.mensaje('<b>'+id+'</b> será sustituida por <b>'+name+'</b>');
+                                }
+                            }
                         }
                     }
                 },
             },
             onContentReady: function () {
-                //$('#palabra_clave_sel').html(class_av.var.palabras_clave);
-                //$('#palabra_clave_sel').select2({ tags: true, placeholder: "Seleccione o escriba una palabra", allowClear: true});
-                //$('#palabra_clave_sel-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                //$('.select2-container').tooltip();
-                //this.$content.find('#palabra_clave_sel').html(class_av.var.palabras_clave);
-                
-                //this.$content.find('#palabra_clave_sel').select2({ tags: true, placeholder: "Seleccione o escriba una palabra", allowClear: true});
-                //this.$content.find('#palabra_clave_sel-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                //this.$content.find('.select2-container').tooltip();
-                
-                
-                /*var html_sel = $('.select2-results').html();
-                html_sel = html_sel.replaceAll('i-badge', '<span class="badge">').replaceAll('f-badge', '</span>');
-                $('.select2-results').html(html_sel);
-                $('.jconfirm').css('z-index',0);*/
-                
                 $("#palabra_clave_sel").select2({
                 tags: true,
                 allowClear: true,
@@ -3351,7 +3410,239 @@ class_av = {
                     }
                   },
                   processResults: (data, params) => {
-                    const results = class_utils.filter_prop_er(class_av.var.palabras_clave0,'valor',new RegExp("^" + params.term + ".*", "i")).map(item => {
+                    var arr_busca = class_av.var.palabras_clave0;
+                    if(idioma == 'eng'){
+                        arr_busca = class_av.var.keywords0;
+                    }
+                    const results = class_utils.filter_prop_er(arr_busca,'valor',new RegExp("^" + params.term + ".*", "i")).map(item => {
+                      return {
+                        id: item.valor,
+                        text: item.valor,
+                        num: item.num
+                      };
+                    });
+                    return {
+                      results: results,
+                    }
+                  }
+                },
+                language: {
+                            inputTooShort: function () {
+                            return "";
+                            }
+                        },
+                minimumInputLength: 2,
+                templateResult: formatRepo,
+                });
+                
+                function formatRepo (repo) {
+                    if (repo.loading) {
+                      return repo.text;
+                    }
+                    
+                    var $container = $(
+                        "<div class='select2-result-repository__title'>" + repo.text + ' <span class="badge">' + ((repo.num == undefined)?0:repo.num) + '</span></div>'
+                    );
+
+                    return $container;
+                  };
+                
+                  /*
+                  function formatRepoSelection (repo) {
+                    return repo.valor;
+                  }*/
+                  
+                  $('.jconfirm').css('z-index',0);
+                
+                // bind to events
+                var jc = this;
+                this.$content.find('form').on('submit', function (e) {
+                    // if the user submits the form by pressing enter in the field.
+                    e.preventDefault();
+                    jc.$$formSubmit.trigger('click'); // reference the button and click it
+                });
+            }
+        });
+    },
+    prompt_n: function(id, idioma, arr_sustituye){
+        var agregar = 'Agregar palabra clave:';
+        if(idioma == 'eng'){
+            agregar = 'Agregar keyword:';
+        }
+        
+        $.confirm({
+            title: '',
+            content: '' +
+            '<form action="" class="formName">' +
+            '<div class="form-group">' +
+            agregar +
+            '<br><select class="name form-control" name="palabra_clave_sel" id="palabra_clave_sel" style="width:100%" width="100%" required>' +
+            '</select>' +
+            '</div>' +
+            '</form>',
+            buttons: {
+                cancelar: {
+                    text: 'Cancelar',
+                    //btnClass: 'btn-red',
+                    action: function(){
+                        //$('#'+id_s).html('');
+                    }
+                },
+                formSubmit: {
+                    text: 'Agregar',
+                    btnClass: 'btn-warning',
+                    action: function () {
+                        var name = this.$content.find('.name').val();
+                        name = name.trim();
+                        var name_ant = '';
+                        //var palabras = $('.esp.palabra_clave');
+                        var duplicada = false;
+                        var clase ='.esp.palabra_clave';
+                        var var_palabras_clave = class_av.var.palabras_clave_n;
+                        if(idioma == 'eng'){
+                            clase ='.keyword.palabra_clave';
+                            var_palabras_clave = class_av.var.keywords_n;
+                        }
+                                                
+                        //Revisa si existe una palabra más apropiada
+                        var sustituye = class_utils.find_prop(arr_sustituye, 'palabra', name);
+                        if(sustituye !== undefined){
+                            name_ant = name;
+                            name = sustituye.palabra_adecuada;    
+                        }
+                        
+                        $(clase).each(function() {
+                            var palabra = $(this).html();
+                            var palabra1 = palabra.split('<span')[0].trim();
+                            var palabra2 = palabra.split('<br>');
+
+                            if( palabra2[2] !== undefined){
+                                palabra2 = palabra2[2].split('<span')[0].trim();
+                            }
+                            
+                            if(palabra1 == name || palabra2 == name || var_palabras_clave.indexOf(name) !== -1){
+                                duplicada = true;
+                                return true;
+                            }
+                        });
+                        
+                        if(duplicada){
+                            if(sustituye !== undefined){
+                                class_av.mensaje('Se encontró una palabra que fue considerada más adecuada: <b>'+name+'</b><br><br>Esta palabra ya se encuentra en las opciones para seleccionar');
+                            }else{
+                                class_av.mensaje('La palabra ya se encuentra en las opciones para seleccionar');
+                            }
+                            return false;
+                        }else if(name == ''){
+                            $.alert('No es una palabra válida');
+                            return false;
+                        }else{
+                            if(idioma == 'esp'){
+                                class_av.var.palabras_clave_n.push(name);
+                            }else{
+                                class_av.var.keywords_n.push(name);
+                            }
+                            var html= '';
+                            var cons_palabra_clave = class_av.cons.palabra_clave_n;
+                            if(idioma == 'eng'){
+                                cons_palabra_clave = class_av.cons.keyword_n;
+                            }
+                            $.each(var_palabras_clave, function(i, val){
+                                var busca = class_utils.find_prop(class_av.var.palabras_clave0,'valor',val);
+                                if(busca !== undefined){
+                                    html += cons_palabra_clave.replaceAll('<palabra>', val).replaceAll('<num>', busca.num).replaceAll('<palabra-slug>', 'n-'+class_utils.slug(val));
+                                }else{
+                                    html += cons_palabra_clave.replaceAll('<palabra>', val).replaceAll('<num>', '0').replaceAll('<palabra-slug>', 'n-'+class_utils.slug(val));
+                                }
+                            });
+                            
+                            if(idioma == 'esp'){
+                                var ids = [];
+                                $('.new_p.badge-warning').each(function() {
+                                    ids.push('#'+this.id);
+                                });
+                                $('#palabras_clave_n').html(html);
+                                $('.esp.palabra_clave').off('click').on('click', function(){
+                                    if( $(this).hasClass('badge-secondary') ){
+                                        if(class_av.var.count_palabras_clave == 10){
+                                            class_av.mensaje('El número máximo de palabras clave son 10');
+                                        }else{
+                                            $(this).removeClass('badge-secondary');
+                                            $(this).addClass('badge-warning');
+                                            $(this).css('background-color', '#ff8000');
+                                            class_av.var.count_palabras_clave ++;
+                                        }
+                                    }else{
+                                        $(this).removeClass('badge-warning');
+                                        $(this).addClass('badge-secondary');
+                                        $(this).css('background-color', '#F0F0F0');
+                                        class_av.var.count_palabras_clave --;
+                                    }
+                                });
+                                $.each(ids, function(i, val){
+                                    $(val).removeClass('badge-secondary');
+                                    $(val).addClass('badge-warning');
+                                    $(val).css('background-color', '#ff8000');
+                                });
+                            }else{
+                                var ids = [];
+                                $('.new_k.badge-warning').each(function() {
+                                    ids.push('#'+this.id);
+                                });
+                                $('#keywords_n').html(html);
+                                $('.keyword.palabra_clave').off('click').on('click', function(){
+                                    if( $(this).hasClass('badge-secondary') ){
+                                        if(class_av.var.count_keywords == 10){
+                                            class_av.mensaje('El número máximo de keywords son 10');
+                                        }else{
+                                            $(this).removeClass('badge-secondary');
+                                            $(this).addClass('badge-warning');
+                                            $(this).css('background-color', '#ff8000');
+                                            class_av.var.count_keywords ++;
+                                        }
+                                    }else{
+                                        $(this).removeClass('badge-warning');
+                                        $(this).addClass('badge-secondary');
+                                        $(this).css('background-color', '#F0F0F0');
+                                        class_av.var.count_keywords --;
+                                    }
+                                });
+                                $.each(ids, function(i, val){
+                                    $(val).removeClass('badge-secondary');
+                                    $(val).addClass('badge-warning');
+                                    $(val).css('background-color', '#ff8000');
+                                });
+                            }
+                            
+                            if(sustituye !== undefined){
+                                class_av.mensaje('Se encontró una palabra que fue considerada más adecuada:<br><br><b>'+name_ant+'</b> será sustituida por <b>' + name +'</b>');
+                            }else{
+                                class_av.mensaje('<b>'+ name +'</b> ha sido agregada correctamente');
+                            }
+                        }
+                    }
+                },
+            },
+            onContentReady: function () {
+                $("#palabra_clave_sel").select2({
+                tags: true,
+                allowClear: true,
+                placeholder: "Selecciona o escribe una palabra clave",
+                ajax: {
+                  url: '/datos/vacio',
+                  dataType: 'json',
+                  delay: 1000,
+                  data: (params) => {
+                    return {
+                      q: params.term,
+                    }
+                  },
+                  processResults: (data, params) => {
+                    var arr_busca = class_av.var.palabras_clave0;
+                    if(idioma == 'eng'){
+                        arr_busca = class_av.var.keywords0;
+                    }
+                    const results = class_utils.filter_prop_er(arr_busca,'valor',new RegExp("^" + params.term + ".*", "i")).map(item => {
                       return {
                         id: item.valor,
                         text: item.valor,
@@ -3684,10 +3975,13 @@ class_av = {
                                     class_av.var.cambios_documento = false;
                                     $.ajax({
                                             type: 'POST',
-                                            url: "<?=site_url('metametrics/ws_update');?>",
+                                            url: "<?=site_url('metametrics/ws_update_article');?>",
                                             data: class_av.data_update_article(),
                                     }).done(function() {
+                                            class_av.mensaje('Artículo guardado correctamente.');
                                             class_av.cambio_estatus(class_av.var.sistema, 'R');
+                                    }).fail(function(){
+                                            class_av.mensaje('Ocurrió un error al intentar guardar el Artículo');
                                     });
                                 }
                             }
@@ -4054,6 +4348,345 @@ class_av = {
             $("#ul-filtro").html("");
             class_av.setTabla(class_av.var.articulosJSON);
         });
+    },
+    palabras_clave: function(){
+        //loading.start();
+        $('#div_palabras_clave_texto, #div_cargando_pc').show();
+        var url ='';
+        if( ($('#url1').val() !== '' && $("#tipourl1").val() == 'pdf') ){
+            url = $('#url1').val();
+        }else if( $('#url2').val() !== '' && $("#tipourl2").val() == 'pdf' ){
+            url = $('#url2').val();
+        }
+        $.when(
+                class_utils.setResource(class_av.var.servidor + class_av.var.app + '/ia_metadata/', {url: url}, true),
+                class_utils.getResource('/datos/palabras', true),
+                class_utils.getResource('/datos/keywords', true),
+                class_utils.getResource('/datos/palabras_sustituye', true),
+
+            ) 
+            .then(function(resp_pdf, resp_palabras, resp_keywords, resp_sustituye){
+                resp_palabras = resp_palabras[0];
+                resp_keywords = resp_keywords[0];
+                resp_sustituye = resp_sustituye[0];
+                resp_pdf = resp_pdf[0];
+
+                class_av.var.palabras_clave0 = resp_palabras;
+                class_av.var.palabras_clave = class_av.cons.option_badge.replace('<valor>', '').replace('<opcion>', '').replace('<num>', '');
+                $.each(resp_palabras, function(i, val){
+                    class_av.var.palabras_clave += class_av.cons.option_badge.replace('<valor>', val.valor).replace('<opcion>', val.valor).replace('<num>', val.num);
+                });
+
+                class_av.var.keywords0 = resp_keywords;
+                class_av.var.keywords = class_av.cons.option_badge.replace('<valor>', '').replace('<opcion>', '').replace('<num>', '');
+                $.each(resp_keywords, function(i, val){
+                    class_av.var.keywords += class_av.cons.option_badge.replace('<valor>', val.valor).replace('<opcion>', val.valor).replace('<num>', val.num);
+                });
+
+                if( resp_pdf.disciplinas !== undefined){
+                    if( resp_pdf.disciplinas[0] !== undefined && $('#disciplina1').val() == '' ){
+                        $('#disciplina1').val(resp_pdf.disciplinas[0]);
+                        $('#disciplina1').change();
+                    }
+                    if( resp_pdf.disciplinas[1] !== undefined && $('#disciplina2').val() == ''){
+                        $('#disciplina2').val(resp_pdf.disciplinas[1]);
+                        $('#disciplina2').change();
+                    }
+                    if( resp_pdf.disciplinas[2] !== undefined && $('#disciplina3').val() == ''){
+                        $('#disciplina3').val(resp_pdf.disciplinas[2]);
+                        $('#disciplina3').change();
+                    }
+                }
+
+                if( resp_pdf.idioma !== undefined ){
+                    $('#idioma').val(resp_pdf.idioma);
+                    $('#idioma').change();
+                }
+
+                var palabras_doc = [];
+                var agrega = [];
+                var revisa_palabras = [];
+
+                if (class_av.var.documentoJSON[0].palabraClave !== undefined && class_av.var.documentoJSON[0].palabraClave !== null && class_av.var.documentoJSON[0].palabraClave !== ''){
+                    palabras_doc = JSON.parse(class_av.var.documentoJSON[0].palabraClave);
+                    revisa_palabras = JSON.parse(class_av.var.documentoJSON[0].palabraClave);
+                    $('#div_palabras_clave_texto').show();
+                    $('#div_palabras_clave_autor').show();
+                    var html = '';
+                    $.each(palabras_doc, function(i, val){
+                        var busca = class_utils.find_prop(resp_palabras,'valor',val);
+                        //busca si existe en las palabras para cambiar o si ya es una de las adecuadas
+                        var adecuada = class_utils.find_prop(resp_sustituye,'palabra',val);
+                        var adecuada_bloqueada = class_utils.find_prop(resp_sustituye,'palabra_adecuada',val);
+                        var cons_palabra_clave = class_av.cons.palabra_clave;
+                        
+                        //En cualquiera de los dos casos se bloquea
+                        if(adecuada !== undefined){
+                            agrega.push(adecuada.palabra_adecuada);
+                            agrega.push(adecuada.palabra);
+                            val = adecuada.palabra_adecuada;
+                            palabras_doc[i] = val;
+                            cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-lock');
+                        }
+                        if(adecuada_bloqueada !== undefined){
+                            agrega.push(adecuada_bloqueada.palabra_adecuada);
+                            agrega.push(adecuada_bloqueada.palabra);
+                            val = adecuada_bloqueada.palabra_adecuada;
+                            palabras_doc[i] = val;
+                            cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-lock');
+                        }
+                        if(busca !== undefined){
+                            html += cons_palabra_clave.replaceAll('<palabra>', val).replaceAll('<num>', busca.num).replaceAll('<palabra-slug>', 'a-'+class_utils.slug(val));
+                        }else{
+                            html += cons_palabra_clave.replaceAll('<palabra>', val).replaceAll('<num>', '0').replaceAll('<palabra-slug>', 'a-'+class_utils.slug(val));
+                        }
+                    });
+                    $('#palabras_clave_autores').html(html);
+                }
+                palabras_doc = palabras_doc.concat(agrega);
+
+                $('#div_palabras_clave').show();
+                var palabras_pdf=[];
+                agrega = [];
+                resp_pdf.palabras = [...new Set(resp_pdf.palabras)];
+                
+                if( resp_pdf.palabras !== undefined && resp_pdf.palabras !== "Sin resultado"){
+                    $.each(resp_pdf.palabras, function(i, val){
+                        var busca = palabras_doc.indexOf(val);
+                        if( busca == -1 ){
+                            palabras_pdf.push(val);
+                        }
+                    });
+
+                    html = '';
+                    $.each(palabras_pdf, function(i, val){
+                        var busca = class_utils.find_prop(resp_palabras,'valor',val);
+                        //busca si existe en las palabras para cambiar o si ya es una de las adecuadas
+                        var adecuada = class_utils.find_prop(resp_sustituye,'palabra',val);
+                        var adecuada_bloqueada = class_utils.find_prop(resp_sustituye,'palabra_adecuada',val);
+                        var cons_palabra_clave = class_av.cons.palabra_clave;
+                        
+                        //En cualquiera de los dos casos se bloquea
+                        if(adecuada !== undefined){
+                            agrega.push(adecuada.palabra_adecuada);
+                            agrega.push(adecuada.palabra);
+                            val = adecuada.palabra_adecuada;
+                            palabras_pdf[i] = val;
+                            cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-lock');
+                        }
+                        if(adecuada_bloqueada !== undefined){
+                            agrega.push(adecuada.palabra_adecuada);
+                            agrega.push(adecuada.palabra);
+                            val = adecuada_bloqueada.palabra_adecuada;
+                            palabras_doc[i] = val;
+                            cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-lock');
+                        }
+                        if(busca !== undefined){
+                            html += cons_palabra_clave.replaceAll('<palabra>', val).replaceAll('<palabra-slug>', 't-'+class_utils.slug(val)).replaceAll('<num>', busca.num);
+                        }else{
+                            html += cons_palabra_clave.replaceAll('<palabra>', val).replaceAll('<palabra-slug>', 't-'+class_utils.slug(val)).replaceAll('<num>', '0');
+                        }
+                    });
+
+                    //$('#palabras_clave').html(resp_pdf.palabras.join("; "));
+                    $('#palabras_clave').html(html);
+                }
+                palabras_pdf = palabras_pdf.concat(agrega);
+                
+                resp_pdf.palabras_b = [...new Set(resp_pdf.palabras_b)];
+                
+                if( resp_pdf.palabras_b !== undefined && resp_pdf.palabras_b !== "Sin resultado"){
+                    $('#div_palabras_clave2').show();
+                    var palabrasb_pdf=[];
+                    
+                    $.each(resp_pdf.palabras_b, function(i, val){
+                        var busca = palabras_doc.indexOf(val);
+                        var busca2 = palabras_pdf.indexOf(val);
+                        if( busca == -1 && busca2 == -1 ){
+                            palabrasb_pdf.push(val);
+                        }
+                    });
+
+                    html = '';
+                    $.each(palabrasb_pdf, function(i, val){
+                        var busca = class_utils.find_prop(resp_palabras,'valor',val);
+                        //busca si existe en las palabras para cambiar o si ya es una de las adecuadas
+                        var adecuada = class_utils.find_prop(resp_sustituye,'palabra',val);
+                        var adecuada_bloqueada = class_utils.find_prop(resp_sustituye,'palabra_adecuada',val);
+                        var cons_palabra_clave = class_av.cons.palabra_clave;
+                        
+                        //En cualquiera de los dos casos se bloquea
+                        if(adecuada !== undefined){
+                            val = adecuada.palabra_adecuada;
+                            cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-lock');
+                        }
+                        if(adecuada_bloqueada !== undefined){
+                            val = adecuada_bloqueada.palabra_adecuada;
+                            cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-lock');
+                        }
+                        if(busca !== undefined){
+                            html += cons_palabra_clave.replaceAll('<palabra>', val).replaceAll('<palabra-slug>', 't-'+class_utils.slug(val)).replaceAll('<num>', busca.num);
+                        }else{
+                            html += cons_palabra_clave.replaceAll('<palabra>', val).replaceAll('<palabra-slug>', 't-'+class_utils.slug(val)).replaceAll('<num>', '0');
+                        }
+                    });
+                    //$('#palabras_clave2').html(resp_pdf.palabras_b.join("; "));
+                    $('#palabras_clave2').html(html);
+                }
+
+                //Sin repetidos
+                resp_pdf.keywords = [...new Set(resp_pdf.keywords)];
+
+                if( (resp_pdf.keywords !== undefined && resp_pdf.keywords !== "Sin resultado") || 
+                    (class_av.var.documentoJSON[0].keyword !== undefined && class_av.var.documentoJSON[0].keyword !== null && class_av.var.documentoJSON[0].keyword !== '')
+                        ){
+                    $('#div_keywords').show();
+                    var palabrasb_pdf=[];
+                    agrega = [];
+                    
+                    if((resp_pdf.keywords !== undefined && resp_pdf.keywords !== "Sin resultado")){
+                        $.each(resp_pdf.keywords, function(i, val){
+                            if( palabrasb_pdf.indexOf(val) == -1 ){
+                                palabrasb_pdf.push(val);
+                            }
+                        });
+                    }
+                    
+                    if((class_av.var.documentoJSON[0].keyword !== undefined && class_av.var.documentoJSON[0].keyword !== null && class_av.var.documentoJSON[0].keyword !== '')){
+                        $.each(JSON.parse(class_av.var.documentoJSON[0].keyword), function(i, val){
+                            if( palabrasb_pdf.indexOf(val) == -1 ){
+                                palabrasb_pdf.push(val);
+                            }
+                        });
+                    }
+
+                    html = '';
+                    $.each(palabrasb_pdf, function(i, val){
+                        var busca = class_utils.find_prop(resp_keywords,'valor',val);
+                        var adecuada = class_utils.find_prop(resp_sustituye,'palabra',val);
+                        var adecuada_bloqueada = class_utils.find_prop(resp_sustituye,'palabra_adecuada',val);
+                        var cons_keyword = class_av.cons.keyword;
+                        
+                        //En cualquiera de los dos casos se bloquea
+                        if(adecuada !== undefined){
+                            agrega.push(adecuada.palabra_adecuada);
+                            agrega.push(adecuada.palabra);
+                            val = adecuada.palabra_adecuada;
+                            palabras_doc[i] = val;
+                            cons_keyword = cons_keyword.replaceAll('fa-pencil', 'fa-lock');
+                        }
+                        if(adecuada_bloqueada !== undefined){
+                            agrega.push(adecuada_bloqueada.palabra_adecuada);
+                            agrega.push(adecuada_bloqueada.palabra);
+                            val = adecuada_bloqueada.palabra_adecuada;
+                            palabras_doc[i] = val;
+                            cons_keyword = cons_keyword.replaceAll('fa-pencil', 'fa-lock');
+                        }
+                        
+                        
+                        if(busca !== undefined){
+                            html += cons_keyword.replaceAll('<palabra>', val).replaceAll('<palabra-slug>', 'k-'+class_utils.slug(val)).replaceAll('<num>', busca.num);
+                        }else{
+                            html += cons_keyword.replaceAll('<palabra>', val).replaceAll('<palabra-slug>', 'k-'+class_utils.slug(val)).replaceAll('<num>', '0');
+                        }
+                    });
+                    //$('#palabras_clave2').html(resp_pdf.palabras_b.join("; "));
+                    $('#keywords').html(html);
+                }
+
+                    $('.esp.palabra_clave').off('click').on('click', function(){
+                        if( $(this).hasClass('badge-secondary') ){
+                            if(class_av.var.count_palabras_clave == 10){
+                                class_av.mensaje('El número máximo de palabras clave son 10');
+                            }else{
+                                $(this).removeClass('badge-secondary');
+                                $(this).addClass('badge-warning');
+                                $(this).css('background-color', '#ff8000');
+                                class_av.var.count_palabras_clave ++;
+                            }
+                        }else{
+                            $(this).removeClass('badge-warning');
+                            $(this).addClass('badge-secondary');
+                            $(this).css('background-color', '#F0F0F0');
+                            class_av.var.count_palabras_clave --;
+                        }
+                    });
+                    
+                    $('.keyword.palabra_clave').off('click').on('click', function(){
+                        if( $(this).hasClass('badge-secondary') ){
+                            if(class_av.var.count_keywords == 10){
+                                class_av.mensaje('El número máximo de keywords son 10');
+                            }else{
+                                $(this).removeClass('badge-secondary');
+                                $(this).addClass('badge-warning');
+                                $(this).css('background-color', '#ff8000');
+                                class_av.var.count_keywords ++;
+                            }
+                        }else{
+                            $(this).removeClass('badge-warning');
+                            $(this).addClass('badge-secondary');
+                            $(this).css('background-color', '#F0F0F0');
+                            class_av.var.count_keywords --;
+                        }
+                    });
+
+                    $('.fa-pencil.edita_palabra').off('click').on('click', function(){
+                       class_av.prompt(this.id, 'esp', resp_sustituye);
+                    });
+                    $('.fa-pencil.edita_keyword').off('click').on('click', function(){
+                       class_av.prompt(this.id, 'eng', resp_sustituye);
+                    });
+                    $('#add-palabra').off('click').on('click', function(){
+                       class_av.prompt_n(this.id, 'esp', resp_sustituye);
+                    });
+                    $('#add-keyword').off('click').on('click', function(){
+                       class_av.prompt_n(this.id, 'eng', resp_sustituye);
+                    });
+                    
+                    $('.fa-lock.edita_palabra').off('click');
+
+                if( resp_pdf.titulo !== undefined ){
+                    $('#titulo').val(resp_pdf.titulo);
+                    $('#titulo').prop("disabled", true);
+                        tiempo = setTimeout(function() {
+                            class_av.texto_idioma($('#titulo').val(), $('#idioma').val(), '#check-idioma', '#idioma');
+                            class_av.busca_en_pdf(url, $('#titulo').val(), '#check-titulo', '#titulo');
+                            //class_av.busca_en_pdf(class_av.var.texto_pdf, $('#titulo').val(), '#check-titulo', '#titulo');
+                        }, 1000);
+                }
+                
+                $.each(revisa_palabras, function(i,val){
+                    if( $('#a-'+class_utils.slug(val)).length ){
+                        $('#a-'+class_utils.slug(val)).removeClass('badge-secondary');
+                        $('#a-'+class_utils.slug(val)).addClass('badge-warning');
+                        $('#a-'+class_utils.slug(val)).css('background-color', '#ff8000');
+                        class_av.var.count_palabras_clave ++;
+                    }
+                    else if( $('#t-'+class_utils.slug(val)).length ){
+                        $('#t-'+class_utils.slug(val)).removeClass('badge-secondary');
+                        $('#t-'+class_utils.slug(val)).addClass('badge-warning');
+                        $('#t-'+class_utils.slug(val)).css('background-color', '#ff8000');
+                        class_av.var.count_palabras_clave ++;
+                    }
+                });
+                
+                if (class_av.var.documentoJSON[0].keyword !== undefined && class_av.var.documentoJSON[0].keyword !== null && class_av.var.documentoJSON[0].keyword !== ''){
+                    $.each(JSON.parse(class_av.var.documentoJSON[0].keyword), function(i,val){
+                        if( $('#k-'+class_utils.slug(val)).length ){
+                            $('#k-'+class_utils.slug(val)).removeClass('badge-secondary');
+                            $('#k-'+class_utils.slug(val)).addClass('badge-warning');
+                            $('#k-'+class_utils.slug(val)).css('background-color', '#ff8000');
+                            class_av.var.count_keywords ++;
+                        }
+                    });
+                }
+                
+                $.each(['#div_palabras_clave_autor', '#div_palabras_clave', '#div_palabras_clave2', '#div_palabras_clave_n', '#div_keywords_n', '#div_keywords', '#add-palabra', '#add-keyword'], function(i,val){
+                    $(val).show();
+                });
+                $('#div_cargando_pc').hide();
+                //loading.end();
+            });
     }
 };
 
