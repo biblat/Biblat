@@ -124,6 +124,9 @@ class Adminb extends CI_Controller {
             $this->template->set_layout('default_sel');
             $this->template->title(_('Artículos'));
             $data['page_subtitle'] = $this->session->userdata('nombre');
+            $data['rol'] = $this->session->userdata('rol');
+            $data['pal_cla'] = $this->session->userdata('pal_cla');
+            $data['res'] = $this->session->userdata('res');
             $this->template->set_meta('description', _('Artículos'));
             $this->template->set_partial('main_js', 'admin/analisis.js', array(), TRUE, FALSE);
             $this->template->build('admin/analisis', $data);
