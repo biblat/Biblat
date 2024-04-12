@@ -209,6 +209,65 @@ class Generic_model extends CI_Model {
 			}
 		}
         }
+		
+		public function update_article($tabla, $arr_where, $data, $data_ant = null){
+                $this->db->trans_start();
+		if(isset($data_ant)){
+			//Acomodo de nombre de campos where con su respectivo valor a buscar
+			foreach ($data_ant as $x => $value){
+				foreach ($arr_where as $aw){
+					$array[$aw] = $value[$aw];
+				}
+				$this->db->where($array);
+				$this->db->update($tabla, $data[$x]);
+			}
+		}else{
+			foreach ($data as $value){
+				foreach ($arr_where as $aw){
+                                    if(isset($value[$aw])){
+                                        $array[$aw] = $value[$aw];
+                                    }
+				}
+                                foreach ($value as $x => $v){
+                                    if($v == ''){
+                                        $value[$x] = null;
+                                    }
+                                    //Revisa si el campo es palabraClave
+                                    if($x == 'palabraClave' || $x == 'keyword'){
+                                        //Revisa si existe la palabra sustituye para hacer el cambio
+                                        if(strpos($v, '-sustituye-') !== false){
+                                            $array_palabras = json_decode($v);
+                                            $new_array_palabras = array();
+                                            //REvisa en cada una de las palabras
+                                            foreach ($array_palabras as $xp => $p){
+                                                if(strpos($p, '-sustituye-') !== false){
+                                                    $divide = explode('-sustituye-', $p);
+                                                    array_push($new_array_palabras, $divide[1]);
+                                                    $query =    "
+                                                                INSERT INTO palabras_clave (palabra, palabra_adecuada)
+                                                                SELECT '".$divide[0]."', '".$divide[1]."'
+                                                                WHERE NOT EXISTS (
+                                                                    SELECT palabra
+                                                                    FROM palabras_clave
+                                                                    WHERE palabra = '".$divide[0]."' AND palabra_adecuada = '".$divide[1]."'
+                                                                )
+                                                                ";
+                                                    echo $query;
+                                                    $query = $this->db->query($query);
+                                                }else{
+                                                    array_push($new_array_palabras, $p);
+                                                }
+                                            }
+                                            $value[$x] = json_encode($new_array_palabras);
+                                        }
+                                    }
+				}
+                                $this->db->where($array);
+				$this->db->update($tabla, $value);
+			}
+		}
+                $this->db->trans_complete();
+        }
                 
         public function update_or_insert($tabla, $arr_where, $data, $data_ant = null){
                 //$this->load->database('prueba');
