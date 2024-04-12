@@ -1,3 +1,11 @@
+<script>
+    const cons =    { 
+                        rol: Object.freeze( { val: '<?php echo $rol; ?>'}),
+                        pal_cla: Object.freeze( { val: '<?php echo $pal_cla; ?>'}),
+                        res: Object.freeze( { val: '<?php echo $res; ?>'})
+                    };
+</script>
+
 <style>
     input[type="checkbox"]{
         display: none;
@@ -22,11 +30,11 @@
   input[type="checkbox"]:checked + label:after {
     font-weight: bold;
   }
-  .edita_palabra{
+  .edita_palabra, .edita_keyword{
       color: gray;
       cursor: pointer;
   }
-  .edita_palabra:hover{
+  .edita_palabra:hover, .edita_keyword:hover{
       color: #ff8000;
   }
 </style>
@@ -396,10 +404,30 @@
                             </div>
                         </div>
                         
+                        <div class="row" id="div_palabras_clave_texto" style="display:none">
+                            <br>
+                            <br>
+                            <div class="col-xs-12">
+                                <p>
+                                A continuación se muestran las palabras claves sugeridas, palabras asentadas por autores y palabras extraídas del texto.
+                                <p>
+                                    (I) Seleccione las adecuadas para el artículo.<br>
+                                    (II) Edite la palabra si determina que existe un término más adecuado para sustituir, considere que en adelante si se encuentra nuevamente el mismo término, se realizará la misma sustitución de manera automática.
+                                </p>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="row" id="div_cargando_pc" style="display:none">
+                            <div class="col-xs-12">
+                                <b>Obteniendo palabras clave</b> ...<i id="check-titulo-load" class="fa fa-spinner fa-pulse" aria-hidden="true" style="color: #ff8000; display: true"></i>
+                            </div>
+                        </div>
+                        
                         <div class="row" id="div_palabras_clave_autor" style="display:none">
                             <br>
                             <div class="col-xs-12">
-                                <span><b>Palabras clave de autor(es):</b></span><br>
+                                <span><b>Palabras clave guardadas:</b></span><br>
                                 <span id="palabras_clave_autores"></span>
                             </div>
                         </div>
@@ -414,6 +442,37 @@
                             <br>
                             <div class="col-xs-12">
                                 <span id="palabras_clave2"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <br>
+                            <center>
+                                <button id="add-palabra" type="button" class="btn btn-dark" style="display:none"><img class="imagen" src="{base_url('img/palabra-clave.png')}" style="filter: invert(0.5) sepia(9) hue-rotate(0deg) saturate(1000%);height:20px;display:inline-block"><span> Agregar palabra clave</span></button>
+                            </center>
+                        </div>
+                        <div class="row" id="div_palabras_clave_n" style="display:none">
+                            <br>
+                            <div class="col-xs-12">
+                                <span id="palabras_clave_n"></span>
+                            </div>
+                        </div>
+                        <div class="row" id="div_keywords" style="display:none">
+                            <br>
+                            <div class="col-xs-12">
+                                <span><b>Palabras clave traducidas al inglés:</b></span><br>
+                                <span id="keywords"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <br>
+                            <center>
+                                <button id="add-keyword" type="button" class="btn btn-dark" style="display:none"><img class="imagen" src="{base_url('img/palabra-clave.png')}" style="filter: invert(0.5) sepia(9) hue-rotate(0deg) saturate(1000%);height:20px;display:inline-block"><span> Agregar keyword</span></button>
+                            </center>
+                        </div>
+                        <div class="row" id="div_keywords_n" style="display:none">
+                            <br>
+                            <div class="col-xs-12">
+                                <span id="keywords_n"></span>
                             </div>
                         </div>
                         <div class="row">
