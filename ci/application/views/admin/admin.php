@@ -19,7 +19,7 @@
                 </center>
             </a>
         </div>
-        <div class="col-xs-4" style="display:none">
+        <div class="col-xs-4">
 			<a href="<?=site_url("adminb/asignarev");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
 				<br><br>
 				<center>
