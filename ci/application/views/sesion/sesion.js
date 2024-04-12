@@ -126,6 +126,8 @@ function LeerSheet(usuario, token){
                                     objUsr.nombre = val[2];
                                     objUsr.rol = val[1];
                                     objUsr.usu_base = val[3];
+									objUsr.pal_cla = val[5];
+                                    objUsr.res = val[6];
                                     return false;
                                 }
                             }
