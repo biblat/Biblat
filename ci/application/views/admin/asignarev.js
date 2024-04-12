@@ -51,7 +51,7 @@ class_asir = {
                         var options = '';
                         $.each(revistas, function(i, val){
                                 if(i>0){
-                                    if(val[1] == 'Analista'){
+                                    if(['Analista', 'Editor'].indexOf(val[1]) !== -1){
                                         class_asir.var.usuariosJSON.push(JSON.parse(JSON.stringify(Object.assign({}, val))));
                                     }
                                 }
@@ -71,15 +71,26 @@ class_asir = {
                         $('#usuario_sel').html(options);
                         $('#usuario_sel').select2({ tags: true, placeholder: "Seleccione un usuario", allowClear: true});
                         
-                        $.when(class_utils.getResource('/datos/allrevistas/')) 
-                        .then(function(resp_revista){
-                            class_asir.var.revistasJSON = resp_revista;
+                        /*$.when(class_utils.getResource('/datos/allrevistas/')) 
+                        .then(function(resp_revista){*/
+                            gapi.client.sheets.spreadsheets.values.get({
+                                spreadsheetId: b(env.sId),
+                                range: b(env.s),
+                            }).then(function(response2) {
+                                var revistas = response2.result.values;
+                                var options = '';
+                                $.each(revistas, function(i, val){
+                                        if(i>0){
+                                                class_asir.var.revistasJSON.push(JSON.parse(JSON.stringify(Object.assign({}, val))));
+                                        }
+                                });
+                                class_asir.var.revistasJSON.sort(class_utils.order_by(0));
                             var options='';
                             
                             options += class_asir.cons.option_revista.replace('<revista>', "").replace("<val>", "");
                             $.each(class_asir.var.revistasJSON, function(i, val){
                                 try{
-                                    options += class_asir.cons.option_revista.replace('<revista>', val.revista).replace("<val>", val.revista);
+                                    options += class_asir.cons.option_revista.replace('<revista>', val[0].trim()).replace('<url>',val[9].trim());
                                 } catch (error) {
                                     console.log(error);
                                 }
