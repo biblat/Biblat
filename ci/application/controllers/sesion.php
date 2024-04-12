@@ -2,7 +2,6 @@
 error_reporting(0);
 require 'vendor/autoload.php';
 require 'vendor/google-api/vendor/autoload.php';
-require 'vendor/phpgangsta/vendor/autoload.php';
 
 class Sesion extends CI_Controller {
     
@@ -62,21 +61,38 @@ class Sesion extends CI_Controller {
         $this->template->build('sesion/editor', $data);
     }
     
+    function multi_attach_mail($to, $subject, $message, $senderMail, $senderName, $files){
+        $asunto = 'INICIO EDITORES BIBLAT';
+        $cabeceras = 'From: BIBLAT <'. $senderMail . ">\r\n";
+        $cabeceras  .= 'MIME-Version: 1.0' . "\r\n";
+        $cabeceras .= 'Content-type: text/html; charset=UTF-8' . "\r\n";
+        $cabeceras .= 'SPF: pass' . "\r\n";
+        $cabeceras .= 'DKIM-Signature: <your-dkim-signature>' . "\r\n";
+        $cabeceras .= 'DMARC-Filter: OpenDMARC Filter v1.3.2' . "\r\n";
+        $cabeceras .= 'Bounce-Tag: tag' . "\r\n";
+
+        // Envía el correo
+        $mail = mail($to, $asunto, $message, $cabeceras);
+            
+        //function return true, if email sent, otherwise return fasle
+        if($mail){ return TRUE; } else { return FALSE; }
+    }
+    
     function inicio_editores(){
         if( isset($_POST['correo']) || isset($_POST['codigo'])){
-            putenv("GOOGLE_APPLICATION_CREDENTIALS=credentials2.json");
-            $client = new Google_Client();
-            $client->setApplicationName('Biblat');
-            $client->setScopes(Google_Service_Sheets::SPREADSHEETS_READONLY);
-            $client->useApplicationDefaultCredentials();
-            // ID de la hoja de cálculo
-            $spreadsheetId = sheetEditores;
-            
             if( isset($_POST['correo']) ){
                 $correos = $_POST['correo'];
-                
+                putenv("GOOGLE_APPLICATION_CREDENTIALS=credentials2.json");
+                $client = new Google_Client();
+                $client->setApplicationName('Biblat');
+                $client->setScopes(Google_Service_Sheets::SPREADSHEETS_READONLY);
+                $client->useApplicationDefaultCredentials();
+
                 // Inicializar el cliente
                 $service = new Google_Service_Sheets($client);
+
+                // ID de la hoja de cálculo
+                $spreadsheetId = sheetEditores;
 
                 // Rango de celdas 
                 $range = hojaEditores;
@@ -92,7 +108,6 @@ class Sesion extends CI_Controller {
                 if (empty($values)) {
                     echo json_encode(["res" => "error"]);
                 } else {
-                    $renglon = 0;
                     foreach ($values as $x => $v){
                         //Recorrido de los encabezados
                         if($x == 0){
@@ -103,26 +118,16 @@ class Sesion extends CI_Controller {
                             $idx_rol = array_search('Rol', $columnas);
                             $idx_nombre = array_search('Nombre', $columnas);
                             $idx_aleph = array_search('Aleph', $columnas);
-                            $idx_llave = array_search('Llave', $columnas);
                         }
 
                         foreach ($v as $x2 => $v2){
                             if($x2 == $idx_usuario){
                                 if($v2 == $correos && $v[$idx_rol] == 'Editor'){
-                                    $renglon = $x;
-                                    if($v[$idx_llave] == false){
-                                        $llave = '0';
-                                    }else{
-                                        $llave = $v[$idx_llave];
-                                    }
                                     $usuario_data = array(
                                         'usuario' => $v[$idx_usuario],
                                         'nombre' => $v[$idx_nombre],
                                         'rol' => $v[$idx_rol],
                                         'usu_base' => $v[$idx_aleph],
-                                        'llave' => $llave,
-                                        'coor_x' => $idx_llave,
-                                        'coor_y' => $renglon,
                                         'pal_cla' => TRUE,
                                         'res' => TRUE,
                                         'logueado' => FALSE,
@@ -137,75 +142,32 @@ class Sesion extends CI_Controller {
                     }
                 }
                 if( $existe ){
-                    if($this->session->userdata('llave') == '0'){
-                        //Obtiene código QR
-                        $auth = $this->auth_qr_get();
-                        
-                        $this->session->set_userdata('llave', $auth["llave"]);
-                        // Ejecuta la solicitud
-                        //$response = $service->execute($request);
-                        echo json_encode(["res" => "success", "qr" => $auth["qr"]]);
-                    }else{
-                        echo json_encode(["res" => "success", "qr" => "0"]);
-                    }
-                    
-                }else{
-                    echo json_encode(["res" => "error"]);
-                }
-            }
-            if( isset($_POST['codigo']) ){
-                $ga = new PHPGangsta_GoogleAuthenticator();
-
-                $gcode = $_POST['codigo'];
-
-                $validacion = $ga->verifyCode($this->session->userdata('llave'), $gcode);
-
-                if($validacion){
-                    //HAsta que haga la primer validación se almacena la llave
-                    $client->addScope(Google_Service_Sheets::SPREADSHEETS);
-                    $service = new Google_Service_Sheets($client);
-                    $range = 'Usuarios!'.chr($this->session->userdata('coor_x') + ord('A')).($this->session->userdata('coor_y')+1);
-
-                    $values = [
-                        [$this->session->userdata('llave')]
-                    ];
-
-                    // Crea una solicitud para escribir en la celda
-                    $requestBody = new Google_Service_Sheets_ValueRange([
-                        'values' => $values
-                    ]);
-                    $params = [
-                        'valueInputOption' => 'RAW'
-                    ];
-                    $request = $service->spreadsheets_values->update($spreadsheetId, $range, $requestBody, $params);
-                    
-                    $this->session->set_userdata('logueado', TRUE);
+                    $mensaje = "Estimado(a) editor(a):<br><br>".
+                            "Su código de inicio es el siguiente: " . $codigo;
+    
+                    $this->multi_attach_mail($correos,
+                            "Código de Inicio",
+                            $mensaje,
+                            "biblat_comite@dgb.unam.mx",
+                            "Inicio Editores Biblat",
+                            null
+                            );
                     echo json_encode(["res" => "success"]);
                 }else{
                     echo json_encode(["res" => "error"]);
                 }
             }
+            if( isset($_POST['codigo']) ){
+                if( $this->session->userdata('codigo') ){
+                    if( $_POST['codigo'] == $this->session->userdata('codigo') ){
+                        $this->session->unset_userdata('codigo');
+                        echo json_encode(["res" => "success"]);
+                    }else{
+                        echo json_encode(["res" => "error"]);
+                    }
+                }
+            }
         }
-    }
-	
-	public function auth_qr_get(){
-        // Instancia de GoogleAuthenticator
-        $ga = new PHPGangsta_GoogleAuthenticator();
-
-        // Genera un nuevo secreto
-        $secret = $ga->createSecret();
-        
-        // Obtiene la URL del código QR para escanear con la aplicación Google Authenticator
-        $qrCodeUrl = $ga->getQRCodeGoogleUrl('Biblat Central', $secret);
-
-        //echo 'Escanea este código QR con la aplicación Google Authenticator:<br>';
-        //echo '<img src="' . $qrCodeUrl . '" alt="Código QR"><br>';
-
-        // Genera un código de autenticación de 6 dígitos
-        $oneTimePassword = $ga->getCode($secret);
-
-        //echo 'Tu código de autenticación es: ' . $oneTimePassword;
-        return ["qr" => $qrCodeUrl, "code" => $oneTimePassword, "llave" => $secret];
     }
     
     public function valida(){      
@@ -219,31 +181,20 @@ class Sesion extends CI_Controller {
           $user_id = $payload['sub'];
           $email = $payload['email'];
 
-            if($_POST['editor']){
-                // Devolver una respuesta exitosa al cliente
-                //$this->session->set_userdata('logueado', TRUE);
-            }else{
-                // Devolver una respuesta exitosa al cliente
-                $usuario_data = array(
-                    'usuario' => $_POST['usuario'],
-                    'nombre' => $_POST['nombre'],
-                    'rol' => $_POST['rol'],
-                    'usu_base' => $_POST['usu_base'],
-                    'pal_cla' => $_POST['pal_cla'],
-                    'res' => $_POST['res'],
-                    'logueado' => TRUE
-                );
-                $this->session->set_userdata($usuario_data);
-            }
+
+            // Devolver una respuesta exitosa al cliente
+            $usuario_data = array(
+                'usuario' => $_POST['usuario'],
+                'nombre' => $_POST['nombre'],
+                'rol' => $_POST['rol'],
+                'usu_base' => $_POST['usu_base'],
+                'logueado' => TRUE
+            );
+            $this->session->set_userdata($usuario_data);
             
             if($_POST['rol'] == 'Administrador' or $_POST['rol'] == 'Analista'){
                 header('Content-Type: application/json');
                 echo json_encode(["page" => "adminb"]);
-            }else{
-                if( $this->session->userdata('rol') == 'Editor'){
-                    header('Content-Type: application/json');
-                    echo json_encode(["page" => "adminb"]);
-                }
             }
             
         } else {
@@ -251,6 +202,5 @@ class Sesion extends CI_Controller {
             header('Content-Type: application/json');
             echo json_encode(["page" => "main"]);
         }
-    }
     }
 }
