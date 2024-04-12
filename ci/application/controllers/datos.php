@@ -740,4 +740,55 @@ class Datos extends REST_Controller {
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);  
         }
+		
+		public function palabras_get(){
+            $data = array();
+            $this->load->database();
+            $query = '
+                        select valor, num from(
+                        SELECT valor, count(1) num
+                        FROM article, jsonb_array_elements_text(to_jsonb("palabraClave")) AS valores(valor) 
+                        where LENGTH(valor) > 1
+                        group by valor
+                        order by 1
+                        )a where num > 1
+            ';
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);  
+        }
+        
+        public function keywords_get(){
+            $data = array();
+            $this->load->database();
+            $query = '
+                        select valor, num from(
+                        SELECT valor, count(1) num
+                        FROM article, jsonb_array_elements_text(to_jsonb("keyword")) AS valores(valor) 
+                        where LENGTH(valor) > 1
+                        group by valor
+                        order by 1
+                        )a where num > 1
+            ';
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);  
+        }
+        
+        public function palabras_sustituye_get(){
+            $data = array();
+            $this->load->database();
+            $query = '
+                        SELECT palabra, palabra_adecuada
+                        FROM palabras_clave
+            ';
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);  
+        }
+        
+        public function vacio_get(){
+            $data = array();
+            $this->load->database();
+            $query = "select 'biblat'";
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);  
+        }
 }
