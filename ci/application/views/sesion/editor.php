@@ -1,18 +1,32 @@
 <div class="row">
     <div class="col-xs-12">
         <center>
-            <div><b><span id="mensaje">{$encabezado}</span></b></div>
-            <br><br>
-            <form id="envio_editor" method="post" style="dispaly:true">
-                {if $codigo}
-                    <input id="codigo" name="codigo" maxlength="10" required="" style="width:300px"><br><br>
-                {else}
-                    <input id="correo" name="correo" type="email" required="" style="width:300px"><br><br>
-                {/if}
-                <button id="enviar" type="submit" class="btn btn-warning" ><span>Enviar</span></button>
-            </form>
+            <div><b><span id="mensaje">Inicie sesión con su cuenta de Google registrada en Biblat Central</span></b></div>
+            <div id="auth" style="display:none">
+                <br>
+                <center>
+                    <img id="qr" src="">
+                </center>
+            </div>
+            
+            <div id="div_envio_editor" style="display:none">
+                <br>
+                <form id="envio_editor" method="post" >
+                    Correo: <input id="correo" name="correo" type="email" required="" style="width:300px;"><br><br>
+                    <button id="enviar" type="submit" class="btn btn-warning" ><span>Enviar</span></button>
+                </form>
+            </div>
+            
+            <div id="div_envio_editor2" style="display:none">
+                <br>
+                <form id="envio_editor2" method="post">
+                    Código: <input id="codigo" name="codigo" maxlength="10" required="" style="width:300px;"><br><br>
+                    <button id="enviar2" type="submit" class="btn btn-warning" ><span>Enviar</span></button>
+                </form>
+            </div>
+            <br>
             <div id="google_btn" style="dispaly:none"></div>
-            <br><br>
+            <br>
             <div class="alert alert-danger" role="alert" id="no-registrado" style="display:none">
                 Correo no registrado
             </div>
