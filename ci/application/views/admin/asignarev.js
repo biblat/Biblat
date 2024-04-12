@@ -14,8 +14,10 @@ class_asir = {
         asignada: 'La revista se agregó al listado.',
         borrada: 'La revista se eliminó del listado.',
         guardado: 'Los cambios se guardaron correctamente.',
+        option: '<option value="<valor>"><opcion></option>',
     },
     var: {
+        numeros: '',
         usuariosJSON: [],
         revistasJSON: [],
         revistasAsignadas1: [],
@@ -88,6 +90,7 @@ class_asir = {
                             $('#revista_sel').select2({ tags: true, placeholder: "Seleccione una revista", allowClear: true});
                             
                             class_asir.control();
+                            class_asir.control_na();
                             loading.end();
                         });
                         
@@ -169,6 +172,144 @@ class_asir = {
         
         $('#btn_asignar').off('click').on('click', function(){
             var rev = $('#revista_sel').val();
+            var anio_rev = $('#anio_rev').val();
+            
+            var v = null;
+            var n = null;
+            var m = null;
+            var p = null;
+            var numero = $('#sel_numero').val();
+            rev =  rev + ' # ' + anio_rev + ' # ' + numero;
+
+            if(numero !== '' && numero !== undefined){
+                v = numero.split('V')[1];
+                if(v !== null && v !== undefined){
+                    v = v.split('N')[0];
+                    v = v.trim();
+                }
+                if(v == '' || v == 's/v'){
+                    v = null;
+                }
+                
+                n = numero.split('N')[1];
+                if( n !== null && n !== undefined ){
+                    n = n.split(' ')[0];
+                    n = n.trim();
+                }
+                if(n == '' || n == 's/n'){
+                    n = null;
+                }
+                
+                m = numero.split(' Mes:')[1]
+                if( m !== null && m !== undefined ){
+                    m = m.split(' Parte:')[0];
+                    m = m.trim();
+                }
+                if(m == '' ){
+                    m = null;
+                }
+                
+                p = numero.split(' Parte:')[1];
+                if(p !== null && p !== undefined){
+                    p = p.trim();
+                }
+                if(p == '' ){
+                    p = null;
+                }
+            }
+            
+            var obj = {};
+            var objDes = {};
+            
+            var sin_vol = $('#sin_vol').prop('checked');
+            var vol = $('#txt_vol').val().trim();
+            
+            var sin_num = $('#sin_num').prop('checked');
+            var num = $('#txt_num').val().trim();
+            
+            var p_esp = $('#p_esp').prop('checked');
+            var p_sup = $('#p_sup').prop('checked');
+            var p_est = $('#p_est').prop('checked');
+            var p_mes = $('#p_mes').prop('checked');
+            var p_no = $('#p_no').prop('checked');
+            var sin_num_esp = $('#sin_num_esp').prop('checked');
+            var sin_num_sup = $('#sin_num_sup').prop('checked');
+            var un_mes = $('#un_mes').prop('checked');
+            var sel_estacion = $('#sel_estacion').val();
+            var txt_num_esp = $('#txt_num_esp').val();
+            var txt_num_sup = $('#txt_num_sup').val();
+            var sel_mes1 = $('#sel_mes1').val();
+            var sel_mes2 = $('#sel_mes2').val();
+            
+            if( vol !== '' && !sin_vol)
+                objDes['a'] = 'V' + vol;
+            if( num !== '' && !sin_num)
+                objDes['b'] = 'N' + num;
+            
+            var parte = '';
+            var mes = '';
+            
+            //Revisa si indicó que No aplica
+            if( !p_no ){
+                
+                if(p_esp){
+                    parte = 'especial';
+                }
+                if( !sin_num_esp ){
+                    if( !isNaN(txt_num_esp)){
+                        parte += txt_num_esp;
+                    }
+                }
+                
+                if(p_sup){
+                    parte = 'suplemento';
+                }
+                if( !sin_num_sup ){
+                    if( !isNaN(txt_num_sup)){
+                        parte += txt_num_sup;
+                    }
+                }
+                
+                if(p_est){
+                    parte = sel_estacion;
+                }
+                
+                if(p_mes){
+                    mes = sel_mes1;
+                    
+                    if(!un_mes){
+                        mes = mes + '-' + sel_mes2;
+                    }
+                }
+            }
+            
+            if( parte != '' ){
+                objDes['d'] = parte;
+            }
+            
+            if( mes != '' ){
+                objDes['c'] = mes;
+            }
+            
+            if( numero !== ""){
+                if(v !== null){
+                    objDes['a'] = 'V'+v;
+                }
+                if(n !== null){
+                    objDes['b'] = 'N'+n;
+                }
+                if(m !== null){
+                    objDes['c'] = m;
+                }
+                if(p !== null){
+                    objDes['d'] = p;
+                }
+            }else{
+                rev = rev + 'V' + vol + 'N' + num + ((mes !== '')?(' Mes: ' + mes):'') + ((parte !== '')?(' Parte:' + parte):'');
+            }
+            
+            obj['descripcionBibliografica'] = JSON.stringify(objDes);
+            
             if( class_asir.var.revistasAsignadas1.indexOf(rev) == -1 && class_asir.var.revistasAsignadas2.indexOf(rev) == -1){
                 class_asir.var.revistasAsignadas2.push(rev);
                 class_asir.mensaje(class_asir.cons.asignada);
@@ -225,6 +366,201 @@ class_asir = {
                 }
             });
         });
+    },
+    control_na: function(){
+        var options = "";
+        options += class_asir.cons.option.replace('<opcion>', "").replace("<valor>", "");
+        for(var anio_i=(new Date().getFullYear()); anio_i >= 1900; anio_i--){
+            options += class_asir.cons.option.replace('<opcion>', anio_i).replace("<valor>", anio_i);
+        }
+
+        $('#anio_rev').html(options);
+        
+        $('#anio_rev').select2({ tags: false, placeholder: "Seleccione un año", allowClear: true});
+        
+        $('#revista_sel, #anio_rev').on('change', function(){
+            var revista = $('#revista_sel').val();
+            var anio = $('#anio_rev').val();
+            if( revista !== '' && anio !== '' ){
+                $('#div_sel_numero').hide();
+                $.when(
+                    class_utils.getResource('/datos/revista_num/'+class_utils.slug(revista)+'/'+anio)
+                ).then(function(resp){
+                    var numeros = "";
+                    if(resp.length > 0){
+                        numeros = resp[0].numero;
+                        class_asir.var.numeros = numeros;
+                    }
+                    class_asir.revista_numeros(numeros);
+                    $('#div_sel_numero').show();
+                });
+            }
+            $('#txt_vol, #txt_num, #txt_num_esp, #txt_num_sup').val('');
+            $('#txt_vol, #txt_num, #txt_num_esp, #txt_num_sup').prop('disabled', false);
+            $('.check').prop('disabled', false);
+            $('.check').prop('checked', false);
+            $('#div_especial, #div_suplemento, #div_estacion, #div_mes').hide();
+        });
+        
+        $('#sel_numero').on('change', function(){
+            if(this.value == ""){
+                $('.check').prop('disabled', false);
+                $('#txt_vol').prop('disabled', false);
+                $('#txt_num').prop('disabled', false);
+            }else{
+                $('.check').prop('disabled', true);
+                $('#txt_vol').val('');
+                $('#txt_vol').prop('disabled', true);
+                $('#txt_num').val('');
+                $('#txt_num').prop('disabled', true);
+                $('.check').prop('checked', false);
+            }
+        });
+        
+        $('#sin_vol').off('change').on('change', function(){
+            if(this.checked){
+                $('#txt_vol').val('');
+                $('#txt_vol').prop('disabled', true);
+            }else{
+                $('#txt_vol').prop('disabled', false);
+            }
+        });
+        
+        $('#sin_num').off('change').on('change', function(){
+            if(this.checked){
+                $('#txt_num').val('');
+                $('#txt_num').prop('disabled', true);
+            }else{
+                $('#txt_num').prop('disabled', false);
+            }
+        });
+        
+        $('#sin_num_esp').off('change').on('change', function(){
+            if(this.checked){
+                $('#txt_num_esp').val('');
+                $('#txt_num_esp').prop('disabled', true);
+            }else{
+                $('#txt_num_esp').prop('disabled', false);
+            }
+        });
+        
+        $('#sin_num_sup').off('change').on('change', function(){
+            if(this.checked){
+                $('#txt_num_sup').val('');
+                $('#txt_num_sup').prop('disabled', true);
+            }else{
+                $('#txt_num_sup').prop('disabled', false);
+            }
+        });
+        
+        $('#un_mes').off('change').on('change', function(){
+            if(this.checked){
+                $('#sel_mes2').val('ene');
+                $('#sel_mes2').prop('disabled', true);
+                $('#sel_mes2').hide();
+                $('#span_mes2').hide();
+            }else{
+                $('#sel_mes2').prop('disabled', false);
+                $('#sel_mes2').show();
+                $('#span_mes2').show();
+            }
+        });
+        
+        $('#p_esp, #p_sup, #p_est, #p_no, #p_mes').off('change').on('change', function(){
+            var clic_id=this.id;
+            var clic_checked=this.checked;
+            $.each(['p_esp', 'p_sup', 'p_est', 'p_mes', 'p_no'], function(i, val){
+                if(clic_id !== val && clic_checked){
+                    if( ['p_esp', 'p_sup', 'p_est', 'p_no'].indexOf(clic_id) !== -1){
+                        if( ['p_esp', 'p_sup', 'p_est', 'p_no'].indexOf(val) !== -1){
+                            $('#'+val).prop('checked', false);
+                        }
+                        if(val == 'p_esp'){
+                            $('#div_especial').hide();
+                            $('#txt_num_esp').val('');
+                            $('#txt_num_esp').prop('disabled', false);
+                            $('#sin_num_esp').prop('checked', false);
+                        }
+                        if(val == 'p_sup'){
+                            $('#div_suplemento').hide();
+                            $('#txt_num_sup').val('');
+                            $('#txt_num_sup').prop('disabled', false);
+                            $('#sin_num_sup').prop('checked', false);
+                        }
+                        if(val == 'p_est'){
+                            $('#div_estacion').hide();
+                        }
+                    }
+                    if( ['p_mes', 'p_no'].indexOf(clic_id) !== -1){
+                        if( ['p_mes', 'p_no'].indexOf(val) !== -1){
+                            $('#'+val).prop('checked', false);
+                        }
+                        if(val == 'p_mes'){
+                            $('#div_mes').hide();
+                            $('#mes_h').prop('disabled', false);
+                            $('#sel_mes2').prop('checked', false);
+                            $('#sel_mes1').val('ene');
+                            $('#sel_mes2').val('ene');
+                        }
+                    }
+                }else{
+                    if(clic_checked){
+                        if(val == 'p_esp'){
+                            $('#div_especial').show();
+                        }
+                        if(val == 'p_sup'){
+                            $('#div_suplemento').show();
+                        }
+                        if(val == 'p_est'){
+                            $('#div_estacion').show();
+                        }
+                        if(val == 'p_mes'){
+                            $('#div_mes').show();
+                        }
+                    }else{
+                        if( ['p_esp', 'p_sup', 'p_est'].indexOf(clic_id) !== -1){
+                            $('#div_especial, #div_suplemento, #div_estacion').hide();
+                        }
+                        if( ['p_mes'].indexOf(clic_id) !== -1){
+                            $('#div_mes').hide();
+                        }
+                    }
+                }
+            });
+        });
+    },
+    revista_numeros: function(numeros){
+        if(numeros !== ""){
+            numeros = numeros.replaceAll('{','').replaceAll('}','').replaceAll('\"','').split(',');
+            var options = "";
+            options += class_asir.cons.option.replace('<opcion>', "").replace("<valor>", "");
+            $.each(numeros, function(i,val){
+                options += class_asir.cons.option.replace('<opcion>', val).replace("<valor>", val);
+            });
+            $('#sel_numero').html(options);
+            $('#sel_numero').select2({ tags: true, placeholder: "Seleccione un número", allowClear: true});
+            $('#sel_numero').prop('disabled', false);
+            $('#sel_numero').on('change', function(){
+                if($('#sel_numero').val()!==""){
+                    $('#txt_vol').val('');
+                    $('#txt_vol').prop('disabled', true);
+                    $('#txt_num').val('');
+                    $('#txt_num').prop('disabled', true);
+                }else{
+                    $('#txt_vol').prop('disabled', false);
+                    $('#txt_num').prop('disabled', false);
+                }
+            });
+        }else{
+            options += class_asir.cons.option.replace('<opcion>', "").replace("<valor>", "");
+            $('#sel_numero').html(options);
+            $('#sel_numero').select2({ tags: true, placeholder: "No existen números", allowClear: true});
+            $('#sel_numero').prop('disabled', true);
+            $('#txt_vol').val('');
+            $('#txt_vol').prop('disabled', false);
+            $('#txt_num').val('');
+            $('#txt_num').prop('disabled', false);
+        }
     },
     data_update_asigna: function(){
         var data = {};
