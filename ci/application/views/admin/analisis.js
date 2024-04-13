@@ -812,8 +812,7 @@ class_av = {
                                         $('#ciudad-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true});
                                         $('#select2-ciudad-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();
-                                        $('.select2-selection--single').css('-webkit-user-select', 'text');
-                                        $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
+                                        $('#select2-ciudad-'+val2.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
                                         if(val2.ciudad !== null){
                                            $('#ciudad-'+val2.id).val(val2.ciudad).trigger('change');
                                         }
@@ -860,8 +859,7 @@ class_av = {
                                         $('#dependencia-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
                                         $('#select2-dependencia-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();
-                                        $('.select2-selection--single').css('-webkit-user-select', 'text');
-                                        $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
+                                        $('#select2-dependencia-'+val2.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
                                         if(val2.dependencia !== null){
                                             $('#dependencia-'+val2.id).val(val2.dependencia).trigger('change');
                                         }
@@ -925,8 +923,7 @@ class_av = {
                                 $('#institucion-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true});
                                 $('#select2-institucion-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                 $('.select2-container').tooltip();
-                                $('.select2-selection--single').css('-webkit-user-select', 'text');
-                                $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
+                                $('#select2-institucion-'+val2.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
                                 if(val2.institucion !== null && val2.institucion !== undefined && val2.institucion !== ''){
                                     //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
                                     if ($('#institucion-'+val2.id).find("option[value='" + val2.institucion.replaceAll('"', "&quot;") + "']").length) {
@@ -1009,7 +1006,8 @@ class_av = {
                                         $('#ciudad-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true});
                                         $('#select2-ciudad-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();
-                                        
+                                        $('#select2-ciudad-'+val.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
+										
                                         //Si hay un valor de ciudad se preselecciona
                                         if(val.ciudad !== null && val.ciudad !== undefined && val.ciudad !== ''){
                                             $('#ciudad-'+val.id).val(val.ciudad).trigger('change');
@@ -1031,8 +1029,7 @@ class_av = {
                                         $('#institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve'});
                                         $('#select2-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();
-                                        $('.select2-selection--single').css('-webkit-user-select', 'text');
-                                        $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
+                                        $('#select2-institucion-'+val.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
                                         
                                         //Si hay un valor de institución se preselecciona
                                         if(val.institucion !== null && val.institucion !== undefined && val.institucion !== ''){
@@ -1113,8 +1110,7 @@ class_av = {
                                 $('#institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve'});
                                 $('#select2-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                 $('.select2-container').tooltip();
-                                $('.select2-selection--single').css('-webkit-user-select', 'text');
-                                $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
+                                $('#select2-institucion-'+val.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
                                 $('#institucion-'+val.id).val(val.institucion).trigger('change');
                                 $('#institucion-'+val.id).on('change', function(){
                                     class_av.var.cambios_institucion = (true && !es_inicio);
@@ -1164,8 +1160,7 @@ class_av = {
                                         $('#dependencia-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
                                         $('#select2-dependencia-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();
-                                        $('.select2-selection--single').css('-webkit-user-select', 'text');
-                                        $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
+                                        $('#select2-dependencia-'+val.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
                                         if(val.dependencia !== null){
                                             $('#dependencia-'+val.id).val(val.dependencia).trigger('change');
                                         }
@@ -1302,8 +1297,6 @@ class_av = {
                         $('#orcid-'+val.id).val(val.orcid);
                         $('#nombre-'+val.id).tooltip();
                         $('#orcid-'+val.id).tooltip();
-                        $('.select2-selection--single').css('-webkit-user-select', 'text');
-                        $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
                         
                         class_av.orcid_por_nombre(val.nombre, institucion, val.orcid, '#check-nombre-'+val.id, '#nombre-'+val.id)
                         .then(function(){
@@ -1725,9 +1718,6 @@ class_av = {
                 $('.select2-container').tooltip();
             }
         }
-        
-        $('.select2-selection--single').css('-webkit-user-select', 'text');
-        $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
         
         $('#borra-autor-'+id).off('click').on('click', function(){
             class_av.borra_autor(id);
@@ -2424,6 +2414,7 @@ class_av = {
                             $('#ciudad-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true});
                             $('#select2-ciudad-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                             $('.select2-container').tooltip();
+							$('#select2-ciudad-'+id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
                             
                             //Si hay un valor de ciudad se preselecciona
                             if(val_ciudad !== null){
@@ -2451,8 +2442,7 @@ class_av = {
                             $('#institucion-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve'});
                             $('#select2-institucion-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                             $('.select2-container').tooltip();
-                            $('.select2-selection--single').css('-webkit-user-select', 'text');
-                            $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
+                            $('#select2-institucion-'+id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
 
                             //Si hay un valor de institución se preselecciona
                             if(val_institucion !== null){
@@ -2479,6 +2469,7 @@ class_av = {
                         $('#ciudad-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true});
                         $('#select2-ciudad-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                         $('.select2-container').tooltip();
+						$('#select2-ciudad-'+id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
                         
                         //Si hay un valor de ciudad se preselecciona
                         if(val_ciudad !== null){
@@ -2498,8 +2489,7 @@ class_av = {
                         $('#institucion-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true/*,  width: 'Auto'*/});
                         $('#select2-institucion-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                         $('.select2-container').tooltip();
-                        $('.select2-selection--single').css('-webkit-user-select', 'text');
-                        $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
+                        $('#select2-institucion-'+id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
                         if(val_institucion !== null){
                             //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
                             if ($('#institucion-'+id).find("option[value='" + val_institucion.replaceAll('"', "&quot;") + "']").length) {
@@ -2580,8 +2570,7 @@ class_av = {
                         $('#dependencia-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
                         $('#select2-dependencia-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                         $('.select2-container').tooltip();
-                        $('.select2-selection--single').css('-webkit-user-select', 'text');
-                        $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
+                        $('#select2-dependencia-'+id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
                         
                         //Si hay un valor de dependencia se preselecciona
                         if(val_dependencia !== null){
@@ -2647,8 +2636,7 @@ class_av = {
                     $('#dependencia-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
                     $('#select2-dependencia-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                     $('.select2-container').tooltip();
-                    $('.select2-selection--single').css('-webkit-user-select', 'text');
-                    $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
+                    $('#select2-dependencia-'+id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
                     
                     //Si hay un valor de dependencia se preselecciona
                     if(val_dependencia !== null){
@@ -3226,8 +3214,6 @@ class_av = {
             $('#orcid-'+val.id).val(val.orcid);
             $('#nombre-'+val.id).tooltip();
             $('#orcid-'+val.id).tooltip();
-            $('.select2-selection--single').css('-webkit-user-select', 'text');
-            $('.select2-selection--single').css('cssText', '-webkit-user-select: text !important;');
 
             class_av.orcid_por_nombre(val.nombre, institucion, val.orcid, '#check-nombre-'+val.id, '#nombre-'+val.id);
             if(val.nombre !== null){
