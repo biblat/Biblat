@@ -3039,8 +3039,7 @@ class_av = {
             
             var institucion = $('#institucion-'+val.id).val();
             institucion = class_av.limpia(institucion);
-            val.institucion = null;
-            alert(institucion);
+            val.institucion = null;            
             if(institucion){
                 if( 
                     institucion.toLowerCase().indexOf('departamento') !== -1 ||
