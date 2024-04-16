@@ -57,89 +57,83 @@ class Tableros extends CI_Controller {
         $query = '
         with conteo as (
 
-	with revistas as(
-	select 
-	case when 
-	slug(a.revista) in (select slug from revistas_scielo) or 
-	a.issn in (select issn from revistas_scielo) or
-        a.issn in (select issn2 from revistas_scielo)
-        then
-	\'Scielo-BIBLAT\'
-	else
-	\'BIBLAT\'
-	end as coleccion,
-	case when
-	substring(a.sistema,1,3) = \'CLA\' then
-	\'CLASE\'
-	else
-	\'PERIÓDICA\'
-	end as base, 
-	a.issn, 
-	a.revista,
-	slug(a.revista) slug, 
-	a."paisRevista", 
-	a."anioRevista", 
-	a."disciplinaRevista"
-	from article a
-	where slug(a.revista) in (
-				select rev from (
-					select rev, count(1) num from(
-						select distinct slug(revista) rev, "anioRevista" from article
-						where "anioRevista" in (
-							(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-5)::text,
-							(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-4)::text,
-							(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-3)::text,
-							(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-2)::text,
-							(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-1)::text
-						)
-					)a group by 1
-				)b where num >= 5
+		with revistas as(
+		select 
+		case when 
+		slug(a.revista) in (select slug from revistas_scielo) or 
+		a.issn in (select issn from revistas_scielo) or
+			a.issn in (select issn2 from revistas_scielo)
+			then
+		\'Scielo-BIBLAT\'
+		else
+		\'BIBLAT\'
+		end as coleccion,
+		case when
+		substring(a.sistema,1,3) = \'CLA\' then
+		\'CLASE\'
+		else
+		\'PERIÓDICA\'
+		end as base, 
+		a.issn, 
+		a.revista,
+		slug(a.revista) slug, 
+		a."paisRevista", 
+		a."anioRevista", 
+		a."disciplinaRevista"
+		from article a
+		where slug(a.revista) in (
+					select rev from (
+						select rev, count(1) num from(
+							select distinct slug(revista) rev, "anioRevista" from article
+							where "anioRevista" in (
+								(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-5)::text,
+								(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-4)::text,
+								(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-3)::text,
+								(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-2)::text,
+								(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-1)::text
+							)
+						)a group by 1
+					)b where num >= 5
+				)
+		and
+		a."anioRevista" in (
+			(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-5)::text,
+			(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-4)::text,
+			(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-3)::text,
+			(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-2)::text,
+			(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-1)::text
 			)
-	and
-	a."anioRevista" in (
-		(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-5)::text,
-		(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-4)::text,
-		(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-3)::text,
-		(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-2)::text,
-		(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-1)::text
 		)
-	)
-	select
-		(select max(revista) from revistas where slug = r.slug) revista,
-		(select max(issn) from revistas where slug = r.slug) issn,
-		"anioRevista" anio,
-		coleccion,
-		base,
-		slug,
-		(select max("paisRevista") from revistas where slug = r.slug) pais,
-		(select max("disciplinaRevista") from revistas where slug = r.slug) disciplina,
-		count(1) docs
-	from revistas r
-	group by coleccion, base, slug, "anioRevista"
-        )
+		select
+			max(revista) revista,
+			max(issn) issn,
+			"anioRevista" anio,
+			coleccion,
+			base,
+			slug,
+			max("paisRevista") pais,
+			max("disciplinaRevista") disciplina,
+			count(1) docs
+		from revistas r
+		group by coleccion, base, slug, "anioRevista"
+			)
 
         select  
-                revista,
-                issn,
-                coleccion,
-                base,
+                max(revista) revista,
+                max(issn) issn,
+                max(coleccion) coleccion,
+                max(base) base,
                 slug,
-                pais,
-                disciplina,
-                (select max(docs) from conteo where anio =(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-5)::text and slug = c.slug) as anio1,
-                (select max(docs) from conteo where anio =(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-4)::text and slug = c.slug) as anio2,
-                (select max(docs) from conteo where anio =(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-3)::text and slug = c.slug) as anio3,
-                (select max(docs) from conteo where anio =(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-2)::text and slug = c.slug) as anio4,
-                (select max(docs) from conteo where anio =(SELECT EXTRACT(\'Year\' FROM CURRENT_DATE)-1)::text and slug = c.slug) as anio5
+                max(pais) pais,
+                max(disciplina) disciplina,
+                MAX(docs) FILTER (WHERE anio = (EXTRACT(\'Year\' FROM CURRENT_DATE) - 5)::text) AS anio1,
+                MAX(docs) FILTER (WHERE anio = (EXTRACT(\'Year\' FROM CURRENT_DATE) - 4)::text) AS anio2,
+                MAX(docs) FILTER (WHERE anio = (EXTRACT(\'Year\' FROM CURRENT_DATE) - 3)::text) AS anio3,
+                MAX(docs) FILTER (WHERE anio = (EXTRACT(\'Year\' FROM CURRENT_DATE) - 2)::text) AS anio4,
+                MAX(docs) FILTER (WHERE anio = (EXTRACT(\'Year\' FROM CURRENT_DATE) - 1)::text) AS anio5
         from conteo c
         group by
-        revista,
-                issn,
-                coleccion,
-                base,
-                slug,
-                pais,
-                disciplina
+            slug
         order by 1';
         $query = $this->db->query($query);
         
