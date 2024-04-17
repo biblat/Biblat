@@ -316,7 +316,7 @@ class_asir = {
                     objDes['d'] = p;
                 }
             }else{
-                rev = rev + 'V' + vol + 'N' + num + ((mes !== '')?(' Mes: ' + mes):'') + ((parte !== '')?(' Parte:' + parte):'');
+                rev = rev + 'V' + vol + 'N' + num + ((mes !== '')?(' Mes:' + mes):'') + ((parte !== '')?(' Parte:' + parte):'');
             }
             
             obj['descripcionBibliografica'] = JSON.stringify(objDes);
