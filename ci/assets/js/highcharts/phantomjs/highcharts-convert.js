@@ -27,16 +27,16 @@
 				HIGHCHARTS: 'highcharts8.js',
 				/* HIGHCHARTS: 'highcharts.js',*/
 				HIGHCHARTS_MORE: 'highcharts-more8.js',
-				HIGHCHARTS_DATA: 'data.js',
+				HIGHCHARTS_DATA: 'data8.js',
 				HIGHCHARTS_DRILLDOWN: 'drilldown8.js',
-				HIGHCHARTS_FUNNEL: 'funnel.js',
+				HIGHCHARTS_FUNNEL: 'funnel8.js',
 				HIGHCHARTS_HEATMAP: 'heatmap8.js',
 				HIGHCHARTS_3D: 'highcharts-3d8.js',
-				HIGHCHARTS_NODATA: 'no-data-to-display.js',
+				HIGHCHARTS_NODATA: 'no-data-to-display8.js',
 				/*HIGHCHARTS_MAP: 'map.js',*/
 				HIGHCHARTS_SOLID_GAUGE: 'solid-gauge8.js',
 				HIGHCHARTS_VENN: 'venn8.js',
-				BROKEN_AXIS: 'broken-axis.js'
+				BROKEN_AXIS: 'broken-axis8.js'
 			},
 			TIMEOUT: 5000 /* 5 seconds timout for loading images */
 		},
