@@ -6,6 +6,7 @@ class_editor = {
         $('#auth').show();
         $('#div_envio_editor').hide();
         $('#div_envio_editor2').show();
+		$('#google_btn').hide();
         if(qr !== "0"){
             $('#mensaje').html('Escanea este código QR con la aplicación Google Authenticator para generar un código de inicio<br><br>');
             $('#qr').attr('src', qr);
