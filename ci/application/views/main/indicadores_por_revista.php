@@ -93,6 +93,7 @@
                                 </li>																																																																	  																																				  									 
                                 </li>
 								<li class="list-group-item"><a href="{site_url('indicadores/coautoria-pais/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Coautoría entre países')}</a>&nbsp;
+                                    <a class="manual" href="#cep-{$revista.revistaSlug}"><span class="fa fa fa-code"></span><b>Ver</b> enlace</a>
                                 </li>
                                 <div style="display:none">
                                     <div id="fid-{$revista.revistaSlug}">
@@ -125,7 +126,23 @@
                                     <div id="code">Copiar código</div>
                                     </button>
                                     </div>
-                                </div>										   
+                                </div>
+                                <div style="display:none">
+                                    <div id="cep-{$revista.revistaSlug}">
+                                    <div class="page_title">
+                                      <hr/>
+                                      <h4>{_('Coautoría entre países')}</h4>
+                                      <hr/>
+                                    </div>
+				    <div class="form-group">
+  					<label for="comment">{_('Código HTML')}</label>
+					<textarea class="form-control codehtml" rows="10" readonly style="resize: none; height: 50px"><div style="width:200px"><a href="{site_url('indicadores/coautoria-pais/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><img src="{site_url('indicadores/coautoria-pais/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug/preview.png')}"></a></div></textarea>
+				    </div>
+                                    <button class="btn copy-code">
+                                    <div id="code">Copiar código</div>
+                                    </button>
+                                    </div>
+                                </div>
 				<div style="display:none">
                                     <div id="tae-{$revista.revistaSlug}">
                                     <div class="page_title">
