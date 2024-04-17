@@ -24,17 +24,18 @@
 			 */
 			files: { 
 				JQUERY: 'jquery.1.9.1.min.js',
-				HIGHCHARTS: 'highcharts.js',
+				HIGHCHARTS: 'highcharts8.js',
 				/* HIGHCHARTS: 'highcharts.js',*/
-				HIGHCHARTS_MORE: 'highcharts-more.js',
+				HIGHCHARTS_MORE: 'highcharts-more8.js',
 				HIGHCHARTS_DATA: 'data.js',
-				HIGHCHARTS_DRILLDOWN: 'drilldown.js',
+				HIGHCHARTS_DRILLDOWN: 'drilldown8.js',
 				HIGHCHARTS_FUNNEL: 'funnel.js',
-				HIGHCHARTS_HEATMAP: 'heatmap.js',
-				HIGHCHARTS_3D: 'highcharts-3d.js',
+				HIGHCHARTS_HEATMAP: 'heatmap8.js',
+				HIGHCHARTS_3D: 'highcharts-3d8.js',
 				HIGHCHARTS_NODATA: 'no-data-to-display.js',
 				/*HIGHCHARTS_MAP: 'map.js',*/
-				HIGHCHARTS_SOLID_GAUGE: 'solid-gauge.js',
+				HIGHCHARTS_SOLID_GAUGE: 'solid-gauge8.js',
+				HIGHCHARTS_VENN: 'venn8.js',
 				BROKEN_AXIS: 'broken-axis.js'
 			},
 			TIMEOUT: 5000 /* 5 seconds timout for loading images */
