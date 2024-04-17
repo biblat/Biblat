@@ -46,7 +46,7 @@
   
 </div-->
 
-<div class="row" style="display:none">
+<div class="row" style="">
     <div class="col-sm-12">
         <center>
         <button id="btn_nuevo_articulo" type="button" class="btn btn-warning">

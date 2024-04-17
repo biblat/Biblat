@@ -1,4 +1,4 @@
-// cambios 51,52, 2271, 2373
+// cambios 51,52, 2262, 2264
 class_av = {
     cons: {
         DISCOVERY_DOCS: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
@@ -1344,6 +1344,7 @@ class_av = {
         class_av.control_guarda();
         
         $('#btn_nuevo_articulo').off('click').on('click', function(){
+            $('#div-filtro').hide();
             $('#accordion').hide();
             $('#div_nuevo_articulo').show();
             $('#div_tabla').hide();
@@ -1353,6 +1354,7 @@ class_av = {
         });
         
         $('#btn_cancelar_na').off('click').on('click', function(){
+            $('#div-filtro').show();
             $('#txt_vol, #txt_num, #txt_num_esp, #txt_num_sup').val('');
             $('#txt_vol, #txt_num, #txt_num_esp, #txt_num_sup').prop('disabled', false);
             $('.check').prop('disabled', false);
@@ -2273,7 +2275,7 @@ class_av = {
                             .replace('<url2>', val['url2'])
                             .replace('<texto1>', texto1)
                             .replace('<texto2>', texto2)
-                            .replace('<fecha>', val['fechaAsignado'])
+                            .replace('<fecha>', ((val['fechaAsignado']==null)?'':val['fechaAsignado']))
                             .replace('<estatus>', '<estatus>'+val['estatus'])
                             .replace('<color>', '<color>'+val['estatus'])
                             .replace('<estatus>R', 'En revisión')
@@ -3039,7 +3041,8 @@ class_av = {
             
             var institucion = $('#institucion-'+val.id).val();
             institucion = class_av.limpia(institucion);
-            val.institucion = null;            
+            val.institucion = null;
+            alert(institucion);
             if(institucion){
                 if( 
                     institucion.toLowerCase().indexOf('departamento') !== -1 ||
@@ -3698,7 +3701,7 @@ class_av = {
                 }
             }
             
-            class_av.var.revistasAsignadas = arr1.concat(arr2).sort();
+            class_av.var.revistasAsignadas = [...new Set(arr1.concat(arr2).sort())];
             
             var options = "";
             
@@ -4265,13 +4268,22 @@ class_av = {
         });
     },
     agrega_nuevo_articulo: function(){
-        if(class_av.var.count_titulos > 0){
+        if($('#revista_sel').val() == ''){
+            class_av.mensaje('Seleccione una <b>Revista</b>');
+            return false;
+        }
+        else if(class_av.var.count_titulos == 0 && $('#titulo_na').val().trim() == ''){
+            class_av.mensaje('Agregue por lo menos un <b>Artículo</b>');
+            return false;
+        }else if(class_av.var.count_titulos > 0){
             var texto = 'Se guardarán los datos para los nuevos artículos';
             var textoFin = 'Artículos nuevos guardados correctamente.';
         }else{
             var texto = 'Se guardarán los datos para el nuevo artículo';
             var textoFin = 'Artículo nuevo guardado correctamente.';
         }
+        
+        var envio = true;
             
         $.confirm({
             title: '',
@@ -4288,17 +4300,22 @@ class_av = {
                         text: 'Aceptar',
                         btnClass: 'btn-warning',
                         action: function(){
-                            $.ajax({
-                                    type: 'POST',
-                                    url: "<?=site_url('metametrics/ws_insert_new_article');?>",
-                                    data: class_av.data_inserta_article(),
-                            }).done(function() {
-                                    class_av.mensaje(textoFin, function(){
-                                         window.location.reload();
-                                    });
-                            }).fail(function(){
-                                class_av.mensaje('Ocurrió un error al intentar guardar.');
-                            });
+                            if(envio){
+                                envio = false;
+                                loading.start();
+                                $.ajax({
+                                        type: 'POST',
+                                        url: "<?=site_url('metametrics/ws_insert_new_article');?>",
+                                        data: class_av.data_inserta_article(),
+                                }).done(function() {
+                                        class_av.mensaje(textoFin, function(){
+                                             window.location.reload();
+                                        });
+                                }).fail(function(){
+                                    loading.end();
+                                    class_av.mensaje('Ocurrió un error al intentar guardar.');
+                                });
+                            }
                         }
                 }
             }
