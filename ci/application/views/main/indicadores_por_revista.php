@@ -91,6 +91,9 @@
 								<li class="list-group-item"><a href="{site_url('indicadores/frecuencias-institucion-documentoh/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Documentos anuales de una revista por institución')}</a>&nbsp;
                                     <a class="manual" href="#fidh-{$revista.revistaSlug}"><span class="fa fa fa-code"></span><b>Ver</b> enlace</a>
                                 </li>																																																																	  																																				  									 
+                                </li>
+								<li class="list-group-item"><a href="{site_url('indicadores/coautoria-pais/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><span class="fa fa-line-chart"></span> {_('Coautoría entre países')}</a>&nbsp;
+                                </li>
                                 <div style="display:none">
                                     <div id="fid-{$revista.revistaSlug}">
                                     <div class="page_title">
