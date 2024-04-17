@@ -180,12 +180,13 @@
 			};
 
 			/* for pdf we need a bit more paperspace in some cases for example (w:600,h:400), I don't know why.*/
+			page.viewportSize = { width: clipwidth, height: clipheight};
 			if (outType === 'pdf') {
 				// changed to a multiplication with 1.333 to correct systems dpi setting
 				clipwidth = clipwidth * dpiCorrection;
 				clipheight = clipheight * dpiCorrection;
 				// redefine the viewport
-				page.viewportSize = { width: clipwidth, height: clipheight};
+				//page.viewportSize = { width: clipwidth, height: clipheight};
 				// make the paper a bit larger than the viewport
 				page.paperSize = { width: clipwidth + 2 , height: clipheight + 2 };
 			}
