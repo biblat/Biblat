@@ -18,9 +18,6 @@ class Sesion extends CI_Controller {
     
     public function index(){
         if (in_array($_SERVER['REMOTE_ADDR'], unserialize(IPS))){
-            if( $this->session->userdata('rol') == 'Editor'){
-                $this->editores();
-            }else{
                 $data = array();
                 $data['page_title'] = _('Biblat Central');
                 $this->template->set_layout('default_sel');
@@ -34,7 +31,6 @@ class Sesion extends CI_Controller {
                 $this->template->js('js/env.js');
                 $this->template->set_partial('main_js', 'sesion/sesion.js', array(), TRUE, FALSE);
                 $this->template->build('sesion/sesion', $data);
-            }
         }
         
     }
@@ -127,7 +123,7 @@ class Sesion extends CI_Controller {
                                         'llave' => $llave,
                                         'coor_x' => $idx_llave,
                                         'coor_y' => $renglon,
-                                        'pal_cla' => TRUE,
+                                        'pal_cla' => FALSE,
                                         'res' => TRUE,
                                         'logueado' => FALSE,
                                         'codigo'=> $codigo

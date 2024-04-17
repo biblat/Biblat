@@ -135,6 +135,8 @@ function LeerSheet(usuario, token){
                         if(objUsr.usuario == undefined){
                             initGoogleAccount("Su usuario no está registrado en Biblat");
                             loading.end();
+                        }else if( objUsr.rol == 'Editor' ){
+                            window.location.href = '<?=site_url("editores");?>';
                         }else{
                             //Existe una sesión y es usuario en Biblat
                             objUsr.id_token = token;
