@@ -124,7 +124,7 @@
         <div class="btn-group" role="group">
         <!-- Split button -->
         <div class="btn-group">
-            <button type="button" class="btn btn-warning" id="btn-filtro" style="width:150px;border-radius:5px">Filtrar por :</button>
+            <button type="button" class="btn btn-warning" id="btn-filtro" style="width:160px;border-radius:5px">Filtrar por :</button>
             <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-radius:5px">
             <span class="caret"></span>
             <span class="sr-only">Toggle Dropdown</span>
