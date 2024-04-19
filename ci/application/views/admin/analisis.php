@@ -132,6 +132,7 @@
             <ul class="dropdown-menu" style="border-radius:5px">
                 <li><a class="li-filtro" id="estatus">Estatus</a></li>
                 <li><a class="li-filtro" id="fechaAsignado">Fecha asignado</a></li>
+				<li><a class="li-filtro" id="mes">Mes completado</a></li>
                 <li><a class="li-filtro" id="revista">Revista</a></li>
             </ul>
         </div>

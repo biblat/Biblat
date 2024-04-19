@@ -1,4 +1,4 @@
-// cambios 51,52, 2262, 2264
+// cambios 65,66, 2278, 2280
 class_av = {
     cons: {
         DISCOVERY_DOCS: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
@@ -28,6 +28,20 @@ class_av = {
             'Francés': 'fre',
             'Alemán': 'ger',
             'Ruso': 'rus'
+        },
+        meses:{
+            '1': 'Enero',
+            '2': 'Febrero',
+            '3': 'Marzo',
+            '4': 'Abril',
+            '5': 'Mayo',
+            '6': 'Junio',
+            '7': 'Julio',
+            '8': 'Agosto',
+            '9': 'Septiembre',
+            '10': 'Octubre',
+            '11': 'Noviembre',
+            '12': 'Diciembre',
         },
         palabra_clave: '<div class="col-xs-3"><button id="<palabra-slug>" class="btn badge-secondary esp palabra_clave" style="margin-left:5px; margin-bottom: 5px; cursor: pointer; width:90%; word-wrap: break-word; white-space: normal;" type="button">'+
                         '<palabra> <span class="badge"><num></span>'+
@@ -82,12 +96,13 @@ class_av = {
                             '<thead>' +
                                 '<tr>' +
                                     '<th rowspan="1" style="max-width:150px">Revista</th>' +
-                                    '<th rowspan="1" style="max-width:70px">ISSN</th>' +
-                                    '<th rowspan="1" style="max-width:70px">Número</th>' +
+                                    '<th rowspan="1" style="max-width:60px">ISSN</th>' +
+                                    '<th rowspan="1" style="max-width:60px">Número</th>' +
                                     '<th rowspan="1" >Artículo</th>' +
-                                    '<th rowspan="1" style="max-width:100px">Url 1</th>' +
-                                    '<th rowspan="1" style="max-width:100px">Url 2</th>' +
-                                    '<th rowspan="1" style="max-width:100px">Fecha asignado</th>' +
+                                    '<th rowspan="1" style="max-width:60px">Url 1</th>' +
+                                    '<th rowspan="1" style="max-width:60px">Url 2</th>' +
+                                    '<th rowspan="1" style="max-width:60px">Fecha<br>asignado</th>' +
+                                    '<th rowspan="1" style="max-width:60px">Fecha<br>completado</th>' +
                                     '<th rowspan="1" style="max-width:100px">Estatus</th>' +
                                 '</tr>'+
                             '</thead>' +
@@ -99,6 +114,7 @@ class_av = {
             <td><a href="<url1>" target="_blank"><texto1></a></td>\n\
             <td><a href="<url2>" target="_blank"><texto2></a></td>\n\
             <td><fecha></td>\n\
+            <td><fecha_c></td>\n\
             <td><span id="estatus-<id_estatus>" style="background-color:<color>" class="badge"><estatus></span></td>',
         barra_avance:   '<div class="progress-bar progress-bar-warning progress-bar-striped" role="progressbar" aria-valuenow="<avance>" aria-valuemin="0" aria-valuemax="100" style="width: <avance>%">' +
                         '<span style="color:black"><b><avance> %</b></span>' +
@@ -2276,6 +2292,7 @@ class_av = {
                             .replace('<texto1>', texto1)
                             .replace('<texto2>', texto2)
                             .replace('<fecha>', ((val['fechaAsignado']==null)?'':val['fechaAsignado']))
+                            .replace('<fecha_c>', ((val['estatus']=='C')?val['fecha']:''))
                             .replace('<estatus>', '<estatus>'+val['estatus'])
                             .replace('<color>', '<color>'+val['estatus'])
                             .replace('<estatus>R', 'En revisión')
@@ -4328,11 +4345,16 @@ class_av = {
             var sel = class_utils.unique(class_av.var.articulosJSON, this.id).sort();
             var lis = '';
             $.each(sel, function(i,val){
-                var valor = val;
-               if(id_filtro1 == 'estatus'){
-                   valor = class_av.cons.estatus[val];
-               }
-               lis += class_av.var.li.replace('<id>', val).replace('<val>', valor);
+                if(val !== null){
+                    var valor = val;
+                    if(id_filtro1 == 'estatus'){
+                        valor = class_av.cons.estatus[val];
+                    }
+                    if(id_filtro1 == 'mes'){
+                        valor = class_av.cons.meses[val];
+                    }
+                    lis += class_av.var.li.replace('<id>', val).replace('<val>', valor);
+                }
             });
             $("#ul-filtro").html(lis);
             $('#btn-filtro2').html("Seleccione");
