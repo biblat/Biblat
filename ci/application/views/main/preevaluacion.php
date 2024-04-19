@@ -1,4 +1,4 @@
-{if !$simulador && !$url}
+{if !$simulador && !$url && !$sinOJS}
     <div class="row">
         <div class="col-md-12">
             Es necesario realizar la <a href="{site_url('postular-revista/metametrics')}">Primera evaluación</a> de sus metadatos
