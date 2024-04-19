@@ -337,7 +337,9 @@ class Datos extends REST_Controller {
                             url->0->>\'u\' url1,
                             url->1->>\'u\' url2,
                             estatus,
-							"fechaAsignado"
+							"fechaAsignado",
+							case when estatus = \'C\' then extract(month from fecha) end as mes,
+                            fecha
                         from article a
                         inner join
                         catalogador c
