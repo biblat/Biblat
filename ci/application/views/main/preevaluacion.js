@@ -509,7 +509,8 @@ class_pre = {
     
     ready:function(){
 //        var href = '    <b><a target="_blank" style="float:right;font-size:14" href="criterios-de-seleccion#1">Ver criterio</a></b>';
-		class_pre.simulador = ((window.location.href).indexOf('simulador') !== -1)?true:false;																					  
+		class_pre.simulador = ((window.location.href).indexOf('simulador') !== -1)?true:false;		
+		class_pre.sin_ojs = ((window.location.href).indexOf('revista') !== -1)?true:false;
 		
 		try{
             var aprobado = class_utils.getWithExpiry(url_metametrics + '-metametrics');
@@ -517,7 +518,7 @@ class_pre = {
             var aprobado = '';
         }
 		
-		if(class_pre.simulador || (!class_pre.simulador && aprobado == 'Aprobado')){
+		if(class_pre.simulador || (!class_pre.simulador && aprobado == 'Aprobado') || class_pre.sin_ojs){
             var href = '';
             $('#ev_texto').html(class_pre.criterio[class_pre.select-1].texto 
                     + ((class_pre.criterio[class_pre.select-1].obligatorio)?' (Obligatorio)':''));
@@ -712,6 +713,9 @@ class_pre = {
                                 //"https://docs.google.com/document/d//edit",
                                 //"https://docs.google.com/spreadsheets/d//edit"
                             ];
+				if(class_pre.sin_ojs){
+					array =  array.concat(['Sin OJS']);
+				}
                 class_pre.initClient2(array);
             });
         });
