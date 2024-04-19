@@ -293,6 +293,7 @@ class Main extends CI_Controller{
             $data = array();
             $pos = strpos(uri_string(), 'simulador');
             $pos2 = strpos(uri_string(), 'postular');
+			$pos3 = strpos(uri_string(), 'revista');
             if($pos == false){
                 $data['simulador'] = false;
             }else{
@@ -302,6 +303,11 @@ class Main extends CI_Controller{
                 $data['postularSegunda'] = false;
             }else{
                 $data['postularSegunda'] = true;
+            }
+			if($pos3 == false){
+                $data['sinOJS'] = false;
+            }else{
+                $data['sinOJS'] = true;
             }
 			if( isset($_POST['url']) ){
                 $data['url'] = $_POST['url'];
