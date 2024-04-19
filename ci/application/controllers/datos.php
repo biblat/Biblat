@@ -333,7 +333,7 @@ class Datos extends REST_Controller {
                             || coalesce("descripcionBibliografica"->>\'b\', \'\')
                             || coalesce(\' - \' || ("descripcionBibliografica"->>\'c\')::text, \'\') numero,
                             issn,
-                            articulo,
+                            coalesce(articulo, \'SIN TÍTULO\') as articulo,
                             url->0->>\'u\' url1,
                             url->1->>\'u\' url2,
                             estatus,
