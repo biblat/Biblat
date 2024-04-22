@@ -1,4 +1,4 @@
-// cambios 65,66, 2278, 2280
+// cambios 65,66, 2281, 2283
 class_av = {
     cons: {
         DISCOVERY_DOCS: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
@@ -889,6 +889,7 @@ class_av = {
                                 $.each(repetidas_sug_ciudades, function(i2, val2){
                                     if(val2.institucion !== null && val2.institucion !== undefined && val2.institucion !== '') {
                                         $('#sug-ciudad-'+val2.id).html(opciones_sug_ciudades[val2.institucion]);
+                                        class_av.seleccion_sug_ciudad();
                                         //$('#sug-ciudad-'+val2.id).select2({ tags: true, placeholder: "Sugerencias encontradas", allowClear: true});
                                         $('#check-ins-bib-'+val2.id).show();
                                         $('#check-ins-bib-'+val2.id+'-load').hide();
@@ -1212,10 +1213,12 @@ class_av = {
                                         options = '';
                                         $.each(resp_ciudades[0], function(i2, val2){
                                             //options += class_av.cons.option.replace('<valor>', val2.ciudad.replace('"', "&quot;")).replace('<opcion>', val2.ciudad);
-                                            options += '<li>' + val2.ciudad + '</li>';
+                                            options += '<li style="cursor:pointer" class="sug-ciudad-clic" data-toggle="tooltip" title="Seleccionar en Ciudad" id="op-sug-ciudad-'+val.id+'">' + val2.ciudad +
+                                                        '<span class="badge badge-secondary despacio" style="font-size: 10px;margin-left: 10px;background-color: #343a40;display:none">Seleccionado!</span></li>';
                                         });
                                         opciones_sug_ciudades[val.institucion] = options;
                                         $('#sug-ciudad-'+val.id).html(opciones_sug_ciudades[val.institucion]);
+                                        class_av.seleccion_sug_ciudad();
                                         //$('#sug-ciudad-'+val.id).select2({ tags: true, placeholder: "Sugerencias encontradas", allowClear: true});
 
                                         if( peticiones == 0 ){
@@ -2608,10 +2611,12 @@ class_av = {
                         options = '';
                         $.each(resp_ciudades[0], function(i2, val2){
                             //options += class_av.cons.option.replace('<valor>', val2.ciudad.replace('"', "&quot;")).replace('<opcion>', val2.ciudad);
-                            options += '<li>' + val2.ciudad + '</li>';
+                            options += '<li style="cursor:pointer" class="sug-ciudad-clic" data-toggle="tooltip" title="Seleccionar en Ciudad" id="op-sug-ciudad-'+id+'">' + val2.ciudad +
+                                                        '<span class="badge badge-secondary despacio" style="font-size: 10px;margin-left: 10px;background-color: #343a40;display:none;">Seleccionado!</span></li>';
                         });
                         opciones_sug_ciudades[institucion] = options;
                         $('#sug-ciudad-'+id).html(opciones_sug_ciudades[institucion]);
+                        class_av.seleccion_sug_ciudad();
                         
                         if(resp_ciudades[0].length > 0){
                             $('#check-ins-bib-'+id).show();
@@ -2672,6 +2677,7 @@ class_av = {
                     $('#check-ins-bib-'+id+'-load').hide();
                     
                     $('#sug-ciudad-'+id).html(opciones_sug_ciudades[institucion]);
+                    class_av.seleccion_sug_ciudad();
                     
                     if(opciones_sug_ciudades[institucion] !== '' && opciones_sug_ciudades[institucion] !== undefined){
                         $('#check-ins-bib-'+id).show();
@@ -4711,6 +4717,31 @@ class_av = {
                 $('#div_cargando_pc').hide();
                 //loading.end();
             });
+    },
+    seleccion_sug_ciudad:function(){
+        $('.sug-ciudad-clic').off('click').on('click', function(){
+            var id_paste = this.id.split('-').slice(2).join('-');
+            $(this).parent().find('.sug-ciudad-clic').css('color','#333333');
+            $(this).css('color','#ff8000');
+            window.location.href='#'+id_paste;
+            var ciudad = $(this).html().split('<')[0].trim();
+            if ($('#'+id_paste).find("option[value='" + ciudad.replaceAll('"', "&quot;") + "']").length) {
+                $('#'+id_paste).val(ciudad).trigger('change');
+            }else{
+                var newOption = new Option(ciudad, ciudad.replaceAll('"', "&quot;"), true, true);
+                $('#'+id_paste).append(newOption).trigger('change');
+            }
+            $('#div-'+id_paste).find('.select2-selection--single').css('border-color', '#ff8000');
+            $('#'+id_paste).css('border-color', '#ff8000');
+            var badge = $(this).children('span');
+            badge.show();
+            setTimeout(function() {
+                // Revierte el color del borde a azul
+                $('#div-'+id_paste).find('.select2-selection--single').css('border-color', '');
+                $('#'+id_paste).css('border-color', '');
+                badge.hide();
+            }, 3000);
+        });
     }
 };
 

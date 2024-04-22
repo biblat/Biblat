@@ -34,8 +34,11 @@
       color: gray;
       cursor: pointer;
   }
-  .edita_palabra:hover, .edita_keyword:hover{
+  .edita_palabra:hover, .edita_keyword:hover, .sug-ciudad-clic:hover{
       color: #ff8000;
+  }
+  .despacio {
+    transition: all 3s;
   }
 </style>
 <div class="row"><br></div>
@@ -132,7 +135,7 @@
             <ul class="dropdown-menu" style="border-radius:5px">
                 <li><a class="li-filtro" id="estatus">Estatus</a></li>
                 <li><a class="li-filtro" id="fechaAsignado">Fecha asignado</a></li>
-				<li><a class="li-filtro" id="mes">Completados por mes</a></li>
+                <li><a class="li-filtro" id="mes">Completados por mes</a></li>
                 <li><a class="li-filtro" id="revista">Revista</a></li>
             </ul>
         </div>
@@ -404,6 +407,18 @@
                                 <textarea id="resumen_otro" style="width: 100%; height: 100px; overflow-y: scroll;"></textarea>
                             </div>
                         </div>
+                        
+                        {if $rol == "Editor"}
+                        <div class="row">
+                            <br>
+                            <br>
+                            <div class="col-xs-12">
+                                <p>
+                                    <b>Las palabras clave serán asignadas posteriormente por el equipo de Analistas de Biblat en la correspondiente revisión del artículo.</b>
+                                <p>
+                            </div>
+                        </div>
+                        {/if}
                         
                         <div class="row" id="div_palabras_clave_texto" style="display:none">
                             <br>
