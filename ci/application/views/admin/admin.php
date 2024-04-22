@@ -28,14 +28,16 @@
 			</a>
 		</div>
     {/if}
-    <div class="col-xs-4">
-        <a href="<?=site_url("adminb/avance");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
-            <br><br>
-            <center>
-                <i class="glyphicon glyphicon-tasks" style="font-size:95px"></i><br><span style="font-weight: bold">Avance</span>
-            </center>
-        </a>
-    </div>
+    {if $rol == "Administrador" || $rol == "Analista"}
+        <div class="col-xs-4">
+            <a href="<?=site_url("adminb/avance");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
+                <br><br>
+                <center>
+                    <i class="glyphicon glyphicon-tasks" style="font-size:95px"></i><br><span style="font-weight: bold">Avance</span>
+                </center>
+            </a>
+        </div>
+    {/if}
     <div class="col-xs-4">
         <a href="<?=site_url("adminb/analisis");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
             <br><br>
