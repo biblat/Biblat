@@ -35,7 +35,7 @@
       cursor: pointer;
   }
   .edita_palabra:hover, .edita_keyword:hover, .sug-ciudad-clic:hover{
-      color: #ff8000;
+      color: #ff8000!important;
   }
   .despacio {
     transition: all 3s;
