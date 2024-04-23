@@ -1213,8 +1213,8 @@ class_av = {
                                         options = '';
                                         $.each(resp_ciudades[0], function(i2, val2){
                                             //options += class_av.cons.option.replace('<valor>', val2.ciudad.replace('"', "&quot;")).replace('<opcion>', val2.ciudad);
-                                            options += '<li style="cursor:pointer" class="sug-ciudad-clic" data-toggle="tooltip" title="Seleccionar en Ciudad" id="op-sug-ciudad-'+val.id+'">' + val2.ciudad +
-                                                        '<span class="badge badge-secondary despacio" style="font-size: 10px;margin-left: 10px;background-color: #343a40;display:none">Seleccionado!</span></li>';
+                                            options += '<li style="cursor:pointer" class="sug-ciudad-clic" data-toggle="tooltip" title="[Clic] para copiar en campo Ciudad" id="op-sug-ciudad-'+val.id+'">' + val2.ciudad +
+                                                        '<span class="badge badge-secondary despacio" style="font-size: 10px;margin-left: 10px;background-color: #343a40;display:none">Copiado en campo Ciudad!</span></li>';
                                         });
                                         opciones_sug_ciudades[val.institucion] = options;
                                         $('#sug-ciudad-'+val.id).html(opciones_sug_ciudades[val.institucion]);
@@ -2611,8 +2611,8 @@ class_av = {
                         options = '';
                         $.each(resp_ciudades[0], function(i2, val2){
                             //options += class_av.cons.option.replace('<valor>', val2.ciudad.replace('"', "&quot;")).replace('<opcion>', val2.ciudad);
-                            options += '<li style="cursor:pointer" class="sug-ciudad-clic" data-toggle="tooltip" title="Seleccionar en Ciudad" id="op-sug-ciudad-'+id+'">' + val2.ciudad +
-                                                        '<span class="badge badge-secondary despacio" style="font-size: 10px;margin-left: 10px;background-color: #343a40;display:none;">Seleccionado!</span></li>';
+                            options += '<li style="cursor:pointer" class="sug-ciudad-clic" data-toggle="tooltip" title="[Clic] para copiar en campo Ciudad" id="op-sug-ciudad-'+id+'">' + val2.ciudad +
+                                                        '<span class="badge badge-secondary despacio" style="font-size: 10px;margin-left: 10px;background-color: #343a40;display:none;">Copiado en campo Ciudad!</span></li>';
                         });
                         opciones_sug_ciudades[institucion] = options;
                         $('#sug-ciudad-'+id).html(opciones_sug_ciudades[institucion]);
