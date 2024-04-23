@@ -580,10 +580,10 @@ class Datos extends REST_Controller {
             
             $query = "
                     select 
-                        distinct ciudad
+                        ciudad, count(1)
                     from institution 
                     where 
-                        \"paisInstitucionSlug\" = slug('".urldecode($pais)."') and ciudad is not null order by 1
+                        \"paisInstitucionSlug\" = slug('".urldecode($pais)."') and ciudad is not null group by ciudad order by 1
             ";
             
             $query = $this->db->query($query);
@@ -596,10 +596,10 @@ class Datos extends REST_Controller {
 			$this->load->database();
             $query = "
                     select 
-                        distinct ciudad 
+                        ciudad, count(1)
                     from institution 
                     where 
-                        slug = slug('".urldecode($institucion)."') and ciudad is not null order by 1
+                        slug = slug('".urldecode($institucion)."') and ciudad is not null group by ciudad order by 1
             ";
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);
@@ -613,18 +613,18 @@ class Datos extends REST_Controller {
             if($corporativo == 0){
                 $query = "
                         select 
-                            distinct institucion
+                            institucion, count(1)
                         from institution 
                         where 
-                            \"paisInstitucionSlug\" = slug('".urldecode($pais)."') and institucion is not null order by 1
+                            \"paisInstitucionSlug\" = slug('".urldecode($pais)."') and institucion is not null group by institucion order by 1
                 ";
             }else{
                 $query = "
                         select 
-                            distinct institucion
+                            institucion, count(1)
                         from author_coorp 
                         where 
-                            \"paisSlug\" = slug('".urldecode($pais)."') and institucion is not null order by 1
+                            \"paisSlug\" = slug('".urldecode($pais)."') and institucion is not null group by institucion order by 1
                 ";
             }
             
@@ -640,18 +640,18 @@ class Datos extends REST_Controller {
             if($corporativo == 0){
                 $query = "
                         select 
-                            distinct dependencia
+                            dependencia, count(1)
                         from institution 
                         where 
-                            slug = slug('".urldecode($institucion)."') and dependencia is not null order by 1
+                            slug = slug('".urldecode($institucion)."') and dependencia is not null group by dependencia order by 1
                 ";
             }else{
                 $query = "
                         select 
-                            distinct dependencia
+                            dependencia, count(1)
                         from author_coorp 
                         where 
-                            slug = slug('".urldecode($institucion)."') and dependencia is not null order by 1
+                            slug = slug('".urldecode($institucion)."') and dependencia is not null group by dependencia order by 1
                 ";
             }
             
@@ -666,10 +666,10 @@ class Datos extends REST_Controller {
             
             $query = "
                         select 
-                        distinct
                         a.nombre,
                         coalesce(a.orcid, 'Sin ORCID') orcid,
-                        coalesce(i.institucion, '') || coalesce( ' - ' || i.dependencia, '') || ': ' || coalesce(i.pais || '; ', '') || coalesce(i.ciudad, '') institucion
+                        coalesce(i.institucion, '') || coalesce( ' - ' || i.dependencia, '') || ': ' || coalesce(i.pais || '; ', '') || coalesce(i.ciudad, '') institucion,
+                        count(1)
                         from author a 
                         inner join 
                         institution i
@@ -677,6 +677,7 @@ class Datos extends REST_Controller {
                         where 
                         a.sistema <> '".$sistema."' 
                         and a.slug like replace(slug('".urldecode($nombre)."'),'-','%')
+                        group by 1,2,3
             ";
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);
