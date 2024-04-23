@@ -4798,7 +4798,6 @@ class_av = {
             var id_paste = $(this).parent().parent().attr('id').split('-').slice(1).join('-');
             $(this).parent().parent().find('.sug-ciudad-clic').css('color','#333333');
             $(this).css('color','#ff8000');
-            window.location.href='#'+id_paste;
             var ciudad = $(this).html().split('<')[0].trim();
             if ($('#'+id_paste).find("option[value='" + ciudad.replaceAll('"', "&quot;") + "']").length) {
                 $('#'+id_paste).val(ciudad).trigger('change');
@@ -4808,8 +4807,11 @@ class_av = {
             }
             $('#div-'+id_paste).find('.select2-selection--single').css('border-color', '#ff8000');
             $('#'+id_paste).css('border-color', '#ff8000');
-            var badge = $(this).children('.despacio');
+            var badge = $(this).parent().find('.despacio');
             badge.show();
+            setTimeout(function() {
+                window.location.href='#'+id_paste;
+            }, 1000);
             setTimeout(function() {
                 // Revierte el color del borde a azul
                 $('#div-'+id_paste).find('.select2-selection--single').css('border-color', '');
