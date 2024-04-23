@@ -1251,7 +1251,7 @@ class_av = {
                                         options = '';
                                         $.each(resp_ciudades[0], function(i2, val2){
                                             //options += class_av.cons.option.replace('<valor>', val2.ciudad.replace('"', "&quot;")).replace('<opcion>', val2.ciudad);
-                                            options += '<li style="cursor:pointer" class="sug-ciudad-clic" data-toggle="tooltip" title="[Clic] para copiar en campo Ciudad" id="op-sug-ciudad-'+val.id+'">' + val2.ciudad +
+                                            options += '<li>' + '<span style="cursor:pointer" class="sug-ciudad-clic" data-toggle="tooltip" title="[Clic] para copiar en campo Ciudad" id="op-sug-ciudad-'+val.id+'">' + val2.ciudad + '</span>' +
                                                         '<span class="badge badge-secondary" style="font-size: 10px; margin-left: 10px;">'+val2.count+'</span>'+
                                                         '<span class="badge badge-secondary despacio" style="font-size: 10px;margin-left: 10px;background-color: #343a40;display:none">Copiado en campo Ciudad!</span></li>';
                                         });
@@ -2685,7 +2685,7 @@ class_av = {
                         options = '';
                         $.each(resp_ciudades[0], function(i2, val2){
                             //options += class_av.cons.option.replace('<valor>', val2.ciudad.replace('"', "&quot;")).replace('<opcion>', val2.ciudad);
-                            options += '<li style="cursor:pointer" class="sug-ciudad-clic" data-toggle="tooltip" title="[Clic] para copiar en campo Ciudad" id="op-sug-ciudad-'+id+'">' + val2.ciudad +
+                            options += '<li>' + '<span style="cursor:pointer" class="sug-ciudad-clic" data-toggle="tooltip" title="[Clic] para copiar en campo Ciudad" id="op-sug-ciudad-'+id+'">' + val2.ciudad + '</span>' +
                                     '<span class="badge badge-secondary" style="font-size: 10px; margin-left: 10px;">'+val2.count+'</span>'+
                                                         '<span class="badge badge-secondary despacio" style="font-size: 10px;margin-left: 10px;background-color: #343a40;display:none;">Copiado en campo Ciudad!</span></li>';
                         });
@@ -4795,8 +4795,8 @@ class_av = {
     },
     seleccion_sug_ciudad:function(){
         $('.sug-ciudad-clic').off('click').on('click', function(){
-            var id_paste = $(this).parent().attr('id').split('-').slice(1).join('-');
-            $(this).parent().find('.sug-ciudad-clic').css('color','#333333');
+            var id_paste = $(this).parent().parent().attr('id').split('-').slice(1).join('-');
+            $(this).parent().parent().find('.sug-ciudad-clic').css('color','#333333');
             $(this).css('color','#ff8000');
             window.location.href='#'+id_paste;
             var ciudad = $(this).html().split('<')[0].trim();
