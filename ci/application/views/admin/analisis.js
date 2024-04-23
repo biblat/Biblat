@@ -1,4 +1,4 @@
-// cambios 65,66, 2281, 2283
+// cambios 65,66, 2323, 2325
 class_av = {
     cons: {
         DISCOVERY_DOCS: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
@@ -824,8 +824,9 @@ class_av = {
                                 //Revisa al final las repetidas para agregar el menu
                                 $.each(repetidas_ciudades, function(i2, val2){
                                     if(val2.pais !== null && val2.pais !== undefined && val2.pais !== '') {
-                                        $('#ciudad-'+val2.id).html(opciones_ciudades[val2.pais+'-'+class_av.var.corporativo]);
-                                        $('#ciudad-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true});
+                                        //$('#ciudad-'+val2.id).html(opciones_ciudades[val2.pais+'-'+class_av.var.corporativo]);
+                                        $('#ciudad-'+val2.id).empty();
+                                        $('#ciudad-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true, data: opciones_ciudades[val2.pais+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
                                         $('#select2-ciudad-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();
                                         $('#select2-ciudad-'+val2.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
@@ -871,8 +872,9 @@ class_av = {
                                 //Revisa al final las repetidas para agregar el menu
                                 $.each(repetidas_dependencias, function(i2, val2){
                                     if(val2.institucion !== null && val2.institucion !== undefined && val2.institucion !== '') {
-                                        $('#dependencia-'+val2.id).html(opciones_dependencias[val2.institucion+'-'+class_av.var.corporativo]);
-                                        $('#dependencia-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
+                                        //$('#dependencia-'+val2.id).html(opciones_dependencias[val2.institucion+'-'+class_av.var.corporativo]);
+                                        $('#dependencia-'+val2.id).empty();
+                                        $('#dependencia-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true,  width: 'resolve', data: opciones_dependencias[val2.institucion+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
                                         $('#select2-dependencia-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();
                                         $('#select2-dependencia-'+val2.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
@@ -936,8 +938,9 @@ class_av = {
                             var val2 = arr_inst.slice(0,1)[0];
                             var resto_val = arr_inst.slice(1);
                             
-                                $('#institucion-'+val2.id).html(opciones_instituciones[val2.pais+'-'+class_av.var.corporativo]);
-                                $('#institucion-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true});
+                                //$('#institucion-'+val2.id).html(opciones_instituciones[val2.pais+'-'+class_av.var.corporativo]);
+                                $('#institucion-'+val2.id).empty();
+                                $('#institucion-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve', data: opciones_instituciones[val2.pais+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
                                 $('#select2-institucion-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                 $('.select2-container').tooltip();
                                 $('#select2-institucion-'+val2.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
@@ -1014,13 +1017,21 @@ class_av = {
                                     //setTimeout(function(){                
                                         peticiones --;
                                         /*********ciudad*******************/
-                                        var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                                        //var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                                        var options = [{id:'', text:'', num:0}];
                                         $.each(resp_ciudad[0], function(i2, val2){
-                                            options += class_av.cons.option.replace('<valor>', val2.ciudad).replace('<opcion>', val2.ciudad);
+                                            //options += class_av.cons.option.replace('<valor>', val2.ciudad).replace('<opcion>', val2.ciudad);
+                                            var obj = {
+                                                id: val2.ciudad,
+                                                text: val2.ciudad,
+                                                num: val2.count
+                                            }
+                                            options.push(obj);
                                         });
-                                        opciones_ciudades[val.pais+'-'+class_av.var.corporativo] = options;
-                                        $('#ciudad-'+val.id).html(opciones_ciudades[val.pais+'-'+class_av.var.corporativo]);
-                                        $('#ciudad-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true});
+                                        opciones_ciudades[val.pais+'-'+class_av.var.corporativo] = JSON.parse(JSON.stringify(options));
+                                        //$('#ciudad-'+val.id).html(opciones_ciudades[val.pais+'-'+class_av.var.corporativo]);
+                                        $('#ciudad-'+val.id).empty();
+                                        $('#ciudad-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true, data: opciones_ciudades[val.pais+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
                                         $('#select2-ciudad-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();
                                         $('#select2-ciudad-'+val.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
@@ -1037,13 +1048,21 @@ class_av = {
                                         }
 
                                         /*********institucion*******************/
-                                        options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                                        //options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                                        options = [{id:'', text:'', num:0}];
                                         $.each(resp_institucion[0], function(i2, val2){
-                                            options += class_av.cons.option.replace('<valor>', val2.institucion.replaceAll('"', "&quot;")).replace('<opcion>', val2.institucion);
+                                            //options += class_av.cons.option.replace('<valor>', val2.institucion.replaceAll('"', "&quot;")).replace('<opcion>', val2.institucion);
+                                            var obj = {
+                                                id: val2.institucion,
+                                                text: val2.institucion,
+                                                num: val2.count
+                                            }
+                                            options.push(obj);
                                         });
-                                        opciones_instituciones[val.pais+'-'+class_av.var.corporativo] = options;
-                                        $('#institucion-'+val.id).html(opciones_instituciones[val.pais+'-'+class_av.var.corporativo]);
-                                        $('#institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve'});
+                                        opciones_instituciones[val.pais+'-'+class_av.var.corporativo] = JSON.parse(JSON.stringify(options));
+                                        //$('#institucion-'+val.id).html(opciones_instituciones[val.pais+'-'+class_av.var.corporativo]);
+                                        $('#institucion-'+val.id).empty();
+                                        $('#institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve', data: opciones_instituciones[val.pais+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
                                         $('#select2-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();
                                         $('#select2-institucion-'+val.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
@@ -1119,12 +1138,20 @@ class_av = {
                             //Si no se encontró tampoco dentro del texto de institución
                             /*********institucion*******************/
                             if(val.institucion !== null && val.institucion !== undefined && val.institucion !== ''){
-                                var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
-                                options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
-                                options += class_av.cons.option.replace('<valor>', val.institucion.replaceAll('"', "&quot;")).replace('<opcion>', val.institucion);
+                                //var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                                //options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                                //options += class_av.cons.option.replace('<valor>', val.institucion.replaceAll('"', "&quot;")).replace('<opcion>', val.institucion);
+                                var options = [{id:'', text:'', num:0}];
+                                var obj = {
+                                                id: val.institucion,
+                                                text: val.institucion,
+                                                num: val.count
+                                            }
+                                options.push(obj);
 
-                                $('#institucion-'+val.id).html(options);
-                                $('#institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve'});
+                                //$('#institucion-'+val.id).html(options);
+                                $('#institucion-'+val.id).empty();
+                                $('#institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve', data: options, templateResult: class_av.formato_badge});
                                 $('#select2-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                 $('.select2-container').tooltip();
                                 $('#select2-institucion-'+val.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
@@ -1168,13 +1195,24 @@ class_av = {
                                 .then(function(resp_dependencias, resp_ciudades){
                                     //setTimeout(function(){   
                                         peticiones--;
-                                        var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                                        /*var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
                                         $.each(resp_dependencias[0], function(i2, val2){
                                             options += class_av.cons.option.replace('<valor>', val2.dependencia.replace('"', "&quot;")).replace('<opcion>', val2.dependencia);
+                                        });*/
+                                        var options = [{id:'', text:'', num:0}];
+                                        $.each(resp_dependencias[0], function(i2, val2){
+                                            //options += class_av.cons.option.replace('<valor>', val2.ciudad).replace('<opcion>', val2.ciudad);
+                                            var obj = {
+                                                id: val2.dependencia,
+                                                text: val2.dependencia,
+                                                num: val2.count
+                                            }
+                                            options.push(obj);
                                         });
-                                        opciones_dependencias[val.institucion+'-'+class_av.var.corporativo] = options;										 
-                                        $('#dependencia-'+val.id).html(opciones_dependencias[val.institucion+'-'+class_av.var.corporativo]);
-                                        $('#dependencia-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
+                                        opciones_dependencias[val.institucion+'-'+class_av.var.corporativo] = JSON.parse(JSON.stringify(options));
+                                        //$('#dependencia-'+val.id).html(opciones_dependencias[val.institucion+'-'+class_av.var.corporativo]);
+                                        $('#dependencia-'+val.id).empty();
+                                        $('#dependencia-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true,  width: 'resolve', data: opciones_dependencias[val.institucion+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
                                         $('#select2-dependencia-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();
                                         $('#select2-dependencia-'+val.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
@@ -1214,6 +1252,7 @@ class_av = {
                                         $.each(resp_ciudades[0], function(i2, val2){
                                             //options += class_av.cons.option.replace('<valor>', val2.ciudad.replace('"', "&quot;")).replace('<opcion>', val2.ciudad);
                                             options += '<li style="cursor:pointer" class="sug-ciudad-clic" data-toggle="tooltip" title="[Clic] para copiar en campo Ciudad" id="op-sug-ciudad-'+val.id+'">' + val2.ciudad +
+                                                        '<span class="badge badge-secondary" style="font-size: 10px; margin-left: 10px;">'+val2.count+'</span>'+
                                                         '<span class="badge badge-secondary despacio" style="font-size: 10px;margin-left: 10px;background-color: #343a40;display:none">Copiado en campo Ciudad!</span></li>';
                                         });
                                         opciones_sug_ciudades[val.institucion] = options;
@@ -1290,6 +1329,9 @@ class_av = {
                         if(arr_autores.length == 0){
                             $('#accordionAutores').html('Autores');
                             $('#accordionAutores').prop('href', '#autores');
+                            class_av.evento_borra_autor();
+                            class_av.change_nombre();
+                            class_av.change_orcid();
                             return true;
                         }
                         
@@ -1343,9 +1385,9 @@ class_av = {
                     
                     recorrido_autores(class_av.var.autoresJSON);
                       
-                    class_av.evento_borra_autor();
-                    class_av.change_nombre();
-                    class_av.change_orcid();
+                    //class_av.evento_borra_autor();
+                    //class_av.change_nombre();
+                    //class_av.change_orcid();
                     
                     $('#save-no-indizable').show();
                     $('#save-full').show();
@@ -1914,7 +1956,7 @@ class_av = {
                         var texto = '';
                         $.each(resp, function(i,val){
                             texto += '<ul>';
-                            texto += '<li>' + val.nombre + ': ' + val.orcid;
+                            texto += '<li>' + val.nombre + ': ' + val.orcid + '<span class="badge badge-secondary" style="font-size: 10px; margin-left: 10px;">'+val.count+'</span>';
                             if(val.institucion !== undefined){
                                 var style = "";
                                 if(institucion !== null && institucion !== ""){
@@ -2423,17 +2465,25 @@ class_av = {
                             $('#ciudad-'+id+'-load').hide();
                             $('#div-ciudad-'+id).show();
                             /*********ciudad*******************/
-                            var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                            //var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                            var options = [{id:'', text:'', num:0}];
                             $.each(resp_ciudad[0], function(i2, val2){
-                                options += class_av.cons.option.replace('<valor>', val2.ciudad).replace('<opcion>', val2.ciudad);
+                                //options += class_av.cons.option.replace('<valor>', val2.ciudad).replace('<opcion>', val2.ciudad);
+                                var obj = {
+                                    id: val2.ciudad,
+                                    text: val2.ciudad,
+                                    num: val2.count
+                                }
+                                options.push(obj);
                             });
                             opciones_ciudades[pais+'-'+class_av.var.corporativo] = '';
-                            opciones_ciudades[pais+'-'+class_av.var.corporativo] = options;
-                            $('#ciudad-'+id).html(opciones_ciudades[pais+'-'+class_av.var.corporativo]);
+                            opciones_ciudades[pais+'-'+class_av.var.corporativo] = JSON.parse(JSON.stringify(options));
+                            //$('#ciudad-'+id).html(opciones_ciudades[pais+'-'+class_av.var.corporativo]);
                             $('#ciudad-'+id).on('change', function(){
                                 class_av.var.cambios_institucion = (true && !class_av.var.cambios_de_inicio);
                             });
-                            $('#ciudad-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true});
+                            $('#ciudad-'+id).empty();
+                            $('#ciudad-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true, data: opciones_ciudades[pais+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
                             $('#select2-ciudad-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                             $('.select2-container').tooltip();
 							$('#select2-ciudad-'+id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
@@ -2454,14 +2504,25 @@ class_av = {
 
                             /*********institucion*******************/
 
-                            options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                            //options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                            //$.each(resp_institucion[0], function(i2, val2){
+                                //options += class_av.cons.option.replace('<valor>', val2.institucion.replaceAll('"', "&quot;")).replace('<opcion>', val2.institucion);
+                            //});
+                            options = [{id:'', text:'', num:0}];
                             $.each(resp_institucion[0], function(i2, val2){
-                                options += class_av.cons.option.replace('<valor>', val2.institucion.replaceAll('"', "&quot;")).replace('<opcion>', val2.institucion);
+                                //options += class_av.cons.option.replace('<valor>', val2.institucion.replaceAll('"', "&quot;")).replace('<opcion>', val2.institucion);
+                                var obj = {
+                                    id: val2.institucion,
+                                    text: val2.institucion,
+                                    num: val2.count
+                                }
+                                options.push(obj);
                             });
                             opciones_instituciones[pais+'-'+class_av.var.corporativo] = '';
-                            opciones_instituciones[pais+'-'+class_av.var.corporativo] = options;
-                            $('#institucion-'+id).html(opciones_instituciones[pais+'-'+class_av.var.corporativo]);
-                            $('#institucion-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve'});
+                            opciones_instituciones[pais+'-'+class_av.var.corporativo] = JSON.parse(JSON.stringify(options));
+                            //$('#institucion-'+id).html(opciones_instituciones[pais+'-'+class_av.var.corporativo]);
+                            $('#institucion-'+id).empty();
+                            $('#institucion-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve', data: opciones_instituciones[pais+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
                             $('#select2-institucion-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                             $('.select2-container').tooltip();
                             $('#select2-institucion-'+id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
@@ -2484,11 +2545,12 @@ class_av = {
                     });
                 }else{
                     setTimeout(function(){
-                        $('#ciudad-'+id).html(opciones_ciudades[pais+'-'+class_av.var.corporativo]);
+                        //$('#ciudad-'+id).html(opciones_ciudades[pais+'-'+class_av.var.corporativo]);
                         $('#ciudad-'+id).on('change', function(){
                             class_av.var.cambios_institucion = (true && !class_av.var.cambios_de_inicio);
                         });
-                        $('#ciudad-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true});
+                        $('#ciudad-'+id).empty();
+                        $('#ciudad-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true, data: opciones_ciudades[pais+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
                         $('#select2-ciudad-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                         $('.select2-container').tooltip();
 						$('#select2-ciudad-'+id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
@@ -2507,8 +2569,9 @@ class_av = {
                             class_av.var.cambios_institucion = (true && !class_av.var.cambios_de_inicio);
                         });
 
-                        $('#institucion-'+id).html(opciones_instituciones[pais+'-'+class_av.var.corporativo]);
-                        $('#institucion-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true/*,  width: 'Auto'*/});
+                        //$('#institucion-'+id).html(opciones_instituciones[pais+'-'+class_av.var.corporativo]);
+                        $('#institucion-'+id).empty();
+                        $('#institucion-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true, width: 'resolve', data: opciones_instituciones[pais+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
                         $('#select2-institucion-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                         $('.select2-container').tooltip();
                         $('#select2-institucion-'+id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
@@ -2580,16 +2643,27 @@ class_av = {
                         $('#dependencia-'+id+'-load').hide();
                         $('#div-dependencia-'+id).show();
 
-                        var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                        /*var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
                         $.each(resp_dependencias[0], function(i2, val2){
                             options += class_av.cons.option.replace('<valor>', val2.dependencia.replace('"', "&quot;")).replace('<opcion>', val2.dependencia);
+                        });*/
+                        var options = [{id:'', text:'', num:0}];
+                        $.each(resp_dependencias[0], function(i2, val2){
+                            //options += class_av.cons.option.replace('<valor>', val2.ciudad).replace('<opcion>', val2.ciudad);
+                            var obj = {
+                                id: val2.dependencia,
+                                text: val2.dependencia,
+                                num: val2.count
+                            }
+                            options.push(obj);
                         });
-                        opciones_dependencias[institucion+'-'+class_av.var.corporativo] = options;
-                        $('#dependencia-'+id).html(opciones_dependencias[institucion+'-'+class_av.var.corporativo]);
+                        opciones_dependencias[institucion+'-'+class_av.var.corporativo] = JSON.parse(JSON.stringify(options));
+                        //$('#dependencia-'+id).html(opciones_dependencias[institucion+'-'+class_av.var.corporativo]);
+                        $('#dependencia-'+id).empty();
                         $('#dependencia-'+id).on('change', function(){
                             class_av.var.cambios_institucion = (true && !class_av.var.cambios_de_inicio);
                         });
-                        $('#dependencia-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
+                        $('#dependencia-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true,  width: 'resolve', data: opciones_dependencias[institucion+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
                         $('#select2-dependencia-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                         $('.select2-container').tooltip();
                         $('#select2-dependencia-'+id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
@@ -2612,6 +2686,7 @@ class_av = {
                         $.each(resp_ciudades[0], function(i2, val2){
                             //options += class_av.cons.option.replace('<valor>', val2.ciudad.replace('"', "&quot;")).replace('<opcion>', val2.ciudad);
                             options += '<li style="cursor:pointer" class="sug-ciudad-clic" data-toggle="tooltip" title="[Clic] para copiar en campo Ciudad" id="op-sug-ciudad-'+id+'">' + val2.ciudad +
+                                    '<span class="badge badge-secondary" style="font-size: 10px; margin-left: 10px;">'+val2.count+'</span>'+
                                                         '<span class="badge badge-secondary despacio" style="font-size: 10px;margin-left: 10px;background-color: #343a40;display:none;">Copiado en campo Ciudad!</span></li>';
                         });
                         opciones_sug_ciudades[institucion] = options;
@@ -2653,11 +2728,12 @@ class_av = {
                 });
             }else{
                 setTimeout(function(){
-                    $('#dependencia-'+id).html(opciones_dependencias[institucion+'-'+class_av.var.corporativo]);
+                    //$('#dependencia-'+id).html(opciones_dependencias[institucion+'-'+class_av.var.corporativo]);
+                    $('#dependencia-'+id).empty();
                     $('#dependencia-'+id).on('change', function(){
                         class_av.var.cambios_institucion = (true && !class_av.var.cambios_de_inicio);
                     });
-                    $('#dependencia-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true});
+                    $('#dependencia-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true,  width: 'resolve', data: opciones_dependencias[institucion+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
                     $('#select2-dependencia-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                     $('.select2-container').tooltip();
                     $('#select2-dependencia-'+id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
@@ -3065,7 +3141,6 @@ class_av = {
             var institucion = $('#institucion-'+val.id).val();
             institucion = class_av.limpia(institucion);
             val.institucion = null;
-            alert(institucion);
             if(institucion){
                 if( 
                     institucion.toLowerCase().indexOf('departamento') !== -1 ||
@@ -4720,7 +4795,7 @@ class_av = {
     },
     seleccion_sug_ciudad:function(){
         $('.sug-ciudad-clic').off('click').on('click', function(){
-            var id_paste = this.id.split('-').slice(2).join('-');
+            var id_paste = $(this).parent().attr('id').split('-').slice(1).join('-');
             $(this).parent().find('.sug-ciudad-clic').css('color','#333333');
             $(this).css('color','#ff8000');
             window.location.href='#'+id_paste;
@@ -4733,7 +4808,7 @@ class_av = {
             }
             $('#div-'+id_paste).find('.select2-selection--single').css('border-color', '#ff8000');
             $('#'+id_paste).css('border-color', '#ff8000');
-            var badge = $(this).children('span');
+            var badge = $(this).children('.despacio');
             badge.show();
             setTimeout(function() {
                 // Revierte el color del borde a azul
@@ -4742,6 +4817,17 @@ class_av = {
                 badge.hide();
             }, 3000);
         });
+    },
+    formato_badge: function(state){
+        if (!state.id) {
+            return state.text;
+        }
+        
+        var $state = $(
+            "<div>" + state.text + ' <span class="badge" style="font-size:11px">' + ((state.num == undefined)?0:state.num) + '</span></div>'
+        );
+        
+        return $state;
     }
 };
 
