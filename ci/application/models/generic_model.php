@@ -211,6 +211,7 @@ class Generic_model extends CI_Model {
         }
 		
 		public function update_article($tabla, $arr_where, $data, $data_ant = null){
+			$this->load->database();
                 $this->db->trans_start();
 		if(isset($data_ant)){
 			//Acomodo de nombre de campos where con su respectivo valor a buscar
