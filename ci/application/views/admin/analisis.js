@@ -1,4 +1,4 @@
-// cambios 65,66, 2323, 2325
+// cambios 65,66, 2323, 2325, 3095
 class_av = {
     cons: {
         DISCOVERY_DOCS: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
@@ -487,7 +487,7 @@ class_av = {
                     type: 'POST',
                     url: "<?=site_url('metametrics/ws_bitacora');?>",
                     data: {'evento': 'Inicio de análisis', 'sistema': sistema}
-            }).done(function() {
+            }).done(function(res) {
                 console.log('Inicio');
             });
             
@@ -2956,10 +2956,12 @@ class_av = {
                     var idx = palabras_clave.indexOf(class_av.var.documentoJSON[0].subdisciplina1);
                     if( idx !== -1){
                         //Elimina la subdisciplina de las palabras clave
-                        palabras_clave.splice(idx, 1);
+                        palabras_clave = palabras_clave.splice(idx, 1);
                     }
                 }
-                palabras_clave.push(subdisciplina1);
+                if(palabras_clave.indexOf(subdisciplina1) == -1){
+                    palabras_clave.push(subdisciplina1);
+                }
                 var disc_eng = class_av.var.catalogos['disciplina_eng'][busca_idx1];
                 var idx_sub = class_av.var.catalogos[disciplina1].indexOf(subdisciplina1);
                 keywords.push( class_av.var.catalogos[disc_eng][idx_sub] );
@@ -2976,10 +2978,12 @@ class_av = {
                     var idx = palabras_clave.indexOf(class_av.var.documentoJSON[0].subdisciplina2);
                     if( idx !== -1){
                         //Elimina la subdisciplina de las palabras clave
-                        palabras_clave.splice(idx, 1);
+                        palabras_clave = palabras_clave.splice(idx, 1);
                     }
                 }
-                palabras_clave.push(subdisciplina2);
+                if(palabras_clave.indexOf(subdisciplina2) == -1){
+                    palabras_clave.push(subdisciplina2);
+                }
                 var disc_eng = class_av.var.catalogos['disciplina_eng'][busca_idx2];
                 var idx_sub = class_av.var.catalogos[disciplina2].indexOf(subdisciplina2);
                 keywords.push( class_av.var.catalogos[disc_eng][idx_sub] );
@@ -2996,10 +3000,12 @@ class_av = {
                     var idx = palabras_clave.indexOf(class_av.var.documentoJSON[0].subdisciplina3);
                     if( idx !== -1){
                         //Elimina la subdisciplina de las palabras clave
-                        palabras_clave.splice(idx, 1);
+                        palabras_clave = palabras_clave.splice(idx, 1);
                     }
                 }
-                palabras_clave.push(subdisciplina3);
+                if(palabras_clave.indexOf(subdisciplina3) == -1){
+                    palabras_clave.push(subdisciplina3);
+                }
                 var disc_eng = class_av.var.catalogos['disciplina_eng'][busca_idx3];
                 var idx_sub = class_av.var.catalogos[disciplina3].indexOf(subdisciplina3);
                 keywords.push( class_av.var.catalogos[disc_eng][idx_sub] );
@@ -4063,7 +4069,7 @@ class_av = {
                                             type: 'POST',
                                             url: "<?=site_url('metametrics/ws_update_article');?>",
                                             data: class_av.data_update_article(),
-                                    }).done(function() {
+                                    }).done(function(res) {
                                             class_av.mensaje('Artículo guardado correctamente.');
                                             class_av.cambio_estatus(class_av.var.sistema, 'R');
                                     }).fail(function(){
@@ -4185,7 +4191,7 @@ class_av = {
                                                 url: "<?=site_url('metametrics/ws_insert_instituciones');?>",
                                                 data: JSON.stringify(instituciones.data),
                                                 contentType: 'application/json'
-                                        }).done(function() {
+                                        }).done(function(res) {
                                                 class_av.cambio_estatus(class_av.var.sistema, 'R');
                                                 class_av.data_update_autores();
                                                 class_av.reset_autores();
@@ -4263,7 +4269,7 @@ class_av = {
                                                 url: "<?=site_url('metametrics/ws_insert_autores');?>",
                                                 data: JSON.stringify(autores.data),
                                                 contentType: 'application/json'
-                                        }).done(function() {
+                                        }).done(function(res) {
                                                 class_av.cambio_estatus(class_av.var.sistema, 'R');
                                                 class_av.mensaje('Autores guardados correctamente.');
                                         }).fail(function(){
@@ -4405,7 +4411,7 @@ class_av = {
                                         type: 'POST',
                                         url: "<?=site_url('metametrics/ws_insert_new_article');?>",
                                         data: class_av.data_inserta_article(),
-                                }).done(function() {
+                                }).done(function(res) {
                                         class_av.mensaje(textoFin, function(){
                                              window.location.reload();
                                         });
