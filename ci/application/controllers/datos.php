@@ -432,7 +432,7 @@ class Datos extends REST_Controller {
 			
             $query = '
                         select 
-                            articulo,
+                            coalesce(articulo, \'SIN TÍTULO\') as articulo,
                             doi,
                             idioma,
                             documento->>\'a\' tipo_documento,
