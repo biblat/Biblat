@@ -6,6 +6,7 @@ class_av = {
     var: {
         usuariosJSON: [],
         analistasJSON: [],
+        avance_por_mes: [],
         init: true,
         url_oai: '',
         data: '',
@@ -27,19 +28,35 @@ class_av = {
                             '<tbody id="body_revistas"><body></tbody></table>',
         tr: '<tr><td><usuario></td><td><rev></td><td><comp></td><td><borr></td><td><total></td><td><av></td><td><meta></td></td>',
         barra_avance:   '<div class="progress-bar progress-bar-warning progress-bar-striped" role="progressbar" aria-valuenow="<avance>" aria-valuemin="0" aria-valuemax="100" style="width: <avance>%">' +
-                        '<span style="color:black"><b><avance> %</b></span>' +
+                        '<span style="color:black;font-size:11px"><b><mes></b></span><br>' +
+                        '<span style="color:black;font-size:11px"><b><avance>%</b></span>' +
+                        '</div>',
+        barra_avance_esperado:   '<div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 25%;background-color:#5cb85c47">' +
+                        '<span style="color:black"><b>Ene-Mar 25%</b></span>' +
+                        '</div>' +
+                        '<div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 25%;background-color:#5cb85c87">' +
+                        '<span style="color:black"><b>Abr-Jun 50%</b></span>' +
+                        '</div>' +
+                        '<div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 25%;background-color:#5cb85cc7">' +
+                        '<span style="color:black"><b>Jul-Sept 75%</b></span>' +
+                        '</div>' +
+                        '<div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 25%;background-color:#5cb85c">' +
+                        '<span style="color:black"><b>Oct-Dic 100%</b></span>' +
                         '</div>'
     },
     initClient: function() {
-        $.when(class_utils.getResource('/datos/avance/')) 
-        .then(function(resp_analistas){
-            class_av.var.analistasJSON = resp_analistas;
+        $.when(class_utils.getResource('/datos/avance/'),
+                class_utils.getResource('/datos/avance_total/')
+        ) 
+        .then(function(resp_analistas, resp_total){
+            class_av.var.analistasJSON = resp_analistas[0];
+            class_av.var.avance_por_mes = resp_total[0];
             class_av.setTabla(class_av.var.analistasJSON);
-			loading.end();
+            loading.end();
         });
     },
     ready: function(){
-		loading.start();
+        loading.start();
         class_av.initClient();
     },
     setTabla: function(data){
@@ -61,8 +78,21 @@ class_av = {
                             .replace('<meta>', ( meta * 100 ).toFixed(2) + ' %' );
             tbody += tr;
         });
-       
-        $('.progress').html(class_av.var.barra_avance.replaceAll('<avance>', ( total_meta/total_departamento*100 ).toFixed(2)));
+        
+        //$('.progress').html(class_av.var.barra_avance.replaceAll('<avance>', ( total_meta/total_departamento*100 ).toFixed(2)));
+        var bar_progress = '';
+        var avance_total = 0;
+        $.each(class_av.var.avance_por_mes, function(i, val){
+            var tmp = class_av.var.barra_avance;
+            avance_total += parseFloat(val.total);
+            if(i%2 !== 0){
+               tmp = tmp.replaceAll('progress-bar-striped', '');
+            }
+            bar_progress += tmp.replaceAll('<avance>', ( val.total/total_departamento*100 ).toFixed(2)).replaceAll('<mes>', class_utils.cons.meses[val.mes]);
+        });
+        $('#avance_total').html(avance_total.toLocaleString().replaceAll('.', ','));
+        $('.progress').html(bar_progress);
+        $('.progress.esperado').html(class_av.var.barra_avance_esperado);
         
         var tabla = class_av.var.tabla
                 .replace('<body>', tbody);
