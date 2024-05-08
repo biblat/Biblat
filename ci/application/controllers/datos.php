@@ -317,6 +317,50 @@ class Datos extends REST_Controller {
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);
         }
+		
+		public function avance_total_get() {
+            $data = array();
+            //$this->load->database('prueba');
+            $query = "
+                    with registros as (
+                        select 
+                        extract(Month from c.fecha) mes, estatus
+                        from article a
+                        inner join
+                        catalogador c
+                        on a.sistema = c.sistema
+                        where 
+                        (
+                            c.nombre <> 'OJS' and c.nombre <> 'SciELO'
+                            and
+                            extract(year from c.fecha) = extract(year from CURRENT_DATE)
+                            and
+                            estatus in ('C')
+							and c.id=2
+                        )
+						or
+						(
+							c.nombre <> 'OJS' and c.nombre <> 'SciELO'
+							and
+                            extract(year from c.fecha) = extract(year from CURRENT_DATE)
+                            and
+							estatus is null
+							and
+							c.nombre is not null
+							and
+							c.id = 1
+						)
+                    )
+                    select 
+                        r.mes, count(1) total
+                    from registros r
+                    group by r.mes
+                    order by r.mes
+                ";
+            
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);
+        }
         
         public function articulos_get(){
             $data = array();

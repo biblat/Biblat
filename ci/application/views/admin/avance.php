@@ -2,7 +2,11 @@
 <center><div class="row"><b>Meta del departamento:</b> 30,000 Registros</div></center>
 <div class="row"><br></div>
 <div class="row"><br></div>
-<div class="progress">
+<div class="progress esperado">
+  
+</div>
+<div class="row"><div class="col-sm-12"><center><b>Avance:</b> <span id='avance_total'></span> Registros</center></div></div>
+<div class="progress" style='height: 40px'>
   
 </div>
 <div class="row">
