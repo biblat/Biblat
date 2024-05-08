@@ -178,8 +178,12 @@
                       <b><span id="titArticulo"></span></b>
                       <br><br>
                       <center>
-                          <button id="save-no-indizable" type="button" class="btn btn-dark"><i class="fa fa-thumbs-down" aria-hidden="true" style="color: darkred;"></i> <span>No indizable</span></button>
-                          <button id="save-full" type="button" class="btn btn-dark"><i class="fa fa-thumbs-up" aria-hidden="true" style="color: darkgreen;"></i> <span>Análisis completo</span></button>
+                            {if $rol == "Editor"}
+                                <button id="save-full" type="button" class="btn btn-dark"><i class="fa fa-thumbs-up" aria-hidden="true" style="color: darkgreen;"></i> <span>Completado</span></button>
+                            {else}
+                                <button id="save-no-indizable" type="button" class="btn btn-dark"><i class="fa fa-thumbs-down" aria-hidden="true" style="color: darkred;"></i> <span>No indizable</span></button>
+                                <button id="save-full" type="button" class="btn btn-dark"><i class="fa fa-thumbs-up" aria-hidden="true" style="color: darkgreen;"></i> <span>Análisis completo</span></button>
+                            {/if}
                       </center>
                   </h5>
                 </div>

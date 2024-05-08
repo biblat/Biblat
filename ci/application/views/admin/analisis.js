@@ -2356,6 +2356,17 @@ class_av = {
         
         var tabla = class_av.var.tabla
                 .replace('<body>', tbody);
+		
+		var oculta = {};
+        var targets =[0,1,2,3,4,5,6];
+        if(cons.rol.val == 'Editor'){
+            oculta = 
+                {
+                    targets: 6,
+                    visible: false,
+                    searchable: false
+                };
+        }
         
         $('#div_tabla').html(tabla);
         var op = {
@@ -2365,12 +2376,13 @@ class_av = {
                         pagingType: 'input',
                         autoWidth: true,
                         columnDefs: [
+							oculta,
                             {
                                 render: function (data, type, full, meta) {
                                     //Sustituye el valor de la celda por esto agregando un div para que se mantenga dentro del tamaño definido
                                     return '<div style="width: 100%; text-align: left; white-space: normal;">' + data + '</div>';
                                 },
-                                targets: [0,1,2,3,4,5,6]
+                                targets: targets
                             }
                         ],
                         //Reajusta el ancho de las columnas
