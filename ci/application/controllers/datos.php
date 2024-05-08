@@ -321,6 +321,8 @@ class Datos extends REST_Controller {
 		public function avance_total_get() {
             $data = array();
             //$this->load->database('prueba');
+			$this->load->database();
+			
             $query = "
                     with registros as (
                         select 
