@@ -1,4 +1,4 @@
-// cambios 65,66, 2323, 2325, 3095
+// cambios 65,66, 2325, 2327, 3095
 class_av = {
     cons: {
         DISCOVERY_DOCS: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
@@ -92,6 +92,7 @@ class_av = {
         corporativo: 0,
         url_ia:'',
         arr_busca_pdf: [],
+        fechaActual: (new Date()).getFullYear() + '-' + ('0' + ((new Date()).getMonth() + 1)).slice(-2) + '-' + ('0' + (new Date()).getDate()).slice(-2),
         tabla: '<table id="tbl_articulos" class="display responsive nowrap" style="width:100%;font-size:11px">' +
                             '<thead>' +
                                 '<tr>' +
@@ -2356,8 +2357,8 @@ class_av = {
         
         var tabla = class_av.var.tabla
                 .replace('<body>', tbody);
-		
-		var oculta = {};
+        
+        var oculta = {};
         var targets =[0,1,2,3,4,5,6];
         if(cons.rol.val == 'Editor'){
             oculta = 
@@ -2376,7 +2377,7 @@ class_av = {
                         pagingType: 'input',
                         autoWidth: true,
                         columnDefs: [
-							oculta,
+                            oculta,
                             {
                                 render: function (data, type, full, meta) {
                                     //Sustituye el valor de la celda por esto agregando un div para que se mantenga dentro del tamaño definido
@@ -4084,6 +4085,7 @@ class_av = {
                                     }).done(function(res) {
                                             class_av.mensaje('Artículo guardado correctamente.');
                                             class_av.cambio_estatus(class_av.var.sistema, 'R');
+                                            class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).estatus = 'R';
                                     }).fail(function(){
                                             class_av.mensaje('Ocurrió un error al intentar guardar el Artículo');
                                     });
@@ -4147,6 +4149,8 @@ class_av = {
                                         }).done(function(resp) {
                                             if(resp.resp == 'success'){
                                                 class_av.cambio_estatus(class_av.var.sistema, 'C');
+                                                class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).estatus = 'C';
+                                                class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).fecha = class_av.var.fechaActual;
                                                 $('.'+class_av.var.sistema).removeClass('sistema');
                                                 $('.'+class_av.var.sistema).addClass('cerrado');
                                                 $('.'+class_av.var.sistema).css('cursor','');
@@ -4205,6 +4209,7 @@ class_av = {
                                                 contentType: 'application/json'
                                         }).done(function(res) {
                                                 class_av.cambio_estatus(class_av.var.sistema, 'R');
+                                                class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).estatus = 'R';
                                                 class_av.data_update_autores();
                                                 class_av.reset_autores();
                                                 class_av.mensaje('Instituciones guardadas correctamente.');
@@ -4283,6 +4288,7 @@ class_av = {
                                                 contentType: 'application/json'
                                         }).done(function(res) {
                                                 class_av.cambio_estatus(class_av.var.sistema, 'R');
+                                                class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).estatus = 'R';
                                                 class_av.mensaje('Autores guardados correctamente.');
                                         }).fail(function(){
                                             class_av.mensaje('Ocurrió un error al intentar guardar Autores');
