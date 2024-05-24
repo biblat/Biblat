@@ -587,6 +587,7 @@ class_asir = {
         data['tabla'] = 'usuario_revista';
         data['where'] = columns;
         data['data'] = data_int;
+		data['data_ant'] = [{'usuario': obj['usuario']}];
         return data;
     },
     mensaje: function(mensaje){
