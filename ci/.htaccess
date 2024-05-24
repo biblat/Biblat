@@ -1,7 +1,19 @@
 RewriteEngine on
-RewriteCond $1 !^(index\.php|assets|js|css|img|images|archivos|robots\.txt)
+
+RewriteBase /
+RewriteCond %{REQUEST_URI} ^/es/revista/(.*)/sitemap\.xml$
+RewriteRule ^es/revista/(.*)/sitemap\.xml$ /sitemaps/$1.xml [L]
+
+RewriteCond %{REQUEST_URI} !^/(hevila|pagespeed_admin|pagespeed_global_admin|googlef81a87af387e9879\.html|index\.php|assets|js|css|img|images|archivos|robots\.txt|(es|en|fr|ca|pt)?/?sitemap(\.xml|\.xml\.gz))
+RewriteCond %{REQUEST_URI} !^/es/revista/(.*)/sitemap\.xml$
+RewriteCond %{REQUEST_URI} !^/sitemaps/(.*).xml$
 RewriteRule ^(.*)$ /index.php/$1 [L]
+
 Options -Indexes -FollowSymLinks +SymLinksIfOwnerMatch
 <IfModule mod_geoip.c>
 	GeoIPEnable On
 </IfModule>
+
+<filesMatch "\.(html|css|js|png|jpg|jpeg|gif|ico)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+</filesMatch>

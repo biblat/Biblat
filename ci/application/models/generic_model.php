@@ -605,21 +605,22 @@ class Generic_model extends CI_Model {
 		}
 	}
 	
-	public function insert_bitacora($evento, $sistema=''){
+	public function insert_bitacora($movimiento, $sistema='', $tiempo){
 		$usuario = $this->session->userdata('usu_base');
 		$hora = 'LOCALTIME(0)';
 		$this->load->database();
 		$query = 'insert into bitacora (
-						"usuario", "sistema", "evento", "hora"
+						"usuario", "sistema", "movimiento", "fecha", "tiempo"
 						) values('.
 						"'".$usuario."',".
 						"'".$sistema."',".
-						"'".$evento."',".
-						$hora.
+						"'".$movimiento."',".
+						"NOW()::timestamp::date,".
+						"'".$tiempo."'".
 						")";
 		$query = $this->db->query($query);
 	}
-        
+
 	public function limpia($string){
 		$string = str_replace('\"', '"', $string);
 		$string = str_replace("'", "''", $string);

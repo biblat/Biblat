@@ -1,4 +1,4 @@
-// cambios 65,66, 2325, 2327, 3095
+// cambios 65,66, 2328, 2330, 3095
 class_av = {
     cons: {
         DISCOVERY_DOCS: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
@@ -92,6 +92,7 @@ class_av = {
         corporativo: 0,
         url_ia:'',
         arr_busca_pdf: [],
+        tiempo_analisis: 0,
         fechaActual: (new Date()).getFullYear() + '-' + ('0' + ((new Date()).getMonth() + 1)).slice(-2) + '-' + ('0' + (new Date()).getDate()).slice(-2),
         tabla: '<table id="tbl_articulos" class="display responsive nowrap" style="width:100%;font-size:11px">' +
                             '<thead>' +
@@ -475,7 +476,18 @@ class_av = {
         class_av.filtro();
     },
     control: function(){
+        document.addEventListener('mousemove', function(event) {
+            if(class_av.var.tiempo_analisis > 0){
+                if( Date.now() - class_av.var.tiempo_analisis > (60000 * 10) ){
+                    class_av.var.tiempo_analisis = 0;
+                    class_av.set_bitacora('Recarga');
+                    window.location.reload();
+                }
+            }
+        });
+        
         $('.sistema').off('click').on('click', function(e){
+            class_av.var.tiempo_analisis = Date.now();
             class_utils.cancelaPeticiones();
             var _id = this.id;
             var sistema = _id.split('__')[0];
@@ -483,14 +495,6 @@ class_av = {
             if(class_av.cambios_sin_guardar('sistema', this)){
                 return false;
             }
-            
-            $.ajax({
-                    type: 'POST',
-                    url: "<?=site_url('metametrics/ws_bitacora');?>",
-                    data: {'evento': 'Inicio de análisis', 'sistema': sistema}
-            }).done(function(res) {
-                console.log('Inicio');
-            });
             
             class_av.var.cambios_autor = false;
             class_av.var.cambios_documento = false;
@@ -4086,6 +4090,7 @@ class_av = {
                                             class_av.mensaje('Artículo guardado correctamente.');
                                             class_av.cambio_estatus(class_av.var.sistema, 'R');
                                             class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).estatus = 'R';
+                                            class_av.set_bitacora('Guarda Artículo');
                                     }).fail(function(){
                                             class_av.mensaje('Ocurrió un error al intentar guardar el Artículo');
                                     });
@@ -4163,6 +4168,7 @@ class_av = {
                                                 $('#save-autores').hide();
                                                 loading.end();
                                                 class_av.mensaje('Artículo completado correctamente.');
+                                                class_av.set_bitacora('Completado');
                                                 window.location.href="#div_tabla";
                                             }else{
                                                 class_av.mensaje('Ocurrió un error, intente completar nuevamente');
@@ -4213,6 +4219,7 @@ class_av = {
                                                 class_av.data_update_autores();
                                                 class_av.reset_autores();
                                                 class_av.mensaje('Instituciones guardadas correctamente.');
+                                                class_av.set_bitacora('Guarda Instituciones');
                                         }).fail(function(){
                                             class_av.mensaje('Ocurrió un error al intentar guardar Instituciones');
                                         });
@@ -4290,6 +4297,7 @@ class_av = {
                                                 class_av.cambio_estatus(class_av.var.sistema, 'R');
                                                 class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).estatus = 'R';
                                                 class_av.mensaje('Autores guardados correctamente.');
+                                                class_av.set_bitacora('Guarda Autores');
                                         }).fail(function(){
                                             class_av.mensaje('Ocurrió un error al intentar guardar Autores');
                                         });
@@ -4854,6 +4862,17 @@ class_av = {
         );
         
         return $state;
+    },
+    set_bitacora: function(movimiento){
+        var tiempo = Date.now() - class_av.var.tiempo_analisis;
+        $.ajax({
+                    type: 'POST',
+                    url: "<?=site_url('metametrics/ws_bitacora');?>",
+                    data: {'movimiento': movimiento, 'sistema': class_av.var.sistema, 'tiempo': tiempo}
+            }).done(function(res) {
+                console.log('Bit');
+            });
+        class_av.var.tiempo_analisis = Date.now();
     }
 };
 

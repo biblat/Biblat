@@ -785,7 +785,7 @@ class Metametrics extends CI_Controller {
 	public function ws_bitacora(){
         if ($this->input->post()) {
             $this->load->model('generic_model');
-            $this->generic_model->insert_bitacora($this->input->post('evento'), $this->input->post('sistema'));
+            $this->generic_model->insert_bitacora($this->input->post('movimiento'), $this->input->post('sistema'), $this->input->post('tiempo'));
         }
     }
 }
