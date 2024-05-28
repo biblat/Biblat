@@ -334,24 +334,25 @@ class Datos extends REST_Controller {
                         on a.sistema = c.sistema
                         where 
                         (
-                            c.nombre <> 'OJS' and c.nombre <> 'SciELO'
-                            and
-                            extract(year from c.fecha) = extract(year from CURRENT_DATE)
-                            and
                             estatus in ('C')
-							and c.id=2
-                        )
-						or
-						(
+							and 
+							c.id=2
+							and
 							c.nombre <> 'OJS' and c.nombre <> 'SciELO'
 							and
                             extract(year from c.fecha) = extract(year from CURRENT_DATE)
-                            and
+                        )
+						or
+						(
 							estatus is null
 							and
 							c.nombre is not null
 							and
 							c.id = 1
+							and
+							c.nombre <> 'OJS' and c.nombre <> 'SciELO'
+                            and
+                            extract(year from c.fecha) = extract(year from CURRENT_DATE)
 						)
                     )
                     select 
