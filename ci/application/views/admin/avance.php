@@ -1,3 +1,8 @@
+<script>
+    const cons =    { 
+                        rol: Object.freeze( { val: '<?php echo $rol; ?>'})
+                    };
+</script>
 <div class="row"><br></div>
 <center><div class="row"><b>Meta del departamento:</b> 30,000 Registros</div></center>
 <div class="row"><br></div>

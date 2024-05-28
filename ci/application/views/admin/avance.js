@@ -64,19 +64,21 @@ class_av = {
         var total_departamento = 30000;
         var total_meta = 0;
         $.each(data, function(i, val){
-            var num = parseInt(val['revision']) + parseInt(val['completados']) + parseInt(val['borrados']);
-            var num2 = parseInt(val['completados']);
-            var avance =  (num - parseInt(val['revision'])) / parseInt(val['total']);
-            var meta = num2 / total_departamento;
-            total_meta += num2;
-            var tr = class_av.var.tr.replace('<usuario>', val['analista'])
-                            .replace('<rev>', val['revision'])
-                            .replace('<comp>', val['completados'])
-                            .replace('<borr>', val['borrados'])
-                            .replace('<total>', val['total'])
-                            .replace('<av>', ( avance * 100 ).toFixed(2) + ' %' )
-                            .replace('<meta>', ( meta * 100 ).toFixed(2) + ' %' );
-            tbody += tr;
+			if( val['nombre'] !== 'EDITOR' || cons.rol.val == 'Administrador'){
+				var num = parseInt(val['revision']) + parseInt(val['completados']) + parseInt(val['borrados']);
+				var num2 = parseInt(val['completados']);
+				var avance =  (num - parseInt(val['revision'])) / parseInt(val['total']);
+				var meta = num2 / total_departamento;
+				total_meta += num2;
+				var tr = class_av.var.tr.replace('<usuario>', val['analista'])
+								.replace('<rev>', val['revision'])
+								.replace('<comp>', val['completados'])
+								.replace('<borr>', val['borrados'])
+								.replace('<total>', val['total'])
+								.replace('<av>', ( avance * 100 ).toFixed(2) + ' %' )
+								.replace('<meta>', ( meta * 100 ).toFixed(2) + ' %' );
+				tbody += tr;
+			}
         });
         
         //$('.progress').html(class_av.var.barra_avance.replaceAll('<avance>', ( total_meta/total_departamento*100 ).toFixed(2)));

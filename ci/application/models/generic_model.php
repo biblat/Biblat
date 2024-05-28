@@ -319,6 +319,10 @@ class Generic_model extends CI_Model {
 				$this->db->where($array);
 				$this->db->update($tabla, $value);
 				
+				if( $value['usuario'] == 'EDITOR' ){
+					$usuario = 'EDITOR';
+				}
+				
 				$query = 'insert into catalogador (
 						"sistema","id","nombre","nivel","fecha","hora"
 						) values('.
@@ -499,7 +503,7 @@ class Generic_model extends CI_Model {
                             $data[$x]['sistema'] = $data[$x]['base'] . $sistema;
                             
                             $usuario = 'DESC';
-                            if( $data[$x]['usuario'] == 'sesion' ){
+                            if( $data[$x]['usuario'] == 'sesion' || $data[$x]['usuario'] == 'EDITOR'){
                                 $usuario = $this->session->userdata('usu_base');
                             }
                             
@@ -530,6 +534,10 @@ class Generic_model extends CI_Model {
                                     (($data[$x]['url'] == '') ? "null)" : "'".$data[$x]['url']."')");
 
                             $query = $this->db->query($query);
+							
+							if( $data[$x]['usuario'] == 'EDITOR' ){
+                                $usuario = 'EDITOR';
+                            }
                             
                              $query = 'insert into catalogador (
                                     "sistema","id","nombre","nivel","fecha","hora"
