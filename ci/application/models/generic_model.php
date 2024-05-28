@@ -312,19 +312,19 @@ class Generic_model extends CI_Model {
 		
 		foreach ($data as $value){
 				foreach ($arr_where as $aw){
-					//No actualiza al usuario en article
-					if(isset($value[$aw]) && $aw !== 'usuario'){
-						$array[$aw] = $value[$aw];
-					}
-				}
-				$this->db->where($array);
-				$this->db->update($tabla, $value);
-				
-				if( $value['usuario'] == 'EDITOR' ){
-                    $usuario = 'EDITOR';
-                }
+                        //No actualiza al usuario en article
+                        if(isset($value[$aw]) && $aw !== 'usuario'){
+                            $array[$aw] = $value[$aw];
+                            $value2[$aw] = $value[$aw];
+                        }
+                    }
                     
-                unset($value['usuario']);
+                    if( $value['usuario'] == 'EDITOR' ){
+                        $usuario = 'EDITOR';
+                    }
+                    
+                    $this->db->where($array);
+                    $this->db->update($tabla, $value2);
 				
 				$query = 'insert into catalogador (
 						"sistema","id","nombre","nivel","fecha","hora"
