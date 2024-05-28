@@ -284,7 +284,8 @@ class Datos extends REST_Controller {
             $query = "
                     with registros as (
                         select 
-                        asignado, estatus
+						distinct a.sistema,
+                        asignado, estatus, nombre
                         from article a
                         inner join
                         catalogador c
@@ -305,7 +306,7 @@ class Datos extends REST_Controller {
                         )
                     )
                     select 
-                        r.asignado analista, 
+                        r.asignado analista, max(r.nombre) nombre,
                         (select count(1) from registros where asignado = r.asignado) total,
                         (select count(1) from registros where asignado = r.asignado and estatus ='R') revision,
                         (select count(1) from registros where asignado = r.asignado and estatus ='C') completados,
@@ -372,6 +373,7 @@ class Datos extends REST_Controller {
             $usuario = $this->session->userdata('usu_base');
             $query = '
                         select
+							distinct
                             a.sistema,
                             revista,
                             "anioRevista" 

@@ -93,6 +93,7 @@ class_av = {
         url_ia:'',
         arr_busca_pdf: [],
         tiempo_analisis: 0,
+        tiempo_inactividad: 0,
         fechaActual: (new Date()).getFullYear() + '-' + ('0' + ((new Date()).getMonth() + 1)).slice(-2) + '-' + ('0' + (new Date()).getDate()).slice(-2),
         tabla: '<table id="tbl_articulos" class="display responsive nowrap" style="width:100%;font-size:11px">' +
                             '<thead>' +
@@ -474,15 +475,16 @@ class_av = {
         loading.start();
         class_av.initClient();
         class_av.filtro();
+        class_av.var.tiempo_inactividad = Date.now();
     },
     control: function(){
         document.addEventListener('mousemove', function(event) {
-            if(class_av.var.tiempo_analisis > 0){
-                if( Date.now() - class_av.var.tiempo_analisis > (60000 * 10) ){
-                    class_av.var.tiempo_analisis = 0;
-                    class_av.set_bitacora('Recarga');
-                    window.location.reload();
-                }
+            if( Date.now() - class_av.var.tiempo_inactividad > (60000 * 10) ){
+                class_av.set_bitacora('Recarga');
+                class_av.var.tiempo_analisis = 0;
+                window.location.reload();
+            }else{
+                class_av.var.tiempo_inactividad = Date.now();
             }
         });
         
@@ -3898,7 +3900,11 @@ class_av = {
             var objDes = {};
             
             obj['sistema'] = '';
-            obj['usuario'] = 'sesion';
+            if(cons.rol.val == 'Editor'){
+                obj['usuario'] = 'EDITOR';
+            }else{
+                obj['usuario'] = 'sesion';
+            }
             obj['revista'] = revista;
             obj['articulo'] = $('#titulo_na').val().trim();
             obj['issn'] = (datosRevista.length !== 1)?null:datosRevista[0][5];
@@ -4144,9 +4150,13 @@ class_av = {
                                         $(this).prop('disabled', true);
                                         loading.start();
                                         var data = {};
+                                        var usuario = 'sesion';
                                         data['tabla'] = 'article';
                                         data['where'] = ['sistema'];
-                                        data['data'] = [{estatus: "C", sistema:class_av.var.sistema}];
+                                        if(cons.rol.val == 'Editor'){
+                                            usuario = 'EDITOR';
+                                        }
+                                        data['data'] = [{estatus: "C", sistema:class_av.var.sistema, usuario: usuario}];
                                         $.ajax({
                                                 type: 'POST',
                                                 url: "<?=site_url('metametrics/ws_update_estatus');?>",
@@ -4369,9 +4379,14 @@ class_av = {
                                     if(envio){
                                         envio = false;
                                         var data = {};
+                                        var usuario = 'sesion';
                                         data['tabla'] = 'article';
                                         data['where'] = ['sistema'];
-                                        data['data'] = [{estatus: "B", sistema:class_av.var.sistema}];
+                                        if(cons.rol.val == 'Editor'){
+                                            usuario = 'EDITOR';
+                                        }
+                                        data['data'] = [{estatus: "B", sistema:class_av.var.sistema, usuario: usuario}];
+                                        
                                         $.ajax({
                                                 type: 'POST',
                                                 url: "<?=site_url('metametrics/ws_update_estatus');?>",
