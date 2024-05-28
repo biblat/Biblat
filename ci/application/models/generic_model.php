@@ -315,12 +315,17 @@ class Generic_model extends CI_Model {
                         //No actualiza al usuario en article
                         if(isset($value[$aw]) && $aw !== 'usuario'){
                             $array[$aw] = $value[$aw];
-                            $value2[$aw] = $value[$aw];
                         }
                     }
                     
                     if( $value['usuario'] == 'EDITOR' ){
                         $usuario = 'EDITOR';
+                    }
+                    
+                    foreach ($value as $v => $val){
+                        if($v !== 'usuario'){
+                            $value2[$v] = $val;
+                        }
                     }
                     
                     $this->db->where($array);
