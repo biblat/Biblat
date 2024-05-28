@@ -321,8 +321,10 @@ class Generic_model extends CI_Model {
 				$this->db->update($tabla, $value);
 				
 				if( $value['usuario'] == 'EDITOR' ){
-					$usuario = 'EDITOR';
-				}
+                    $usuario = 'EDITOR';
+                }
+                    
+                unset($value['usuario']);
 				
 				$query = 'insert into catalogador (
 						"sistema","id","nombre","nivel","fecha","hora"
