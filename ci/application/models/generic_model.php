@@ -312,7 +312,8 @@ class Generic_model extends CI_Model {
 		
 		foreach ($data as $value){
 				foreach ($arr_where as $aw){
-					if(isset($value[$aw])){
+					//No actualiza al usuario en article
+					if(isset($value[$aw]) && $aw !== 'usuario'){
 						$array[$aw] = $value[$aw];
 					}
 				}
