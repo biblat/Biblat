@@ -94,6 +94,7 @@ class_av = {
         arr_busca_pdf: [],
         tiempo_analisis: 0,
         tiempo_inactividad: 0,
+        recargando: false,
         fechaActual: (new Date()).getFullYear() + '-' + ('0' + ((new Date()).getMonth() + 1)).slice(-2) + '-' + ('0' + (new Date()).getDate()).slice(-2),
         tabla: '<table id="tbl_articulos" class="display responsive nowrap" style="width:100%;font-size:11px">' +
                             '<thead>' +
@@ -479,12 +480,15 @@ class_av = {
     },
     control: function(){
         document.addEventListener('mousemove', function(event) {
-            if( Date.now() - class_av.var.tiempo_inactividad > (60000 * 10) ){
-                class_av.set_bitacora('Recarga');
-                class_av.var.tiempo_analisis = 0;
-                window.location.reload();
-            }else{
-                class_av.var.tiempo_inactividad = Date.now();
+            if(!class_av.var.recargando){
+                if( Date.now() - class_av.var.tiempo_inactividad > (60000 * 10) ){
+                    class_av.var.recargando = true;
+                    class_av.set_bitacora('Recarga', class_av.var.tiempo_analisis);
+                    class_av.var.tiempo_analisis = 0;
+                    window.location.reload();
+                }else{
+                    class_av.var.tiempo_inactividad = Date.now();
+                }
             }
         });
         
@@ -4878,15 +4882,21 @@ class_av = {
         
         return $state;
     },
-    set_bitacora: function(movimiento){
-        var tiempo = Date.now() - class_av.var.tiempo_analisis;
-        $.ajax({
-                    type: 'POST',
-                    url: "<?=site_url('metametrics/ws_bitacora');?>",
-                    data: {'movimiento': movimiento, 'sistema': class_av.var.sistema, 'tiempo': tiempo}
-            }).done(function(res) {
-                console.log('Bit');
-            });
+    set_bitacora: function(movimiento, tiempo = null){
+        if(tiempo == null){
+            var tiemposet = Date.now() - class_av.var.tiempo_analisis;
+        }else{
+            var tiemposet = Date.now() - tiempo;
+        }
+        if(class_av.var.sistema !== ''){
+            $.ajax({
+                        type: 'POST',
+                        url: "<?=site_url('metametrics/ws_bitacora');?>",
+                        data: {'movimiento': movimiento, 'sistema': class_av.var.sistema, 'tiempo': tiemposet}
+                }).done(function(res) {
+                    console.log('Bit');
+                });
+        }
         class_av.var.tiempo_analisis = Date.now();
     }
 };
