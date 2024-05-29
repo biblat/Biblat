@@ -1021,8 +1021,8 @@ class_av = {
                                 opciones_instituciones[val.pais+'-'+class_av.var.corporativo] = '';
                                 /*********** Ciudades e instituciones según país *******************/
                                 $.when(
-                                    class_utils.getResource('/datos/ciudad_by_pais/'+val.pais.replaceAll(',',''), true),
-                                    class_utils.getResource('/datos/institucion_by_pais/'+val.pais.replaceAll(',','')+'/'+class_av.var.corporativo, true)
+                                    class_utils.getResource('/datos/ciudad_by_pais/'+val.pais.replaceAll(class_av.cons.char_i,''), true),
+                                    class_utils.getResource('/datos/institucion_by_pais/'+val.pais.replaceAll(class_av.cons.char_i,'')+'/'+class_av.var.corporativo, true)
                                 ) 
                                 .then(function(resp_ciudad, resp_institucion){
                                     //setTimeout(function(){                
@@ -2480,8 +2480,8 @@ class_av = {
 
                     /*********** Ciudades e instituciones según país *******************/
                     $.when(
-                        class_utils.getResource('/datos/ciudad_by_pais/'+pais.replaceAll(',',''), true),
-                        class_utils.getResource('/datos/institucion_by_pais/'+pais.replaceAll(',','')+'/'+class_av.var.corporativo, true)
+                        class_utils.getResource('/datos/ciudad_by_pais/'+pais.replaceAll(class_av.cons.char_i,''), true),
+                        class_utils.getResource('/datos/institucion_by_pais/'+pais.replaceAll(class_av.cons.char_i,'')+'/'+class_av.var.corporativo, true)
                     ) 
                     .then(function(resp_ciudad, resp_institucion){
                         setTimeout(function(){                
