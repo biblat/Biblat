@@ -27,7 +27,17 @@ class_av = {
                             '</thead>' +
                             '<tbody id="body_revistas"><body></tbody></table>',
         tr: '<tr><td><usuario></td><td><rev></td><td><comp></td><td><borr></td><td><total></td><td><av></td><td><meta></td></td>',
-        barra_avance:   '<div class="progress-bar progress-bar-warning progress-bar-striped" role="progressbar" aria-valuenow="<avance>" aria-valuemin="0" aria-valuemax="100" style="width: <avance>%">' +
+        tabla_prod: '<table id="tbl_produccion" class="display responsive nowrap" style="width:50%;font-size:11px">' +
+                            '<thead>' +
+                                '<tr>' +
+                                    '<th rowspan="1" style="width:200px">Analista</th>' +
+                                    '<th rowspan="1" style="width:200px">CLASE</th>' +
+                                    '<th rowspan="1" style="width:200px">PERIÓDICA</th>' +
+                                '</tr>'+
+                            '</thead>' +
+                            '<tbody id="body_produccion"><body></tbody></table>',
+        tr_prod: '<tr><td><usuario></td><td><cla></td><td><per></td>',
+        barra_avance:   '<div id="<id>" class="progress-bar progress-bar-warning progress-bar-striped avance-mes" role="progressbar" aria-valuenow="<avance>" aria-valuemin="0" aria-valuemax="100" style="width: <avance>%">' +
                         '<span style="color:black;font-size:11px"><b><mes></b></span><br>' +
                         '<span style="color:black;font-size:11px"><b><avance>%</b></span>' +
                         '</div>',
@@ -42,7 +52,8 @@ class_av = {
                         '</div>' +
                         '<div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 25%;background-color:#5cb85c">' +
                         '<span style="color:black"><b>Oct-Dic 100%</b></span>' +
-                        '</div>'
+                        '</div>',
+        tproduccion: []
     },
     initClient: function() {
         $.when(class_utils.getResource('/datos/avance/'),
@@ -52,6 +63,10 @@ class_av = {
             class_av.var.analistasJSON = resp_analistas[0];
             class_av.var.avance_por_mes = resp_total[0];
             class_av.setTabla(class_av.var.analistasJSON);
+            if(cons.rol.val == 'Administrador'){
+                $('.avance-mes, #avance-actual').css('cursor', 'pointer');
+                class_av.control_admin();
+            }
             loading.end();
         });
     },
@@ -59,26 +74,46 @@ class_av = {
         loading.start();
         class_av.initClient();
     },
+    control_admin: function(){
+        $('.avance-mes').off('click').on('click', function(){
+            loading.start();
+           var mes = this.id;
+           var anio = (new Date(Date.now())).getFullYear();
+            $.when( 
+                    class_utils.getResource('/datos/produccion/'+mes+'/'+anio),
+                    class_utils.getResource('/datos/tiempo_produccion/'+mes+'/'+anio) 
+            )
+            .then(function(resp_produccion, resp_tproduccion){
+                class_av.setTablaProd(resp_produccion[0]);
+                class_av.var.tproduccion = resp_tproduccion[0];
+                class_av.setGraficaProd();
+                loading.end();
+            });
+        });
+        $('#avance-actual').off('click').on('click', function(){
+           class_av.ready();
+        });
+    },
     setTabla: function(data){
         var tbody = '';
         var total_departamento = 30000;
         var total_meta = 0;
         $.each(data, function(i, val){
-			if( val['nombre'] !== 'EDITOR' || cons.rol.val == 'Administrador'){
-				var num = parseInt(val['revision']) + parseInt(val['completados']) + parseInt(val['borrados']);
-				var num2 = parseInt(val['completados']);
-				var avance =  (num - parseInt(val['revision'])) / parseInt(val['total']);
-				var meta = num2 / total_departamento;
-				total_meta += num2;
-				var tr = class_av.var.tr.replace('<usuario>', val['analista'])
-								.replace('<rev>', val['revision'])
-								.replace('<comp>', val['completados'])
-								.replace('<borr>', val['borrados'])
-								.replace('<total>', val['total'])
-								.replace('<av>', ( avance * 100 ).toFixed(2) + ' %' )
-								.replace('<meta>', ( meta * 100 ).toFixed(2) + ' %' );
-				tbody += tr;
-			}
+            if( val['nombre'] !== 'EDITOR' || cons.rol.val == 'Administrador'){
+                var num = parseInt(val['revision']) + parseInt(val['completados']) + parseInt(val['borrados']);
+                var num2 = parseInt(val['completados']);
+                var avance =  (num - parseInt(val['revision'])) / parseInt(val['total']);
+                var meta = num2 / total_departamento;
+                total_meta += num2;
+                var tr = class_av.var.tr.replace('<usuario>', val['analista'])
+                                .replace('<rev>', val['revision'])
+                                .replace('<comp>', val['completados'])
+                                .replace('<borr>', val['borrados'])
+                                .replace('<total>', val['total'])
+                                .replace('<av>', ( avance * 100 ).toFixed(2) + ' %' )
+                                .replace('<meta>', ( meta * 100 ).toFixed(2) + ' %' );
+                tbody += tr;
+            }
         });
         
         //$('.progress').html(class_av.var.barra_avance.replaceAll('<avance>', ( total_meta/total_departamento*100 ).toFixed(2)));
@@ -90,6 +125,7 @@ class_av = {
             if(i%2 !== 0){
                tmp = tmp.replaceAll('progress-bar-striped', '');
             }
+            tmp = tmp.replace('<id>', val.mes);
             bar_progress += tmp.replaceAll('<avance>', ( val.total/total_departamento*100 ).toFixed(2)).replaceAll('<mes>', class_utils.cons.meses[val.mes]);
         });
         $('#avance_total').html(avance_total.toLocaleString().replaceAll('.', ','));
@@ -123,6 +159,140 @@ class_av = {
                     }; 
         class_utils.setTabla('tbl_analistas', op);
         
+    },
+    setTablaProd: function(data){
+        var tbody = '';
+        $.each(data, function(i, val){
+                var tr = class_av.var.tr_prod.replace('<usuario>', val['nombre'])
+                                .replace('<cla>', val['clase'])
+                                .replace('<per>', val['periodica']);
+                tbody += tr;
+        });
+                
+        var tabla = class_av.var.tabla_prod
+                .replace('<body>', tbody);
+        
+        $('#div_tabla').html(tabla);
+        
+        var op = {
+                        dom: 'Bfrtip',
+                        buttons: [
+                            {
+                                extend: 'csvHtml5',
+                                text: 'Exportar CSV',
+                                exportOptions: {
+                                    columns: [0,1,2]
+                                }
+                            }
+                        ],
+                        order: [[ 0, 'asc' ]],
+                        bLengthChange: false,
+                        paging: false,
+                        pagingType: 'input',
+                        autoWidth: true,
+                        columnDefs: [
+                            {
+                                render: function (data, type, full, meta) {
+                                    //Sustituye el valor de la celda por esto agregando un div para que se mantenga dentro del tamaño definido
+                                    return '<div style="width: 100%; text-align: left; white-space: normal;">' + data + '</div>';
+                                },
+                                targets: [0,1,2]
+                            }
+                        ],
+                        //Reajusta el ancho de las columnas
+                        drawCallback: function( settings ) {
+                            $(this).DataTable().columns.adjust();
+                        }
+                    }; 
+        class_utils.setTabla('tbl_produccion', op);
+        
+    },
+    setGraficaProd: function(){
+        var grafica = JSON.parse(JSON.stringify(class_utils.chartColumn2));
+        var categorias = class_utils.unique_obj(class_av.var.tproduccion,'fecha').map(fechas => fechas.fecha);
+        var usuarios = class_utils.unique_obj(class_av.var.tproduccion,'usuario').map(usuario => usuario.usuario);
+        var series = [];
+        var articulos = {};
+        var maximo = {};
+        var minimo = {};
+        
+        $.each(usuarios, function(i, val){
+            var obj = {};
+            obj.name = val;
+            var filtro = class_utils.filter_prop(class_av.var.tproduccion, 'usuario', val);
+            obj.data = [];
+            articulos[val] = [];
+            maximo[val] = [];
+            minimo[val] = [];
+            
+            $.each(categorias, function(i2, val2){
+                var filtro2 = class_utils.filter_prop(filtro, 'fecha', val2);
+                
+                articulos[val][val2] = filtro2.length;
+                if(filtro2.length > 0){
+                    maximo[val][val2] = filtro2.reduce((max, obj) => Math.max(max, obj.tiempo), -Infinity);
+                    minimo[val][val2] = filtro2.reduce((min, obj) => Math.min(min, obj.tiempo), Infinity);
+                }else{
+                    maximo[val][val2] = 0;
+                    minimo[val][val2] = 0;
+                }
+                
+               obj.data.push(filtro2
+                        .map(res => res.tiempo)
+                        .filter(tiempo => !isNaN(tiempo))
+                        .map(tiempo => Number(tiempo) / 1000 )
+                        .reduce((total, tiempo) => parseFloat((total + tiempo).toFixed(2)), null));
+            });
+            series.push(obj);
+        });
+        
+        grafica.title.text = 'Tiempo estimado de uso';
+        grafica.plotOptions.column = {stacking: "normal"};
+        //grafica.plotOptions.series = {events: [], point: {events: []}, dataLabels: {enabled: true, format: "{y:f}"}};
+        grafica.plotOptions.series = {events: [], point: {events: []}, dataLabels: {enabled: true}};
+        grafica.plotOptions.series.dataLabels.formatter = function () {
+            var totalSeconds = this.y;
+            var hours = Math.floor(totalSeconds / 3600);
+            var minutes = Math.floor((totalSeconds % 3600) / 60);
+            var seconds = Math.floor(totalSeconds % 60);
+            return hours + 'h ' + minutes + 'm ' + seconds + 's';
+          };
+        grafica.series = series;
+        grafica.stackLabels = {enabled: true};
+        grafica.xAxis.categories = categorias;
+        grafica.yAxis = {allowDecimals: true, title: {text: "Analista"}, stackLabels: {enabled: true}};
+        grafica.yAxis.stackLabels.formatter = function(){
+            var totalSeconds = this.total;
+            var hours = Math.floor(totalSeconds / 3600);
+            var minutes = Math.floor((totalSeconds % 3600) / 60);
+            var seconds = Math.floor(totalSeconds % 60);
+            return hours + 'h ' + minutes + 'm ' + seconds + 's';
+        };
+        grafica.tooltip.formatter = function() {
+                var totalSeconds = this.y;
+                var articuloSeconds = this.y/articulos[this.series.name][this.x];
+                var maxSeconds = Number(maximo[this.series.name][this.x])/1000;
+                var minSeconds = Number(minimo[this.series.name][this.x])/1000;
+                var hours = Math.floor(totalSeconds / 3600);
+                var minutes = Math.floor((totalSeconds % 3600) / 60);
+                var seconds = Math.floor(totalSeconds % 60);
+                var hoursArt = Math.floor(articuloSeconds / 3600);
+                var minutesArt = Math.floor((articuloSeconds % 3600) / 60);
+                var secondsArt = Math.floor(articuloSeconds % 60);
+                var minutesMax = Math.floor((maxSeconds % 3600) / 60);
+                var secondsMax = Math.floor(maxSeconds % 60);
+                var minutesMin = Math.floor((minSeconds % 3600) / 60);
+                var secondsMin = Math.floor(minSeconds % 60);
+                
+                return '<table style="font-size:11px"><tr><td style="color:'+this.series.color+';padding:0">'+this.series.name+':</td></tr>' +
+                        '<tr><td style="padding:0">Artículos: '+ articulos[this.series.name][this.x] +'</td></tr>'+
+                        '<tr><td style="padding:0">Tiempo promedio: '+ hoursArt + 'h ' + minutesArt + 'm ' + secondsArt + 's' +'</td></tr>' +
+                        '<tr><td style="padding:0">Tiempo máximo: '+ minutesMax + 'm ' + secondsMax + 's' +'</td></tr>' +
+                        '<tr><td style="padding:0">Tiempo mínimo: '+ minutesMin + 'm ' + secondsMin + 's' +'</td></tr>' +
+                        '<tr><td style="padding:0">Tiempo total: '+ hours + 'h ' + minutes + 'm ' + seconds + 's' +'</td></tr></table>';
+            };
+        grafica.chart.height='1000px';
+        Highcharts.chart('div_tiempos', grafica);
     }
 };
 
