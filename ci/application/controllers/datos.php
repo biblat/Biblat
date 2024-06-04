@@ -843,4 +843,89 @@ class Datos extends REST_Controller {
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);  
         }
+		
+		public function produccion_get($mes, $anio){
+            $data = array();
+            $this->load->database();
+            $query = "
+                        with agrupado as( 
+                            with reg as(
+                                    select distinct sistema, id, nombre, nivel, max(fecha) fecha, 1 num from catalogador c 
+                                    where
+                                    c.nombre not in ('OJS', 'SciELO')
+                                    and
+                                    (
+                                    id=1
+                                     or
+                                    (id=2 and (select nombre from catalogador where id=1 and sistema = c.sistema) in ('OJS', 'SciELO'))
+                                    )
+                                    and
+                                    sistema not in (select sistema from article where estatus='B')
+                                    and
+                                    extract(month from c.fecha) in (".$mes.") 
+                                    and 
+                                    extract(year from c.fecha) = ".$anio."
+                                    group by 1,2,3,4,6
+
+                                    union
+
+                                    select distinct sistema, id, nombre, nivel, max(fecha) fecha, 2 num from catalogador c 
+                                    where
+                                    c.nombre in ('OJS', 'SciELO')
+                                    and
+                                    (
+                                    id=1
+                                     or
+                                    (id=2 and (select nombre from catalogador where id=1 and sistema = c.sistema) in ('OJS', 'SciELO'))
+                                    )
+                                    and
+                                    sistema not in (select sistema from article where estatus='B')
+                                    and
+                                    extract(month from c.fecha) in (".$mes.") 
+                                    and 
+                                    extract(year from c.fecha) = ".$anio."
+                                    group by 1,2,3,4,6
+
+                                    union
+                                    
+                                    select distinct sistema, id, nombre, nivel, max(fecha) fecha, 2 num from catalogador 
+                                    where id=1 
+                                    and nombre in ('OJS', 'SciELO') 
+                                    and
+                                    sistema not in (select sistema from article where estatus='B')
+                                    and sistema in (select sistema from catalogador where id=2 and nombre not in ('OJS', 'SciELO')  and extract(month from fecha) in (".$mes.") and extract(year from fecha) = ".$anio.")
+                                    group by 1,2,3,4,6
+                                    order by num
+                            )
+                            select 
+                             replace(replace(ARRAY_AGG(nombre)::text,'{',''),'}','') nombre,
+                             COUNT(reg.sistema) filter (where reg.sistema like 'CLA%') clase,
+                             COUNT(reg.sistema) filter (where reg.sistema like 'PER%') periodica 
+                             from reg
+                             group by sistema
+                            )
+                            select 
+                                    nombre,
+                                    COUNT(clase) filter (where a.clase > 0) clase,
+                                    COUNT(periodica) filter (where a.periodica > 0) periodica
+                            from agrupado a
+                            group by nombre
+                            order by nombre
+            ";
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);  
+        }
+        
+        public function tiempo_produccion_get($mes, $anio){
+            $data = array();
+            $this->load->database();
+            $query = "
+                        select sistema, max(usuario) usuario, max(fecha) fecha, sum(tiempo) tiempo
+                        from bitacora where movimiento <> 'Recarga'
+                        and extract(month from fecha) = ".$mes." and extract(year from fecha) = ".$anio."
+                        group by sistema order by 3,2,4
+                    ";
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);  
+        }
 }
