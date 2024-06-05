@@ -243,7 +243,7 @@ class Metametrics extends CI_Controller {
         }*/
         
         $termina = 10;
-        /*OTra que tal vez tampoco 2024-02
+        /*OTra que tal vez tampoco 2024-02*/
         while($exist_div == false && $termina != 0){
             $url_token = $oai.'?verb=ListRecords&resumptionToken=<token>&years_'.$years.'&tk_'.rand();
             $url_tk = str_replace('<token>', $token, $url_token);
@@ -270,7 +270,7 @@ class Metametrics extends CI_Controller {
                 }
             }
             $termina = $termina - 1;
-        }*/
+        }
         
         /*
         //
