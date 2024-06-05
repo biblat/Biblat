@@ -984,6 +984,11 @@ class_utils= {
             return val.indexOf(obj2[prop]) !== -1 && ["", undefined, null].indexOf(obj2[prop]) == -1;
         });
     },
+    filter_val_oai: function(obj,prop,val){
+        return obj.filter(function(obj2){
+            return val.indexOf(obj2[prop]+'/') !== -1 && ["", undefined, null].indexOf(obj2[prop]) == -1;
+        });
+    },
     filter_prop_notarr: function(obj,prop,val){
         return obj.filter(function(obj2){
             return val.indexOf(obj2[prop]) == -1;
