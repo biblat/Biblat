@@ -1,4 +1,4 @@
-// cambios 65,66, 2364, 2366, 3129, 4928
+// cambios 65,66, 2371, 2373, 3136, 4935
 class_av = {
     cons: {
         DISCOVERY_DOCS: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
@@ -98,7 +98,7 @@ class_av = {
         fechaActual: (new Date()).getFullYear() + '-' + ('0' + ((new Date()).getMonth() + 1)).slice(-2) + '-' + ('0' + (new Date()).getDate()).slice(-2),
         institucion_anterior: '',
         institucion_cambio: '',
-        institucion_diccionario: [],
+        institucion_diccionario: {},
         tabla: '<table id="tbl_articulos" class="display responsive nowrap" style="width:100%;font-size:11px">' +
                             '<thead>' +
                                 '<tr>' +
@@ -312,9 +312,16 @@ class_av = {
         cambios_institucion: false
     },
     initClient: function() {
-        $.when(class_utils.getResource('/datos/articulos/')) 
-        .then(function(resp_articulos){
-            class_av.var.articulosJSON = resp_articulos;
+        $.when(class_utils.getResource('/datos/articulos/'),
+        class_utils.getResource('/datos/tabla_by_user/usuario_institution_dic')
+        ) 
+        .then(function(resp_articulos, resp_institucion_dict){
+            class_av.var.articulosJSON = resp_articulos[0];
+            if(resp_institucion_dict[0].length !== 0){
+                    if( resp_institucion_dict[0][0].instituciones ){
+                        class_av.var.institucion_diccionario = JSON.parse(resp_institucion_dict[0][0].instituciones);
+                    }
+            }
             class_av.setTabla(class_av.var.articulosJSON);
             var object = {
                 private_key: env.P_K,
@@ -4946,8 +4953,34 @@ class_av = {
         class_av.var.institucion_anterior = $(id).val();
     },
     set_institucion_change_all: function(id){
-        class_av.var.institucion_cambio = $(id).val();
-        class_av.var.institucion_diccionario[class_av.var.institucion_anterior] = class_av.var.institucion_cambio;
+        class_av.var.institucion_cambio = $(id).val().trim();
+        if( class_av.var.institucion_cambio !== undefined && class_av.var.institucion_cambio !== ''){
+            class_av.var.institucion_diccionario[class_av.var.institucion_anterior] = class_av.var.institucion_cambio;
+            $.ajax({
+                    type: 'POST',
+                    url: "<?=site_url('metametrics/ws_update_or_insert');?>",
+                    data: class_av.data_update_institucion_diccionario(),
+            }).done(function() {
+            }).fail(function(){
+            });
+        }
+    },
+    data_update_institucion_diccionario: function(){
+        var data = {};
+        var columns = ['usuario'];
+        var data_int = [];
+        var obj = {};
+        
+        obj['usuario'] = 'sesion';
+        obj['instituciones'] = JSON.stringify(class_av.var.institucion_diccionario);
+        
+        data_int.push(obj);
+        
+        data['tabla'] = 'usuario_institution_dic';
+        data['where'] = columns;
+        data['data'] = data_int;
+        data['data_ant'] = [{'usuario': obj['usuario']}];
+        return data;
     }
 };
 

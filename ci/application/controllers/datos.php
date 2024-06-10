@@ -928,4 +928,16 @@ class Datos extends REST_Controller {
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);  
         }
+		
+		public function tabla_by_user_get($tabla){
+            $data = array();
+            $this->load->database();
+            $usuario = $this->session->userdata('usu_base');
+            $query = "
+                select * from ".$tabla." where usuario = '".$usuario."'
+            ";
+            
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);  
+		}
 }

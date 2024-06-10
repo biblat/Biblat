@@ -286,6 +286,9 @@ class Generic_model extends CI_Model {
 			foreach ($data as $value){
 				foreach ($arr_where as $aw){
                                     if(isset($value[$aw])){
+                                        if($value[$aw] == 'sesion'){
+                                            $value[$aw] = $this->session->userdata('usu_base');
+                                        }
                                         $array[$aw] = $value[$aw];
                                     }
 				}
