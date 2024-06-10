@@ -1,4 +1,4 @@
-// cambios 65,66, 2328, 2330, 3095
+// cambios 65,66, 2364, 2366, 3129, 4928
 class_av = {
     cons: {
         DISCOVERY_DOCS: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
@@ -96,6 +96,9 @@ class_av = {
         tiempo_inactividad: 0,
         recargando: false,
         fechaActual: (new Date()).getFullYear() + '-' + ('0' + ((new Date()).getMonth() + 1)).slice(-2) + '-' + ('0' + (new Date()).getDate()).slice(-2),
+        institucion_anterior: '',
+        institucion_cambio: '',
+        institucion_diccionario: [],
         tabla: '<table id="tbl_articulos" class="display responsive nowrap" style="width:100%;font-size:11px">' +
                             '<thead>' +
                                 '<tr>' +
@@ -152,6 +155,9 @@ class_av = {
                             <div class="row"> \n\
                                 <div class="col-xs-6"> \n\
                                     <span><b>Institución:</b></span><br><select id="institucion-<id>" style="width: 100%" class="form-control instituciones institucion"> </select> \n\
+                                    <div id="div-valor-anterior-<id>" style="font-size:12px; display: none; "> \n\
+                                        <span><b>Corrección en registros anteriores:</b></span> <span id="valor-anterior-<id>"></span>\n\
+                                    </div> \n\
                                     <div id="check-ins-<id>" style="display: none" class="institucion"> \n\
                                         <i class="fa fa-file-pdf-o" aria-hidden="true" style="color: darkred"></i> \n\
                                         <i class="fa fa-long-arrow-right" aria-hidden="true"></i> \n\
@@ -481,7 +487,7 @@ class_av = {
     control: function(){
         document.addEventListener('mousemove', function(event) {
             if(!class_av.var.recargando){
-                if( Date.now() - class_av.var.tiempo_inactividad > (60000 * 10) ){
+                if( Date.now() - class_av.var.tiempo_inactividad > (60000 * 20) ){
                     class_av.var.recargando = true;
                     class_av.set_bitacora('Recarga', class_av.var.tiempo_analisis);
                     class_av.var.tiempo_analisis = 0;
@@ -510,6 +516,7 @@ class_av = {
             class_av.var.count_keywords = 0;
             class_av.var.palabras_clave_n = [];
             class_av.var.keywords_n = [];
+            class_av.var.institucion_anterior = '';
             
             $('#keywords_n').empty();
             $('#palabras_clave_n').empty();
@@ -901,6 +908,10 @@ class_av = {
                                 //Revisa al final las repetidas para agregar el menu
                                 $.each(repetidas_sug_ciudades, function(i2, val2){
                                     if(val2.institucion !== null && val2.institucion !== undefined && val2.institucion !== '') {
+                                        if(class_av.var.institucion_diccionario[val2.institucion] !== undefined){
+                                            $('#valor-anterior-'+val2.id).html(class_av.var.institucion_diccionario[val2.institucion]);
+                                            $('#div-valor-anterior-'+val2.id).show();
+                                        }
                                         $('#sug-ciudad-'+val2.id).html(opciones_sug_ciudades[val2.institucion]);
                                         class_av.seleccion_sug_ciudad();
                                         //$('#sug-ciudad-'+val2.id).select2({ tags: true, placeholder: "Sugerencias encontradas", allowClear: true});
@@ -954,7 +965,10 @@ class_av = {
                                 $('#institucion-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve', data: opciones_instituciones[val2.pais+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
                                 $('#select2-institucion-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                 $('.select2-container').tooltip();
-                                $('#select2-institucion-'+val2.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
+                                $('#select2-institucion-'+val2.id+'-container').on('click', function(){
+                                    var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());
+                                    class_av.set_institucion_anterior('#'+this.id.replace('select2-','').replace('-container',''));
+                                });
                                 if(val2.institucion !== null && val2.institucion !== undefined && val2.institucion !== ''){
                                     //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
                                     if ($('#institucion-'+val2.id).find("option[value='" + val2.institucion.replaceAll('"', "&quot;") + "']").length) {
@@ -963,11 +977,13 @@ class_av = {
                                         var newOption = new Option(val2.institucion, val2.institucion.replaceAll('"', "&quot;"), true, true);
                                         $('#institucion-'+val2.id).append(newOption).trigger('change');
                                     }
+                                    
                                    //$('#institucion-'+val2.id).val(val2.institucion).trigger('change');
                                     class_av.busca_en_pdf(class_av.var.texto_pdf, val2.institucion, '#check-ins-'+val2.id, '#institucion-'+val2.id)
                                     .then(function(){
                                         $('#institucion-'+val2.id).on('change', function(){
                                              class_av.var.cambios_institucion = (true && !es_inicio);
+                                             class_av.set_institucion_change_all('#institucion-'+val2.id);
                                          });
                                          recorrido_inst(resto_val);
                                    });
@@ -1076,7 +1092,10 @@ class_av = {
                                         $('#institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve', data: opciones_instituciones[val.pais+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
                                         $('#select2-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                         $('.select2-container').tooltip();
-                                        $('#select2-institucion-'+val.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
+                                        $('#select2-institucion-'+val.id+'-container').on('click', function(){
+                                            var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());
+                                            class_av.set_institucion_anterior('#'+this.id.replace('select2-','').replace('-container',''));
+                                        });
                                         
                                         //Si hay un valor de institución se preselecciona
                                         if(val.institucion !== null && val.institucion !== undefined && val.institucion !== ''){
@@ -1087,12 +1106,14 @@ class_av = {
                                                 var newOption = new Option(val.institucion, val.institucion.replaceAll('"', "&quot;"), true, true);
                                                 $('#institucion-'+val.id).append(newOption).trigger('change');
                                             }
+                                            
                                             //if(url_pdf !== ''){
                                                 //class_av.busca_en_pdf(url_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id);
                                                 class_av.busca_en_pdf(class_av.var.texto_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id)
                                                 .then(function(){
                                                     $('#institucion-'+val.id).on('change', function(){
                                                         class_av.var.cambios_institucion = (true && !es_inicio);
+                                                        class_av.set_institucion_change_all('#institucion-'+val.id);
                                                     });
 
                                                     //Ya que se terminan las peticiones por país, se revisan instituciones del mismo país
@@ -1165,10 +1186,14 @@ class_av = {
                                 $('#institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve', data: options, templateResult: class_av.formato_badge});
                                 $('#select2-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                                 $('.select2-container').tooltip();
-                                $('#select2-institucion-'+val.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
+                                $('#select2-institucion-'+val.id+'-container').on('click', function(){
+                                    var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());
+                                    class_av.set_institucion_anterior('#'+this.id.replace('select2-','').replace('-container',''));
+                                });
                                 $('#institucion-'+val.id).val(val.institucion).trigger('change');
                                 $('#institucion-'+val.id).on('change', function(){
                                     class_av.var.cambios_institucion = (true && !es_inicio);
+                                    class_av.set_institucion_change_all('#institucion-'+val.id);
                                 });
                                 //if(url_pdf !== ''){
                                     //class_av.busca_en_pdf(url_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id);
@@ -1194,6 +1219,11 @@ class_av = {
 
                         /************************Dependencias*****************/
                         if(val.institucion !== null && val.institucion !== '' && val.institucion !== undefined){
+                            if(class_av.var.institucion_diccionario[val.institucion] !== undefined){
+                                $('#valor-anterior-'+val.id).html(class_av.var.institucion_diccionario[val.institucion]);
+                                $('#div-valor-anterior-'+val.id).show();
+                            }
+                            
                             //Revisa si ya se trajo el catálogo para este país
                             if( !opciones_dependencias.hasOwnProperty(val.institucion+'-'+class_av.var.corporativo) ){
                                 //peticiones++;
@@ -2548,7 +2578,10 @@ class_av = {
                             $('#institucion-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve', data: opciones_instituciones[pais+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
                             $('#select2-institucion-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                             $('.select2-container').tooltip();
-                            $('#select2-institucion-'+id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
+                            $('#select2-institucion-'+id+'-container').on('click', function(){
+                                var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());
+                                class_av.set_institucion_anterior('#'+this.id.replace('select2-','').replace('-container',''));
+                            });
 
                             //Si hay un valor de institución se preselecciona
                             if(val_institucion !== null){
@@ -2562,6 +2595,7 @@ class_av = {
                             }
                             $('#institucion-'+id).on('change', function(){
                                 class_av.var.cambios_institucion = (true && !class_av.var.cambios_de_inicio);
+                                class_av.set_institucion_change_all('#institucion-'+id);
                             });
 
                         }, 1000);
@@ -2597,7 +2631,10 @@ class_av = {
                         $('#institucion-'+id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true, width: 'resolve', data: opciones_instituciones[pais+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
                         $('#select2-institucion-'+id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
                         $('.select2-container').tooltip();
-                        $('#select2-institucion-'+id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
+                        $('#select2-institucion-'+id+'-container').on('click', function(){
+                            var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());
+                            class_av.set_institucion_anterior('#'+this.id.replace('select2-','').replace('-container',''));
+                        });
                         if(val_institucion !== null){
                             //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
                             if ($('#institucion-'+id).find("option[value='" + val_institucion.replaceAll('"', "&quot;") + "']").length) {
@@ -2609,6 +2646,7 @@ class_av = {
                         }
                         $('#institucion-'+id).on('change', function(){
                             class_av.var.cambios_institucion = (true && !class_av.var.cambios_de_inicio);
+                            class_av.set_institucion_change_all('#institucion-'+id);
                         });
                         $('#ciudad-'+id+'-load').hide();
                         $('#div-ciudad-'+id).show();
@@ -2648,6 +2686,11 @@ class_av = {
                 if(val_dependencia == ''){
                     val_dependencia = null;
                 }
+            }
+            
+            if(class_av.var.institucion_diccionario[institucion] !== undefined){
+                $('#valor-anterior-'+id).html(class_av.var.institucion_diccionario[institucion]);
+                $('#div-valor-anterior-'+id).show();
             }
             
             class_av.busca_en_pdf(class_av.var.texto_pdf, institucion, '#check-ins-'+id, '#institucion-'+id);
@@ -4898,6 +4941,13 @@ class_av = {
                 });
         }
         class_av.var.tiempo_analisis = Date.now();
+    },
+    set_institucion_anterior: function(id){
+        class_av.var.institucion_anterior = $(id).val();
+    },
+    set_institucion_change_all: function(id){
+        class_av.var.institucion_cambio = $(id).val();
+        class_av.var.institucion_diccionario[class_av.var.institucion_anterior] = class_av.var.institucion_cambio;
     }
 };
 
