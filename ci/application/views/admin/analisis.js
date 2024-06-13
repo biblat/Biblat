@@ -62,10 +62,10 @@ class_av = {
         palabra_clave_sustituye: '<br><center><i class="fa fa-arrow-down" aria-hidden="true"></i><center><br><palabra> <span class="badge"><num></span>'
     },   
     var: {
-        servidor: 'http://localhost:5001',
-        app: '',
-        //servidor: 'https://biblat.unam.mx',
-        //app: '/scielo-claper',
+        //servidor: 'http://localhost:5001',
+        //app: '',
+        servidor: 'https://biblat.unam.mx',
+        app: '/scielo-claper',
         usuariosJSON: [],
         analistasJSON: [],
         documentoJSON: '',
