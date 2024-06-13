@@ -62,10 +62,10 @@ class_av = {
         palabra_clave_sustituye: '<br><center><i class="fa fa-arrow-down" aria-hidden="true"></i><center><br><palabra> <span class="badge"><num></span>'
     },   
     var: {
-        //servidor: 'http://localhost:5001',
-        //app: '',
-        servidor: 'https://biblat.unam.mx',
-        app: '/scielo-claper',
+        servidor: 'http://localhost:5001',
+        app: '',
+        //servidor: 'https://biblat.unam.mx',
+        //app: '/scielo-claper',
         usuariosJSON: [],
         analistasJSON: [],
         documentoJSON: '',
@@ -618,8 +618,7 @@ class_av = {
                 ) 
                 .then(function(resp_pdf){*/
                     
-                    var resp_pdf = {};
-                    var setArticulo = function(){
+                    var setArticulo = function(resp_pdf){
                         class_av.var.texto_pdf = resp_pdf.result;
 
                         /**** Búsqueda de título en pdf *********/
@@ -1457,10 +1456,10 @@ class_av = {
                         cache:false,
                         dataType:"json"
                     }).done(function(resp_pdf){
-                        setArticulo();
+                        setArticulo(resp_pdf);
                     }).error(function(){
-                        resp_pdf = {'result': 'fallo'};
-                        setArticulo();
+                        var resp_pdf = {'result': 'fallo'};
+                        setArticulo(resp_pdf);
                     });
                 //});
             });
