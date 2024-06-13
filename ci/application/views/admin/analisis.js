@@ -1,4 +1,4 @@
-// cambios 65,66, 2371, 2373, 3136, 4935
+// cambios 65,66, 2396, 2398, 3136, 4959
 class_av = {
     cons: {
         DISCOVERY_DOCS: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
@@ -613,838 +613,856 @@ class_av = {
                 class_av.autor_corporativo(true);
                 
                 //Lectura del pdf
-                $.when(
+                /*$.when(
                     class_utils.setResource(class_av.var.servidor + class_av.var.app + '/get_pdf/', {url: url_pdf}, true)
                 ) 
-                .then(function(resp_pdf){
-                    class_av.var.texto_pdf = resp_pdf.result;
+                .then(function(resp_pdf){*/
+                    
+                    var resp_pdf = {};
+                    var setArticulo = function(){
+                        class_av.var.texto_pdf = resp_pdf.result;
 
-                    /**** Búsqueda de título en pdf *********/
-                    //if(url_pdf !== ''){
-                        //class_av.busca_en_pdf(url_pdf, class_av.var.documentoJSON[0].articulo, '#check-titulo', '#titulo');
-                        class_av.busca_en_pdf(class_av.var.texto_pdf, class_av.var.documentoJSON[0].articulo, '#check-titulo', '#titulo');
-                    //}
+                        /**** Búsqueda de título en pdf *********/
+                        //if(url_pdf !== ''){
+                            //class_av.busca_en_pdf(url_pdf, class_av.var.documentoJSON[0].articulo, '#check-titulo', '#titulo');
+                            class_av.busca_en_pdf(class_av.var.texto_pdf, class_av.var.documentoJSON[0].articulo, '#check-titulo', '#titulo');
+                        //}
 
-                    $('.tooltip-titulo').tooltip();
-                    $('#titulo').val(class_av.var.documentoJSON[0].articulo.replace(/<[^>]+>/g, ''));
-                    var tiempo;
-                    $('#titulo').off('keyup').on('keyup', function(e){
-                        if (e.key === "Enter") {
-                            clearTimeout(tiempo);
-                            //REvisa que exista una longitud en el texto oríginal del título y que lo que se ha escrito sea +- 10 caracteres que "el original"
-                            // Comprobamos si es un carácter, un espacio o la tecla de borrar
+                        $('.tooltip-titulo').tooltip();
+                        $('#titulo').val(class_av.var.documentoJSON[0].articulo.replace(/<[^>]+>/g, ''));
+                        var tiempo;
+                        $('#titulo').off('keyup').on('keyup', function(e){
+                            if (e.key === "Enter") {
+                                clearTimeout(tiempo);
+                                //REvisa que exista una longitud en el texto oríginal del título y que lo que se ha escrito sea +- 10 caracteres que "el original"
+                                // Comprobamos si es un carácter, un espacio o la tecla de borrar
+
+                                //var len_articulo = class_av.var.documentoJSON[0].articulo.length;
+                                //if( len_articulo == 0 || ( len_articulo > 0 && $('#titulo').val().length > len_articulo - 20)){
+                                    $('#titulo').prop("disabled", true);
+                                    tiempo = setTimeout(function() {
+                                        class_av.texto_idioma($('#titulo').val(), $('#idioma').val(), '#check-idioma', '#idioma');
+                                        //class_av.busca_en_pdf(url_pdf, $('#titulo').val(), '#check-titulo', '#titulo');
+                                        class_av.busca_en_pdf(class_av.var.texto_pdf, $('#titulo').val(), '#check-titulo', '#titulo');
+                                    }, 1000);
+                                //}else{
+                                    //class_av.busca_en_pdf(url_pdf, $('#titulo').val(), '#check-titulo', null);
+                                    //class_av.busca_en_pdf(class_av.var.texto_pdf, $('#titulo').val(), '#check-titulo', null);
+                                //}
+                            }
+                            class_av.var.cambios_documento = true;
+                        });
+
+                        $("#idioma").val(null);
+                        $("#idioma2").val(null);
+                        $("#idioma3").val(null);
+                        $("#tipourl1").val(null);
+                        $("#tipourl2").val(null);
+
+
+                        /******************************************************************/
+                        var idiomas = [''];
+                        if(class_av.var.documentoJSON[0].idioma !== null && class_av.var.documentoJSON[0].idioma !== undefined){
+                            idiomas = class_av.var.documentoJSON[0].idioma.split(',').map(function(item) {
+                                                                                            return item.trim().charAt(0).toUpperCase() + item.trim().toLowerCase().slice(1);
+                                                                                        });
+                        }
+                        $("#idioma").val(idiomas[0]);
+                        /****Búsqueda idioma ********/
+                        if(idiomas[0] !== ''){
+                            class_av.texto_idioma(class_av.var.documentoJSON[0].articulo, idiomas[0], '#check-idioma', '#idioma');
+                        }
+
+                        var tiempo_tit;
+                        $('#idioma').off('change').on('change', function(e){
+                            clearTimeout(tiempo_tit);
 
                             //var len_articulo = class_av.var.documentoJSON[0].articulo.length;
                             //if( len_articulo == 0 || ( len_articulo > 0 && $('#titulo').val().length > len_articulo - 20)){
-                                $('#titulo').prop("disabled", true);
-                                tiempo = setTimeout(function() {
+                                $('#idioma').prop("disabled", true);
+                                tiempo_tit = setTimeout(function() {
                                     class_av.texto_idioma($('#titulo').val(), $('#idioma').val(), '#check-idioma', '#idioma');
-                                    //class_av.busca_en_pdf(url_pdf, $('#titulo').val(), '#check-titulo', '#titulo');
-                                    class_av.busca_en_pdf(class_av.var.texto_pdf, $('#titulo').val(), '#check-titulo', '#titulo');
                                 }, 1000);
-                            //}else{
-                                //class_av.busca_en_pdf(url_pdf, $('#titulo').val(), '#check-titulo', null);
-                                //class_av.busca_en_pdf(class_av.var.texto_pdf, $('#titulo').val(), '#check-titulo', null);
-                            //}
-                        }
-                        class_av.var.cambios_documento = true;
-                    });
-
-                    $("#idioma").val(null);
-                    $("#idioma2").val(null);
-                    $("#idioma3").val(null);
-                    $("#tipourl1").val(null);
-                    $("#tipourl2").val(null);
-
-
-                    /******************************************************************/
-                    var idiomas = [''];
-                    if(class_av.var.documentoJSON[0].idioma !== null && class_av.var.documentoJSON[0].idioma !== undefined){
-                        idiomas = class_av.var.documentoJSON[0].idioma.split(',').map(function(item) {
-                                                                                        return item.trim().charAt(0).toUpperCase() + item.trim().toLowerCase().slice(1);
-                                                                                    });
-                    }
-                    $("#idioma").val(idiomas[0]);
-                    /****Búsqueda idioma ********/
-                    if(idiomas[0] !== ''){
-                        class_av.texto_idioma(class_av.var.documentoJSON[0].articulo, idiomas[0], '#check-idioma', '#idioma');
-                    }
-
-                    var tiempo_tit;
-                    $('#idioma').off('change').on('change', function(e){
-                        clearTimeout(tiempo_tit);
-
-                        //var len_articulo = class_av.var.documentoJSON[0].articulo.length;
-                        //if( len_articulo == 0 || ( len_articulo > 0 && $('#titulo').val().length > len_articulo - 20)){
-                            $('#idioma').prop("disabled", true);
-                            tiempo_tit = setTimeout(function() {
-                                class_av.texto_idioma($('#titulo').val(), $('#idioma').val(), '#check-idioma', '#idioma');
-                            }, 1000);
-                        //}
-                        
-                        class_av.var.cambios_documento = true;
-                    });
-
-
-                    
-                        $('.traduccion-titulo2').show();
-                        $('#titulo2').val(class_av.var.documentoJSON[0].titulo2);
-                        $("#idioma2").val(class_av.var.documentoJSON[0].idioma2);
-                        
-                        $('#titulo2').off('keyup').on('keyup', function(e){
-                            if (e.key === "Enter" || $('#titulo2').val().trim() == '') {
-                                if($('#titulo2').val().trim() == ''){
-                                    $('#idioma2').val('');
-                                    $('#check-idioma2').hide();
-                                    $('#check-titulo2').hide();
-                                }else{
-                                    clearTimeout(tiempo);
-                                    $('#titulo2').prop("disabled", true);
-                                    tiempo = setTimeout(function() {
-                                        class_av.texto_idioma($('#titulo2').val(), $('#idioma2').val(), '#check-idioma2', '#idioma2');
-                                        class_av.busca_en_pdf(class_av.var.texto_pdf, $('#titulo2').val(), '#check-titulo2', '#titulo2');
-                                    }, 1000);
-                                }
-                            }
-                            class_av.var.cambios_documento = true;
-                        });
-
-                        class_av.busca_en_pdf(class_av.var.texto_pdf, class_av.var.documentoJSON[0].titulo2, '#check-titulo2', '#titulo2');
-                        
-                        class_av.texto_idioma(class_av.var.documentoJSON[0].titulo2, class_av.var.documentoJSON[0].idioma2, '#check-idioma2', '#idioma2');
-                        
-                        $('#idioma2').off('change').on('change', function(e){
-                            clearTimeout(tiempo_tit);
-
-                            $('#idioma2').prop("disabled", true);
-                            tiempo_tit = setTimeout(function() {
-                                class_av.texto_idioma($('#titulo2').val(), $('#idioma2').val(), '#check-idioma2', '#idioma2');
-                            }, 1000);
-                            class_av.var.cambios_documento = true;
-                        });
-                    
-
-                    /******************************************************************/
-                    
-                        $('.traduccion-titulo3').show();
-                        $('#titulo3').val(class_av.var.documentoJSON[0].titulo3);
-                        $("#idioma3").val(class_av.var.documentoJSON[0].idioma3);
-                        
-                        $('#titulo3').off('keyup').on('keyup', function(e){
-                            if (e.key === "Enter" || $('#titulo3').val().trim() == '') {
-                                if($('#titulo3').val().trim() == ''){
-                                    $('#idioma3').val('');
-                                    $('#check-idioma3').hide();
-                                    $('#check-titulo3').hide();
-                                }else{
-                                    clearTimeout(tiempo);
-                                    $('#titulo3').prop("disabled", true);
-                                    tiempo = setTimeout(function() {
-                                        class_av.texto_idioma($('#titulo3').val(), $('#idioma3').val(), '#check-idioma3', '#idioma3');
-                                        class_av.busca_en_pdf(class_av.var.texto_pdf, $('#titulo3').val(), '#check-titulo3', '#titulo3');
-                                    }, 1000);
-                                }
-                            }
-                            class_av.var.cambios_documento = true;
-                        });
-                        
-                        class_av.busca_en_pdf(class_av.var.texto_pdf, class_av.var.documentoJSON[0].titulo3, '#check-titulo3', '#titulo3');
-                        
-                        class_av.texto_idioma(class_av.var.documentoJSON[0].titulo3, class_av.var.documentoJSON[0].idioma3, '#check-idioma3', '#idioma3');
-                        
-                        $('#idioma3').off('change').on('change', function(e){
-                            clearTimeout(tiempo_tit);
-
-                            $('#idioma3').prop("disabled", true);
-                            tiempo_tit = setTimeout(function() {
-                                class_av.texto_idioma($('#titulo3').val(), $('#idioma3').val(), '#check-idioma3', '#idioma3');
-                            }, 1000);
-                            class_av.var.cambios_documento = true;
-                        });
-                    
-
-                    /******************************************************************/
-                    $('#tipo_documento').val(class_av.var.documentoJSON[0].tipo_documento).trigger('change');
-
-                    /******************************************************************/
-                    $('.disciplina').val(null).trigger('change');
-
-                    $('#disciplina1').val(class_av.var.documentoJSON[0].disciplina1).trigger('change');
-                    $('#disciplina2').val(class_av.var.documentoJSON[0].disciplina2).trigger('change');
-                    $('#disciplina3').val(class_av.var.documentoJSON[0].disciplina3).trigger('change');
-                    
-                    $('#subdisciplina1').val(class_av.var.documentoJSON[0].subdisciplina1).trigger('change');
-                    $('#subdisciplina2').val(class_av.var.documentoJSON[0].subdisciplina2).trigger('change');
-                    $('#subdisciplina3').val(class_av.var.documentoJSON[0].subdisciplina3).trigger('change');
-
-                    /******************************************************************/
-                    $('#url1').val(class_av.var.documentoJSON[0].url1);
-                    $('#url2').val(class_av.var.documentoJSON[0].url2);
-                    $("#tipourl1").val(class_av.var.documentoJSON[0].tipourl1);
-                    $("#tipourl2").val(class_av.var.documentoJSON[0].tipourl2);
-                    
-                    class_av.control_aa();
-                    
-                    $('#idiomaDocumento').select2({ tags: false, placeholder: "Seleccione uno o más idiomas", allowClear: true});
-                    $('#idiomaDocumento').val(idiomas).trigger('change');
-                    
-                    $('#import-ai').off('click').on('click', function(){
-                        
-                    });
-                    
-                    /******************************************************************/
-                    $('#es-corporativo').off('click').on('click', function(){
-                        if(this.checked){
-                            class_av.var.corporativo = 1;
-                        }else{
-                            class_av.var.corporativo = 0;
-                        }
-                        class_av.autor_corporativo();
-                    });
-                    
-                    
-                    $('#div-instituciones').html('');
-                    opciones_ciudades = {};
-                    var repetidas_ciudades = [];
-
-                    opciones_instituciones = {};
-                    var repetidas_instituciones = [];
-
-                    opciones_dependencias = {};
-                    var repetidas_dependencias = [];
-
-                    opciones_sug_ciudades = {};
-                    var repetidas_sug_ciudades = [];
-
-                    $('#accordion').show();
-                    window.location.href="#accordion";
-                    
-                    $('#agrega-institucion').off('click').on('click', function(){
-                        class_av.agrega_institucion();
-                        class_av.var.cambios_institucion = true;
-                    });
-                    
-                    $('#agrega-autor').off('click').on('click', function(){
-                        class_av.agrega_autor();
-                        class_av.var.cambios_autor = (true && !class_av.var.cambios_de_inicio);
-                    });
-                    
-                    loading.end();
-
-                    $('#accordionInstituciones').html('Cargando Instituciones (0/'+class_av.var.institucionesJSON.length+') ...');
-                    $('#accordionInstituciones').prop('href', '');
-                    
-                    if(class_av.var.institucionesJSON.length == 0){
-                        $('#accordionInstituciones').html('Instituciones');
-                        $('#accordionInstituciones').prop('href', '#instituciones');
-                    }
-                    
-                    
-                    var total = 0;
-                    var revisaRepetidas = function(){
-                        var es_inicio = true;
-                        //$.each(class_av.var.institucionesJSON, function(i,val){
-
-                            //if(val.pais !== null){
-                                //Revisa al final las repetidas para agregar el menu
-                                $.each(repetidas_ciudades, function(i2, val2){
-                                    if(val2.pais !== null && val2.pais !== undefined && val2.pais !== '') {
-                                        //$('#ciudad-'+val2.id).html(opciones_ciudades[val2.pais+'-'+class_av.var.corporativo]);
-                                        $('#ciudad-'+val2.id).empty();
-                                        $('#ciudad-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true, data: opciones_ciudades[val2.pais+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
-                                        $('#select2-ciudad-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                                        $('.select2-container').tooltip();
-                                        $('#select2-ciudad-'+val2.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
-                                        if(val2.ciudad !== null){
-                                           $('#ciudad-'+val2.id).val(val2.ciudad).trigger('change');
-                                        }
-                                        $('#ciudad-'+val2.id).on('change', function(){
-                                            class_av.var.cambios_institucion = (true && !es_inicio);
-                                        });
-                                        if(class_av.var.corporativo == 1){
-                                            $('.div-ciudad').hide();
-                                        }
-                                    }
-                                });
-                                    
-                                //Revisa al final las repetidas para agregar el menu
-                                /*$.each(repetidas_instituciones, function(i2, val2){
-                                    if(val2.pais == val.pais) {
-                                        $('#institucion-'+val2.id).html(opciones_instituciones[val.pais+'-'+class_av.var.corporativo]);
-                                        $('#institucion-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true});
-                                        $('#select2-institucion-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                                        $('.select2-container').tooltip();
-                                        if(val2.institucion !== null){
-                                            //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
-                                            if ($('#institucion-'+val2.id).find("option[value='" + val2.institucion.replaceAll('"', "&quot;") + "']").length) {
-                                                $('#institucion-'+val2.id).val(val2.institucion).trigger('change');
-                                            }else{
-                                                var newOption = new Option(val2.institucion, val2.institucion.replaceAll('"', "&quot;"), true, true);
-                                                $('#institucion-'+val2.id).append(newOption).trigger('change');
-                                            }
-                                           //$('#institucion-'+val2.id).val(val2.institucion).trigger('change');
-                                           alert('en repetidas');
-                                           class_av.busca_en_pdf(class_av.var.texto_pdf, val2.institucion, '#check-ins-'+val2.id, '#institucion-'+val2.id);
-                                        }
-                                        $('#institucion-'+val2.id).on('change', function(){
-                                            class_av.var.cambios_institucion = (true && !es_inicio);
-                                        });
-                                    }
-                                });*/
                             //}
 
-                            //if(val.institucion !== null){
-                                //Revisa al final las repetidas para agregar el menu
-                                $.each(repetidas_dependencias, function(i2, val2){
-                                    if(val2.institucion !== null && val2.institucion !== undefined && val2.institucion !== '') {
-                                        //$('#dependencia-'+val2.id).html(opciones_dependencias[val2.institucion+'-'+class_av.var.corporativo]);
-                                        $('#dependencia-'+val2.id).empty();
-                                        $('#dependencia-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true,  width: 'resolve', data: opciones_dependencias[val2.institucion+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
-                                        $('#select2-dependencia-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                                        $('.select2-container').tooltip();
-                                        $('#select2-dependencia-'+val2.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
-                                        if(val2.dependencia !== null){
-                                            $('#dependencia-'+val2.id).val(val2.dependencia).trigger('change');
-                                        }
-                                        $('#dependencia-'+val2.id).on('change', function(){
-                                            class_av.var.cambios_institucion = (true && !es_inicio);
-                                        });
-                                    }
-                                });
+                            class_av.var.cambios_documento = true;
+                        });
 
-                                //Revisa al final las repetidas para agregar el menu
-                                $.each(repetidas_sug_ciudades, function(i2, val2){
-                                    if(val2.institucion !== null && val2.institucion !== undefined && val2.institucion !== '') {
-                                        if(class_av.var.institucion_diccionario[val2.institucion] !== undefined){
-                                            $('#valor-anterior-'+val2.id).html(class_av.var.institucion_diccionario[val2.institucion]);
-                                            $('#div-valor-anterior-'+val2.id).show();
-                                        }
-                                        $('#sug-ciudad-'+val2.id).html(opciones_sug_ciudades[val2.institucion]);
-                                        class_av.seleccion_sug_ciudad();
-                                        //$('#sug-ciudad-'+val2.id).select2({ tags: true, placeholder: "Sugerencias encontradas", allowClear: true});
-                                        $('#check-ins-bib-'+val2.id).show();
-                                        $('#check-ins-bib-'+val2.id+'-load').hide();
-                                        $('#check-ins-bib-'+val2.id+'-true').show();
-                                            $('#div-sug-ciudad-'+val2.id).show();
-                                            $('#check-ins-bib-'+val2.id+'-expand').show();
-                                            $('#check-ins-bib-'+val2.id+'-expand').on('click', function(){
-                                               if($('#check-ins-bib-'+val2.id+'-expand').hasClass('fa fa-sort-desc')){
-                                                    $('#check-ins-bib-'+val2.id+'-expand').removeClass('fa-sort-desc');
-                                                    $('#check-ins-bib-'+val2.id+'-expand').addClass('fa-sort-asc');  
-                                                 }else{
-                                                    $('#check-ins-bib-'+val2.id+'-expand').addClass('fa-sort-desc');
-                                                    $('#check-ins-bib-'+val2.id+'-expand').removeClass('fa-sort-asc');
-                                                 }
-                                               if( $('#sug-ciudad-'+val2.id).css('display') == 'none' ){
-                                                   $('#sug-ciudad-'+val2.id).show();
-                                               }else{
-                                                   $('#sug-ciudad-'+val2.id).hide();
-                                               }
-                                            });
-                                    }
-                                });
-                            //}
 
-                        //});
-                        
-                        var recorrido_inst = function(arr_inst){
-                            var es_inicio = true;
-                            if(arr_inst.length == 0){
-                                $('.select2-container').css('max-width','100%');
-                                /********* función para borrar *************/
-                                class_av.evento_borra_institucion();
 
-                                $('#accordionInstituciones').html('Instituciones');
-                                $('#accordionInstituciones').prop('href', '#instituciones');
+                            $('.traduccion-titulo2').show();
+                            $('#titulo2').val(class_av.var.documentoJSON[0].titulo2);
+                            $("#idioma2").val(class_av.var.documentoJSON[0].idioma2);
 
-                                class_av.change_paises();
-                                class_av.change_institucion();
-                                return true;
-                            }
-                            
-                            total ++;
-                            $('#accordionInstituciones').html('Cargando Instituciones ('+total+'/'+class_av.var.institucionesJSON.length+') ...');
-                            var val2 = arr_inst.slice(0,1)[0];
-                            var resto_val = arr_inst.slice(1);
-                            
-                                //$('#institucion-'+val2.id).html(opciones_instituciones[val2.pais+'-'+class_av.var.corporativo]);
-                                $('#institucion-'+val2.id).empty();
-                                $('#institucion-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve', data: opciones_instituciones[val2.pais+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
-                                $('#select2-institucion-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                                $('.select2-container').tooltip();
-                                $('#select2-institucion-'+val2.id+'-container').on('click', function(){
-                                    var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());
-                                    class_av.set_institucion_anterior('#'+this.id.replace('select2-','').replace('-container',''));
-                                });
-                                if(val2.institucion !== null && val2.institucion !== undefined && val2.institucion !== ''){
-                                    //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
-                                    if ($('#institucion-'+val2.id).find("option[value='" + val2.institucion.replaceAll('"', "&quot;") + "']").length) {
-                                        $('#institucion-'+val2.id).val(val2.institucion).trigger('change');
+                            $('#titulo2').off('keyup').on('keyup', function(e){
+                                if (e.key === "Enter" || $('#titulo2').val().trim() == '') {
+                                    if($('#titulo2').val().trim() == ''){
+                                        $('#idioma2').val('');
+                                        $('#check-idioma2').hide();
+                                        $('#check-titulo2').hide();
                                     }else{
-                                        var newOption = new Option(val2.institucion, val2.institucion.replaceAll('"', "&quot;"), true, true);
-                                        $('#institucion-'+val2.id).append(newOption).trigger('change');
+                                        clearTimeout(tiempo);
+                                        $('#titulo2').prop("disabled", true);
+                                        tiempo = setTimeout(function() {
+                                            class_av.texto_idioma($('#titulo2').val(), $('#idioma2').val(), '#check-idioma2', '#idioma2');
+                                            class_av.busca_en_pdf(class_av.var.texto_pdf, $('#titulo2').val(), '#check-titulo2', '#titulo2');
+                                        }, 1000);
                                     }
-                                    
-                                   //$('#institucion-'+val2.id).val(val2.institucion).trigger('change');
-                                    class_av.busca_en_pdf(class_av.var.texto_pdf, val2.institucion, '#check-ins-'+val2.id, '#institucion-'+val2.id)
-                                    .then(function(){
-                                        $('#institucion-'+val2.id).on('change', function(){
-                                             class_av.var.cambios_institucion = (true && !es_inicio);
-                                             class_av.set_institucion_change_all('#institucion-'+val2.id);
-                                         });
-                                         recorrido_inst(resto_val);
-                                   });
-                                }else{
-                                    recorrido_inst(resto_val);
                                 }
-                        }
-                        
-                        recorrido_inst(repetidas_instituciones);
-                        
-                        es_inicio = false;
-                    };
-                    
-                    //$.each(class_av.var.institucionesJSON, function(i,val){
-                    var recorrido_instituciones = function(arr_instituciones){
-                        var es_inicio = true;
-                        if(arr_instituciones.length == 0){
-                            revisaRepetidas();
-                            return true;
-                        }
-                        
-                        var peticiones = 2;
-                        var val = arr_instituciones.slice(0,1)[0];
-                        var resto_val = arr_instituciones.slice(1);
-                        
-                        var html_institucion = class_av.var.html_institucion.replaceAll('<id>', val.id);
-                        $('#div-instituciones').append(html_institucion);
-                        $('#pais-'+val.id).html(class_av.var.opciones_paises);
-                        $('#pais-'+val.id).select2({ tags: false, placeholder: "Seleccione un país", allowClear: true});
-
-                        if( val.pais == null && (val.institucion !== null && val.institucion !== undefined && val.institucion !== '') ){
-                            //Si existe un país válido en el texto de institución, lo asigna a país
-                            var res_pais = class_av.busca_pais(val.institucion);
-                            if( res_pais ){
-                                val.pais = res_pais;
-                            }
-                        }
-                        
-                        if(val.pais !== null && val.pais !== '' && val.pais !== undefined){
-                            espera_cambios = false;
-                            $('#pais-'+val.id).val(val.pais).trigger('change');
-                            $('#pais-'+val.id).on('change', function(){
-                                class_av.var.cambios_institucion = (true && !es_inicio);
+                                class_av.var.cambios_documento = true;
                             });
-                            //Revisa si ya se trajo el catálogo para este país
-                            if( !opciones_ciudades.hasOwnProperty(val.pais+'-'+class_av.var.corporativo) ){
-                                total ++;
-                                $('#accordionInstituciones').html('Cargando Instituciones ('+total+'/'+class_av.var.institucionesJSON.length+') ...');
-                                //peticiones ++;
-                                opciones_ciudades[val.pais+'-'+class_av.var.corporativo] = '';
-                                opciones_instituciones[val.pais+'-'+class_av.var.corporativo] = '';
-                                /*********** Ciudades e instituciones según país *******************/
-                                $.when(
-                                    class_utils.getResource('/datos/ciudad_by_pais/'+val.pais.replaceAll(class_av.cons.char_i,''), true),
-                                    class_utils.getResource('/datos/institucion_by_pais/'+val.pais.replaceAll(class_av.cons.char_i,'')+'/'+class_av.var.corporativo, true)
-                                ) 
-                                .then(function(resp_ciudad, resp_institucion){
-                                    //setTimeout(function(){                
-                                        peticiones --;
-                                        /*********ciudad*******************/
-                                        //var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
-                                        var options = [{id:'', text:'', num:0}];
-                                        $.each(resp_ciudad[0], function(i2, val2){
-                                            //options += class_av.cons.option.replace('<valor>', val2.ciudad).replace('<opcion>', val2.ciudad);
-                                            var obj = {
-                                                id: val2.ciudad,
-                                                text: val2.ciudad,
-                                                num: val2.count
-                                            }
-                                            options.push(obj);
-                                        });
-                                        opciones_ciudades[val.pais+'-'+class_av.var.corporativo] = JSON.parse(JSON.stringify(options));
-                                        //$('#ciudad-'+val.id).html(opciones_ciudades[val.pais+'-'+class_av.var.corporativo]);
-                                        $('#ciudad-'+val.id).empty();
-                                        $('#ciudad-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true, data: opciones_ciudades[val.pais+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
-                                        $('#select2-ciudad-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                                        $('.select2-container').tooltip();
-                                        $('#select2-ciudad-'+val.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
-										
-                                        //Si hay un valor de ciudad se preselecciona
-                                        if(val.ciudad !== null && val.ciudad !== undefined && val.ciudad !== ''){
-                                            $('#ciudad-'+val.id).val(val.ciudad).trigger('change');
-                                        }
-                                        $('#ciudad-'+val.id).on('change', function(){
-                                            class_av.var.cambios_institucion = (true && !es_inicio);
-                                        });
-                                        if(class_av.var.corporativo == 1){
-                                            $('.div-ciudad').hide();
-                                        }
 
-                                        /*********institucion*******************/
-                                        //options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
-                                        options = [{id:'', text:'', num:0}];
-                                        $.each(resp_institucion[0], function(i2, val2){
-                                            //options += class_av.cons.option.replace('<valor>', val2.institucion.replaceAll('"', "&quot;")).replace('<opcion>', val2.institucion);
-                                            var obj = {
-                                                id: val2.institucion,
-                                                text: val2.institucion,
-                                                num: val2.count
-                                            }
-                                            options.push(obj);
-                                        });
-                                        opciones_instituciones[val.pais+'-'+class_av.var.corporativo] = JSON.parse(JSON.stringify(options));
-                                        //$('#institucion-'+val.id).html(opciones_instituciones[val.pais+'-'+class_av.var.corporativo]);
-                                        $('#institucion-'+val.id).empty();
-                                        $('#institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve', data: opciones_instituciones[val.pais+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
-                                        $('#select2-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                                        $('.select2-container').tooltip();
-                                        $('#select2-institucion-'+val.id+'-container').on('click', function(){
-                                            var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());
-                                            class_av.set_institucion_anterior('#'+this.id.replace('select2-','').replace('-container',''));
-                                        });
-                                        
-                                        //Si hay un valor de institución se preselecciona
-                                        if(val.institucion !== null && val.institucion !== undefined && val.institucion !== ''){
-                                            //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
-                                            if ($('#institucion-'+val.id).find("option[value='" + val.institucion.replaceAll('"', "&quot;") + "']").length) {
-                                                $('#institucion-'+val.id).val(val.institucion).trigger('change');
-                                            }else{
-                                                var newOption = new Option(val.institucion, val.institucion.replaceAll('"', "&quot;"), true, true);
-                                                $('#institucion-'+val.id).append(newOption).trigger('change');
-                                            }
-                                            
-                                            //if(url_pdf !== ''){
-                                                //class_av.busca_en_pdf(url_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id);
-                                                class_av.busca_en_pdf(class_av.var.texto_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id)
-                                                .then(function(){
-                                                    $('#institucion-'+val.id).on('change', function(){
-                                                        class_av.var.cambios_institucion = (true && !es_inicio);
-                                                        class_av.set_institucion_change_all('#institucion-'+val.id);
-                                                    });
+                            class_av.busca_en_pdf(class_av.var.texto_pdf, class_av.var.documentoJSON[0].titulo2, '#check-titulo2', '#titulo2');
 
-                                                    //Ya que se terminan las peticiones por país, se revisan instituciones del mismo país
-                                                    if( peticiones == 0 ){
-                                                        peticiones --;
-                                                        //revisaRepetidas();
-                                                        es_inicio = false;
-                                                        recorrido_instituciones(resto_val);
-                                                    }
-                                                });
-                                            //}
-                                        }else{
-                                            $('#institucion-'+val.id).on('change', function(){
+                            class_av.texto_idioma(class_av.var.documentoJSON[0].titulo2, class_av.var.documentoJSON[0].idioma2, '#check-idioma2', '#idioma2');
+
+                            $('#idioma2').off('change').on('change', function(e){
+                                clearTimeout(tiempo_tit);
+
+                                $('#idioma2').prop("disabled", true);
+                                tiempo_tit = setTimeout(function() {
+                                    class_av.texto_idioma($('#titulo2').val(), $('#idioma2').val(), '#check-idioma2', '#idioma2');
+                                }, 1000);
+                                class_av.var.cambios_documento = true;
+                            });
+
+
+                        /******************************************************************/
+
+                            $('.traduccion-titulo3').show();
+                            $('#titulo3').val(class_av.var.documentoJSON[0].titulo3);
+                            $("#idioma3").val(class_av.var.documentoJSON[0].idioma3);
+
+                            $('#titulo3').off('keyup').on('keyup', function(e){
+                                if (e.key === "Enter" || $('#titulo3').val().trim() == '') {
+                                    if($('#titulo3').val().trim() == ''){
+                                        $('#idioma3').val('');
+                                        $('#check-idioma3').hide();
+                                        $('#check-titulo3').hide();
+                                    }else{
+                                        clearTimeout(tiempo);
+                                        $('#titulo3').prop("disabled", true);
+                                        tiempo = setTimeout(function() {
+                                            class_av.texto_idioma($('#titulo3').val(), $('#idioma3').val(), '#check-idioma3', '#idioma3');
+                                            class_av.busca_en_pdf(class_av.var.texto_pdf, $('#titulo3').val(), '#check-titulo3', '#titulo3');
+                                        }, 1000);
+                                    }
+                                }
+                                class_av.var.cambios_documento = true;
+                            });
+
+                            class_av.busca_en_pdf(class_av.var.texto_pdf, class_av.var.documentoJSON[0].titulo3, '#check-titulo3', '#titulo3');
+
+                            class_av.texto_idioma(class_av.var.documentoJSON[0].titulo3, class_av.var.documentoJSON[0].idioma3, '#check-idioma3', '#idioma3');
+
+                            $('#idioma3').off('change').on('change', function(e){
+                                clearTimeout(tiempo_tit);
+
+                                $('#idioma3').prop("disabled", true);
+                                tiempo_tit = setTimeout(function() {
+                                    class_av.texto_idioma($('#titulo3').val(), $('#idioma3').val(), '#check-idioma3', '#idioma3');
+                                }, 1000);
+                                class_av.var.cambios_documento = true;
+                            });
+
+
+                        /******************************************************************/
+                        $('#tipo_documento').val(class_av.var.documentoJSON[0].tipo_documento).trigger('change');
+
+                        /******************************************************************/
+                        $('.disciplina').val(null).trigger('change');
+
+                        $('#disciplina1').val(class_av.var.documentoJSON[0].disciplina1).trigger('change');
+                        $('#disciplina2').val(class_av.var.documentoJSON[0].disciplina2).trigger('change');
+                        $('#disciplina3').val(class_av.var.documentoJSON[0].disciplina3).trigger('change');
+
+                        $('#subdisciplina1').val(class_av.var.documentoJSON[0].subdisciplina1).trigger('change');
+                        $('#subdisciplina2').val(class_av.var.documentoJSON[0].subdisciplina2).trigger('change');
+                        $('#subdisciplina3').val(class_av.var.documentoJSON[0].subdisciplina3).trigger('change');
+
+                        /******************************************************************/
+                        $('#url1').val(class_av.var.documentoJSON[0].url1);
+                        $('#url2').val(class_av.var.documentoJSON[0].url2);
+                        $("#tipourl1").val(class_av.var.documentoJSON[0].tipourl1);
+                        $("#tipourl2").val(class_av.var.documentoJSON[0].tipourl2);
+
+                        class_av.control_aa();
+
+                        $('#idiomaDocumento').select2({ tags: false, placeholder: "Seleccione uno o más idiomas", allowClear: true});
+                        $('#idiomaDocumento').val(idiomas).trigger('change');
+
+                        $('#import-ai').off('click').on('click', function(){
+
+                        });
+
+                        /******************************************************************/
+                        $('#es-corporativo').off('click').on('click', function(){
+                            if(this.checked){
+                                class_av.var.corporativo = 1;
+                            }else{
+                                class_av.var.corporativo = 0;
+                            }
+                            class_av.autor_corporativo();
+                        });
+
+
+                        $('#div-instituciones').html('');
+                        opciones_ciudades = {};
+                        var repetidas_ciudades = [];
+
+                        opciones_instituciones = {};
+                        var repetidas_instituciones = [];
+
+                        opciones_dependencias = {};
+                        var repetidas_dependencias = [];
+
+                        opciones_sug_ciudades = {};
+                        var repetidas_sug_ciudades = [];
+
+                        $('#accordion').show();
+                        window.location.href="#accordion";
+
+                        $('#agrega-institucion').off('click').on('click', function(){
+                            class_av.agrega_institucion();
+                            class_av.var.cambios_institucion = true;
+                        });
+
+                        $('#agrega-autor').off('click').on('click', function(){
+                            class_av.agrega_autor();
+                            class_av.var.cambios_autor = (true && !class_av.var.cambios_de_inicio);
+                        });
+
+                        loading.end();
+
+                        $('#accordionInstituciones').html('Cargando Instituciones (0/'+class_av.var.institucionesJSON.length+') ...');
+                        $('#accordionInstituciones').prop('href', '');
+
+                        if(class_av.var.institucionesJSON.length == 0){
+                            $('#accordionInstituciones').html('Instituciones');
+                            $('#accordionInstituciones').prop('href', '#instituciones');
+                        }
+
+
+                        var total = 0;
+                        var revisaRepetidas = function(){
+                            var es_inicio = true;
+                            //$.each(class_av.var.institucionesJSON, function(i,val){
+
+                                //if(val.pais !== null){
+                                    //Revisa al final las repetidas para agregar el menu
+                                    $.each(repetidas_ciudades, function(i2, val2){
+                                        if(val2.pais !== null && val2.pais !== undefined && val2.pais !== '') {
+                                            //$('#ciudad-'+val2.id).html(opciones_ciudades[val2.pais+'-'+class_av.var.corporativo]);
+                                            $('#ciudad-'+val2.id).empty();
+                                            $('#ciudad-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true, data: opciones_ciudades[val2.pais+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
+                                            $('#select2-ciudad-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                                            $('.select2-container').tooltip();
+                                            $('#select2-ciudad-'+val2.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
+                                            if(val2.ciudad !== null){
+                                               $('#ciudad-'+val2.id).val(val2.ciudad).trigger('change');
+                                            }
+                                            $('#ciudad-'+val2.id).on('change', function(){
                                                 class_av.var.cambios_institucion = (true && !es_inicio);
                                             });
+                                            if(class_av.var.corporativo == 1){
+                                                $('.div-ciudad').hide();
+                                            }
+                                        }
+                                    });
 
-                                            //Ya que se terminan las peticiones por país, se revisan instituciones del mismo país
+                                    //Revisa al final las repetidas para agregar el menu
+                                    /*$.each(repetidas_instituciones, function(i2, val2){
+                                        if(val2.pais == val.pais) {
+                                            $('#institucion-'+val2.id).html(opciones_instituciones[val.pais+'-'+class_av.var.corporativo]);
+                                            $('#institucion-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true});
+                                            $('#select2-institucion-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                                            $('.select2-container').tooltip();
+                                            if(val2.institucion !== null){
+                                                //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
+                                                if ($('#institucion-'+val2.id).find("option[value='" + val2.institucion.replaceAll('"', "&quot;") + "']").length) {
+                                                    $('#institucion-'+val2.id).val(val2.institucion).trigger('change');
+                                                }else{
+                                                    var newOption = new Option(val2.institucion, val2.institucion.replaceAll('"', "&quot;"), true, true);
+                                                    $('#institucion-'+val2.id).append(newOption).trigger('change');
+                                                }
+                                               //$('#institucion-'+val2.id).val(val2.institucion).trigger('change');
+                                               alert('en repetidas');
+                                               class_av.busca_en_pdf(class_av.var.texto_pdf, val2.institucion, '#check-ins-'+val2.id, '#institucion-'+val2.id);
+                                            }
+                                            $('#institucion-'+val2.id).on('change', function(){
+                                                class_av.var.cambios_institucion = (true && !es_inicio);
+                                            });
+                                        }
+                                    });*/
+                                //}
+
+                                //if(val.institucion !== null){
+                                    //Revisa al final las repetidas para agregar el menu
+                                    $.each(repetidas_dependencias, function(i2, val2){
+                                        if(val2.institucion !== null && val2.institucion !== undefined && val2.institucion !== '') {
+                                            //$('#dependencia-'+val2.id).html(opciones_dependencias[val2.institucion+'-'+class_av.var.corporativo]);
+                                            $('#dependencia-'+val2.id).empty();
+                                            $('#dependencia-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true,  width: 'resolve', data: opciones_dependencias[val2.institucion+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
+                                            $('#select2-dependencia-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                                            $('.select2-container').tooltip();
+                                            $('#select2-dependencia-'+val2.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
+                                            if(val2.dependencia !== null){
+                                                $('#dependencia-'+val2.id).val(val2.dependencia).trigger('change');
+                                            }
+                                            $('#dependencia-'+val2.id).on('change', function(){
+                                                class_av.var.cambios_institucion = (true && !es_inicio);
+                                            });
+                                        }
+                                    });
+
+                                    //Revisa al final las repetidas para agregar el menu
+                                    $.each(repetidas_sug_ciudades, function(i2, val2){
+                                        if(val2.institucion !== null && val2.institucion !== undefined && val2.institucion !== '') {
+                                            if(class_av.var.institucion_diccionario[val2.institucion] !== undefined){
+                                                $('#valor-anterior-'+val2.id).html(class_av.var.institucion_diccionario[val2.institucion]);
+                                                $('#div-valor-anterior-'+val2.id).show();
+                                            }
+                                            $('#sug-ciudad-'+val2.id).html(opciones_sug_ciudades[val2.institucion]);
+                                            class_av.seleccion_sug_ciudad();
+                                            //$('#sug-ciudad-'+val2.id).select2({ tags: true, placeholder: "Sugerencias encontradas", allowClear: true});
+                                            $('#check-ins-bib-'+val2.id).show();
+                                            $('#check-ins-bib-'+val2.id+'-load').hide();
+                                            $('#check-ins-bib-'+val2.id+'-true').show();
+                                                $('#div-sug-ciudad-'+val2.id).show();
+                                                $('#check-ins-bib-'+val2.id+'-expand').show();
+                                                $('#check-ins-bib-'+val2.id+'-expand').on('click', function(){
+                                                   if($('#check-ins-bib-'+val2.id+'-expand').hasClass('fa fa-sort-desc')){
+                                                        $('#check-ins-bib-'+val2.id+'-expand').removeClass('fa-sort-desc');
+                                                        $('#check-ins-bib-'+val2.id+'-expand').addClass('fa-sort-asc');  
+                                                     }else{
+                                                        $('#check-ins-bib-'+val2.id+'-expand').addClass('fa-sort-desc');
+                                                        $('#check-ins-bib-'+val2.id+'-expand').removeClass('fa-sort-asc');
+                                                     }
+                                                   if( $('#sug-ciudad-'+val2.id).css('display') == 'none' ){
+                                                       $('#sug-ciudad-'+val2.id).show();
+                                                   }else{
+                                                       $('#sug-ciudad-'+val2.id).hide();
+                                                   }
+                                                });
+                                        }
+                                    });
+                                //}
+
+                            //});
+
+                            var recorrido_inst = function(arr_inst){
+                                var es_inicio = true;
+                                if(arr_inst.length == 0){
+                                    $('.select2-container').css('max-width','100%');
+                                    /********* función para borrar *************/
+                                    class_av.evento_borra_institucion();
+
+                                    $('#accordionInstituciones').html('Instituciones');
+                                    $('#accordionInstituciones').prop('href', '#instituciones');
+
+                                    class_av.change_paises();
+                                    class_av.change_institucion();
+                                    return true;
+                                }
+
+                                total ++;
+                                $('#accordionInstituciones').html('Cargando Instituciones ('+total+'/'+class_av.var.institucionesJSON.length+') ...');
+                                var val2 = arr_inst.slice(0,1)[0];
+                                var resto_val = arr_inst.slice(1);
+
+                                    //$('#institucion-'+val2.id).html(opciones_instituciones[val2.pais+'-'+class_av.var.corporativo]);
+                                    $('#institucion-'+val2.id).empty();
+                                    $('#institucion-'+val2.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve', data: opciones_instituciones[val2.pais+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
+                                    $('#select2-institucion-'+val2.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                                    $('.select2-container').tooltip();
+                                    $('#select2-institucion-'+val2.id+'-container').on('click', function(){
+                                        var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());
+                                        class_av.set_institucion_anterior('#'+this.id.replace('select2-','').replace('-container',''));
+                                    });
+                                    if(val2.institucion !== null && val2.institucion !== undefined && val2.institucion !== ''){
+                                        //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
+                                        if ($('#institucion-'+val2.id).find("option[value='" + val2.institucion.replaceAll('"', "&quot;") + "']").length) {
+                                            $('#institucion-'+val2.id).val(val2.institucion).trigger('change');
+                                        }else{
+                                            var newOption = new Option(val2.institucion, val2.institucion.replaceAll('"', "&quot;"), true, true);
+                                            $('#institucion-'+val2.id).append(newOption).trigger('change');
+                                        }
+
+                                       //$('#institucion-'+val2.id).val(val2.institucion).trigger('change');
+                                        class_av.busca_en_pdf(class_av.var.texto_pdf, val2.institucion, '#check-ins-'+val2.id, '#institucion-'+val2.id)
+                                        .then(function(){
+                                            $('#institucion-'+val2.id).on('change', function(){
+                                                 class_av.var.cambios_institucion = (true && !es_inicio);
+                                                 class_av.set_institucion_change_all('#institucion-'+val2.id);
+                                             });
+                                             recorrido_inst(resto_val);
+                                       });
+                                    }else{
+                                        recorrido_inst(resto_val);
+                                    }
+                            }
+
+                            recorrido_inst(repetidas_instituciones);
+
+                            es_inicio = false;
+                        };
+
+                        //$.each(class_av.var.institucionesJSON, function(i,val){
+                        var recorrido_instituciones = function(arr_instituciones){
+                            var es_inicio = true;
+                            if(arr_instituciones.length == 0){
+                                revisaRepetidas();
+                                return true;
+                            }
+
+                            var peticiones = 2;
+                            var val = arr_instituciones.slice(0,1)[0];
+                            var resto_val = arr_instituciones.slice(1);
+
+                            var html_institucion = class_av.var.html_institucion.replaceAll('<id>', val.id);
+                            $('#div-instituciones').append(html_institucion);
+                            $('#pais-'+val.id).html(class_av.var.opciones_paises);
+                            $('#pais-'+val.id).select2({ tags: false, placeholder: "Seleccione un país", allowClear: true});
+
+                            if( val.pais == null && (val.institucion !== null && val.institucion !== undefined && val.institucion !== '') ){
+                                //Si existe un país válido en el texto de institución, lo asigna a país
+                                var res_pais = class_av.busca_pais(val.institucion);
+                                if( res_pais ){
+                                    val.pais = res_pais;
+                                }
+                            }
+
+                            if(val.pais !== null && val.pais !== '' && val.pais !== undefined){
+                                espera_cambios = false;
+                                $('#pais-'+val.id).val(val.pais).trigger('change');
+                                $('#pais-'+val.id).on('change', function(){
+                                    class_av.var.cambios_institucion = (true && !es_inicio);
+                                });
+                                //Revisa si ya se trajo el catálogo para este país
+                                if( !opciones_ciudades.hasOwnProperty(val.pais+'-'+class_av.var.corporativo) ){
+                                    total ++;
+                                    $('#accordionInstituciones').html('Cargando Instituciones ('+total+'/'+class_av.var.institucionesJSON.length+') ...');
+                                    //peticiones ++;
+                                    opciones_ciudades[val.pais+'-'+class_av.var.corporativo] = '';
+                                    opciones_instituciones[val.pais+'-'+class_av.var.corporativo] = '';
+                                    /*********** Ciudades e instituciones según país *******************/
+                                    $.when(
+                                        class_utils.getResource('/datos/ciudad_by_pais/'+val.pais.replaceAll(class_av.cons.char_i,''), true),
+                                        class_utils.getResource('/datos/institucion_by_pais/'+val.pais.replaceAll(class_av.cons.char_i,'')+'/'+class_av.var.corporativo, true)
+                                    ) 
+                                    .then(function(resp_ciudad, resp_institucion){
+                                        //setTimeout(function(){                
+                                            peticiones --;
+                                            /*********ciudad*******************/
+                                            //var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                                            var options = [{id:'', text:'', num:0}];
+                                            $.each(resp_ciudad[0], function(i2, val2){
+                                                //options += class_av.cons.option.replace('<valor>', val2.ciudad).replace('<opcion>', val2.ciudad);
+                                                var obj = {
+                                                    id: val2.ciudad,
+                                                    text: val2.ciudad,
+                                                    num: val2.count
+                                                }
+                                                options.push(obj);
+                                            });
+                                            opciones_ciudades[val.pais+'-'+class_av.var.corporativo] = JSON.parse(JSON.stringify(options));
+                                            //$('#ciudad-'+val.id).html(opciones_ciudades[val.pais+'-'+class_av.var.corporativo]);
+                                            $('#ciudad-'+val.id).empty();
+                                            $('#ciudad-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una ciudad", allowClear: true, data: opciones_ciudades[val.pais+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
+                                            $('#select2-ciudad-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                                            $('.select2-container').tooltip();
+                                            $('#select2-ciudad-'+val.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
+
+                                            //Si hay un valor de ciudad se preselecciona
+                                            if(val.ciudad !== null && val.ciudad !== undefined && val.ciudad !== ''){
+                                                $('#ciudad-'+val.id).val(val.ciudad).trigger('change');
+                                            }
+                                            $('#ciudad-'+val.id).on('change', function(){
+                                                class_av.var.cambios_institucion = (true && !es_inicio);
+                                            });
+                                            if(class_av.var.corporativo == 1){
+                                                $('.div-ciudad').hide();
+                                            }
+
+                                            /*********institucion*******************/
+                                            //options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                                            options = [{id:'', text:'', num:0}];
+                                            $.each(resp_institucion[0], function(i2, val2){
+                                                //options += class_av.cons.option.replace('<valor>', val2.institucion.replaceAll('"', "&quot;")).replace('<opcion>', val2.institucion);
+                                                var obj = {
+                                                    id: val2.institucion,
+                                                    text: val2.institucion,
+                                                    num: val2.count
+                                                }
+                                                options.push(obj);
+                                            });
+                                            opciones_instituciones[val.pais+'-'+class_av.var.corporativo] = JSON.parse(JSON.stringify(options));
+                                            //$('#institucion-'+val.id).html(opciones_instituciones[val.pais+'-'+class_av.var.corporativo]);
+                                            $('#institucion-'+val.id).empty();
+                                            $('#institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve', data: opciones_instituciones[val.pais+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
+                                            $('#select2-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                                            $('.select2-container').tooltip();
+                                            $('#select2-institucion-'+val.id+'-container').on('click', function(){
+                                                var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());
+                                                class_av.set_institucion_anterior('#'+this.id.replace('select2-','').replace('-container',''));
+                                            });
+
+                                            //Si hay un valor de institución se preselecciona
+                                            if(val.institucion !== null && val.institucion !== undefined && val.institucion !== ''){
+                                                //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
+                                                if ($('#institucion-'+val.id).find("option[value='" + val.institucion.replaceAll('"', "&quot;") + "']").length) {
+                                                    $('#institucion-'+val.id).val(val.institucion).trigger('change');
+                                                }else{
+                                                    var newOption = new Option(val.institucion, val.institucion.replaceAll('"', "&quot;"), true, true);
+                                                    $('#institucion-'+val.id).append(newOption).trigger('change');
+                                                }
+
+                                                //if(url_pdf !== ''){
+                                                    //class_av.busca_en_pdf(url_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id);
+                                                    class_av.busca_en_pdf(class_av.var.texto_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id)
+                                                    .then(function(){
+                                                        $('#institucion-'+val.id).on('change', function(){
+                                                            class_av.var.cambios_institucion = (true && !es_inicio);
+                                                            class_av.set_institucion_change_all('#institucion-'+val.id);
+                                                        });
+
+                                                        //Ya que se terminan las peticiones por país, se revisan instituciones del mismo país
+                                                        if( peticiones == 0 ){
+                                                            peticiones --;
+                                                            //revisaRepetidas();
+                                                            es_inicio = false;
+                                                            recorrido_instituciones(resto_val);
+                                                        }
+                                                    });
+                                                //}
+                                            }else{
+                                                $('#institucion-'+val.id).on('change', function(){
+                                                    class_av.var.cambios_institucion = (true && !es_inicio);
+                                                });
+
+                                                //Ya que se terminan las peticiones por país, se revisan instituciones del mismo país
+                                                if( peticiones == 0 ){
+                                                    peticiones --;
+                                                    //revisaRepetidas();
+                                                    es_inicio = false;
+                                                    recorrido_instituciones(resto_val);
+                                                }
+                                            }
+                                        //}, 3000);
+                                    });
+                                }else{
+                                    peticiones --;
+                                    //Pone en pendientes las que sean del mismo país
+                                    var obj_repetidas_ciudades = {};
+                                    obj_repetidas_ciudades['id'] = val.id;
+                                    obj_repetidas_ciudades['pais'] = val.pais;
+                                    obj_repetidas_ciudades['ciudad'] = val.ciudad;
+                                    repetidas_ciudades.push(obj_repetidas_ciudades);
+
+                                    //Pone en pendientes las que sean del mismo país
+                                    var obj_repetidas_instituciones = {};
+                                    obj_repetidas_instituciones['id'] = val.id;
+                                    obj_repetidas_instituciones['pais'] = val.pais;
+                                    obj_repetidas_instituciones['institucion'] = val.institucion;
+                                    repetidas_instituciones.push(obj_repetidas_instituciones);
+                                    if( peticiones == 0 ){
+                                        peticiones --;
+                                        //revisaRepetidas();
+                                        es_inicio = false;
+                                        recorrido_instituciones(resto_val);
+                                    }
+                                }
+                            }else{
+                                total ++;
+                                $('#accordionInstituciones').html('Cargando Instituciones ('+total+'/'+class_av.var.institucionesJSON.length+') ...');
+                                peticiones --;
+                                //Generalmente no hay país puesto que no existe un campo de donde extraerlo,
+                                //Si no se encontró tampoco dentro del texto de institución
+                                /*********institucion*******************/
+                                if(val.institucion !== null && val.institucion !== undefined && val.institucion !== ''){
+                                    //var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                                    //options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                                    //options += class_av.cons.option.replace('<valor>', val.institucion.replaceAll('"', "&quot;")).replace('<opcion>', val.institucion);
+                                    var options = [{id:'', text:'', num:0}];
+                                    var obj = {
+                                                    id: val.institucion,
+                                                    text: val.institucion,
+                                                    num: val.count
+                                                }
+                                    options.push(obj);
+
+                                    //$('#institucion-'+val.id).html(options);
+                                    $('#institucion-'+val.id).empty();
+                                    $('#institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve', data: options, templateResult: class_av.formato_badge});
+                                    $('#select2-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                                    $('.select2-container').tooltip();
+                                    $('#select2-institucion-'+val.id+'-container').on('click', function(){
+                                        var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());
+                                        class_av.set_institucion_anterior('#'+this.id.replace('select2-','').replace('-container',''));
+                                    });
+                                    $('#institucion-'+val.id).val(val.institucion).trigger('change');
+                                    $('#institucion-'+val.id).on('change', function(){
+                                        class_av.var.cambios_institucion = (true && !es_inicio);
+                                        class_av.set_institucion_change_all('#institucion-'+val.id);
+                                    });
+                                    //if(url_pdf !== ''){
+                                        //class_av.busca_en_pdf(url_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id);
+                                        class_av.busca_en_pdf(class_av.var.texto_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id)
+                                        .then(function(){
                                             if( peticiones == 0 ){
                                                 peticiones --;
                                                 //revisaRepetidas();
                                                 es_inicio = false;
                                                 recorrido_instituciones(resto_val);
                                             }
-                                        }
-                                    //}, 3000);
-                                });
-                            }else{
-                                peticiones --;
-                                //Pone en pendientes las que sean del mismo país
-                                var obj_repetidas_ciudades = {};
-                                obj_repetidas_ciudades['id'] = val.id;
-                                obj_repetidas_ciudades['pais'] = val.pais;
-                                obj_repetidas_ciudades['ciudad'] = val.ciudad;
-                                repetidas_ciudades.push(obj_repetidas_ciudades);
-
-                                //Pone en pendientes las que sean del mismo país
-                                var obj_repetidas_instituciones = {};
-                                obj_repetidas_instituciones['id'] = val.id;
-                                obj_repetidas_instituciones['pais'] = val.pais;
-                                obj_repetidas_instituciones['institucion'] = val.institucion;
-                                repetidas_instituciones.push(obj_repetidas_instituciones);
-                                if( peticiones == 0 ){
-                                    peticiones --;
-                                    //revisaRepetidas();
-                                    es_inicio = false;
-                                    recorrido_instituciones(resto_val);
-                                }
-                            }
-                        }else{
-                            total ++;
-                            $('#accordionInstituciones').html('Cargando Instituciones ('+total+'/'+class_av.var.institucionesJSON.length+') ...');
-                            peticiones --;
-                            //Generalmente no hay país puesto que no existe un campo de donde extraerlo,
-                            //Si no se encontró tampoco dentro del texto de institución
-                            /*********institucion*******************/
-                            if(val.institucion !== null && val.institucion !== undefined && val.institucion !== ''){
-                                //var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
-                                //options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
-                                //options += class_av.cons.option.replace('<valor>', val.institucion.replaceAll('"', "&quot;")).replace('<opcion>', val.institucion);
-                                var options = [{id:'', text:'', num:0}];
-                                var obj = {
-                                                id: val.institucion,
-                                                text: val.institucion,
-                                                num: val.count
-                                            }
-                                options.push(obj);
-
-                                //$('#institucion-'+val.id).html(options);
-                                $('#institucion-'+val.id).empty();
-                                $('#institucion-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una institución", allowClear: true,  width: 'resolve', data: options, templateResult: class_av.formato_badge});
-                                $('#select2-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                                $('.select2-container').tooltip();
-                                $('#select2-institucion-'+val.id+'-container').on('click', function(){
-                                    var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());
-                                    class_av.set_institucion_anterior('#'+this.id.replace('select2-','').replace('-container',''));
-                                });
-                                $('#institucion-'+val.id).val(val.institucion).trigger('change');
-                                $('#institucion-'+val.id).on('change', function(){
-                                    class_av.var.cambios_institucion = (true && !es_inicio);
-                                    class_av.set_institucion_change_all('#institucion-'+val.id);
-                                });
-                                //if(url_pdf !== ''){
-                                    //class_av.busca_en_pdf(url_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id);
-                                    class_av.busca_en_pdf(class_av.var.texto_pdf, val.institucion, '#check-ins-'+val.id, '#institucion-'+val.id)
-                                    .then(function(){
-                                        if( peticiones == 0 ){
-                                            peticiones --;
-                                            //revisaRepetidas();
-                                            es_inicio = false;
-                                            recorrido_instituciones(resto_val);
-                                        }
-                                    });
-                                //}
-                            }else{
-                                if( peticiones == 0 ){
-                                    peticiones --;
-                                    //revisaRepetidas();
-                                    es_inicio = false;
-                                    recorrido_instituciones(resto_val);
-                                }
-                            }
-                        }
-
-                        /************************Dependencias*****************/
-                        if(val.institucion !== null && val.institucion !== '' && val.institucion !== undefined){
-                            if(class_av.var.institucion_diccionario[val.institucion] !== undefined){
-                                $('#valor-anterior-'+val.id).html(class_av.var.institucion_diccionario[val.institucion]);
-                                $('#div-valor-anterior-'+val.id).show();
-                            }
-                            
-                            //Revisa si ya se trajo el catálogo para este país
-                            if( !opciones_dependencias.hasOwnProperty(val.institucion+'-'+class_av.var.corporativo) ){
-                                //peticiones++;
-                                opciones_dependencias[val.institucion+'-'+class_av.var.corporativo] = '';
-                                /*********** dependencias según institucion *******************/
-                                $.when(
-                                    class_utils.getResource('/datos/dependencia_by_institucion/'+val.institucion.replaceAll(class_av.cons.char_i,'')+'/'+class_av.var.corporativo, true),
-                                    class_utils.getResource('/datos/ciudad_by_institucion/'+val.institucion.replaceAll(class_av.cons.char_i, ''), true)
-                                ) 
-                                .then(function(resp_dependencias, resp_ciudades){
-                                    //setTimeout(function(){   
-                                        peticiones--;
-                                        /*var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
-                                        $.each(resp_dependencias[0], function(i2, val2){
-                                            options += class_av.cons.option.replace('<valor>', val2.dependencia.replace('"', "&quot;")).replace('<opcion>', val2.dependencia);
-                                        });*/
-                                        var options = [{id:'', text:'', num:0}];
-                                        $.each(resp_dependencias[0], function(i2, val2){
-                                            //options += class_av.cons.option.replace('<valor>', val2.ciudad).replace('<opcion>', val2.ciudad);
-                                            var obj = {
-                                                id: val2.dependencia,
-                                                text: val2.dependencia,
-                                                num: val2.count
-                                            }
-                                            options.push(obj);
                                         });
-                                        opciones_dependencias[val.institucion+'-'+class_av.var.corporativo] = JSON.parse(JSON.stringify(options));
-                                        //$('#dependencia-'+val.id).html(opciones_dependencias[val.institucion+'-'+class_av.var.corporativo]);
-                                        $('#dependencia-'+val.id).empty();
-                                        $('#dependencia-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true,  width: 'resolve', data: opciones_dependencias[val.institucion+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
-                                        $('#select2-dependencia-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                                        $('.select2-container').tooltip();
-                                        $('#select2-dependencia-'+val.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
-                                        if(val.dependencia !== null){
-                                            $('#dependencia-'+val.id).val(val.dependencia).trigger('change');
-                                        }
-                                        $('#dependencia-'+val.id).on('change', function(){
-                                            class_av.var.cambios_institucion = (true && !es_inicio);
-                                        });
-
-                                        $('#check-ins-bib-'+val.id).show();
-                                        $('#check-ins-bib-'+val.id+'-load').hide();
-                                        if(resp_ciudades[0].length > 0){
-                                            $('#check-ins-bib-'+val.id+'-true').show();
-                                            $('#div-sug-ciudad-'+val.id).show();
-                                            $('#check-ins-bib-'+val.id+'-expand').show();
-                                            $('#check-ins-bib-'+val.id+'-expand').on('click', function(){
-                                               if($('#check-ins-bib-'+val.id+'-expand').hasClass('fa fa-sort-desc')){
-                                                    $('#check-ins-bib-'+val.id+'-expand').removeClass('fa-sort-desc');
-                                                    $('#check-ins-bib-'+val.id+'-expand').addClass('fa-sort-asc');  
-                                                 }else{
-                                                    $('#check-ins-bib-'+val.id+'-expand').addClass('fa-sort-desc');
-                                                    $('#check-ins-bib-'+val.id+'-expand').removeClass('fa-sort-asc');
-                                                 }
-                                               if( $('#sug-ciudad-'+val.id).css('display') == 'none' ){
-                                                   $('#sug-ciudad-'+val.id).show();
-                                               }else{
-                                                   $('#sug-ciudad-'+val.id).hide();
-                                               }
-                                            });
-                                        }else{
-                                            $('#check-ins-bib-'+val.id+'-false').show();
-                                            $('#div-sug-ciudad-'+val.id).hide();
-                                        }
-                                        //options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
-                                        options = '';
-                                        $.each(resp_ciudades[0], function(i2, val2){
-                                            //options += class_av.cons.option.replace('<valor>', val2.ciudad.replace('"', "&quot;")).replace('<opcion>', val2.ciudad);
-                                            options += '<li>' + '<span style="cursor:pointer" class="sug-ciudad-clic" data-toggle="tooltip" title="[Clic] para copiar en campo Ciudad" id="op-sug-ciudad-'+val.id+'">' + val2.ciudad + '</span>' +
-                                                        '<span class="badge badge-secondary" style="font-size: 10px; margin-left: 10px;">'+val2.count+'</span>'+
-                                                        '<span class="badge badge-secondary despacio" style="font-size: 10px;margin-left: 10px;background-color: #343a40;display:none">Copiado en campo Ciudad!</span></li>';
-                                        });
-                                        opciones_sug_ciudades[val.institucion] = options;
-                                        $('#sug-ciudad-'+val.id).html(opciones_sug_ciudades[val.institucion]);
-                                        class_av.seleccion_sug_ciudad();
-                                        //$('#sug-ciudad-'+val.id).select2({ tags: true, placeholder: "Sugerencias encontradas", allowClear: true});
-
-                                        if( peticiones == 0 ){
-                                            peticiones --;
-                                            //revisaRepetidas();
-                                            es_inicio = false;
-                                            recorrido_instituciones(resto_val);
-                                        }
-                                    //}, 1000);
-                                });
-                            }else{
-                                peticiones --;
-                                //Pone en pendientes las que sean de la misma institución
-                                var obj_repetidas_dependencias = {};
-                                obj_repetidas_dependencias['id'] = val.id;
-                                obj_repetidas_dependencias['institucion'] = val.institucion;
-                                obj_repetidas_dependencias['dependencia'] = val.dependencia;
-                                repetidas_dependencias.push(obj_repetidas_dependencias);
-
-                                //Pone en pendientes las que sean de la misma institución
-                                var obj_repetidas_ciudades = {};
-                                obj_repetidas_ciudades['id'] = val.id;
-                                obj_repetidas_ciudades['institucion'] = val.institucion;
-                                obj_repetidas_ciudades['ciudad'] = val.ciudad;
-                                repetidas_sug_ciudades.push(obj_repetidas_ciudades);
-
-                                if( peticiones == 0 ){
-                                    peticiones --;
-                                    //revisaRepetidas();
-                                    es_inicio = false;
-                                    recorrido_instituciones(resto_val);
-                                }
-                            }
-                        }else{
-                            peticiones --;
-                            setTimeout(function(){
-                                if( peticiones == 0 ){
-                                    peticiones --;
-                                    //revisaRepetidas();
-                                    es_inicio = false;
-                                    recorrido_instituciones(resto_val);
-                                } 
-                            }, 2000);
-                        }
-                    };//);
-                    
-                    recorrido_instituciones(class_av.var.institucionesJSON);
-                    
-                    /******************************************************************/
-                    $('#div-autores').html('');
-
-                    $('#accordionAutores').html('Cargando Autores (0/'+class_av.var.autoresJSON.length+') ...');
-                    $('#accordionAutores').prop('href', '');
-
-                    /*********institucion*******************/
-                    class_av.var.a_opciones_instituciones = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
-                    $.each(class_av.var.institucionesJSON, function(i,val){
-                        var op_institucion = val.institucion;
-                        if(val.dependencia !== undefined && val.dependencia !== null && val.dependencia !== ''){
-                            op_institucion = op_institucion + ' - ' + val.dependencia;
-                        }
-                        class_av.var.a_opciones_instituciones += class_av.cons.option.replace('<valor>', val.id).replace('<opcion>', op_institucion);
-                    });
-                    
-                    var total2 = 0;
-                    //$.each(class_av.var.autoresJSON, function(i,val){
-                    var recorrido_autores = function(arr_autores){
-                        var es_inicio = true;
-                        if(arr_autores.length == 0){
-                            $('#accordionAutores').html('Autores');
-                            $('#accordionAutores').prop('href', '#autores');
-                            class_av.evento_borra_autor();
-                            class_av.change_nombre();
-                            class_av.change_orcid();
-                            return true;
-                        }
-                        
-                        total2 ++;
-                        $('#accordionAutores').html('Cargando Autores ('+total2+'/'+class_av.var.autoresJSON.length+') ...');
-                        var val = arr_autores.slice(0,1)[0];
-                        var resto_val = arr_autores.slice(1);
-                        
-                        var html_autor = class_av.var.html_autor.replaceAll('<id>', val.id);
-                        var institucion = null;
-                        $('#div-autores').append(html_autor);
-                        $('#a-institucion-'+val.id).html(class_av.var.a_opciones_instituciones);
-                        $('#a-institucion-'+val.id).select2({ tags: false, placeholder: "Seleccione una institución", allowClear: true});
-                        $('#select2-a-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
-                        $('.select2-container').tooltip();
-                        if(val['institucionId'] !== null){
-                            institucion = class_utils.find_prop(class_av.var.institucionesJSON, 'id',val['institucionId'])['institucion'];
-                            $('#a-institucion-'+val.id).val(val['institucionId']).trigger('change');
-                        }
-                        $('#a-institucion-'+val.id).on('change', function(){
-                                class_av.var.cambios_autor = (true && !es_inicio);
-                            });
-                        $('#nombre-'+val.id).val(val.nombre);
-                        $('#orcid-'+val.id).val(val.orcid);
-                        $('#nombre-'+val.id).tooltip();
-                        $('#orcid-'+val.id).tooltip();
-                        
-                        class_av.orcid_por_nombre(val.nombre, institucion, val.orcid, '#check-nombre-'+val.id, '#nombre-'+val.id)
-                        .then(function(){
-                            if(val.nombre !== null && val.nombre !== '' && val.nombre !== undefined){
-                                var nombre = val.nombre.split(',');
-                                if(nombre[1]){
-                                    nombre = nombre[1] + ' ' + nombre[0];
-                                }
-                                class_av.busca_en_pdf(class_av.var.texto_pdf, nombre, '#check-nombre-pdf-'+val.id, '#nombre-'+val.id);
-                                class_av.busca_en_pdf(class_av.var.texto_pdf, val.orcid, '#check-orcid-pdf-'+val.id, '#orcid-'+val.id);
-                                class_av.nombre_por_orcid(val.orcid, val.nombre, institucion, '#check-orcid-'+val.id, '#orcid-'+val.id)
-                                .then(function(){
-                                    class_av.biblat_por_nombre(val.nombre, institucion, '#check-nombre-bib-'+val.id, '#nombre-'+val.id)
-                                    .then(function(){
+                                    //}
+                                }else{
+                                    if( peticiones == 0 ){
+                                        peticiones --;
+                                        //revisaRepetidas();
                                         es_inicio = false;
-                                        recorrido_autores(resto_val);
-                                    });
-                                });
-                            }else{
-                                es_inicio = false;
-                                recorrido_autores(resto_val);
+                                        recorrido_instituciones(resto_val);
+                                    }
+                                }
                             }
+
+                            /************************Dependencias*****************/
+                            if(val.institucion !== null && val.institucion !== '' && val.institucion !== undefined){
+                                if(class_av.var.institucion_diccionario[val.institucion] !== undefined){
+                                    $('#valor-anterior-'+val.id).html(class_av.var.institucion_diccionario[val.institucion]);
+                                    $('#div-valor-anterior-'+val.id).show();
+                                }
+
+                                //Revisa si ya se trajo el catálogo para este país
+                                if( !opciones_dependencias.hasOwnProperty(val.institucion+'-'+class_av.var.corporativo) ){
+                                    //peticiones++;
+                                    opciones_dependencias[val.institucion+'-'+class_av.var.corporativo] = '';
+                                    /*********** dependencias según institucion *******************/
+                                    $.when(
+                                        class_utils.getResource('/datos/dependencia_by_institucion/'+val.institucion.replaceAll(class_av.cons.char_i,'')+'/'+class_av.var.corporativo, true),
+                                        class_utils.getResource('/datos/ciudad_by_institucion/'+val.institucion.replaceAll(class_av.cons.char_i, ''), true)
+                                    ) 
+                                    .then(function(resp_dependencias, resp_ciudades){
+                                        //setTimeout(function(){   
+                                            peticiones--;
+                                            /*var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                                            $.each(resp_dependencias[0], function(i2, val2){
+                                                options += class_av.cons.option.replace('<valor>', val2.dependencia.replace('"', "&quot;")).replace('<opcion>', val2.dependencia);
+                                            });*/
+                                            var options = [{id:'', text:'', num:0}];
+                                            $.each(resp_dependencias[0], function(i2, val2){
+                                                //options += class_av.cons.option.replace('<valor>', val2.ciudad).replace('<opcion>', val2.ciudad);
+                                                var obj = {
+                                                    id: val2.dependencia,
+                                                    text: val2.dependencia,
+                                                    num: val2.count
+                                                }
+                                                options.push(obj);
+                                            });
+                                            opciones_dependencias[val.institucion+'-'+class_av.var.corporativo] = JSON.parse(JSON.stringify(options));
+                                            //$('#dependencia-'+val.id).html(opciones_dependencias[val.institucion+'-'+class_av.var.corporativo]);
+                                            $('#dependencia-'+val.id).empty();
+                                            $('#dependencia-'+val.id).select2({ tags: true, placeholder: "Seleccione o escriba una dependencia", allowClear: true,  width: 'resolve', data: opciones_dependencias[val.institucion+'-'+class_av.var.corporativo], templateResult: class_av.formato_badge});
+                                            $('#select2-dependencia-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                                            $('.select2-container').tooltip();
+                                            $('#select2-dependencia-'+val.id+'-container').on('click', function(){var id=this.id; if($('#'+id.replace('select2-','').replace('-container','')).val() !== '') $('[aria-controls="'+id.replace('container','results')+'"]').val($(this).text());});
+                                            if(val.dependencia !== null){
+                                                $('#dependencia-'+val.id).val(val.dependencia).trigger('change');
+                                            }
+                                            $('#dependencia-'+val.id).on('change', function(){
+                                                class_av.var.cambios_institucion = (true && !es_inicio);
+                                            });
+
+                                            $('#check-ins-bib-'+val.id).show();
+                                            $('#check-ins-bib-'+val.id+'-load').hide();
+                                            if(resp_ciudades[0].length > 0){
+                                                $('#check-ins-bib-'+val.id+'-true').show();
+                                                $('#div-sug-ciudad-'+val.id).show();
+                                                $('#check-ins-bib-'+val.id+'-expand').show();
+                                                $('#check-ins-bib-'+val.id+'-expand').on('click', function(){
+                                                   if($('#check-ins-bib-'+val.id+'-expand').hasClass('fa fa-sort-desc')){
+                                                        $('#check-ins-bib-'+val.id+'-expand').removeClass('fa-sort-desc');
+                                                        $('#check-ins-bib-'+val.id+'-expand').addClass('fa-sort-asc');  
+                                                     }else{
+                                                        $('#check-ins-bib-'+val.id+'-expand').addClass('fa-sort-desc');
+                                                        $('#check-ins-bib-'+val.id+'-expand').removeClass('fa-sort-asc');
+                                                     }
+                                                   if( $('#sug-ciudad-'+val.id).css('display') == 'none' ){
+                                                       $('#sug-ciudad-'+val.id).show();
+                                                   }else{
+                                                       $('#sug-ciudad-'+val.id).hide();
+                                                   }
+                                                });
+                                            }else{
+                                                $('#check-ins-bib-'+val.id+'-false').show();
+                                                $('#div-sug-ciudad-'+val.id).hide();
+                                            }
+                                            //options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                                            options = '';
+                                            $.each(resp_ciudades[0], function(i2, val2){
+                                                //options += class_av.cons.option.replace('<valor>', val2.ciudad.replace('"', "&quot;")).replace('<opcion>', val2.ciudad);
+                                                options += '<li>' + '<span style="cursor:pointer" class="sug-ciudad-clic" data-toggle="tooltip" title="[Clic] para copiar en campo Ciudad" id="op-sug-ciudad-'+val.id+'">' + val2.ciudad + '</span>' +
+                                                            '<span class="badge badge-secondary" style="font-size: 10px; margin-left: 10px;">'+val2.count+'</span>'+
+                                                            '<span class="badge badge-secondary despacio" style="font-size: 10px;margin-left: 10px;background-color: #343a40;display:none">Copiado en campo Ciudad!</span></li>';
+                                            });
+                                            opciones_sug_ciudades[val.institucion] = options;
+                                            $('#sug-ciudad-'+val.id).html(opciones_sug_ciudades[val.institucion]);
+                                            class_av.seleccion_sug_ciudad();
+                                            //$('#sug-ciudad-'+val.id).select2({ tags: true, placeholder: "Sugerencias encontradas", allowClear: true});
+
+                                            if( peticiones == 0 ){
+                                                peticiones --;
+                                                //revisaRepetidas();
+                                                es_inicio = false;
+                                                recorrido_instituciones(resto_val);
+                                            }
+                                        //}, 1000);
+                                    });
+                                }else{
+                                    peticiones --;
+                                    //Pone en pendientes las que sean de la misma institución
+                                    var obj_repetidas_dependencias = {};
+                                    obj_repetidas_dependencias['id'] = val.id;
+                                    obj_repetidas_dependencias['institucion'] = val.institucion;
+                                    obj_repetidas_dependencias['dependencia'] = val.dependencia;
+                                    repetidas_dependencias.push(obj_repetidas_dependencias);
+
+                                    //Pone en pendientes las que sean de la misma institución
+                                    var obj_repetidas_ciudades = {};
+                                    obj_repetidas_ciudades['id'] = val.id;
+                                    obj_repetidas_ciudades['institucion'] = val.institucion;
+                                    obj_repetidas_ciudades['ciudad'] = val.ciudad;
+                                    repetidas_sug_ciudades.push(obj_repetidas_ciudades);
+
+                                    if( peticiones == 0 ){
+                                        peticiones --;
+                                        //revisaRepetidas();
+                                        es_inicio = false;
+                                        recorrido_instituciones(resto_val);
+                                    }
+                                }
+                            }else{
+                                peticiones --;
+                                setTimeout(function(){
+                                    if( peticiones == 0 ){
+                                        peticiones --;
+                                        //revisaRepetidas();
+                                        es_inicio = false;
+                                        recorrido_instituciones(resto_val);
+                                    } 
+                                }, 2000);
+                            }
+                        };//);
+
+                        recorrido_instituciones(class_av.var.institucionesJSON);
+
+                        /******************************************************************/
+                        $('#div-autores').html('');
+
+                        $('#accordionAutores').html('Cargando Autores (0/'+class_av.var.autoresJSON.length+') ...');
+                        $('#accordionAutores').prop('href', '');
+
+                        /*********institucion*******************/
+                        class_av.var.a_opciones_instituciones = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                        $.each(class_av.var.institucionesJSON, function(i,val){
+                            var op_institucion = val.institucion;
+                            if(val.dependencia !== undefined && val.dependencia !== null && val.dependencia !== ''){
+                                op_institucion = op_institucion + ' - ' + val.dependencia;
+                            }
+                            class_av.var.a_opciones_instituciones += class_av.cons.option.replace('<valor>', val.id).replace('<opcion>', op_institucion);
                         });
-                    };//});
+
+                        var total2 = 0;
+                        //$.each(class_av.var.autoresJSON, function(i,val){
+                        var recorrido_autores = function(arr_autores){
+                            var es_inicio = true;
+                            if(arr_autores.length == 0){
+                                $('#accordionAutores').html('Autores');
+                                $('#accordionAutores').prop('href', '#autores');
+                                class_av.evento_borra_autor();
+                                class_av.change_nombre();
+                                class_av.change_orcid();
+                                return true;
+                            }
+
+                            total2 ++;
+                            $('#accordionAutores').html('Cargando Autores ('+total2+'/'+class_av.var.autoresJSON.length+') ...');
+                            var val = arr_autores.slice(0,1)[0];
+                            var resto_val = arr_autores.slice(1);
+
+                            var html_autor = class_av.var.html_autor.replaceAll('<id>', val.id);
+                            var institucion = null;
+                            $('#div-autores').append(html_autor);
+                            $('#a-institucion-'+val.id).html(class_av.var.a_opciones_instituciones);
+                            $('#a-institucion-'+val.id).select2({ tags: false, placeholder: "Seleccione una institución", allowClear: true});
+                            $('#select2-a-institucion-'+val.id+'-container').prop('title', 'Escriba o desplace y seleccione dando [clic] en la opción');
+                            $('.select2-container').tooltip();
+                            if(val['institucionId'] !== null){
+                                institucion = class_utils.find_prop(class_av.var.institucionesJSON, 'id',val['institucionId'])['institucion'];
+                                $('#a-institucion-'+val.id).val(val['institucionId']).trigger('change');
+                            }
+                            $('#a-institucion-'+val.id).on('change', function(){
+                                    class_av.var.cambios_autor = (true && !es_inicio);
+                                });
+                            $('#nombre-'+val.id).val(val.nombre);
+                            $('#orcid-'+val.id).val(val.orcid);
+                            $('#nombre-'+val.id).tooltip();
+                            $('#orcid-'+val.id).tooltip();
+
+                            class_av.orcid_por_nombre(val.nombre, institucion, val.orcid, '#check-nombre-'+val.id, '#nombre-'+val.id)
+                            .then(function(){
+                                if(val.nombre !== null && val.nombre !== '' && val.nombre !== undefined){
+                                    var nombre = val.nombre.split(',');
+                                    if(nombre[1]){
+                                        nombre = nombre[1] + ' ' + nombre[0];
+                                    }
+                                    class_av.busca_en_pdf(class_av.var.texto_pdf, nombre, '#check-nombre-pdf-'+val.id, '#nombre-'+val.id);
+                                    class_av.busca_en_pdf(class_av.var.texto_pdf, val.orcid, '#check-orcid-pdf-'+val.id, '#orcid-'+val.id);
+                                    class_av.nombre_por_orcid(val.orcid, val.nombre, institucion, '#check-orcid-'+val.id, '#orcid-'+val.id)
+                                    .then(function(){
+                                        class_av.biblat_por_nombre(val.nombre, institucion, '#check-nombre-bib-'+val.id, '#nombre-'+val.id)
+                                        .then(function(){
+                                            es_inicio = false;
+                                            recorrido_autores(resto_val);
+                                        });
+                                    });
+                                }else{
+                                    es_inicio = false;
+                                    recorrido_autores(resto_val);
+                                }
+                            });
+                        };//});
+
+                        recorrido_autores(class_av.var.autoresJSON);
+
+                        //class_av.evento_borra_autor();
+                        //class_av.change_nombre();
+                        //class_av.change_orcid();
+
+                        $('#save-no-indizable').show();
+                        $('#save-full').show();
+                        $('#save-article').show();
+                        $('#save-instituciones').show();
+                        $('#save-autores').show();
+
+                        class_av.var.cambios_de_inicio = false;
+                    };
                     
-                    recorrido_autores(class_av.var.autoresJSON);
-                      
-                    //class_av.evento_borra_autor();
-                    //class_av.change_nombre();
-                    //class_av.change_orcid();
-                    
-                    $('#save-no-indizable').show();
-                    $('#save-full').show();
-                    $('#save-article').show();
-                    $('#save-instituciones').show();
-                    $('#save-autores').show();
-                    
-                    class_av.var.cambios_de_inicio = false;
-                });
+                    $.ajax({
+                        url:class_av.var.servidor + class_av.var.app + '/get_pdf/', 
+                        type:'POST',
+                        timeout: 30000,
+                        data: {url: url_pdf},
+                        cache:false,
+                        dataType:"json"
+                    }).done(function(resp_pdf){
+                        setArticulo();
+                    }).error(function(){
+                        resp_pdf = {'result': 'fallo'};
+                        setArticulo();
+                    });
+                //});
             });
             
             },500);
@@ -1940,6 +1958,9 @@ class_av = {
             $(id + '-texto').hide();
             
             if(texto == null || texto == '' || idioma == null || texto == null){
+                var num_titulo = id_h.replace('#idioma', '');
+                var id_titulo = '#titulo' + num_titulo;
+                $(id_titulo).prop("disabled", false);
                 return false
             }
             
@@ -1969,7 +1990,10 @@ class_av = {
                 $(id + '-texto').html('No detectado');
                 $(id + '-texto').show();
             }).always(function(){
+                var num_titulo = id_h.replace('#idioma', '');
+                var id_titulo = '#titulo' + num_titulo;
                 $(id_h).prop("disabled", false);
+                $(id_titulo).prop("disabled", false);
             });
     },
     biblat_por_nombre: function(nombre, institucion, id, id_h){
@@ -4954,7 +4978,7 @@ class_av = {
     },
     set_institucion_change_all: function(id){
         class_av.var.institucion_cambio = $(id).val().trim();
-        if( class_av.var.institucion_cambio !== undefined && class_av.var.institucion_cambio !== ''){
+        if( class_av.var.institucion_cambio !== undefined && class_av.var.institucion_cambio !== '' && class_av.var.institucion_anterior !== ''){
             class_av.var.institucion_diccionario[class_av.var.institucion_anterior] = class_av.var.institucion_cambio;
             $.ajax({
                     type: 'POST',
