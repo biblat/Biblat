@@ -216,7 +216,8 @@ class Datos extends REST_Controller {
             //and (estatus is null or (estatus <> \'C\' and estatus <> \'B\'))
             $query = 'SELECT max(article.revista::text) AS revista, max(substr(article.sistema,1,3)) as base, max(asignado) as asignado, max("fechaIngreso") as fecha, max("fechaAsignado") as fecha_asignado,
                         max(estatus) as estatus,
-						slug(article.revista) AS "revistaSlug",
+                        max("asignadoPC") as asignado_pc, max("fechaAsignadoPC") as fecha_asignado_pc, max("estatusPC") as estatus_pc,
+                        slug(article.revista) AS "revistaSlug",
                         article."anioRevista",
                         CASE
                             WHEN (article."descripcionBibliografica" ->> \'a\'::text) IS NULL THEN \'s/v\'::text

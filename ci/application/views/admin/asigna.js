@@ -7,6 +7,7 @@ class_asi = {
     },   
     var: {
         usuariosJSON: [],
+        usuariosPCJSON: [],
         revistasJSON: [],
         init: true,
         url_oai: '',
@@ -16,6 +17,7 @@ class_asi = {
         registros:{},
         select_asigna: '<select id="<id>" class="asigna"><options></select>',
         options_asigna: '',
+        options_asigna_pc: '',
         tabla: '<table id="tbl_revistas" class="display responsive nowrap" style="width:100%;font-size:11px">' +
                             '<thead>' +
                                 '<tr>' +
@@ -30,10 +32,15 @@ class_asi = {
                                     '<th rowspan="1">Asignado</th>' +
                                     '<th rowspan="1">Asignar a:</th>' +
                                     '<th>Analista</th>' +
+                                    '<th rowspan="1">Asignado PC</th>' +
+                                    '<th rowspan="1">Asignar PC a:</th>' +
+                                    '<th>Analista PC</th>' +
                                 '</tr>'+
                             '</thead>' +
                             '<tbody id="body_revistas"><body></tbody></table>',
-        tr: '<tr><td><revista></td><td><base></td><td><anio></td><td><volumen></td><td><numero></td><td><parte></td><td><articulos></td><td><ingreso></td><td><asignado></td><td><select_asigna></td><td><vacio></td>',
+        tr: '<tr><td><revista></td><td><base></td><td><anio></td><td><volumen></td><td><numero></td><td><parte></td><td><articulos></td><td><ingreso></td><td><asignado></td><td><select_asigna></td><td><vacio></td>' +
+            '<td><asignado_pc></td><td><select_asigna_pc></td><td><vacio_pc></td>',
+            
     },
     initClient: function() {
         if (class_asi.var.init){
@@ -59,6 +66,9 @@ class_asi = {
                                 if(i>0){
                                     if(val[1] == 'Analista'){
                                         class_asi.var.usuariosJSON.push(JSON.parse(JSON.stringify(Object.assign({}, val))));
+                                        if(val[5] == '1'){
+                                            class_asi.var.usuariosPCJSON.push(JSON.parse(JSON.stringify(Object.assign({}, val))));
+                                        }
                                     }
                                 }
                         });
@@ -72,6 +82,18 @@ class_asi = {
                             }
                         });
                         class_asi.var.options_asigna = options;
+                        
+                        options = '';
+                        class_asi.var.usuariosPCJSON.sort(class_utils.order_by(0));
+                        options += class_asi.cons.option_analista.replace('<analista>', "Seleccione").replace("<val>", "SIN");
+                        $.each(class_asi.var.usuariosPCJSON, function(i, val){
+                            try{
+                                options += class_asi.cons.option_analista.replace('<analista>', val[3].trim()).replace("<val>", val[3].trim());
+                            } catch (error) {
+                                console.log(error);
+                            }
+                        });
+                        class_asi.var.options_asigna_pc = options;
                         
                         $.when(class_utils.getResource('/datos/revista_estatus/')) 
                         .then(function(resp_revista){
@@ -164,6 +186,40 @@ class_asi = {
             });
         });
         
+        $('.asigna_pc').off('change').on('change', function(){
+            var selected = this;
+            var texto = 'Se asignará para <b>PALABRAS CLAVE</b> este número al usuario: <b>' + this.value + '</b>';
+            if(this.value == 'SIN'){
+                texto = 'Este número quedará <b>SIN ASIGNAR</b>';
+            }
+            $.confirm({
+                title: '',
+                content: texto,
+                buttons: {
+                    cancelar: {
+                            text: 'Cancelar',
+                            //btnClass: 'btn-red',
+                            action: function(){
+                                selected.selectedIndex = 0;
+                            }
+                    },
+                    aceptar: {
+                            text: 'Aceptar',
+                            btnClass: 'btn-warning',
+                            action: function(){
+                                $.ajax({
+                                        type: 'POST',
+                                        url: "<?=site_url('metametrics/ws_asigna');?>",
+                                        data: class_asi.data_valor_actualiza(selected.id, selected.value, true),
+                                }).done(function() {
+                                    class_asi.mensaje('Número actualizado correctamente', function(){location.reload();});
+                                });
+                            }
+                    }
+                }
+            });
+        });
+        
     },
     data_inserta_article: function(){
         var data = {};
@@ -240,7 +296,7 @@ class_asi = {
         data['data'] = data_int;
         return data;
     },
-    data_valor_actualiza(id, val){
+    data_valor_actualiza(id, val, pc=false){
         var volumen = '';
         var numero = '';
         var parte = '';
@@ -254,12 +310,22 @@ class_asi = {
             parte = id.split('__')[4];
         }
         
+        var estatus = '"estatus"';
+        var asignado = '"asignado"';
+        var fechaAsignado = '"fechaAsignado"';
+        
+        if(pc){
+            estatus = '"estatusPC"';
+            asignado = '"asignadoPC"';
+            fechaAsignado = '"fechaAsignadoPC"';
+        }
+        
         var v_json = '	{'+
                             '"revista": ' + '"' + id.split('__')[0] + '"' + ',' +
                             '"anioRevista": ' + id.split('__')[1] + ',' +
-                            '"asignado": ' + '"' + val + '"' + ',' +
-                            '"estatus": ' + '"A"' + ',' +
-                            '"fechaAsignado": ' + '"' + (new Date()).getFullYear()+'-'+(((new Date()).getMonth()+1)+'').padStart(2,'0')+'-'+((new Date()).getDate()+'').padStart(2,'0') + '"' +
+                            asignado + ': ' + '"' + val + '"' + ',' +
+                            estatus + ': ' + '"A"' + ',' +
+                            fechaAsignado + ': ' + '"' + (new Date()).getFullYear()+'-'+(((new Date()).getMonth()+1)+'').padStart(2,'0')+'-'+((new Date()).getDate()+'').padStart(2,'0') + '"' +
                             ((volumen !== '')?(', "volumen": "V' + id.split('__')[2]+'"'):'' )+
                             ((numero !== '')?(', "numero": "N' + id.split('__')[3]+'"'):'' )+
                             ((parte !== '')?(', "parte": "' + id.split('__')[4]+'"'):'' )+
@@ -294,15 +360,23 @@ class_asi = {
                                 .replace('<articulos>', val['articulos'])
                                 .replace('<ingreso>', val['fecha'])
                                 .replace('<asignado>', val['fecha_asignado'])
-                                .replace('<select_asigna>', '<span  style="display:none">'+val['asignado']+'</span>'+class_asi.var.select_asigna.replace('<options>', class_asi.var.options_asigna).replace('<id>', id))
-                                .replace('"'+val['asignado']+'"', '"'+val['asignado']+'" selected')
-                                .replace('<vacio>', val['asignado']).replaceAll('null', '');
+                                .replace('<select_asigna>', '<span  style="display:none">'+val['asignado']+'</span>'+class_asi.var.select_asigna.replace('<options>', class_asi.var.options_asigna.replace('"'+val['asignado']+'"', '"'+val['asignado']+'" selected')).replace('<id>', id))
+                                .replace('<vacio>', val['asignado']).replaceAll('null', '')
+                                .replace('<asignado_pc>', val['fecha_asignado_pc'])
+                                .replace('<select_asigna_pc>', '<span  style="display:none">'+val['asignado_pc']+'</span>'+class_asi.var.select_asigna.replace('class="asigna"', 'class="asigna_pc"').replace('<options>', class_asi.var.options_asigna_pc.replace('"'+val['asignado_pc']+'"', '"'+val['asignado_pc']+'" selected')).replace('<id>', id))
+                                .replace('<vacio_pc>', val['asignado_pc']).replaceAll('null', '')
                 
-				if(val['estatus'] == 'C'){
-                    tr = tr.replace('<select', '<select disabled');
+                if(val['estatus'] == 'C'){
+                    //tr = tr.replace('<select', '<select disabled');
+                    tr = tr.replace('class="asigna"', 'class="asigna" disabled');
                 }
-				
-				tbody += tr;
+                
+                if(val['estatusPC'] == 'C'){
+                    //tr = tr.replace('<select', '<select disabled');
+                    tr = tr.replace('class="asigna_pc"', 'class="asigna_pc" disabled');
+                }
+                
+                tbody += tr;
             //}
         });
         var tabla = class_asi.var.tabla
@@ -310,27 +384,28 @@ class_asi = {
         
         $('#div_tabla').html(tabla);
         var op = {
+                        deferRender: true,
                         dom: 'Bfrtip',
                         buttons: [
                             {
                                 extend: 'csvHtml5',
                                 text: 'Exportar CSV',
                                 exportOptions: {
-                                    columns: [0,1,2,3,4,5,6,7,8,10] // Aquí indicas los índices de las columnas a exportar (0, 2 y 3 en este caso)
+                                    columns: [0,1,2,3,4,5,6,7,8,10,11,13] // Aquí indicas los índices de las columnas a exportar (0, 2 y 3 en este caso)
                                 }
                             },
                             {
                                 extend: 'excelHtml5',
                                 text: 'Exportar Excel',
                                 exportOptions: {
-                                    columns: [0,1,2,3,4,5,6,7,8,10] // Igual que en el caso anterior, indicas los índices de las columnas a exportar
+                                    columns: [0,1,2,3,4,5,6,7,8,10,11,13] // Igual que en el caso anterior, indicas los índices de las columnas a exportar
                                 }
                             }
                         ],
                         order: [[ 1, 'asc' ]],
                         bLengthChange: false,
                         pageLength: 10,
-						//Opción para introducir el número de página en el footer de la tabla
+                        //Opción para introducir el número de página en el footer de la tabla
                         pagingType: 'input',
                         autoWidth: true,
                         columnDefs: [
@@ -339,12 +414,12 @@ class_asi = {
                                     //Sustituye el valor de la celda por esto agregando un div para que se mantenga dentro del tamaño definido
                                     return '<div style="width: 100%; text-align: left; white-space: normal;">' + data + '</div>';
                                 },
-                                targets: [0,1,2,3,4,5,6,7,8,9]
+                                targets: [0,1,2,3,4,5,6,7,8,9,11,12]
                             },
                             {
                                 visible: false,
                                 searchable: true,
-                                targets: [10]
+                                targets: [10,13]
                             }
                         ],
                         //Reajusta el ancho de las columnas

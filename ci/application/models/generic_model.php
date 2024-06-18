@@ -84,11 +84,22 @@ class Generic_model extends CI_Model {
                                     //$value['descripcionBibliografica'] = json_encode($datos_json);
                                 }
                                  
-                                if($value['asignado'] == 'SIN'){
-                                    $value['asignado'] = NULL;
-                                    $value['estatus'] = NULL;
-                                    $value['fechaAsignado'] = NULL;
+                                if (isset($value['asignado'])) {
+                                    if($value['asignado'] == 'SIN'){
+                                        $value['asignado'] = NULL;
+                                        $value['estatus'] = NULL;
+                                        $value['fechaAsignado'] = NULL;
+                                    }
                                 }
+                                
+                                if (isset($value['asignadoPC'])) {
+                                    if($value['asignadoPC'] == 'SIN'){
+                                        $value['asignadoPC'] = NULL;
+                                        $value['estatusPC'] = NULL;
+                                        $value['fechaAsignadoPC'] = NULL;
+                                    }
+                                }
+								
                                 if (!empty($arr_datos_json)) {
                                     //$json_string = json_encode($datos_json);
                                     //$json_string = str_replace("{", "", $json_string);
@@ -125,7 +136,12 @@ class Generic_model extends CI_Model {
                                 }
                                 //$valores_a_excluir = array('C', 'B');
                                 //$this->db->where_not_in('estatus', $valores_a_excluir);
-                                $this->db->where("(estatus not in ('B', 'C') or estatus is NULL)");
+                                if (isset($value['asignado'])) {
+                                    $this->db->where("(estatus not in ('B', 'C') or estatus is NULL)");
+                                }
+                                if (isset($value['asignadoPC'])) {
+                                    $this->db->where("(\"estatusPC\" not in ('C') or \"estatusPC\" is NULL)");
+                                }
                                 $this->db->where($array);
 				$this->db->update($tabla, $value);
                                 return $query_construido;
