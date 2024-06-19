@@ -10,9 +10,9 @@ class_admin = {
                     'es_ES' : 'Español',
                     'en_US' : 'Inglés',
                     'pt_BR' : 'Portugués',
-					'es' : 'Español',
+                    'es' : 'Español',
                     'en' : 'Inglés',
-                    'pt' : 'Portugués'			   
+                    'pt' : 'Portugués'
                 },
         idiomasTit: {
                 'Español' : 'spa',
@@ -25,7 +25,7 @@ class_admin = {
             'Portugués' : 'p'
         },
         pub_id: {
-			'3.4.0': 'publication_id',						  
+            '3.4.0': 'publication_id',
             '3.3.0.11': 'publication_id',
             '3.3.0': 'publication_id',
             '3.2.0': 'publication_id',
@@ -35,7 +35,7 @@ class_admin = {
             '2.3.0': 'article_id'
         },
         pub_id_auth: {
-			'3.4.0': 'publication_id',						  
+            '3.4.0': 'publication_id',
             '3.3.0.11': 'publication_id',
             '3.3.0': 'publication_id',
             '3.2.0': 'publication_id',
@@ -45,7 +45,7 @@ class_admin = {
             '2.3.0': 'submission_id'
         },
         pub_id_file: {
-			'3.4.0': 'submission_id',						 
+            '3.4.0': 'submission_id',
             '3.3.0.11': 'submission_id',
             '3.3.0': 'submission_id',
             '3.2.0': 'submission_id',
@@ -164,7 +164,7 @@ class_admin = {
                         $('#revista_sel').show();
                         $('#revista_sel').html(options);
                         $('#revista_sel').select2({ tags: true, placeholder: "Seleccione una Revista", allowClear: true});
-						loading.end();
+                        loading.end();
                     }).catch(function(){
                         location.reload();
                     });
@@ -181,7 +181,7 @@ class_admin = {
             anios += '<option value="'+i+'">'+i+'</option>';
         }
         $('#anio').html(anios);
-		loading.start();
+        loading.start();
         class_admin.initClient();
         class_admin.control();
     },
@@ -325,10 +325,14 @@ class_admin = {
         var arr_ids_issue = [];
         //Issue
         issue = class_utils.filter_prop(class_admin.var.data.i, 'year', anio);
-        if (vol !== 'null'){
+        if (vol == 'null'){
+            issue = class_utils.filter_prop(issue, 'volume', null);
+        }else{
             issue = class_utils.filter_prop(issue, 'volume', vol);
         }
-        if (num !== 'null'){
+        if (num == 'null'){
+            issue = class_utils.filter_prop(issue, 'number', null);
+        }else{
             issue = class_utils.filter_prop(issue, 'number', num);
         }
         issue = issue[0].issue_id + '';
@@ -518,12 +522,12 @@ class_admin = {
             doc.idioma_resumen += (arr_idioma.indexOf('Inglés') !== -1)?(doc.idioma_resumen != '')?', inglés':'Inglés':'';
 
             doc.anio = anio.trim();
-            if(['', undefined, null, '0'].indexOf(vol) !== -1){
+            if(['', undefined, null, '0', 'null'].indexOf(vol) !== -1){
                 doc.volumen = 's/v'
             }else{
-                doc.volumen = (class_admin.cons.er.letra.test(vol.trim()))?'':'V' + vol.trim();
+                doc.volumen = (class_admin.cons.er.letra.test(vol.trim()))?'s/v':'V' + vol.trim();
             }
-            doc.numero = (class_admin.cons.er.letra.test(num.trim()))?'':'N' + num.trim();
+            doc.numero = (class_admin.cons.er.letra.test(num.trim()))?'s/n':'N' + num.trim();
             doc.parte = ( num.toUpperCase().indexOf('ESPECIAL') !== -1)?'especial':'';
             doc.mes = '';
             doc.refs = 'Refs.';
