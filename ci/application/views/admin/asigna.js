@@ -21,20 +21,20 @@ class_asi = {
         tabla: '<table id="tbl_revistas" class="display responsive nowrap" style="width:100%;font-size:11px">' +
                             '<thead>' +
                                 '<tr>' +
-                                    '<th rowspan="1">Revista</th>' +
-                                    '<th rowspan="1">Base</th>' +
-                                    '<th rowspan="1">Anio</th>' +
-                                    '<th rowspan="1">Volumen</th>' +
-                                    '<th rowspan="1">Número</th>' +
-                                    '<th rowspan="1">Parte</th>' +
-                                    '<th rowspan="1">Artículos</th>' +
-                                    '<th rowspan="1">Ingreso</th>' +
-                                    '<th rowspan="1">Asignado</th>' +
-                                    '<th rowspan="1">Asignar a:</th>' +
-                                    '<th>Analista</th>' +
-                                    '<th rowspan="1">Asignado PC</th>' +
-                                    '<th rowspan="1">Asignar PC a:</th>' +
-                                    '<th>Analista PC</th>' +
+                                    '<th rowspan="1" style="padding:15px">Revista</th>' +
+                                    '<th rowspan="1" style="padding:15px">Base</th>' +
+                                    '<th rowspan="1" style="padding:15px">Anio</th>' +
+                                    '<th rowspan="1" style="padding:15px">Volumen</th>' +
+                                    '<th rowspan="1" style="padding:15px">Número</th>' +
+                                    '<th rowspan="1" style="padding:15px">Parte</th>' +
+                                    '<th rowspan="1" style="padding:15px">Artículos</th>' +
+                                    '<th rowspan="1" style="width:90px; padding:15px">Ingreso</th>' +
+                                    '<th rowspan="1" style="width:90px; padding:15px">Asignado</th>' +
+                                    '<th rowspan="1" style="padding:15px">Asignar a:</th>' +
+                                    '<th style="padding:15px">Analista</th>' +
+                                    '<th rowspan="1" style="padding:15px">Asignado PC</th>' +
+                                    '<th rowspan="1" style="padding:15px">Asignar PC a:</th>' +
+                                    '<th style="padding:15px">Analista PC</th>' +
                                 '</tr>'+
                             '</thead>' +
                             '<tbody id="body_revistas"><body></tbody></table>',
@@ -361,14 +361,18 @@ class_asi = {
                                 .replace('<ingreso>', val['fecha'])
                                 .replace('<asignado>', val['fecha_asignado'])
                                 .replace('<select_asigna>', '<span  style="display:none">'+val['asignado']+'</span>'+class_asi.var.select_asigna.replace('<options>', class_asi.var.options_asigna.replace('"'+val['asignado']+'"', '"'+val['asignado']+'" selected')).replace('<id>', id))
-                                .replace('<vacio>', val['asignado']).replaceAll('null', '')
+                                .replace('<vacio>', val['asignado'])
                                 .replace('<asignado_pc>', val['fecha_asignado_pc'])
-                                .replace('<select_asigna_pc>', '<span  style="display:none">'+val['asignado_pc']+'</span>'+class_asi.var.select_asigna.replace('class="asigna"', 'class="asigna_pc"').replace('<options>', class_asi.var.options_asigna_pc.replace('"'+val['asignado_pc']+'"', '"'+val['asignado_pc']+'" selected')).replace('<id>', id))
-                                .replace('<vacio_pc>', val['asignado_pc']).replaceAll('null', '')
+                                .replaceAll('null', '');
+                
                 
                 if(val['estatus'] == 'C'){
                     //tr = tr.replace('<select', '<select disabled');
-                    tr = tr.replace('class="asigna"', 'class="asigna" disabled');
+                    if(val['fecha_asignado'] !== null){
+                        tr = tr.replace('class="asigna"', 'class="asigna" disabled');
+                        tr = tr.replace('<select_asigna_pc>', '<span  style="display:none">'+val['asignado_pc']+'</span>'+class_asi.var.select_asigna.replace('class="asigna"', 'class="asigna_pc"').replace('<options>', class_asi.var.options_asigna_pc.replace('"'+val['asignado_pc']+'"', '"'+val['asignado_pc']+'" selected')).replace('<id>', id))
+                                .replace('<vacio_pc>', val['asignado_pc']).replaceAll('null', '');
+                    }
                 }
                 
                 if(val['estatusPC'] == 'C'){
