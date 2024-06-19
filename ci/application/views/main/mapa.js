@@ -1,7 +1,7 @@
 var anio_actual = ((new Date()).getFullYear());
 var anio_hasta = 2024;
 var dia_actual=(new Date()).getDate();
-var dia_hasta=13;
+var dia_hasta=24;
 var mes_actual=(new Date()).getMonth()+1;
 var mes_hasta=6;
 var hora_actual=(new Date()).getHours();
