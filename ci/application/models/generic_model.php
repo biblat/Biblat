@@ -137,7 +137,7 @@ class Generic_model extends CI_Model {
                                 //$valores_a_excluir = array('C', 'B');
                                 //$this->db->where_not_in('estatus', $valores_a_excluir);
                                 if (isset($value['asignado'])) {
-                                    $this->db->where("(estatus not in ('B', 'C') or estatus is NULL) or (estatus = 'C' and \"fechaAsignado\" is null)");
+                                    $this->db->where("( (estatus not in ('B', 'C') or estatus is NULL) or (estatus = 'C' and \"fechaAsignado\" is null) )");
                                 }
                                 if (isset($value['asignadoPC'])) {
                                     $this->db->where("(\"estatusPC\" not in ('C') or \"estatusPC\" is NULL)");
