@@ -113,7 +113,7 @@ var chartTreemap = {
             treemap: {
                 dataLabels: {
                     formatter:function(){
-						if( this.point.name !== undefined and this.point.name !== null ){
+						if( this.point.name !== undefined && this.point.name !== null ){
 							return '<a target="_blank" style="color:black" href="indice/disciplina/' + this.point.name.toLowerCase().split('').map(letra=>dicc[letra] || letra).join('') + '">' + this.point.name + '</a>';
 						}else{
 							return '';
