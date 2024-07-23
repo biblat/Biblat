@@ -927,7 +927,9 @@ class_av = {
                                             $('#check-ins-bib-'+val2.id).show();
                                             $('#check-ins-bib-'+val2.id+'-load').hide();
                                             $('#check-ins-bib-'+val2.id+'-true').show();
-                                                $('#div-sug-ciudad-'+val2.id).show();
+												if( class_av.var.corporativo == 0 ){
+													$('#div-sug-ciudad-'+val2.id).show();
+												}
                                                 $('#check-ins-bib-'+val2.id+'-expand').show();
                                                 $('#check-ins-bib-'+val2.id+'-expand').on('click', function(){
                                                    if($('#check-ins-bib-'+val2.id+'-expand').hasClass('fa fa-sort-desc')){
@@ -1277,7 +1279,9 @@ class_av = {
                                             $('#check-ins-bib-'+val.id+'-load').hide();
                                             if(resp_ciudades[0].length > 0){
                                                 $('#check-ins-bib-'+val.id+'-true').show();
-                                                $('#div-sug-ciudad-'+val.id).show();
+												if( class_av.var.corporativo == 0 ){
+													$('#div-sug-ciudad-'+val.id).show();
+												}
                                                 $('#check-ins-bib-'+val.id+'-expand').show();
                                                 $('#check-ins-bib-'+val.id+'-expand').on('click', function(){
                                                    if($('#check-ins-bib-'+val.id+'-expand').hasClass('fa fa-sort-desc')){
@@ -2735,7 +2739,9 @@ class_av = {
                 .then(function(resp_dependencias, resp_ciudades){
                     setTimeout(function(){
                         $('#sug-ciudad-'+id+'-load').hide();
-                        $('#div-sug-ciudad-'+id).show();
+						if( class_av.var.corporativo == 0 ){
+							$('#div-sug-ciudad-'+id).show();
+						}
                         $('#dependencia-'+id+'-load').hide();
                         $('#div-dependencia-'+id).show();
 
@@ -2792,7 +2798,9 @@ class_av = {
                         if(resp_ciudades[0].length > 0){
                             $('#check-ins-bib-'+id).show();
                             $('#check-ins-bib-'+id+'-true').show();
-                            $('#div-sug-ciudad-'+id).show();
+							if( class_av.var.corporativo == 0 ){
+								$('#div-sug-ciudad-'+id).show();
+							}
                             $('#check-ins-bib-'+id+'-expand').show();
                             $('#sug-ciudad-'+id).show();
                             $('#check-ins-bib-'+id+'-expand').removeClass('fa-sort-desc');
@@ -2854,7 +2862,9 @@ class_av = {
                     if(opciones_sug_ciudades[institucion] !== '' && opciones_sug_ciudades[institucion] !== undefined){
                         $('#check-ins-bib-'+id).show();
                         $('#check-ins-bib-'+id+'-true').show();
-                        $('#div-sug-ciudad-'+id).show();
+						if( class_av.var.corporativo == 0 ){
+							$('#div-sug-ciudad-'+id).show();
+						}
                         $('#check-ins-bib-'+id+'-expand').show();
                         
                         $('#sug-ciudad-'+id).show();
@@ -4191,14 +4201,17 @@ class_av = {
             }else{
                 
                 var revisa = false;
-                $.each(class_av.var.institucionesJSON, function(i, val){
-                    var busca = class_utils.filter_prop(class_av.var.autoresJSON, 'institucionId', val.id);
-                    if(busca.length == 0){
-                        revisa = true;
-                        class_av.mensaje('Existen <b>Instituciones</b> sin relación con algún <b>Autor</b><br>Indique la relación o elimínelas');
-                        return false;
-                    }
-                });
+				//Esta validación sólo aplica cuando no es corporativo
+                if( class_av.var.corporativo == 0 ){
+					$.each(class_av.var.institucionesJSON, function(i, val){
+						var busca = class_utils.filter_prop(class_av.var.autoresJSON, 'institucionId', val.id);
+						if(busca.length == 0){
+							revisa = true;
+							class_av.mensaje('Existen <b>Instituciones</b> sin relación con algún <b>Autor</b><br>Indique la relación o elimínelas');
+							return false;
+						}
+					});
+				}
                 
                 if(revisa){
                     return true;
