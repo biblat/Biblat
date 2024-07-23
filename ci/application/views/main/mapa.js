@@ -1,11 +1,11 @@
 var anio_actual = ((new Date()).getFullYear());
 var anio_hasta = 2024;
 var dia_actual=(new Date()).getDate();
-var dia_hasta=24;
+var dia_hasta=29;
 var mes_actual=(new Date()).getMonth()+1;
 var mes_hasta=6;
 var hora_actual=(new Date()).getHours();
-var hora_hasta=10;
+var hora_hasta=16;
 if(dia_actual == dia_hasta && mes_actual==mes_hasta && anio_actual==anio_hasta){
     if(hora_actual < hora_hasta){
         $('#primer').removeClass('active');
@@ -113,7 +113,11 @@ var chartTreemap = {
             treemap: {
                 dataLabels: {
                     formatter:function(){
-                        return '<a target="_blank" style="color:black" href="indice/disciplina/' + this.point.name.toLowerCase().split('').map(letra=>dicc[letra] || letra).join('') + '">' + this.point.name + '</a>'
+						if( this.point.name !== undefined && this.point.name !== null ){
+							return '<a target="_blank" style="color:black" href="indice/disciplina/' + this.point.name.toLowerCase().split('').map(letra=>dicc[letra] || letra).join('') + '">' + this.point.name + '</a>';
+						}else{
+							return '';
+						}
                     },
                     useHTML: true
                 }
