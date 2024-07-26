@@ -594,9 +594,13 @@ class_admin = {
                     var tipo = val2['label'].toLowerCase();
                     if( tipo.indexOf('pdf') !== -1){
                         doc.textoPDF = class_admin.var.revista[9].replace('oai', 'article/view') + '/' + val[class_admin.cons.pub_id_file[class_admin.var.data.ver]] + '/' + val2['galley_id'];
-                    }
+                    }else
                     if( tipo.indexOf('html') !== -1){
                         doc.textoHTML = class_admin.var.revista[9].replace('oai', 'article/view') + '/' + val[class_admin.cons.pub_id_file[class_admin.var.data.ver]] + '/' + val2['galley_id'];
+                    }else{
+                        if(doc.textoPDF == undefined){
+                            doc.textoPDF = class_admin.var.revista[9].replace('oai', 'article/view') + '/' + val[class_admin.cons.pub_id_file[class_admin.var.data.ver]] + '/' + val2['galley_id'];
+                        }
                     }
                 });
             }
