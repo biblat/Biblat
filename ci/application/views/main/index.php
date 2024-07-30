@@ -11,7 +11,7 @@
   <div class="carousel-inner" role="listbox">
     <div id="aviso" style="height:80px;color:white;background-color:red;text-align: center; padding: 10px; font-weight: bold;font-size: 16px" class="item">
         <br>
-        AVISO DE MANTENIMIENTO: sábado 29 de Junio, a partir de las 7:00 y hasta las 16:00 horas.
+        AVISO DE MANTENIMIENTO: jueves 1 de Agosto, a partir de las 7:00 y hasta las 9:00 horas.
     </div>
     <div id="primer" style="height:80px" class="item active">
        <a target="_blank" href="{site_url('sobre-metametrics')}"><img class="img-responsive center-block" src="{base_url('img/slides/banner-metametrics.jpg')}"/></a>
