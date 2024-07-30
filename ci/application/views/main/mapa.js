@@ -16,6 +16,9 @@ if(dia_actual == dia_hasta && mes_actual==mes_hasta && anio_actual==anio_hasta){
 }else if(dia_actual < dia_hasta && mes_actual==mes_hasta && anio_actual==anio_hasta){
     $('#primer').removeClass('active');
     $('#aviso').addClass('active');
+}else if(mes_actual < mes_hasta && anio_actual==anio_hasta){
+    $('#primer').removeClass('active');
+    $('#aviso').addClass('active');
 }else{
     $('#aviso').remove();
 }
