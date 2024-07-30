@@ -1,11 +1,11 @@
 var anio_actual = ((new Date()).getFullYear());
 var anio_hasta = 2024;
 var dia_actual=(new Date()).getDate();
-var dia_hasta=29;
+var dia_hasta=1;
 var mes_actual=(new Date()).getMonth()+1;
-var mes_hasta=6;
+var mes_hasta=8;
 var hora_actual=(new Date()).getHours();
-var hora_hasta=16;
+var hora_hasta=9;
 if(dia_actual == dia_hasta && mes_actual==mes_hasta && anio_actual==anio_hasta){
     if(hora_actual < hora_hasta){
         $('#primer').removeClass('active');
