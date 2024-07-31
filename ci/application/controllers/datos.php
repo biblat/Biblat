@@ -851,17 +851,30 @@ class Datos extends REST_Controller {
             $query = "
                         with agrupado as( 
                             with reg as(
-                                    select distinct sistema, id, nombre, nivel, max(fecha) fecha, 1 num from catalogador c 
+                                    select distinct c.sistema, id, nombre, nivel, max(fecha) fecha, 1 num from catalogador c 
+                                    inner join article a on a.sistema = c.sistema
                                     where
                                     c.nombre not in ('OJS', 'SciELO')
                                     and
-                                    (
-                                    id=1
-                                     or
-                                    (id=2 and (select nombre from catalogador where id=1 and sistema = c.sistema) in ('OJS', 'SciELO'))
-                                    )
-                                    and
-                                    sistema not in (select sistema from article where estatus='B')
+                                        (
+                                                (
+                                                        a.estatus in ('C')
+                                                        and 
+                                                        c.id=2
+                                                        and
+                                                        c.nombre <> 'OJS' and c.nombre <> 'SciELO'
+                                                )
+                                                or
+                                                (
+                                                        a.estatus is null
+                                                        and
+                                                        c.nombre is not null
+                                                        and
+                                                        c.id = 1
+                                                        and
+                                                        c.nombre <> 'OJS' and c.nombre <> 'SciELO'
+                                                )
+                                        )
                                     and
                                     extract(month from c.fecha) in (".$mes.") 
                                     and 
@@ -870,17 +883,30 @@ class Datos extends REST_Controller {
 
                                     union
 
-                                    select distinct sistema, id, nombre, nivel, max(fecha) fecha, 2 num from catalogador c 
+                                    select distinct c.sistema, id, nombre, nivel, max(fecha) fecha, 2 num from catalogador c 
+                                    inner join article a on a.sistema = c.sistema
                                     where
                                     c.nombre in ('OJS', 'SciELO')
                                     and
-                                    (
-                                    id=1
-                                     or
-                                    (id=2 and (select nombre from catalogador where id=1 and sistema = c.sistema) in ('OJS', 'SciELO'))
-                                    )
-                                    and
-                                    sistema not in (select sistema from article where estatus='B')
+                                        (
+                                                (
+                                                        a.estatus in ('C')
+                                                        and 
+                                                        c.id=2
+                                                        and
+                                                        c.nombre <> 'OJS' and c.nombre <> 'SciELO'
+                                                )
+                                                or
+                                                (
+                                                        a.estatus is null
+                                                        and
+                                                        c.nombre is not null
+                                                        and
+                                                        c.id = 1
+                                                        and
+                                                        c.nombre <> 'OJS' and c.nombre <> 'SciELO'
+                                                )
+                                        )
                                     and
                                     extract(month from c.fecha) in (".$mes.") 
                                     and 
