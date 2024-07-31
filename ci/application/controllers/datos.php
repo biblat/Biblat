@@ -871,8 +871,6 @@ class Datos extends REST_Controller {
                                                         c.nombre is not null
                                                         and
                                                         c.id = 1
-                                                        and
-                                                        c.nombre <> 'OJS' and c.nombre <> 'SciELO'
                                                 )
                                         )
                                     and
@@ -903,8 +901,6 @@ class Datos extends REST_Controller {
                                                         c.nombre is not null
                                                         and
                                                         c.id = 1
-                                                        and
-                                                        c.nombre <> 'OJS' and c.nombre <> 'SciELO'
                                                 )
                                         )
                                     and
@@ -919,7 +915,7 @@ class Datos extends REST_Controller {
                                     where id=1 
                                     and nombre in ('OJS', 'SciELO') 
                                     and
-                                    sistema not in (select sistema from article where estatus='B')
+                                    sistema not in (select sistema from article where estatus in ('B','R','A'))
                                     and sistema in (select sistema from catalogador where id=2 and nombre not in ('OJS', 'SciELO')  and extract(month from fecha) in (".$mes.") and extract(year from fecha) = ".$anio.")
                                     group by 1,2,3,4,6
                                     order by num
