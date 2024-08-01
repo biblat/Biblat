@@ -206,7 +206,7 @@
                                                     </ul>
                                                 </li>
                                                 <?php 
-                                                    if (in_array($_SERVER['REMOTE_ADDR'], unserialize(IPS))):
+                                                    if (in_array($_SERVER['REMOTE_ADDR'], unserialize(IPS)) || in_array($_SERVER['HTTP_X_REAL_IP'], unserialize(IPS))):
                                                 ?>
                                                     <li class="dropdown">
                                                         <a href="{site_url('sesion')}"><i class="fa fa-user fa-1x" aria-hidden="true"><acronym title="Iniciar Sesión"></acronym></i></a>
