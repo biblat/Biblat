@@ -17,7 +17,7 @@ class Sesion extends CI_Controller {
     }
     
     public function index(){
-        if (in_array($_SERVER['REMOTE_ADDR'], unserialize(IPS))){
+        if (in_array($_SERVER['REMOTE_ADDR'], unserialize(IPS)) || in_array($_SERVER['HTTP_X_REAL_IP'], unserialize(IPS))){
                 $data = array();
                 $data['page_title'] = _('Biblat Central');
                 $this->template->set_layout('default_sel');
