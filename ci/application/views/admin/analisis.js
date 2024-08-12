@@ -3005,6 +3005,54 @@ class_av = {
                 idioma3 = class_av.cons.idiomas[idioma3];
                 arrArt.push({a: titulo3, y: idioma3});
             }
+			
+			var arrResumenes = [];
+            var idiomaResumen = null;
+            if(cons.rol.val == 'Editor'){
+                var resumen_esp = $('#resumen_esp').val();
+                var resumen_ing = $('#resumen_ing').val();
+                var resumen_por = $('#resumen_por').val();
+                var resumen_otro = $('#resumen_otro').val();
+                resumen_esp = class_av.limpia(resumen_esp);
+                resumen_ing = class_av.limpia(resumen_ing);
+                resumen_por = class_av.limpia(resumen_por);
+                resumen_otro = class_av.limpia(resumen_otro);
+                if(resumen_esp){
+                    arrResumenes.push({a: resumen_esp});
+                    idiomaResumen = 'Español';
+                }
+                if(resumen_ing){
+                    arrResumenes.push({i: resumen_ing});
+                    if(idiomaResumen == null){
+                        idiomaResumen = 'Inglés';
+                    }else{
+                        idiomaResumen = idiomaResumen + ', inglés';
+                    }
+                }
+                if(resumen_por){
+                    arrResumenes.push({p: resumen_por});
+                    if(idiomaResumen == null){
+                        idiomaResumen = 'Portugués';
+                    }else{
+                        idiomaResumen = idiomaResumen + ', portugués';
+                    }
+                }
+                if(resumen_otro){
+                    arrResumenes.push({o: resumen_otro});
+                    if(idiomaResumen == null){
+                        idiomaResumen = 'Otro';
+                    }else{
+                        idiomaResumen = idiomaResumen + ', otro';
+                    }
+                }
+                if(arrResumenes.length > 0){
+                    obj['resumen'] = JSON.stringify(arrResumenes);
+                    obj['idiomaResumen'] = idiomaResumen;
+                }else{
+                    obj['resumen'] = null;
+                    obj['idiomaResumen'] = null;
+                }
+            }
             
             if(arrArt.length > 0){
                 obj['articuloIdiomas'] = JSON.stringify(arrArt);
