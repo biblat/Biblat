@@ -215,10 +215,12 @@ class Datos extends REST_Controller {
 			$this->load->database();
             //and (estatus is null or (estatus <> \'C\' and estatus <> \'B\'))
             $query = 'SELECT max(article.revista::text) AS revista, max(substr(article.sistema,1,3)) as base, max(asignado) as asignado, max("fechaIngreso") as fecha, max("fechaAsignado") as fecha_asignado,
-                        max(estatus) as estatus,
+                        max(article.estatus) as estatus,
                         max("asignadoPC") as asignado_pc, max("fechaAsignadoPC") as fecha_asignado_pc, max("estatusPC") as estatus_pc,
                         slug(article.revista) AS "revistaSlug",
                         article."anioRevista",
+                        max(g.estatus) palabras_clave,
+                        count(g.palabrasclaveia) analizados,
                         CASE
                             WHEN (article."descripcionBibliografica" ->> \'a\'::text) IS NULL THEN \'s/v\'::text
                             WHEN btrim(article."descripcionBibliografica" ->> \'a\'::text) = \'\'::text THEN \'s/v\'::text
@@ -236,7 +238,8 @@ class Datos extends REST_Controller {
                         ELSE replace(replace(article."descripcionBibliografica" ->> \'d\'::text, \'"\'::text, \'\'::text), \' \'::text, \'\'::text)
                         END AS parte, count(1) articulos
                         FROM article
-                        WHERE article."anioRevista" IS NOT NULL and sistema ~ \'^(CLA|PER)99.*\'
+                        LEFT JOIN genera_pc g on article.sistema = g.sistema
+                        WHERE article."anioRevista" IS NOT NULL and article.sistema ~ \'^(CLA|PER)99.*\' 
 						
                         GROUP BY (slug(article.revista)), article."anioRevista", (
                         CASE
