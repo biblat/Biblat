@@ -234,7 +234,7 @@ class_asi = {
             $(this).parent().html('<i class="fa fa-refresh fa-spin" aria-hidden="true" style="color: #ff8000;" data-toggle="tooltip" data-placement="top" title="Generando palabras clave ..."></i>');
             $.when(
                 //class_utils.setResource('http://localhost:5001' + '' + '/palabras_clave/', class_asi.var.arr_palabras_clave[id], true)
-                class_utils.setResource('https://biblat.unam.mx' + '' + '/scielo-claper/', class_asi.var.arr_palabras_clave[id], true)
+                class_utils.setResource('https://biblat.unam.mx' + 'scielo-claper' + '/palabras_clave/', class_asi.var.arr_palabras_clave[id], true)
             ).then(function(){
             });
         });
