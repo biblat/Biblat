@@ -963,4 +963,28 @@ class Datos extends REST_Controller {
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);  
 		}
+		
+		public function estatus_palabras_get($id){
+            $data = array();
+            $this->load->database();
+            $query = "
+                select count(1) analizados, max(estatus) estatus from genera_pc where id= '".$id."'
+            ";
+            
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);  
+		}
+        
+        public function tabla_by_campo_get($tabla, $campo, $valor){
+            $data = array();
+            $this->load->database();
+            if( $this->session->userdata('usu_base') ){
+                $query = '
+                    select * from "'.$tabla.'" where "'.$campo.'" = \''.$valor.'\'
+                ';
+
+                $query = $this->db->query($query);
+                $this->response($query->result_array(), 200);  
+            }
+	}
 }
