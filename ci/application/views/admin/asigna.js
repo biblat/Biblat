@@ -18,6 +18,9 @@ class_asi = {
         select_asigna: '<select id="<id>" class="asigna"><options></select>',
         options_asigna: '',
         options_asigna_pc: '',
+        arr_palabras_clave:[],
+        generando_pc: false,
+        revisa_pc: null,
         tabla: '<table id="tbl_revistas" class="display responsive nowrap" style="width:100%;font-size:11px">' +
                             '<thead>' +
                                 '<tr>' +
@@ -220,6 +223,21 @@ class_asi = {
             });
         });
         
+        $('.genera_pc').off('click').on('click', function(){
+            var id = this.id.split('_')[2];
+            var this_externo =  this;
+            $('.genera_pc').css('color', 'gray');
+            $('.genera_pc').css('cursor', '');
+            $('.genera_pc').off('click');
+            class_asi.var.generando_pc = true;
+            class_asi.var.revisa_pc = setInterval( function(){ class_asi.revisa_estatus(class_asi.var.arr_palabras_clave[id]) }, 10000 );
+            $(this).parent().html('<i class="fa fa-refresh fa-spin" aria-hidden="true" style="color: #ff8000;" data-toggle="tooltip" data-placement="top" title="Generando palabras clave ..."></i>');
+            $.when(
+                //class_utils.setResource('http://localhost:5001' + '' + '/palabras_clave/', class_asi.var.arr_palabras_clave[id], true)
+                class_utils.setResource('https://biblat.unam.mx' + '' + '/scielo-claper/', class_asi.var.arr_palabras_clave[id], true)
+            ).then(function(){
+            });
+        });
     },
     data_inserta_article: function(){
         var data = {};
@@ -350,6 +368,16 @@ class_asi = {
                         ((val['volumen'] == '' || val['volumen'].toLowerCase().indexOf('s') !== -1 )?'':val['volumen']) + '__' +
                         ((val['numero'] == '' || val['numero'].toLowerCase().indexOf('s') !== -1 )?'':val['numero']) + '__' +
                         ((val['parte'] == '')?'':val['parte']);
+                
+                var obj_revista = {
+                    'revista': val['revista'],
+                    'anio': val['anioRevista'],
+                    'vol': val['volumen'],
+                    'num': val['numero'],
+                    'parte': val['parte'],
+                    'id': id,
+                    'pc_id': 'pc-'+class_utils.slug(id)
+                };
 
                 var tr = class_asi.var.tr.replace('<revista>', val['revista'])
                                 .replace('<base>', val['base'])
@@ -368,10 +396,25 @@ class_asi = {
                 
                 if(val['estatus'] == 'C'){
                     //tr = tr.replace('<select', '<select disabled');
+                    //El artículo ya fue asignado para análisis
                     if(val['fecha_asignado'] !== null){
+                        //Se deshabilita el combo para asignar
                         tr = tr.replace('class="asigna"', 'class="asigna" disabled');
-                        tr = tr.replace('<select_asigna_pc>', '<span  style="display:none">'+val['asignado_pc']+'</span>'+class_asi.var.select_asigna.replace('class="asigna"', 'class="asigna_pc"').replace('<options>', class_asi.var.options_asigna_pc.replace('"'+val['asignado_pc']+'"', '"'+val['asignado_pc']+'" selected')).replace('<id>', id))
+                        //Si el indicador de análisis de palabras clave está completado
+                        if(val['palabras_clave'] == 'C'){
+                            //Muestra el combo para asignar análisis
+                            tr = tr.replace('<select_asigna_pc>', '<span  style="display:none">'+val['asignado_pc']+'</span>'+class_asi.var.select_asigna.replace('class="asigna"', 'class="asigna_pc"').replace('<options>', class_asi.var.options_asigna_pc.replace('"'+val['asignado_pc']+'"', '"'+val['asignado_pc']+'" selected')).replace('<id>', id))
                                 .replace('<vacio_pc>', val['asignado_pc']).replaceAll('null', '');
+                        }else if(val['palabras_clave'] == null){
+                            //Muestra icono para empezar a generar palabras clave
+                            tr = tr.replace('<select_asigna_pc>', '<center id="'+obj_revista.pc_id+'"><i id="genera_pc_'+i+'" class="fa fa-cogs genera_pc" aria-hidden="true" style="color: #ff8000; cursor: pointer" data-toggle="tooltip" data-placement="top" title="[Clic] para generar palabras clave"></i></center>');
+                            class_asi.var.arr_palabras_clave[i]=obj_revista;
+                        }else if(val['palabras_clave'] == 'R'){
+                            //Muestra que está trabajando en las palabras
+                            class_asi.var.generando_pc = true;
+                            tr = tr.replace('<select_asigna_pc>', '<center id="'+obj_revista.pc_id+'"><i class="fa fa-refresh fa-spin" aria-hidden="true" style="color: #ff8000;" data-toggle="tooltip" data-placement="top" title="Generando palabras clave ..."></i> ('+val['analizados']+')</center>');
+                            class_asi.var.revisa_pc = setInterval( function(){ class_asi.revisa_estatus(obj_revista) }, 10000);
+                        }
                     }
                 }
                 
@@ -436,6 +479,11 @@ class_asi = {
                                 $('.dataTables_paginate').hide();
                             }
                             class_asi.control();
+                            if(class_asi.var.generando_pc){
+                                $('.genera_pc').css('color', 'gray');
+                                $('.genera_pc').css('cursor', '');
+                                $('.genera_pc').off('click');
+                            }
                         }
                     }; 
         class_utils.setTabla('tbl_revistas', op);
@@ -457,6 +505,25 @@ class_asi = {
                                 }
                             }
                     }
+                }
+            });
+    },
+    revisa_estatus(obj_revista){
+        $.when(class_utils.getResource('/datos/estatus_palabras/'+obj_revista.pc_id)) 
+            .then(function(resp){
+                if(resp[0].estatus == 'C'){
+                    class_asi.var.generando_pc = false;
+                    $('.genera_pc').css('color', '#ff8000');
+                    $('.genera_pc').css('cursor', 'pointer');
+                    class_asi.control();
+                    clearInterval(class_asi.var.revisa_pc);
+                    //Muestra el combo para asignar análisis
+                    $('#'+obj_revista.pc_id).html('<span  style="display:none"></span>'+class_asi.var.select_asigna.replace('class="asigna"', 'class="asigna_pc"').replace('<options>', class_asi.var.options_asigna_pc).replace('<id>', obj_revista.id))
+                        .replaceAll('null', '');
+                }else if(resp[0].estatus == 'R'){
+                    //Muestra que está trabajando en las palabras
+                    class_asi.var.generando_pc = true;
+                    $('#'+obj_revista.pc_id).html('<center><i class="fa fa-refresh fa-spin" aria-hidden="true" style="color: #ff8000;" data-toggle="tooltip" data-placement="top" title="Generando palabras clave ..."></i> ('+resp[0].analizados+')</center>');
                 }
             });
     }

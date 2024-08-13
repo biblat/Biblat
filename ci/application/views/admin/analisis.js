@@ -1,4 +1,4 @@
-// cambios 65,66, 2396, 2398, 3136, 4959
+// cambios 70,71, 2396, 2398, 3136, 4959
 class_av = {
     cons: {
         DISCOVERY_DOCS: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
@@ -13,7 +13,10 @@ class_av = {
             A: 'Sin movimiento',
             R: 'En revisión',
             C: 'Completado',
-            B: 'No indizable'
+            B: 'No indizable',
+            APC: 'Sin movimiento PC',
+            RPC: 'En revisión PC',
+            CPC: 'Completado PC',
         },
         color_estatus:{
             R: 'goldenrod',
@@ -568,33 +571,51 @@ class_av = {
             ) 
             .then(function(resp_documento, resp_autores, resp_instituciones){
                 class_av.var.documentoJSON = resp_documento[0];
-                class_av.var.autoresJSON = resp_autores[0].map(function(item){
-                                                                    return {
-                                                                            ...item, // Copiar todas las propiedades del elemento original
-                                                                            id2: parseInt(item.id) // Agregar la nueva propiedad id2 con el valor numérico de id
-                                                                    };
-                                                                });
-                class_av.var.institucionesJSON = resp_instituciones[0].map(function(item){
-                                                                            return {
+                var revision_pc = ['A', 'R'].indexOf(class_av.var.documentoJSON[0].estatusPC) !== -1;
+        
+                if(revision_pc){
+                    $('#save-no-indizable, #panelInstituciones, #panelAutores, #save-article, #save-full').hide();
+                    $('#save-pc, #save-full-pc').show();
+                    $('#idiomaDocumento, #titulo, #idioma, #titulo2, #idioma2, #titulo3, #idioma3, #tipo_documento, \n\
+                        #disciplina1, #disciplina2, #disciplina3, #subdisciplina1, #subdisciplina2, #subdisciplina3, \n\
+                        #url1, #url2, #tipourl1, #tipourl2').prop("disabled", true);
+                }else{
+                    $('#save-no-indizable, #panelInstituciones, #panelAutores, #save-article, #save-full').show();
+                    $('#save-pc, #save-full-pc').hide();
+                    $('#idiomaDocumento, #titulo, #idioma, #titulo2, #idioma2, #titulo3, #idioma3, #tipo_documento, \n\
+                        #disciplina1, #disciplina2, #disciplina3, #subdisciplina1, #subdisciplina2, #subdisciplina3, \n\
+                        #url1, #url2, #tipourl1, #tipourl2').prop("disabled", false);
+                }
+               
+                
+                if(!revision_pc){
+                    class_av.var.autoresJSON = resp_autores[0].map(function(item){
+                                                                        return {
                                                                                 ...item, // Copiar todas las propiedades del elemento original
                                                                                 id2: parseInt(item.id) // Agregar la nueva propiedad id2 con el valor numérico de id
-                                                                            };
-                                                                        });
-                var corporativo = 0;
-                class_av.var.corporativo = 0;
-                
-                if(class_av.var.institucionesJSON !== undefined){
-                    class_av.var.institucionesJSON.sort(class_utils.order_by('id2'));
-                    corporativo = class_utils.filter_prop(class_av.var.institucionesJSON, 'corporativo', '1').length;
-                    if(corporativo > 0){
-                        class_av.var.corporativo = 1;
+                                                                        };
+                                                                    });
+                    class_av.var.institucionesJSON = resp_instituciones[0].map(function(item){
+                                                                                return {
+                                                                                    ...item, // Copiar todas las propiedades del elemento original
+                                                                                    id2: parseInt(item.id) // Agregar la nueva propiedad id2 con el valor numérico de id
+                                                                                };
+                                                                            });
+                    var corporativo = 0;
+                    class_av.var.corporativo = 0;
+
+                    if(class_av.var.institucionesJSON !== undefined){
+                        class_av.var.institucionesJSON.sort(class_utils.order_by('id2'));
+                        corporativo = class_utils.filter_prop(class_av.var.institucionesJSON, 'corporativo', '1').length;
+                        if(corporativo > 0){
+                            class_av.var.corporativo = 1;
+                        }
+                    }
+
+                    if(class_av.var.autoresJSON !== undefined){
+                        class_av.var.autoresJSON.sort(class_utils.order_by('id2'));
                     }
                 }
-                
-                if(class_av.var.autoresJSON !== undefined){
-                    class_av.var.autoresJSON.sort(class_utils.order_by('id2'));
-                }
-                
                 /******************************************************************/
                 var url_pdf='';
                 if(class_av.var.documentoJSON[0].tipourl1 == 'pdf'){
@@ -605,12 +626,14 @@ class_av = {
                     url_pdf = class_av.var.documentoJSON[0].url2;
                 }
                 
-                if(class_av.var.corporativo == 1){
-                    $('#es-corporativo')[0].checked = true;
-                }else{
-                    $('#es-corporativo')[0].checked = false;
+                if(!revision_pc){
+                    if(class_av.var.corporativo == 1){
+                        $('#es-corporativo')[0].checked = true;
+                    }else{
+                        $('#es-corporativo')[0].checked = false;
+                    }
+                    class_av.autor_corporativo(true);
                 }
-                class_av.autor_corporativo(true);
                 
                 //Lectura del pdf
                 /*$.when(
@@ -624,7 +647,9 @@ class_av = {
                         /**** Búsqueda de título en pdf *********/
                         //if(url_pdf !== ''){
                             //class_av.busca_en_pdf(url_pdf, class_av.var.documentoJSON[0].articulo, '#check-titulo', '#titulo');
-                            class_av.busca_en_pdf(class_av.var.texto_pdf, class_av.var.documentoJSON[0].articulo, '#check-titulo', '#titulo');
+                            if(!revision_pc){
+                                class_av.busca_en_pdf(class_av.var.texto_pdf, class_av.var.documentoJSON[0].articulo, '#check-titulo', '#titulo');
+                            }
                         //}
 
                         $('.tooltip-titulo').tooltip();
@@ -669,7 +694,9 @@ class_av = {
                         $("#idioma").val(idiomas[0]);
                         /****Búsqueda idioma ********/
                         if(idiomas[0] !== ''){
-                            class_av.texto_idioma(class_av.var.documentoJSON[0].articulo, idiomas[0], '#check-idioma', '#idioma');
+                            if(!revision_pc){
+                                class_av.texto_idioma(class_av.var.documentoJSON[0].articulo, idiomas[0], '#check-idioma', '#idioma');
+                            }
                         }
 
                         var tiempo_tit;
@@ -710,10 +737,11 @@ class_av = {
                                 }
                                 class_av.var.cambios_documento = true;
                             });
-
-                            class_av.busca_en_pdf(class_av.var.texto_pdf, class_av.var.documentoJSON[0].titulo2, '#check-titulo2', '#titulo2');
-
-                            class_av.texto_idioma(class_av.var.documentoJSON[0].titulo2, class_av.var.documentoJSON[0].idioma2, '#check-idioma2', '#idioma2');
+                            
+                            if(!revision_pc){
+                                class_av.busca_en_pdf(class_av.var.texto_pdf, class_av.var.documentoJSON[0].titulo2, '#check-titulo2', '#titulo2');
+                                class_av.texto_idioma(class_av.var.documentoJSON[0].titulo2, class_av.var.documentoJSON[0].idioma2, '#check-idioma2', '#idioma2');
+                            }
 
                             $('#idioma2').off('change').on('change', function(e){
                                 clearTimeout(tiempo_tit);
@@ -749,10 +777,11 @@ class_av = {
                                 }
                                 class_av.var.cambios_documento = true;
                             });
-
-                            class_av.busca_en_pdf(class_av.var.texto_pdf, class_av.var.documentoJSON[0].titulo3, '#check-titulo3', '#titulo3');
-
-                            class_av.texto_idioma(class_av.var.documentoJSON[0].titulo3, class_av.var.documentoJSON[0].idioma3, '#check-idioma3', '#idioma3');
+                            
+                            if(!revision_pc){
+                                class_av.busca_en_pdf(class_av.var.texto_pdf, class_av.var.documentoJSON[0].titulo3, '#check-titulo3', '#titulo3');
+                                class_av.texto_idioma(class_av.var.documentoJSON[0].titulo3, class_av.var.documentoJSON[0].idioma3, '#check-idioma3', '#idioma3');
+                            }
 
                             $('#idioma3').off('change').on('change', function(e){
                                 clearTimeout(tiempo_tit);
@@ -785,7 +814,7 @@ class_av = {
                         $("#tipourl1").val(class_av.var.documentoJSON[0].tipourl1);
                         $("#tipourl2").val(class_av.var.documentoJSON[0].tipourl2);
 
-                        class_av.control_aa();
+                        class_av.control_aa(class_av.var.documentoJSON[0].estatusPC);
 
                         $('#idiomaDocumento').select2({ tags: false, placeholder: "Seleccione uno o más idiomas", allowClear: true});
                         $('#idiomaDocumento').val(idiomas).trigger('change');
@@ -927,9 +956,9 @@ class_av = {
                                             $('#check-ins-bib-'+val2.id).show();
                                             $('#check-ins-bib-'+val2.id+'-load').hide();
                                             $('#check-ins-bib-'+val2.id+'-true').show();
-												if( class_av.var.corporativo == 0 ){
-													$('#div-sug-ciudad-'+val2.id).show();
-												}
+                                                if( class_av.var.corporativo == 0 ){
+                                                    $('#div-sug-ciudad-'+val2.id).show();
+                                                }
                                                 $('#check-ins-bib-'+val2.id+'-expand').show();
                                                 $('#check-ins-bib-'+val2.id+'-expand').on('click', function(){
                                                    if($('#check-ins-bib-'+val2.id+'-expand').hasClass('fa fa-sort-desc')){
@@ -1279,9 +1308,9 @@ class_av = {
                                             $('#check-ins-bib-'+val.id+'-load').hide();
                                             if(resp_ciudades[0].length > 0){
                                                 $('#check-ins-bib-'+val.id+'-true').show();
-												if( class_av.var.corporativo == 0 ){
-													$('#div-sug-ciudad-'+val.id).show();
-												}
+                                                if( class_av.var.corporativo == 0 ){
+                                                    $('#div-sug-ciudad-'+val.id).show();
+                                                }
                                                 $('#check-ins-bib-'+val.id+'-expand').show();
                                                 $('#check-ins-bib-'+val.id+'-expand').on('click', function(){
                                                    if($('#check-ins-bib-'+val.id+'-expand').hasClass('fa fa-sort-desc')){
@@ -1357,8 +1386,10 @@ class_av = {
                                 }, 2000);
                             }
                         };//);
-
-                        recorrido_instituciones(class_av.var.institucionesJSON);
+                        
+                        if(!revision_pc){
+                            recorrido_instituciones(class_av.var.institucionesJSON);
+                        }
 
                         /******************************************************************/
                         $('#div-autores').html('');
@@ -1367,14 +1398,16 @@ class_av = {
                         $('#accordionAutores').prop('href', '');
 
                         /*********institucion*******************/
-                        class_av.var.a_opciones_instituciones = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
-                        $.each(class_av.var.institucionesJSON, function(i,val){
-                            var op_institucion = val.institucion;
-                            if(val.dependencia !== undefined && val.dependencia !== null && val.dependencia !== ''){
-                                op_institucion = op_institucion + ' - ' + val.dependencia;
-                            }
-                            class_av.var.a_opciones_instituciones += class_av.cons.option.replace('<valor>', val.id).replace('<opcion>', op_institucion);
-                        });
+                        if(!revision_pc){
+                            class_av.var.a_opciones_instituciones = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                            $.each(class_av.var.institucionesJSON, function(i,val){
+                                var op_institucion = val.institucion;
+                                if(val.dependencia !== undefined && val.dependencia !== null && val.dependencia !== ''){
+                                    op_institucion = op_institucion + ' - ' + val.dependencia;
+                                }
+                                class_av.var.a_opciones_instituciones += class_av.cons.option.replace('<valor>', val.id).replace('<opcion>', op_institucion);
+                            });
+                        }
 
                         var total2 = 0;
                         //$.each(class_av.var.autoresJSON, function(i,val){
@@ -1436,16 +1469,18 @@ class_av = {
                                 }
                             });
                         };//});
-
-                        recorrido_autores(class_av.var.autoresJSON);
+                        
+                        if(!revision_pc){
+                            recorrido_autores(class_av.var.autoresJSON);
+                        }
 
                         //class_av.evento_borra_autor();
                         //class_av.change_nombre();
                         //class_av.change_orcid();
 
-                        $('#save-no-indizable').show();
-                        $('#save-full').show();
-                        $('#save-article').show();
+                        //$('#save-no-indizable').show();
+                        //$('#save-full').show();
+                        //$('#save-article').show();
                         $('#save-instituciones').show();
                         $('#save-autores').show();
 
@@ -1495,7 +1530,7 @@ class_av = {
             $('#btn_nuevo_articulo').show();
         });
     },
-    control_aa: function(){
+    control_aa: function(pc){
         if(cons.res.val == "1"){
             var textarea = document.getElementById('resumen_esp');
             // Clonamos el elemento textarea para conservar sus atributos y valores
@@ -1522,7 +1557,7 @@ class_av = {
             });
         }
          
-        if(cons.pal_cla.val == "1"){
+        if(cons.pal_cla.val == "1" && ['A','R'].indexOf(pc) !== -1){
             $('#url1, #url2, #tipourl1, #tipourl2').off('change').on('change', function(e){
                     class_av.var.cambios_documento = true;
                     if( ($('#url1').val() !== '' && $("#tipourl1").val() == 'pdf') || ($('#url2').val() !== '' && $("#tipourl2").val() == 'pdf')){
@@ -1535,6 +1570,8 @@ class_av = {
                 class_av.palabras_clave();
                 //$('#import-ai').show();
             }
+        }else{
+            $('#div_palabras_clave_texto, #div_cargando_pc').hide();
         }
     },
     control_na: function(){
@@ -2395,9 +2432,16 @@ class_av = {
         $.each(data, function(i, val){
             var texto1 = (val['url1'] == null)?'':'Ver artículo';
             var texto2 = (val['url2'] == null)?'':'Ver artículo';
-            var art_class = ( ['C','B'].indexOf(val['estatus']) == -1 )?'sistema':'cerrado';
+            var art_class = '';
+            var art_style = '';
+            if( ['A','R'].indexOf(val['estatusPC']) !== -1 ){
+                art_class = 'sistema';
+                art_style = 'cursor:pointer;color:#ff8000'
+            }else{
+                art_class = ( ['C','B'].indexOf(val['estatus']) == -1 )?'sistema':'cerrado';
+                art_style = ( ['C','B'].indexOf(val['estatus']) == -1 )?'cursor:pointer;color:#ff8000':'';
+            }
             //var art_class = 'sistema';
-            var art_style = ( ['C','B'].indexOf(val['estatus']) == -1 )?'cursor:pointer;color:#ff8000':'';
             //var art_style = 'cursor:pointer;color:#ff8000';
             val['articulo'] = val['articulo'].replace(/<[^>]+>/g, '');
             var tr = class_av.var.tr.replace('<revista>', val['revista'])
@@ -2411,19 +2455,27 @@ class_av = {
                             .replace('<url2>', val['url2'])
                             .replace('<texto1>', texto1)
                             .replace('<texto2>', texto2)
+                            .replace('<fecha>', ((['C','R','A'].indexOf(val['estatusPC'])==-1)?'<fecha>':val['fechaAsignadoPC']))
                             .replace('<fecha>', ((val['fechaAsignado']==null)?'':val['fechaAsignado']))
+                            .replace('<fecha_c>', ((['C','R','A'].indexOf(val['estatusPC'])!==-1)?val['fechaPC']:'<fecha_c>'))
                             .replace('<fecha_c>', ((val['estatus']=='C')?val['fecha']:''))
+                            .replace('<estatus>', ((val['estatusPC']==null)?'<estatus>':'<estatus_pc>'+val['estatusPC']))
                             .replace('<estatus>', '<estatus>'+val['estatus'])
-                            .replace('<color>', '<color>'+val['estatus'])
+                            .replace('<color>', ((val['estatusPC']==null)?'<color>':'<color>'+val['estatusPC']))
+                            .replace('<color>', ((val['estatusPC']==null)?'<color>'+val['estatus']:'<color>'))
                             .replace('<estatus>R', 'En revisión')
                             .replace('<estatus>C', 'Completado')
                             .replace('<estatus>B', 'No indizable')
                             .replace('<estatus>A', 'Sin movimiento')
+                            .replace('<estatus_pc>R', 'En revisión PC')
+                            .replace('<estatus_pc>C', 'Completado PC')
+                            .replace('<estatus_pc>A', 'Sin movimiento PC')
                             .replace('<color>R', 'goldenrod')
                             .replace('<color>C', 'darkgreen')
                             .replace('<color>B', 'darkred')
                             .replace('<style>', art_style)
-                            .replace('<class>', art_class);
+                            .replace('<class>', art_class)
+                            .replaceAll('undefined', '');
             tbody += tr;
         });
        
@@ -2739,9 +2791,9 @@ class_av = {
                 .then(function(resp_dependencias, resp_ciudades){
                     setTimeout(function(){
                         $('#sug-ciudad-'+id+'-load').hide();
-						if( class_av.var.corporativo == 0 ){
-							$('#div-sug-ciudad-'+id).show();
-						}
+                        if( class_av.var.corporativo == 0 ){
+                            $('#div-sug-ciudad-'+id).show();
+                        }
                         $('#dependencia-'+id+'-load').hide();
                         $('#div-dependencia-'+id).show();
 
@@ -2798,9 +2850,9 @@ class_av = {
                         if(resp_ciudades[0].length > 0){
                             $('#check-ins-bib-'+id).show();
                             $('#check-ins-bib-'+id+'-true').show();
-							if( class_av.var.corporativo == 0 ){
-								$('#div-sug-ciudad-'+id).show();
-							}
+                            if( class_av.var.corporativo == 0 ){
+                                $('#div-sug-ciudad-'+id).show();
+                            }
                             $('#check-ins-bib-'+id+'-expand').show();
                             $('#sug-ciudad-'+id).show();
                             $('#check-ins-bib-'+id+'-expand').removeClass('fa-sort-desc');
@@ -2862,9 +2914,9 @@ class_av = {
                     if(opciones_sug_ciudades[institucion] !== '' && opciones_sug_ciudades[institucion] !== undefined){
                         $('#check-ins-bib-'+id).show();
                         $('#check-ins-bib-'+id+'-true').show();
-						if( class_av.var.corporativo == 0 ){
-							$('#div-sug-ciudad-'+id).show();
-						}
+                        if( class_av.var.corporativo == 0 ){
+                            $('#div-sug-ciudad-'+id).show();
+                        }
                         $('#check-ins-bib-'+id+'-expand').show();
                         
                         $('#sug-ciudad-'+id).show();
@@ -3005,8 +3057,8 @@ class_av = {
                 idioma3 = class_av.cons.idiomas[idioma3];
                 arrArt.push({a: titulo3, y: idioma3});
             }
-			
-			var arrResumenes = [];
+            
+            var arrResumenes = [];
             var idiomaResumen = null;
             if(cons.rol.val == 'Editor'){
                 var resumen_esp = $('#resumen_esp').val();
@@ -3256,6 +3308,71 @@ class_av = {
         data['data'] = data_int;
         return data;
     },
+    data_update_pc: function(){
+        var data = {};
+        var data_int = [];
+        var columns = ['sistema'];
+        $.each(class_av.var.documentoJSON, function(i,val){
+            var obj = {};
+            var objDes = {};
+            var arrArt = [];
+            var objRes = {};
+            var arrURL = [];
+            var arrDisc = [];
+            var arrSubdisc = [];
+           
+            obj['sistema'] = class_av.var.sistema;
+            
+            if(cons.pal_cla.val == "1"){
+                arr_palabras_clave = [];
+                $('.esp.palabra_clave.badge-warning').each(function() {
+                    var palabra = $(this).html(); // Obtener el texto dentro del botón actual
+                    var palabra_sustituye = '';
+                    //busca si hay sustitución de palabra
+                    if( palabra.indexOf('fa-arrow-down') !== -1 ){
+                        palabra_sustituye = palabra.split('<br>')[2].split('<span')[0].trim();
+                    }
+                    palabra = palabra.split('<span')[0].trim();
+                    if(palabra_sustituye !== ''){
+                        palabra = palabra + '-sustituye-' + palabra_sustituye;
+                    }
+                    arr_palabras_clave.push(palabra);
+                });
+                
+                arr_keywords = [];
+                $('.keyword.palabra_clave.badge-warning').each(function() {
+                    var palabra = $(this).html(); // Obtener el texto dentro del botón actual
+                    var palabra_sustituye = '';
+                    //busca si hay sustitución de palabra
+                    if( palabra.indexOf('fa-arrow-down') !== -1 ){
+                        palabra_sustituye = palabra.split('<br>')[2].split('<span')[0].trim();
+                    }
+                    palabra = palabra.split('<span')[0].trim();
+                    if(palabra_sustituye !== ''){
+                        palabra = palabra + '-sustituye-' + palabra_sustituye;
+                    }
+                    arr_keywords.push(palabra);
+                });
+                
+                arr_palabras_clave = [...new Set(arr_palabras_clave)];
+                arr_keywords = [...new Set(arr_keywords)];
+                
+                obj['palabraClave'] = JSON.stringify(arr_palabras_clave);
+                class_av.var.documentoJSON[0].palabraClave = JSON.stringify(arr_palabras_clave);
+                obj['keyword'] = JSON.stringify(arr_keywords);
+                class_av.var.documentoJSON[0].keyword = JSON.stringify(arr_keywords);
+            }
+            
+            obj['estatusPC'] = 'R';
+            
+            data_int.push(obj);
+        });
+        
+        data['tabla'] = 'article';
+        data['where'] = columns;
+        data['data'] = data_int;
+        return data;
+    },
     data_update_instituciones: function(){
         var data = {};
         var data_int = [];
@@ -3495,6 +3612,10 @@ class_av = {
     },
     cambio_estatus: function(sistema, estatus){
         $('#estatus-'+sistema).html(class_av.cons.estatus[estatus]);
+        $('#estatus-'+sistema).css('background-color',class_av.cons.color_estatus[estatus]);
+    },
+    cambio_estatus_pc: function(sistema, estatus){
+        $('#estatus-'+sistema).html(class_av.cons.estatus[estatus+'PC']);
         $('#estatus-'+sistema).css('background-color',class_av.cons.color_estatus[estatus]);
     },
     cambios_sin_guardar: function(evento = null, elemento = null){
@@ -4192,13 +4313,25 @@ class_av = {
                             {e:'#idiomaDocumento', c:'Idioma(s) del documento'},
                             {e:'#tipo_documento', c:'Tipo de documento'},
                             {e:'#titulo', c:'Título'},
-                            {e:'#disciplina1', c:'Disciplina'}
+                            {e:'#disciplina1', c:'Disciplina'},
+                            {e:'#url1', c:'URL del artículo'},
+                            {e:'#tipourl1', c:'Formato del artículo (Tipo URL)'},
                         ];
             
             var revisa = class_av.revisa(campos);
             
             if(typeof(revisa) == 'string'){
                 class_av.mensaje('Falta: <b>'+revisa+'</b>');
+                return false;
+            }
+            
+           var url1= $('#url1').val();
+           var url2= $('#url2').val();
+            
+            var pattern = /^https?:\/\/.*/;
+            
+            if ( (url1.trim() !== '' &&  !pattern.test(url1)) || (url2.trim() !== '' &&  !pattern.test(url2)) ) {
+                class_av.mensaje('<b>URL</b> mal estructurado, debe contener http o https y dominio');
                 return false;
             }
             
@@ -4249,17 +4382,17 @@ class_av = {
             }else{
                 
                 var revisa = false;
-				//Esta validación sólo aplica cuando no es corporativo
+                //Esta validación sólo aplica cuando no es corporativo
                 if( class_av.var.corporativo == 0 ){
-					$.each(class_av.var.institucionesJSON, function(i, val){
-						var busca = class_utils.filter_prop(class_av.var.autoresJSON, 'institucionId', val.id);
-						if(busca.length == 0){
-							revisa = true;
-							class_av.mensaje('Existen <b>Instituciones</b> sin relación con algún <b>Autor</b><br>Indique la relación o elimínelas');
-							return false;
-						}
-					});
-				}
+                    $.each(class_av.var.institucionesJSON, function(i, val){
+                        var busca = class_utils.filter_prop(class_av.var.autoresJSON, 'institucionId', val.id);
+                        if(busca.length == 0){
+                            revisa = true;
+                            class_av.mensaje('Existen <b>Instituciones</b> sin relación con algún <b>Autor</b><br>Indique la relación o elimínelas');
+                            return false;
+                        }
+                    });
+                }
                 
                 if(revisa){
                     return true;
@@ -4549,6 +4682,117 @@ class_av = {
                 });
             }
         });
+        
+        $('#save-pc').off('click').on('click', function(){
+            
+            var texto = 'Se guardarán los cambios realizados a las palabras clave';
+            var envio = true;
+            
+            $.confirm({
+                title: '',
+                content: texto,
+                buttons: {
+                    cancelar: {
+                            text: 'Cancelar',
+                            //btnClass: 'btn-red',
+                            action: function(){
+                                
+                            }
+                    },
+                    aceptar: {
+                            text: 'Aceptar',
+                            btnClass: 'btn-warning',
+                            action: function(){
+                                if(envio){
+                                    envio = false;
+                                    class_av.var.cambios_documento = false;
+                                    $.ajax({
+                                            type: 'POST',
+                                            url: "<?=site_url('metametrics/ws_update_article');?>",
+                                            data: class_av.data_update_pc(),
+                                    }).done(function(res) {
+                                            class_av.mensaje('Palabras clave guardadas correctamente.');
+                                            class_av.cambio_estatus_pc(class_av.var.sistema, 'R');
+                                            class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).estatus_pc = 'R';
+                                            class_av.set_bitacora('Guarda PC');
+                                    }).fail(function(){
+                                            class_av.mensaje('Ocurrió un error al intentar guardar las palabras clave');
+                                    });
+                                }
+                            }
+                    }
+                }
+            });
+        });
+        
+        $('#save-full-pc').off('click').on('click', function(){     
+                var texto = 'Se marcará el registro como <b>Completado con palabras clave</b>';
+                var envio = true;
+                
+                $.confirm({
+                    title: '',
+                    content: texto,
+                    buttons: {
+                        cancelar: {
+                                text: 'Cancelar',
+                                //btnClass: 'btn-red',
+                                action: function(){
+
+                                }
+                        },
+                        aceptar: {
+                                text: 'Aceptar',
+                                btnClass: 'btn-warning',
+                                action: function(){
+                                    if(envio){
+                                        envio = false;
+                                        $(this).prop('disabled', true);
+                                        loading.start();
+                                        var data = {};
+                                        var usuario = 'sesion';
+                                        data['tabla'] = 'article';
+                                        data['where'] = ['sistema'];
+                                        if(cons.rol.val == 'Editor'){
+                                            usuario = 'EDITOR';
+                                        }
+                                        data['data'] = [{estatusPC: "C", sistema:class_av.var.sistema, usuario: usuario}];
+                                        $.ajax({
+                                                type: 'POST',
+                                                url: "<?=site_url('metametrics/ws_update_estatus');?>",
+                                                data: data,
+                                        }).done(function(resp) {
+                                            if(resp.resp == 'success'){
+                                                class_av.cambio_estatus_pc(class_av.var.sistema, 'C');
+                                                class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).estatus_pc = 'C';
+                                                class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).fecha = class_av.var.fechaActual;
+                                                $('.'+class_av.var.sistema).removeClass('sistema');
+                                                $('.'+class_av.var.sistema).addClass('cerrado');
+                                                $('.'+class_av.var.sistema).css('cursor','');
+                                                $('.'+class_av.var.sistema).css('color','');
+                                                $('#accordion').hide();
+                                                $('#save-no-indizable').hide();
+                                                $('#save-full').hide();
+                                                $('#save-full-pc').hide();
+                                                $('#save-article').hide();
+                                                $('#save-pc').hide();
+                                                $('#save-instituciones').hide();
+                                                $('#save-autores').hide();
+                                                loading.end();
+                                                class_av.mensaje('Palabras clave completadas correctamente.');
+                                                class_av.set_bitacora('Completado PC');
+                                                window.location.href="#div_tabla";
+                                            }else{
+                                                class_av.mensaje('Ocurrió un error, intente completar nuevamente');
+                                            }
+                                        }).fail(function(){
+                                            class_av.mensaje('Ocurrió un error, intente completar nuevamente');
+                                        });
+                                    }
+                                }
+                        }
+                    }
+                });
+        });
     },
     agrega_nuevo_articulo: function(){
         if($('#revista_sel').val() == ''){
@@ -4649,7 +4893,8 @@ class_av = {
             url = $('#url2').val();
         }
         $.when(
-                class_utils.setResource(class_av.var.servidor + class_av.var.app + '/ia_metadata/', {url: url}, true),
+                //class_utils.setResource(class_av.var.servidor + class_av.var.app + '/ia_metadata/', {url: url}, true),
+                class_utils.getResource('/datos/tabla_by_campo/genera_pc/sistema/'+class_av.var.sistema, true),
                 class_utils.getResource('/datos/palabras', true),
                 class_utils.getResource('/datos/keywords', true),
                 class_utils.getResource('/datos/palabras_sustituye', true),
@@ -4659,7 +4904,7 @@ class_av = {
                 resp_palabras = resp_palabras[0];
                 resp_keywords = resp_keywords[0];
                 resp_sustituye = resp_sustituye[0];
-                resp_pdf = resp_pdf[0];
+                resp_pdf = resp_pdf[0][0];
 
                 class_av.var.palabras_clave0 = resp_palabras;
                 class_av.var.palabras_clave = class_av.cons.option_badge.replace('<valor>', '').replace('<opcion>', '').replace('<num>', '');
@@ -4738,6 +4983,7 @@ class_av = {
                 $('#div_palabras_clave').show();
                 var palabras_pdf=[];
                 agrega = [];
+                resp_pdf.palabras = JSON.parse(resp_pdf.palabrasclaveia);
                 resp_pdf.palabras = [...new Set(resp_pdf.palabras)];
                 
                 if( resp_pdf.palabras !== undefined && resp_pdf.palabras !== "Sin resultado"){
@@ -4783,6 +5029,7 @@ class_av = {
                 }
                 palabras_pdf = palabras_pdf.concat(agrega);
                 
+                resp_pdf.palabras_b = JSON.parse(resp_pdf.palabrasclavebib);
                 resp_pdf.palabras_b = [...new Set(resp_pdf.palabras_b)];
                 
                 if( resp_pdf.palabras_b !== undefined && resp_pdf.palabras_b !== "Sin resultado"){
@@ -4825,6 +5072,7 @@ class_av = {
                 }
 
                 //Sin repetidos
+                resp_pdf.keywords = JSON.parse(resp_pdf.keywords);
                 resp_pdf.keywords = [...new Set(resp_pdf.keywords)];
 
                 if( (resp_pdf.keywords !== undefined && resp_pdf.keywords !== "Sin resultado") || 
