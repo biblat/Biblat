@@ -183,6 +183,7 @@
                             {else}
                                 <button id="save-no-indizable" type="button" class="btn btn-dark"><i class="fa fa-thumbs-down" aria-hidden="true" style="color: darkred;"></i> <span>No indizable</span></button>
                                 <button id="save-full" type="button" class="btn btn-dark"><i class="fa fa-thumbs-up" aria-hidden="true" style="color: darkgreen;"></i> <span>Análisis completo</span></button>
+                                <button id="save-full-pc" type="button" class="btn btn-dark"><i class="fa fa-thumbs-up" aria-hidden="true" style="color: darkgreen;"></i> <span>Análisis de palabras clave completo</span></button>
                             {/if}
                       </center>
                   </h5>
@@ -195,6 +196,7 @@
                           Artículo
                       </a><a href="<?=site_url("adminb/ayuda_articulos");?>" target="_blank" style="padding: 5px"><i class="fa fa-question-circle" style="color: #ff8000;"></i></a>
                       <button id="save-article" type="button" class="btn btn-dark" style="float: right;"><i class="fa fa-file" aria-hidden="true" style="color: #ff8000;"></i><span> Guardar artículo</span></button>
+                      <button id="save-pc" type="button" class="btn btn-dark" style="float: right;"><i class="fa fa-list-ol" aria-hidden="true" style="color: #ff8000;"></i><span> Guardar palabras clave</span></button>
                       <br><br>
                   </h5>
                 </div>
@@ -359,7 +361,7 @@
                         </div>
                         <div class="row">
                             <div class="col-xs-8">
-                                <span><b>URL1:</b></span><br><input id="url1" style="min-width: 100%" type="text">
+                                <span><b>URL1:</b></span><br><input id="url1" style="min-width: 100%" type="url">
                             </div>
                             <div class="col-xs-4">
                                 <span><b>Tipo URL1:</b></span><br>
@@ -372,7 +374,7 @@
                         <div class="row">
                             <br>
                             <div class="col-xs-8">
-                                <span><b>URL2:</b></span><br><input id="url2" style="min-width: 100%" type="text">
+                                <span><b>URL2:</b></span><br><input id="url2" style="min-width: 100%" type="url">
                             </div>
                             <div class="col-xs-4">
                                 <span><b>Tipo URL2:</b></span><br>
@@ -505,7 +507,7 @@
                     </div>
                 </div>
             </div>
-            <div class="panel panel-default">
+            <div class="panel panel-default" id="panelInstituciones">
                 <div class="panel-heading">
                   <h5 class="panel-title">
                       <a data-toggle="collapse" data-parent="#accordion" href="#instituciones" id="accordionInstituciones">
