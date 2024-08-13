@@ -378,20 +378,23 @@ class Datos extends REST_Controller {
             $usuario = $this->session->userdata('usu_base');
             $query = '
                         select
-							distinct
+                            distinct
                             a.sistema,
                             revista,
                             "anioRevista" 
                             || coalesce("descripcionBibliografica"->>\'a\', \'\') 
                             || coalesce("descripcionBibliografica"->>\'b\', \'\')
-                            || coalesce(\' - \' || ("descripcionBibliografica"->>\'c\')::text, \'\') numero,
+                            || coalesce(\' - \' || ("descripcionBibliografica"->>\'d\')::text, \'\') numero,
                             issn,
                             coalesce(articulo, \'SIN TÍTULO\') as articulo,
                             url->0->>\'u\' url1,
                             url->1->>\'u\' url2,
                             estatus,
-							"fechaAsignado",
-							case when estatus = \'C\' then extract(month from fecha) end as mes,
+                            "estatusPC",
+                            "fechaAsignado",
+                            "fechaAsignadoPC",
+                            case when estatus = \'C\' then extract(month from fecha) end as mes,
+                            case when "estatusPC" = \'C\' then extract(month from fecha) end as "mesPC",
                             fecha
                         from article a
                         inner join
@@ -406,15 +409,20 @@ class Datos extends REST_Controller {
                         )
                         or
                         (
+                            (
                             estatus in (\'A\', \'R\', \'C\', \'B\')
+                            or
+                            "estatusPC" in (\'A\', \'C\')
+                            )
                             and
                             c.nombre <> \'OJS\' and c.nombre <> \'SciELO\'
                             and
                             extract(year from c.fecha) = extract(year from CURRENT_DATE)
                         )
                         )
-						and a.sistema ~ \'^(PER|CLA)99\'
-                        and asignado = \''.$usuario.'\' 
+                        and c.id = (select max(id) from catalogador where sistema = a.sistema)
+                        and ( asignado = \''.$usuario.'\' or "asignadoPC" = \''.$usuario.'\' )
+                        and a.sistema ~ \'^(PER|CLA)99\'
                         order by 1
                     ';
             
