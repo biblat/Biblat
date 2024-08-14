@@ -4713,7 +4713,7 @@ class_av = {
                                     }).done(function(res) {
                                             class_av.mensaje('Palabras clave guardadas correctamente.');
                                             class_av.cambio_estatus_pc(class_av.var.sistema, 'R');
-                                            class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).estatus_pc = 'R';
+                                            class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).estatusPC = 'R';
                                             class_av.set_bitacora('Guarda PC');
                                     }).fail(function(){
                                             class_av.mensaje('Ocurrió un error al intentar guardar las palabras clave');
@@ -4763,7 +4763,7 @@ class_av = {
                                         }).done(function(resp) {
                                             if(resp.resp == 'success'){
                                                 class_av.cambio_estatus_pc(class_av.var.sistema, 'C');
-                                                class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).estatus_pc = 'C';
+                                                class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).estatusPC = 'C';
                                                 class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).fecha = class_av.var.fechaActual;
                                                 $('.'+class_av.var.sistema).removeClass('sistema');
                                                 $('.'+class_av.var.sistema).addClass('cerrado');
