@@ -226,16 +226,16 @@ class_av = {
                 var us = class_utils.find_prop(usuarios2, 'name', nombre);
                 if(us == undefined){
                     us = {};
-                    us.hours = '0';
-                    us.minutes = '0';
-                    us.seconds = '0';
+                    us.hours = '00';
+                    us.minutes = '00';
+                    us.seconds = '00';
                     us.porcentaje = 'N/A';
-                    us.minutesMin = '0';
-                    us.secondsMin = '0';
-                    us.minutesMax = '0';
-                    us.secondsMax = '0';
-                    us.promMinutes = '0';
-                    us.promSeconds = '0';
+                    us.minutesMin = '00';
+                    us.secondsMin = '00';
+                    us.minutesMax = '00';
+                    us.secondsMax = '00';
+                    us.promMinutes = '00';
+                    us.promSeconds = '00';
                 }
                 
                 us.porcentaje = (us.totalSeconds/(categorias.length * 8 * 60 * 60) * 100).toFixed(2) + '%';
@@ -244,11 +244,11 @@ class_av = {
                                 .replace('<cla>', val['clase'])
                                 .replace('<per>', val['periodica'])
                                 .replace('<hr_to>', (categorias.length * 8) + 'h' )
-                                .replace('<hr_tr>', us.hours + 'h ' + us.minutes + 'm ' + us.seconds + 's' )
-                                .replace('<hr_p>', us.porcentaje )
-                                .replace('<t_min>', + us.minutesMin + 'm ' + us.secondsMin + 's'  )
-                                .replace('<t_max>', + us.minutesMax + 'm ' + us.secondsMax + 's'  )
-                                .replace('<t_prom>', + us.promMinutes + 'm ' + us.promSeconds + 's'  )
+                                .replace('<hr_tr>', (us.hours+'').padStart(2, '0') + 'h ' + (us.minutes+'').padStart(2, '0') + 'm ' + (us.seconds+'').padStart(2, '0') + 's' )
+                                .replace('<hr_p>', (us.porcentaje+'').replace('NaN','00').padStart(6, '0') )
+                                .replace('<t_min>', (us.minutesMin+'').padStart(2, '0') + 'm ' + (us.secondsMin+'').padStart(2, '0') + 's'  )
+                                .replace('<t_max>', (us.minutesMax+'').padStart(2, '0') + 'm ' + (us.secondsMax+'').padStart(2, '0') + 's'  )
+                                .replace('<t_prom>', (us.promMinutes+'').padStart(2, '0') + 'm ' + (us.promSeconds+'').padStart(2, '0') + 's'  )
                                 ;
                 tbody += tr;
         });
