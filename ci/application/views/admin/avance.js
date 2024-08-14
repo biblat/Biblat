@@ -33,10 +33,22 @@ class_av = {
                                     '<th rowspan="1" style="width:200px">Analista</th>' +
                                     '<th rowspan="1" style="width:200px">CLASE</th>' +
                                     '<th rowspan="1" style="width:200px">PERIÓDICA</th>' +
+                                    '<th rowspan="1" style="width:200px">Hrs totales</th>' +
+                                    '<th rowspan="1" style="width:200px">Hrs trabajadas</th>' +
+                                    '<th rowspan="1" style="width:200px">% Hrs de trabajo</th>' +
+                                    '<th rowspan="1" style="width:200px">Tiempo mínimo</th>' +
+                                    '<th rowspan="1" style="width:200px">Tiempo máximo</th>' +
+                                    '<th rowspan="1" style="width:200px">Tiempo promedio</th>' +
                                 '</tr>'+
                             '</thead>' +
                             '<tbody id="body_produccion"><body></tbody></table>',
-        tr_prod: '<tr><td><usuario></td><td><cla></td><td><per></td>',
+        tr_prod: '<tr><td><usuario></td><td><cla></td><td><per></td>' +
+                    '<td><hr_to></td>' +
+                    '<td><hr_tr></td>' +
+                    '<td><hr_p></td>' +
+                    '<td><t_min></td>' +
+                    '<td><t_max></td>' +
+                    '<td><t_prom></td> </tr>',
         barra_avance:   '<div id="<id>" class="progress-bar progress-bar-warning progress-bar-striped avance-mes" role="progressbar" aria-valuenow="<avance>" aria-valuemin="0" aria-valuemax="100" style="width: <avance>%">' +
                         '<span style="color:black;font-size:11px"><b><mes></b></span><br>' +
                         '<span style="color:black;font-size:11px"><b><avance>%</b></span>' +
@@ -84,8 +96,8 @@ class_av = {
                     class_utils.getResource('/datos/tiempo_produccion/'+mes+'/'+anio) 
             )
             .then(function(resp_produccion, resp_tproduccion){
-                class_av.setTablaProd(resp_produccion[0]);
                 class_av.var.tproduccion = resp_tproduccion[0];
+                class_av.setTablaProd(resp_produccion[0]);
                 class_av.setGraficaProd();
                 loading.end();
             });
@@ -162,10 +174,82 @@ class_av = {
     },
     setTablaProd: function(data){
         var tbody = '';
+        var categorias = class_utils.unique_obj(class_av.var.tproduccion,'fecha').map(fechas => fechas.fecha);
+        var usuarios = class_utils.unique_obj(class_av.var.tproduccion,'usuario').map(usuario => usuario.usuario);
+        var usuarios2 = [];
+        var articulos = {};
+        var maximo = {};
+        var minimo = {};
+        
+        $.each(usuarios, function(i, val){
+            var obj = {};
+            obj.name = val;
+            var filtro = class_utils.filter_prop(class_av.var.tproduccion, 'usuario', val);
+            articulos[val] = [];
+            maximo[val] = [];
+            minimo[val] = [];
+            
+            articulos[val] = filtro.length;
+            if(filtro.length > 0){
+                maximo[val] = filtro.reduce((max, obj) => Math.max(max, obj.tiempo), -Infinity);
+                minimo[val] = filtro.reduce((min, obj) => Math.min(min, obj.tiempo), Infinity);
+            }else{
+                maximo[val] = 0;
+                minimo[val] = 0;
+            }
+            
+            obj.totalSeconds = (filtro
+                                .map(res => res.tiempo)
+                                .filter(tiempo => !isNaN(tiempo))
+                                .map(tiempo => Number(tiempo) / 1000 )
+                                .reduce((total, tiempo) => parseFloat((total + tiempo).toFixed(2)), null));
+            
+            obj.maxSeconds = Number(maximo[val])/1000;
+            obj.minSeconds = Number(minimo[val])/1000;
+            obj.hours = Math.floor(obj.totalSeconds / 3600);
+            obj.minutes = Math.floor((obj.totalSeconds % 3600) / 60);
+            obj.seconds = Math.floor(obj.totalSeconds % 60);
+            obj.minutesMax = Math.floor((obj.maxSeconds % 3600) / 60);
+            obj.secondsMax = Math.floor(obj.maxSeconds % 60);
+            obj.minutesMin = Math.floor((obj.minSeconds % 3600) / 60);
+            obj.secondsMin = Math.floor(obj.minSeconds % 60);
+            
+            obj.promedio = obj.totalSeconds / articulos[val];
+            obj.promMinutes = Math.floor((obj.promedio % 3600) / 60);
+            obj.promSeconds = Math.floor(obj.promedio % 60);
+            
+            usuarios2.push(obj);
+        });
+        
         $.each(data, function(i, val){
+                var nombre = val['nombre'].replace(',', '').replace('OJS', '').replace('SciELO', '').replace(' ', '');
+                var us = class_utils.find_prop(usuarios2, 'name', nombre);
+                if(us == undefined){
+                    us = {};
+                    us.hours = '0';
+                    us.minutes = '0';
+                    us.seconds = '0';
+                    us.porcentaje = 'N/A';
+                    us.minutesMin = '0';
+                    us.secondsMin = '0';
+                    us.minutesMax = '0';
+                    us.secondsMax = '0';
+                    us.promMinutes = '0';
+                    us.promSeconds = '0';
+                }
+                
+                us.porcentaje = (us.totalSeconds/(categorias.length * 8 * 60 * 60) * 100).toFixed(2) + '%';
+                
                 var tr = class_av.var.tr_prod.replace('<usuario>', val['nombre'])
                                 .replace('<cla>', val['clase'])
-                                .replace('<per>', val['periodica']);
+                                .replace('<per>', val['periodica'])
+                                .replace('<hr_to>', (categorias.length * 8) + 'h' )
+                                .replace('<hr_tr>', us.hours + 'h ' + us.minutes + 'm ' + us.seconds + 's' )
+                                .replace('<hr_p>', us.porcentaje )
+                                .replace('<t_min>', + us.minutesMin + 'm ' + us.secondsMin + 's'  )
+                                .replace('<t_max>', + us.minutesMax + 'm ' + us.secondsMax + 's'  )
+                                .replace('<t_prom>', + us.promMinutes + 'm ' + us.promSeconds + 's'  )
+                                ;
                 tbody += tr;
         });
                 
@@ -181,7 +265,7 @@ class_av = {
                                 extend: 'csvHtml5',
                                 text: 'Exportar CSV',
                                 exportOptions: {
-                                    columns: [0,1,2]
+                                    columns: [0,1,2,3,4,5,6,7,8]
                                 }
                             }
                         ],
