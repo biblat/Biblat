@@ -134,6 +134,9 @@
             </button>
             <ul class="dropdown-menu" style="border-radius:5px">
                 <li><a class="li-filtro" id="estatus">Estatus</a></li>
+				{if $pal_cla == '1'}
+					<li><a class="li-filtro" id="estatusPC">Estatus PC</a></li>
+                {/if}
                 <li><a class="li-filtro" id="fechaAsignado">Fecha asignado</a></li>
                 <li><a class="li-filtro" id="mes">Completados por mes</a></li>
                 <li><a class="li-filtro" id="revista">Revista</a></li>

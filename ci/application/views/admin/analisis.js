@@ -18,6 +18,11 @@ class_av = {
             RPC: 'En revisión PC',
             CPC: 'Completado PC',
         },
+		estatusPC:{
+            A: 'Sin movimiento PC',
+            R: 'En revisión PC',
+            C: 'Completado PC',
+        },
         color_estatus:{
             R: 'goldenrod',
             C: 'darkgreen',
@@ -4859,6 +4864,9 @@ class_av = {
                     var valor = val;
                     if(id_filtro1 == 'estatus'){
                         valor = class_av.cons.estatus[val];
+                    }
+					if(id_filtro1 == 'estatusPC'){
+                        valor = class_av.cons.estatusPC[val];
                     }
                     if(id_filtro1 == 'mes'){
                         valor = class_av.cons.meses[val];
