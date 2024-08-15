@@ -386,6 +386,7 @@ class_asi = {
                                 .replace('<numero>', val['numero'])
                                 .replace('<parte>', val['parte'])
                                 .replace('<articulos>', val['articulos'])
+								.replace('<sinpdf>', val['sinpdf'])
                                 .replace('<ingreso>', val['fecha'])
                                 .replace('<asignado>', val['fecha_asignado'])
                                 .replace('<select_asigna>', '<span  style="display:none">'+val['asignado']+'</span>'+class_asi.var.select_asigna.replace('<options>', class_asi.var.options_asigna.replace('"'+val['asignado']+'"', '"'+val['asignado']+'" selected')).replace('<id>', id))
@@ -438,14 +439,14 @@ class_asi = {
                                 extend: 'csvHtml5',
                                 text: 'Exportar CSV',
                                 exportOptions: {
-                                    columns: [0,1,2,3,4,5,6,7,8,10,11,13] // Aquí indicas los índices de las columnas a exportar (0, 2 y 3 en este caso)
+                                    columns: [0,1,2,3,4,5,6,7,8,9,11,12,14] // Aquí indicas los índices de las columnas a exportar (0, 2 y 3 en este caso)
                                 }
                             },
                             {
                                 extend: 'excelHtml5',
                                 text: 'Exportar Excel',
                                 exportOptions: {
-                                    columns: [0,1,2,3,4,5,6,7,8,10,11,13] // Igual que en el caso anterior, indicas los índices de las columnas a exportar
+                                    columns: [0,1,2,3,4,5,6,7,8,9,11,12,14] // Igual que en el caso anterior, indicas los índices de las columnas a exportar
                                 }
                             }
                         ],
@@ -461,12 +462,12 @@ class_asi = {
                                     //Sustituye el valor de la celda por esto agregando un div para que se mantenga dentro del tamaño definido
                                     return '<div style="width: 100%; text-align: left; white-space: normal;">' + data + '</div>';
                                 },
-                                targets: [0,1,2,3,4,5,6,7,8,9,11,12]
+                                targets: [0,1,2,3,4,5,6,7,8,9,10,12,13]
                             },
                             {
                                 visible: false,
                                 searchable: true,
-                                targets: [10,13]
+                                targets: [11,14]
                             }
                         ],
                         //Reajusta el ancho de las columnas

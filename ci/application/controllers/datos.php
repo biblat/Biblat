@@ -221,6 +221,7 @@ class Datos extends REST_Controller {
                         article."anioRevista",
                         max(g.estatus) palabras_clave,
                         count(g.palabrasclaveia) analizados,
+						count(case when url->0->>\'y\' not like \'%PDF%\' and url->1->>\'y\' not like \'%PDF%\' then 1 end) sinpdf,
                         CASE
                             WHEN (article."descripcionBibliografica" ->> \'a\'::text) IS NULL THEN \'s/v\'::text
                             WHEN btrim(article."descripcionBibliografica" ->> \'a\'::text) = \'\'::text THEN \'s/v\'::text
