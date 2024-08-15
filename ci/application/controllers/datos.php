@@ -323,6 +323,44 @@ class Datos extends REST_Controller {
             $this->response($query->result_array(), 200);
         }
 		
+		public function avancepc_get(){
+            $data = array();
+            $this->load->database();
+            
+            $query = "
+                    with registros as (
+                        select 
+                        distinct a.sistema,
+                        \"asignadoPC\" asignado, \"estatusPC\" estatus, nombre
+                        from article a
+                        inner join
+                        catalogador c
+                        on a.sistema = c.sistema
+                        where 
+                        (
+                            \"estatusPC\" in ('A', 'R')
+                        )
+                        or
+                        (
+                            \"estatusPC\" in ('C', 'B')
+                            and
+                            extract(year from c.fecha) = extract(year from CURRENT_DATE)
+                        )
+                    )
+                    select 
+                        r.asignado analista, max(r.nombre) nombre,
+                        (select count(1) from registros where asignado = r.asignado) total,
+                        (select count(1) from registros where asignado = r.asignado and estatus ='R') revision,
+                        (select count(1) from registros where asignado = r.asignado and estatus ='C') completados,
+                        (select count(1) from registros where asignado = r.asignado and estatus ='B') borrados
+                    from registros r
+                    group by r.asignado
+                    ";
+            
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);
+        }
+		
 		public function avance_total_get() {
             $data = array();
             //$this->load->database('prueba');

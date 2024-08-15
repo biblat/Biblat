@@ -7,6 +7,7 @@ class_av = {
         usuariosJSON: [],
         analistasJSON: [],
         avance_por_mes: [],
+		avance_pc: [],
         init: true,
         url_oai: '',
         data: '',
@@ -26,7 +27,19 @@ class_av = {
                                 '</tr>'+
                             '</thead>' +
                             '<tbody id="body_revistas"><body></tbody></table>',
-        tr: '<tr><td><usuario></td><td><rev></td><td><comp></td><td><borr></td><td><total></td><td><av></td><td><meta></td></td>',
+		tablaPC: '<table id="tbl_analistasPC" class="display responsive nowrap" style="width:100%;font-size:11px">' +
+                            '<thead>' +
+                                '<tr>' +
+                                    '<th rowspan="1">Analista</th>' +
+                                    '<th rowspan="1">En revisión PC</th>' +
+                                    '<th rowspan="1">Completados PC</th>' +
+                                    '<th rowspan="1">Total PC</th>' +
+                                    '<th rowspan="1">% Avance</th>' +
+                                '</tr>'+
+                            '</thead>' +
+                            '<tbody id="body_revistas"><body></tbody></table>',
+        tr: '<tr><td><usuario></td><td><rev></td><td><comp></td><td><borr></td><td><total></td><td><av></td><td><meta></td></tr>',
+		trPC: '<tr><td><usuario></td><td><rev></td><td><comp></td><td><total></td><td><av></td></tr>',
         tabla_prod: '<table id="tbl_produccion" class="display responsive nowrap" style="width:50%;font-size:11px">' +
                             '<thead>' +
                                 '<tr>' +
@@ -69,12 +82,17 @@ class_av = {
     },
     initClient: function() {
         $.when(class_utils.getResource('/datos/avance/'),
-                class_utils.getResource('/datos/avance_total/')
-        ) 
-        .then(function(resp_analistas, resp_total){
+                class_utils.getResource('/datos/avance_total/'),
+                class_utils.getResource('/datos/avancepc/')
+        )  
+        .then(function(resp_analistas, resp_total, resp_avancepc){
             class_av.var.analistasJSON = resp_analistas[0];
             class_av.var.avance_por_mes = resp_total[0];
+            class_av.var.avance_pc = resp_avancepc[0];
             class_av.setTabla(class_av.var.analistasJSON);
+            if(cons.rol.val == 'Administrador' || cons.pal_cla.val == '1'){
+                class_av.setTablaPC(class_av.var.avance_pc);
+            }
             if(cons.rol.val == 'Administrador'){
                 $('.avance-mes, #avance-actual').css('cursor', 'pointer');
                 class_av.control_admin();
@@ -170,6 +188,55 @@ class_av = {
                         }
                     }; 
         class_utils.setTabla('tbl_analistas', op);
+        
+    },
+	setTablaPC: function(data){
+        var tbody = '';
+        var total_departamento = 30000;
+        var total_meta = 0;
+        $.each(data, function(i, val){
+            if( val['nombre'] !== 'EDITOR' || cons.rol.val == 'Administrador'){
+                var num = parseInt(val['revision']) + parseInt(val['completados']) + parseInt(val['borrados']);
+                var num2 = parseInt(val['completados']);
+                var avance =  (num - parseInt(val['revision'])) / parseInt(val['total']);
+                var meta = num2 / total_departamento;
+                total_meta += num2;
+                var tr = class_av.var.trPC.replace('<usuario>', val['analista'])
+                                .replace('<rev>', val['revision'])
+                                .replace('<comp>', val['completados'])
+                                .replace('<total>', val['total'])
+                                .replace('<av>', ( avance * 100 ).toFixed(2) + ' %' );
+                                //.replace('<meta>', ( meta * 100 ).toFixed(2) + ' %' );
+                tbody += tr;
+            }
+        });
+        
+        var tabla = class_av.var.tablaPC
+                .replace('<body>', tbody);
+        
+        $('#div_tablaPC').html(tabla);
+        var op = {
+                        order: [[ 0, 'asc' ]],
+                        bLengthChange: false,
+                        pageLength: 10,
+                        pagingType: 'input',
+                        autoWidth: true,
+                        columnDefs: [
+                            {
+                                render: function (data, type, full, meta) {
+                                    //Sustituye el valor de la celda por esto agregando un div para que se mantenga dentro del tamaño definido
+                                    return '<div style="width: 100%; text-align: left; white-space: normal;">' + data + '</div>';
+                                },
+                                targets: [0,1,2,3,4]
+                            }
+                        ],
+                        //Reajusta el ancho de las columnas
+                        drawCallback: function( settings ) {
+                            $(this).DataTable().columns.adjust();
+                            //class_av.control();
+                        }
+                    }; 
+        class_utils.setTabla('tbl_analistasPC', op);
         
     },
     setTablaProd: function(data){

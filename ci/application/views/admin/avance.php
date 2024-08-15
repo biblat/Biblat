@@ -15,7 +15,8 @@
 
 <script>
     const cons =    { 
-                        rol: Object.freeze( { val: '<?php echo $rol; ?>'})
+                        rol: Object.freeze( { val: '<?php echo $rol; ?>'}),
+						pal_cla: Object.freeze( { val: '<?php echo $pal_cla; ?>'})
                     };
 </script>
 <div class="row"><br></div>
@@ -32,6 +33,15 @@
 <div class="row">
     <div class="col-sm-12">
         <div id="div_tabla" style="display:block">
+        </div>
+    </div>
+</div>
+
+<div class="row"><br><br></div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div id="div_tablaPC" style="display:block">
         </div>
     </div>
 </div>
