@@ -55,4 +55,13 @@
     </div>
 </div>
 
+<div class="row"><br><br></div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div id="div_tiemposPC" style="display:block">
+        </div>
+    </div>
+</div>
+
 <div class="row"><br></div>

@@ -1002,6 +1002,41 @@ class Datos extends REST_Controller {
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);  
         }
+		
+		public function produccionpc_get($mes, $anio){
+            $data = array();
+            $this->load->database();
+            $query = "
+                        with agrupado as( 
+                            with reg as(
+                                    select distinct c.sistema, id, nombre, nivel, max(fecha) fecha, 1 num from catalogador c 
+                                    inner join article a on a.sistema = c.sistema
+                                    where
+                                    a.\"estatusPC\" in ('C')
+                                    and
+                                    extract(month from c.fecha) in (".$mes.") 
+                                    and 
+                                    extract(year from c.fecha) = ".$anio."
+                                    group by 1,2,3,4,6
+                            )
+                            select 
+                             replace(replace(ARRAY_AGG(nombre)::text,'{',''),'}','') nombre,
+                             COUNT(reg.sistema) filter (where reg.sistema like 'CLA%') clase,
+                             COUNT(reg.sistema) filter (where reg.sistema like 'PER%') periodica 
+                             from reg
+                             group by sistema
+                            )
+                            select 
+                                    nombre,
+                                    COUNT(clase) filter (where a.clase > 0) clase,
+                                    COUNT(periodica) filter (where a.periodica > 0) periodica
+                            from agrupado a
+                            group by nombre
+                            order by nombre
+            ";
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);  
+        }
         
         public function tiempo_produccion_get($mes, $anio){
             $data = array();
@@ -1009,6 +1044,19 @@ class Datos extends REST_Controller {
             $query = "
                         select sistema, max(usuario) usuario, max(fecha) fecha, sum(tiempo) tiempo
                         from bitacora where movimiento <> 'Recarga'
+                        and extract(month from fecha) = ".$mes." and extract(year from fecha) = ".$anio."
+                        group by sistema order by 3,2,4
+                    ";
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);  
+        }
+		
+		public function tiempo_produccionpc_get($mes, $anio){
+            $data = array();
+            $this->load->database();
+            $query = "
+                        select sistema, max(usuario) usuario, max(fecha) fecha, sum(tiempo) tiempo
+                        from bitacora where (movimiento <> 'Recarga' and movimiento ~ 'PC$')
                         and extract(month from fecha) = ".$mes." and extract(year from fecha) = ".$anio."
                         group by sistema order by 3,2,4
                     ";
