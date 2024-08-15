@@ -86,10 +86,10 @@ class_av = {
         revistas: '',
         revistasAsignadas: [],
         palabras_clave: [],
-        palabras_clave0: [],
+        palabras_clave0: null,
         palabras_clave_n: [],
         keywords: [],
-        keywords0: [],
+        keywords0: null,
         keywords_n: [],
         count_palabras_clave: 0,
         count_keywords: 0,
@@ -324,6 +324,19 @@ class_av = {
         class_utils.getResource('/datos/tabla_by_user/usuario_institution_dic')
         ) 
         .then(function(resp_articulos, resp_institucion_dict){
+			
+			/*Trae catálogos de palabras clave*/
+            if( cons.pal_cla.val == '1'){
+                $.when(
+                    class_utils.getResource('/datos/palabras'),
+                    class_utils.getResource('/datos/keywords')
+                ) 
+                .then(function(resp_palabras, resp_keywords){
+                    class_av.var.palabras_clave0 = resp_palabras[0];
+                    class_av.var.keywords0 = resp_keywords[0];
+                });
+            }
+			
             class_av.var.articulosJSON = resp_articulos[0];
             if(resp_institucion_dict[0].length !== 0){
                     if( resp_institucion_dict[0][0].instituciones ){
@@ -1566,13 +1579,39 @@ class_av = {
             $('#url1, #url2, #tipourl1, #tipourl2').off('change').on('change', function(e){
                     class_av.var.cambios_documento = true;
                     if( ($('#url1').val() !== '' && $("#tipourl1").val() == 'pdf') || ($('#url2').val() !== '' && $("#tipourl2").val() == 'pdf')){
-                        class_av.palabras_clave();
+                        function checkPC() {
+                            // Usa un intervalo para verificar periódicamente
+                            const interval = setInterval(() => {
+                                if (class_av.var.palabras_clave0 !== null && class_av.var.keywords0 !== null) {
+                                    clearInterval(interval); // Detiene el intervalo
+                                    class_av.palabras_clave(); // Ejecuta la función deseada
+                                }else{
+                                    $('#div_palabras_clave_texto, #div_cargando_pc').show();
+                                }
+                            }, 500); // Verifica cada 1 segundo (1000 milisegundos)
+                        }
+
+                        // Llama a la función de verificación
+                        checkPC();
                         //$('#import-ai').show();
                     }
             });
             
             if( ($('#url1').val() !== '' && $("#tipourl1").val() == 'pdf') || ($('#url2').val() !== '' && $("#tipourl2").val() == 'pdf')){
-                class_av.palabras_clave();
+                function checkPC() {
+					// Usa un intervalo para verificar periódicamente
+					const interval = setInterval(() => {
+						if (class_av.var.palabras_clave0 !== null && class_av.var.keywords0 !== null) {
+							clearInterval(interval); // Detiene el intervalo
+							class_av.palabras_clave(); // Ejecuta la función deseada
+						}else{
+							$('#div_palabras_clave_texto, #div_cargando_pc').show();
+						}
+					}, 500); // Verifica cada 1 segundo (1000 milisegundos)
+				}
+
+				// Llama a la función de verificación
+				checkPC();
                 //$('#import-ai').show();
             }
         }else{
@@ -4903,26 +4942,20 @@ class_av = {
         $.when(
                 //class_utils.setResource(class_av.var.servidor + class_av.var.app + '/ia_metadata/', {url: url}, true),
                 class_utils.getResource('/datos/tabla_by_campo/genera_pc/sistema/'+class_av.var.sistema, true),
-                class_utils.getResource('/datos/palabras', true),
-                class_utils.getResource('/datos/keywords', true),
                 class_utils.getResource('/datos/palabras_sustituye', true),
 
             ) 
-            .then(function(resp_pdf, resp_palabras, resp_keywords, resp_sustituye){
-                resp_palabras = resp_palabras[0];
-                resp_keywords = resp_keywords[0];
+            .then(function(resp_pdf, resp_sustituye){
                 resp_sustituye = resp_sustituye[0];
                 resp_pdf = resp_pdf[0][0];
 
-                class_av.var.palabras_clave0 = resp_palabras;
                 class_av.var.palabras_clave = class_av.cons.option_badge.replace('<valor>', '').replace('<opcion>', '').replace('<num>', '');
-                $.each(resp_palabras, function(i, val){
+                $.each(class_av.var.palabras_clave0, function(i, val){
                     class_av.var.palabras_clave += class_av.cons.option_badge.replace('<valor>', val.valor).replace('<opcion>', val.valor).replace('<num>', val.num);
                 });
 
-                class_av.var.keywords0 = resp_keywords;
                 class_av.var.keywords = class_av.cons.option_badge.replace('<valor>', '').replace('<opcion>', '').replace('<num>', '');
-                $.each(resp_keywords, function(i, val){
+                $.each(class_av.var.keywords0, function(i, val){
                     class_av.var.keywords += class_av.cons.option_badge.replace('<valor>', val.valor).replace('<opcion>', val.valor).replace('<num>', val.num);
                 });
 
@@ -4957,7 +4990,7 @@ class_av = {
                     $('#div_palabras_clave_autor').show();
                     var html = '';
                     $.each(palabras_doc, function(i, val){
-                        var busca = class_utils.find_prop(resp_palabras,'valor',val);
+                        var busca = class_utils.find_prop(class_av.var.palabras_clave0,'valor',val);
                         //busca si existe en las palabras para cambiar o si ya es una de las adecuadas
                         var adecuada = class_utils.find_prop(resp_sustituye,'palabra',val);
                         var adecuada_bloqueada = class_utils.find_prop(resp_sustituye,'palabra_adecuada',val);
@@ -5004,7 +5037,7 @@ class_av = {
 
                     html = '';
                     $.each(palabras_pdf, function(i, val){
-                        var busca = class_utils.find_prop(resp_palabras,'valor',val);
+                        var busca = class_utils.find_prop(class_av.var.palabras_clave0,'valor',val);
                         //busca si existe en las palabras para cambiar o si ya es una de las adecuadas
                         var adecuada = class_utils.find_prop(resp_sustituye,'palabra',val);
                         var adecuada_bloqueada = class_utils.find_prop(resp_sustituye,'palabra_adecuada',val);
@@ -5054,7 +5087,7 @@ class_av = {
 
                     html = '';
                     $.each(palabrasb_pdf, function(i, val){
-                        var busca = class_utils.find_prop(resp_palabras,'valor',val);
+                        var busca = class_utils.find_prop(class_av.var.palabras_clave0,'valor',val);
                         //busca si existe en las palabras para cambiar o si ya es una de las adecuadas
                         var adecuada = class_utils.find_prop(resp_sustituye,'palabra',val);
                         var adecuada_bloqueada = class_utils.find_prop(resp_sustituye,'palabra_adecuada',val);
@@ -5108,7 +5141,7 @@ class_av = {
 
                     html = '';
                     $.each(palabrasb_pdf, function(i, val){
-                        var busca = class_utils.find_prop(resp_keywords,'valor',val);
+                        var busca = class_utils.find_prop(class_av.var.keywords0,'valor',val);
                         var adecuada = class_utils.find_prop(resp_sustituye,'palabra',val);
                         var adecuada_bloqueada = class_utils.find_prop(resp_sustituye,'palabra_adecuada',val);
                         var cons_keyword = class_av.cons.keyword;
