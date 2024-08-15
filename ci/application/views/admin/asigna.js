@@ -31,6 +31,7 @@ class_asi = {
                                     '<th rowspan="1" style="padding:15px">Número</th>' +
                                     '<th rowspan="1" style="padding:15px">Parte</th>' +
                                     '<th rowspan="1" style="padding:15px">Artículos</th>' +
+									'<th rowspan="1" style="padding:15px">Sin PDF</th>' +
                                     '<th rowspan="1" style="width:90px; padding:15px">Ingreso</th>' +
                                     '<th rowspan="1" style="width:90px; padding:15px">Asignado</th>' +
                                     '<th rowspan="1" style="padding:15px">Asignar a:</th>' +
@@ -41,7 +42,7 @@ class_asi = {
                                 '</tr>'+
                             '</thead>' +
                             '<tbody id="body_revistas"><body></tbody></table>',
-        tr: '<tr><td><revista></td><td><base></td><td><anio></td><td><volumen></td><td><numero></td><td><parte></td><td><articulos></td><td><ingreso></td><td><asignado></td><td><select_asigna></td><td><vacio></td>' +
+        tr: '<tr><td><revista></td><td><base></td><td><anio></td><td><volumen></td><td><numero></td><td><parte></td><td><articulos></td><td><sinpdf></td><td><ingreso></td><td><asignado></td><td><select_asigna></td><td><vacio></td>' +
             '<td><asignado_pc></td><td><select_asigna_pc></td><td><vacio_pc></td>',
             
     },
