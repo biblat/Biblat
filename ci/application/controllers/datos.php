@@ -810,15 +810,22 @@ class Datos extends REST_Controller {
 		public function palabras_get(){
             $data = array();
             $this->load->database();
-            $query = '
+            $query = "
                         select valor, num from(
                         SELECT valor, count(1) num
-                        FROM article, jsonb_array_elements_text(to_jsonb("palabraClave")) AS valores(valor) 
+                        FROM article, jsonb_array_elements_text(to_jsonb(\"palabraClave\")) AS valores(valor) 
                         where LENGTH(valor) > 1
+                        and 
+						(
+							sistema ~ '^(CLA|PER)01'
+						 or
+							(sistema ~ '^(CLA|PER)99' and \"estatusPC\"='C')
+						)
+                        and \"palabraClave\" is not null
                         group by valor
                         order by 1
                         )a where num > 1
-            ';
+            ";
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);  
         }
@@ -826,15 +833,21 @@ class Datos extends REST_Controller {
         public function keywords_get(){
             $data = array();
             $this->load->database();
-            $query = '
+            $query = "
                         select valor, num from(
                         SELECT valor, count(1) num
-                        FROM article, jsonb_array_elements_text(to_jsonb("keyword")) AS valores(valor) 
+                        FROM article, jsonb_array_elements_text(to_jsonb(\"keyword\")) AS valores(valor) 
                         where LENGTH(valor) > 1
+                        and 
+						(
+							sistema ~ '^(CLA|PER)01'
+						 or
+							(sistema ~ '^(CLA|PER)99' and \"estatusPC\"='C')
+						)
                         group by valor
                         order by 1
                         )a where num > 1
-            ';
+            ";
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);  
         }
