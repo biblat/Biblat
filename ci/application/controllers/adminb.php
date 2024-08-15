@@ -108,6 +108,7 @@ class Adminb extends CI_Controller {
             $this->template->title(_('Avance'));
             $data['page_subtitle'] = $this->session->userdata('nombre');
 			$data['rol'] = $this->session->userdata('rol');
+			$data['pal_cla'] = $this->session->userdata('pal_cla');
             $this->template->set_meta('description', _('Avance'));
             $this->template->set_partial('main_js', 'admin/avance.js', array(), TRUE, FALSE);
             $this->template->build('admin/avance', $data);
