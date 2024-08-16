@@ -5052,8 +5052,8 @@ class_av = {
                             cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-lock');
                         }
                         if(adecuada_bloqueada !== undefined){
-                            agrega.push(adecuada.palabra_adecuada);
-                            agrega.push(adecuada.palabra);
+                            agrega.push(adecuada_bloqueada.palabra_adecuada);
+                            agrega.push(adecuada_bloqueada.palabra);
                             val = adecuada_bloqueada.palabra_adecuada;
                             palabras_doc[i] = val;
                             cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-lock');
