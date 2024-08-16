@@ -31,7 +31,7 @@ class_asi = {
                                     '<th rowspan="1" style="padding:15px">Número</th>' +
                                     '<th rowspan="1" style="padding:15px">Parte</th>' +
                                     '<th rowspan="1" style="padding:15px">Artículos</th>' +
-									'<th rowspan="1" style="padding:15px">Sin PDF</th>' +
+                                    '<th rowspan="1" style="padding:15px">Sin PDF</th>' +
                                     '<th rowspan="1" style="width:90px; padding:15px">Ingreso</th>' +
                                     '<th rowspan="1" style="width:90px; padding:15px">Asignado</th>' +
                                     '<th rowspan="1" style="padding:15px">Asignar a:</th>' +
@@ -44,6 +44,7 @@ class_asi = {
                             '<tbody id="body_revistas"><body></tbody></table>',
         tr: '<tr><td><revista></td><td><base></td><td><anio></td><td><volumen></td><td><numero></td><td><parte></td><td><articulos></td><td><sinpdf></td><td><ingreso></td><td><asignado></td><td><select_asigna></td><td><vacio></td>' +
             '<td><asignado_pc></td><td><select_asigna_pc></td><td><vacio_pc></td>',
+        option: '<li><a class="<class>" id="<option_id>"><option></a></li>'
             
     },
     initClient: function() {
@@ -102,8 +103,27 @@ class_asi = {
                         $.when(class_utils.getResource('/datos/revista_estatus/')) 
                         .then(function(resp_revista){
                             class_asi.var.revistasJSON = resp_revista;
-                            class_asi.setTabla(class_asi.var.revistasJSON);
+                            //Filtra por año y mes actual
+                            var anio_act = (new Date(Date.now())).getFullYear();
+                            var mes_act = (new Date(Date.now())).getMonth() + 1;
+                            var fecha = anio_act + '-' + ( ((mes_act+'').length == 1)?'0':'') + mes_act;
+                            var regex = new RegExp("^" + fecha);
+
+                            var filter = class_utils.filter_prop_er(class_asi.var.revistasJSON, 'fecha', regex);
+                            
+                            var anios =class_utils.unique(class_asi.var.revistasJSON, 'anio').sort();
+                            var options = '';
+                            $.each(anios, function(i, val){
+                                options += class_asi.var.option.replaceAll('<option>', val).replaceAll('<option_id>', val).replace('<class>', 'li-anio');
+                            });
+                            
+                            options += class_asi.var.option.replaceAll('<option>', 'Todos').replaceAll('<option_id>', 'Todos').replace('<class>', 'li-anio');
+                            
+                            $('#menu-anio').html(options);
+                            
+                            class_asi.setTabla(filter);
                             class_asi.control();
+                            class_asi.filtro();
                             loading.end();
                         });
                         
@@ -238,6 +258,61 @@ class_asi = {
                 class_utils.setResource('https://biblat.unam.mx' + '/scielo-claper' + '/palabras_clave/', class_asi.var.arr_palabras_clave[id], true)
             ).then(function(){
             });
+        });
+    },
+    filtro: function(){
+        $(".li-anio").off('click').on('click', function(){
+            loading.start();
+            var id = this.id;
+            var html = $(this).html();
+            setTimeout(function(){
+                $('#btn-anio').html(html);
+                if(id == 'Todos'){
+                    $('#btn-mes').html('Todos');
+                    class_asi.setTabla(class_asi.var.revistasJSON);
+                }else{
+                    var regex = new RegExp("^" + id);
+                    var filter = class_utils.filter_prop_er(class_asi.var.revistasJSON, 'fecha', regex);
+                    
+                    var meses = class_utils.unique(filter, 'mes').sort();
+                    var options = '';
+                    $.each(meses, function(i, val){
+                        options += class_asi.var.option.replaceAll('<option>', class_utils.cons.meses[parseInt(val)]).replaceAll('<option_id>', val).replace('<class>', 'li-mes');
+                    });
+                            
+                    options += class_asi.var.option.replaceAll('<option>', 'Todos').replaceAll('<option_id>', 'Todos').replace('<class>', 'li-mes');;
+                            
+                    $('#menu-mes').html(options);
+                    
+                    $('#btn-mes').html('Mes:');
+                    
+                    $(".li-mes").off('click').on('click', function(){
+                            $('#btn-mes').html($(this).html());
+                            var id_mes = this.id;
+                            var regex = new RegExp("^" + id + '-' + id_mes);
+                            loading.start();
+                            setTimeout(function(){
+                                if(id_mes == 'Todos'){
+                                    var filter_mes = filter;
+                                }else{
+                                    var filter_mes = class_utils.filter_prop_er(class_asi.var.revistasJSON, 'fecha', regex);
+                                }
+                                class_asi.setTabla(filter_mes);
+                                class_asi.control();
+                                loading.end();
+                            },1000);
+                    });
+                }
+                loading.end();
+            },1000);
+            
+        });
+        $("#remove").off('click').on('click', function(){
+            $('#remove').hide();
+            $('#btn-filtro').html("Filtrar por :");
+            $('#btn-filtro2').html("Seleccione");
+            $("#ul-filtro").html("");
+            class_av.setTabla(class_av.var.articulosJSON);
         });
     },
     data_inserta_article: function(){
@@ -387,7 +462,7 @@ class_asi = {
                                 .replace('<numero>', val['numero'])
                                 .replace('<parte>', val['parte'])
                                 .replace('<articulos>', val['articulos'])
-								.replace('<sinpdf>', val['sinpdf'])
+                                .replace('<sinpdf>', val['sinpdf'])
                                 .replace('<ingreso>', val['fecha'])
                                 .replace('<asignado>', val['fecha_asignado'])
                                 .replace('<select_asigna>', '<span  style="display:none">'+val['asignado']+'</span>'+class_asi.var.select_asigna.replace('<options>', class_asi.var.options_asigna.replace('"'+val['asignado']+'"', '"'+val['asignado']+'" selected')).replace('<id>', id))

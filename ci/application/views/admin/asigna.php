@@ -1,3 +1,25 @@
+<center>
+    <!-- Split button -->
+    <div class="btn-group">
+        <button type="button" class="btn btn-warning" id="btn-anio" style="width:160px;border-radius:5px">Año:</button>
+        <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-radius:5px">
+        <span class="caret"></span>
+        <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu" style="border-radius:5px" id="menu-anio">
+        </ul>
+    </div>
+    <div class="btn-group">
+        <button type="button" class="btn btn-warning" id="btn-mes" style="width:160px;border-radius:5px">Mes:</button>
+        <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-radius:5px">
+        <span class="caret"></span>
+        <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu" style="border-radius:5px" id="menu-mes">
+        </ul>
+    </div>
+</center>
+
 <div class="row">
     <div class="col-sm-12">
         <div id="div_tabla" style="display:block">
