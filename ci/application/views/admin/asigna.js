@@ -436,6 +436,16 @@ class_asi = {
     },
     setTabla: function(data){
         var tbody = '';
+		
+		var generando_pc = class_utils.filter_prop(class_asi.var.revistasJSON, 'palabras_clave', 'R');
+        if(generando_pc.length > 0){
+            $('.genera_pc').css('color', 'gray');
+            $('.genera_pc').css('cursor', '');
+            $('.genera_pc').off('click');
+            //Muestra que está trabajando en las palabras
+            class_asi.var.generando_pc = true;
+        }
+		
         $.each(data, function(i, val){
             //Para pruebas de asignación asignado == null
             //if(val.asignado == null ){
@@ -488,8 +498,8 @@ class_asi = {
                             class_asi.var.arr_palabras_clave[i]=obj_revista;
                         }else if(val['palabras_clave'] == 'R'){
                             //Muestra que está trabajando en las palabras
-                            class_asi.var.generando_pc = true;
                             tr = tr.replace('<select_asigna_pc>', '<center id="'+obj_revista.pc_id+'"><i class="fa fa-refresh fa-spin" aria-hidden="true" style="color: #ff8000;" data-toggle="tooltip" data-placement="top" title="Generando palabras clave ..."></i> ('+val['analizados']+')</center>');
+							class_asi.revisa_estatus(obj_revista);
                             class_asi.var.revisa_pc = setInterval( function(){ class_asi.revisa_estatus(obj_revista) }, 10000);
                         }
                     }
