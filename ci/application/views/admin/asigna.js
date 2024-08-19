@@ -31,8 +31,8 @@ class_asi = {
                                     '<th rowspan="1" style="padding:15px">Número</th>' +
                                     '<th rowspan="1" style="padding:15px">Parte</th>' +
                                     '<th rowspan="1" style="padding:15px">Artículos</th>' +
-                                    '<th rowspan="1" style="padding:15px">Sin PDF</th>' +
-									'<th rowspan="1" style="padding:15px">Sin HTML</th>' +
+                                    '<th rowspan="1" style="padding:15px">PDF</th>' +
+                                    '<th rowspan="1" style="padding:15px">HTML</th>' +
                                     '<th rowspan="1" style="width:90px; padding:15px">Ingreso</th>' +
                                     '<th rowspan="1" style="width:90px; padding:15px">Asignado</th>' +
                                     '<th rowspan="1" style="padding:15px">Asignar a:</th>' +
@@ -43,7 +43,7 @@ class_asi = {
                                 '</tr>'+
                             '</thead>' +
                             '<tbody id="body_revistas"><body></tbody></table>',
-        tr: '<tr><td><revista></td><td><base></td><td><anio></td><td><volumen></td><td><numero></td><td><parte></td><td><articulos></td><td><sinpdf></td><td><sinhtml></td><td><ingreso></td><td><asignado></td><td><select_asigna></td><td><vacio></td>' +
+        tr: '<tr><td><revista></td><td><base></td><td><anio></td><td><volumen></td><td><numero></td><td><parte></td><td><articulos></td><td><conpdf></td><td><conhtml></td><td><ingreso></td><td><asignado></td><td><select_asigna></td><td><vacio></td>' +
             '<td><asignado_pc></td><td><select_asigna_pc></td><td><vacio_pc></td>',
         option: '<li><a class="<class>" id="<option_id>"><option></a></li>'
             
@@ -473,8 +473,8 @@ class_asi = {
                                 .replace('<numero>', val['numero'])
                                 .replace('<parte>', val['parte'])
                                 .replace('<articulos>', val['articulos'])
-                                .replace('<sinpdf>', val['sinpdf'])
-								.replace('<sinhtml>', val['sinhtml'])
+                                .replace('<conpdf>', val['conpdf'])
+								.replace('<conhtml>', val['conhtml'])
                                 .replace('<ingreso>', val['fecha'])
                                 .replace('<asignado>', val['fecha_asignado'])
                                 .replace('<select_asigna>', '<span  style="display:none">'+val['asignado']+'</span>'+class_asi.var.select_asigna.replace('<options>', class_asi.var.options_asigna.replace('"'+val['asignado']+'"', '"'+val['asignado']+'" selected')).replace('<id>', id))
