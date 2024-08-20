@@ -431,11 +431,11 @@ class Datos extends REST_Controller {
                             url->0->>\'u\' url1,
                             url->1->>\'u\' url2,
                             estatus,
-                            "estatusPC",
+                            case when "asignadoPC" <> \''.$usuario.'\' then null else "estatusPC" end as "estatusPC",
                             "fechaAsignado",
-                            "fechaAsignadoPC",
+                            case when "asignadoPC" <> \''.$usuario.'\' then null else "fechaAsignadoPC" end as "fechaAsignadoPC",
                             case when estatus = \'C\' then extract(month from fecha) end as mes,
-                            case when "estatusPC" = \'C\' then extract(month from fecha) end as "mesPC",
+                            case when "estatusPC" = \'C\' and "asignadoPC" = \''.$usuario.'\' then extract(month from fecha) else null end as "mesPC",
                             fecha
                         from article a
                         inner join
