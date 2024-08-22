@@ -452,8 +452,8 @@ class_asi = {
             //if(val.asignado == null ){
                 var id = val['revista'] + '__' +
                         val['anioRevista'] + '__' +
-                        ((val['volumen'] == '' || val['volumen'].toLowerCase().indexOf('s') !== -1 )?'':val['volumen']) + '__' +
-                        ((val['numero'] == '' || val['numero'].toLowerCase().indexOf('s') !== -1 )?'':val['numero']) + '__' +
+                        ((val['volumen'] == '' || val['volumen'].toLowerCase().indexOf('s/') !== -1 )?'':val['volumen']) + '__' +
+                        ((val['numero'] == '' || val['numero'].toLowerCase().indexOf('s/') !== -1 )?'':val['numero']) + '__' +
                         ((val['parte'] == '')?'':val['parte']);
                 
                 var obj_revista = {

@@ -117,20 +117,20 @@ class Generic_model extends CI_Model {
                                     if(isset($datos_json['b'])){
                                         $datos_json_w = [];
                                         $datos_json_w['b'] = $datos_json['b'];
-                                        $json_string = json_encode($datos_json_w);
+                                        $json_string = strtoupper(json_encode($datos_json_w));
                                         $json_string = str_replace("{", "", $json_string);
                                         $json_string = str_replace("}", "", $json_string);
                                         echo $json_string;
-                                        $this->db->where("(replace(cast(\"descripcionBibliografica\" as text),' ','') like '%$json_string%')");
+                                        $this->db->where("(replace(upper(cast(\"descripcionBibliografica\" as text)),' ','') like '%$json_string%')");
                                     }
                                     if(isset($datos_json['d'])){
                                         $datos_json_w = [];
                                         $datos_json_w['d'] = $datos_json['d'];
-                                        $json_string = json_encode($datos_json_w);
+                                        $json_string = strtoupper(json_encode($datos_json_w));
                                         $json_string = str_replace("{", "", $json_string);
                                         $json_string = str_replace("}", "", $json_string);
                                         echo $json_string;
-                                        $this->db->where("(replace(cast(\"descripcionBibliografica\" as text),' ','') like '%$json_string%')");
+                                        $this->db->where("(replace(upper(cast(\"descripcionBibliografica\" as text)),' ','') like '%$json_string%')");
                                     }
                                     //$this->db->where("(replace(cast(\"descripcionBibliografica\" as text),' ','') like '%$json_string%')");
                                 }
