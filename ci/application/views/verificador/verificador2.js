@@ -434,7 +434,7 @@ class_ver = {
             $('#url_invalida').hide();
             var url = $('#'+class_ver.var.id_oai).val();
             
-            $('#mensaje_espera').html('El tiempo de respuesta puede varíar dependiendo del sitio de la revista y del número de artículos');
+            $('#mensaje_espera').html('El tiempo de respuesta puede variar dependiendo del sitio de la revista y del número de artículos');
             loading.start();
             
             setTimeout( function(){
