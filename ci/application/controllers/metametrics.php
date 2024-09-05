@@ -50,6 +50,44 @@ class Metametrics extends CI_Controller {
         $this->template->set_partial('main_js', 'verificador/verificador.js', array(), TRUE, FALSE);
         $this->template->build('verificador/verificador', $data);
     }
+	
+	public function beta(){
+        $data = array();
+        $pos = strpos(uri_string(), 'simulador');
+        $pos2 = strpos(uri_string(), 'postular');
+        if($pos == false){
+            $data['simulador'] = false;
+        }else{
+            $data['simulador'] = true;
+        }
+        if($pos2 == false){
+            $data['postularPrimera'] = false;
+        }else{
+            $data['postularPrimera'] = true;
+        }
+        $data['page_title'] = _('MetaMetrics');
+        $this->template->set_layout('default_sel');
+        $this->template->title(_('MetaMetrics'));
+        $data['page_subtitle'] = _('Métricas de cumplimiento en los metadatos de OJS');
+        $this->template->set_meta('description', _('MetaMetrics'));
+        $this->template->js('assets/js/highcharts/phantomjs/highcharts8.js');
+        $this->template->js('assets/js/highcharts/phantomjs/highcharts-more8.js');
+        $this->template->js('assets/js/highcharts/phantomjs/drilldown8.js');
+        $this->template->js('assets/js/apigoogle/api.js');
+        $this->template->js('assets/js/apigoogle/getaccesstokenfromserviceaccount.js');
+        $this->template->js('assets/js/flip/flip.js');
+        $this->template->js('assets/js/utils/utils.js');
+        $this->template->css('css/jquery.slider.min.css');
+        $this->template->css('css/colorbox.css');
+        $this->template->js('js/jquery.slider.min.js');
+        $this->template->js('js/jquery.serializeJSON.min.js');
+        $this->template->js('js/colorbox.js');
+        $this->template->js('js/env.js');
+        $this->template->js('assets/js/datatables/datatables.min.js');
+        $this->template->js('assets/js/datatables/input.js');
+        $this->template->set_partial('main_js', 'verificador/verificador2.js', array(), TRUE, FALSE);
+        $this->template->build('verificador/verificador', $data);
+    }
     
     public function sobreMetaMetrics(){
         $data = array();
