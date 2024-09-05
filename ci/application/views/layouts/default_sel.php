@@ -306,6 +306,8 @@
             <h2 style="white-space:nowrap;">
                 <img src="{base_url('img/loading.gif')}" /><br/>{_('Espere un momento...')}
             </h2>
+			<br>
+            <span id="mensaje_espera" style="font-size: 20px; z-index: 2000011"></span>
         </div>
         <script src="{base_url('assets/js/jquery.js')}"></script>
         <script src="{base_url('assets/js/bootstrap.min.js')}"></script>

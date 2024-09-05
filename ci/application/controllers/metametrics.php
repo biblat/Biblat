@@ -523,9 +523,11 @@ class Metametrics extends CI_Controller {
         $dom = new DOMDocument();
         @$dom->loadHTML($curl);
         $divs = $dom->getElementsByTagName('p');
+        $divsa = $dom->getElementsByTagName('a');
         $titulo = '';
         $pais = '';
         $url = '';
+        $tipo = '';
         
         foreach( $divs as $div ){
             $busca = strpos($div->nodeValue, 'Title proper');
@@ -547,6 +549,21 @@ class Metametrics extends CI_Controller {
             if( $busca !== false ){
                 $publisher = $div->nodeValue;
                 continue;
+            }
+        }
+        
+        foreach( $divsa as $div ){
+            // Obtener el valor del atributo 'class'
+            $class = $div->getAttribute('class');
+
+            // Verificar si la clase contiene la cadena que buscas
+            if (strpos($class, 'online-active') !== false) {
+                $tipo = 'online';
+                break;
+            }
+            if (strpos($class, 'print-active') !== false) {
+                $tipo = 'print';
+                break;
             }
         }
         
@@ -576,6 +593,7 @@ class Metametrics extends CI_Controller {
         $response .= ',"pais": "' . $pais . '"';
         $response .= ',"url": "' . $url . '"';
         $response .= ',"editor": "' . $publisher . '"';
+        $response .= ',"tipo": "' . $tipo . '"';
         $response .= '} ';
         
         echo $response;
