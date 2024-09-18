@@ -1,7 +1,20 @@
-<script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'></script>
-<script src="https://badge.dimensions.ai/badge.js" charset="utf-8"></script>
-<script type="text/javascript" src="//cdn.plu.mx/widget-popup.js"></script>
-<script type="application/javascript" src="https://cdn.scite.ai/badge/scite-badge-latest.min.js"></script>
+<script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'
+        integrity="sha384-kQwM9aWQ+qWNNJ9liZrb3bFFYTCQq0gAv2Con2NYBby0to4SKT13fcBCCT21ZSC5"
+        crossorigin="anonymous"
+></script>
+<script src="https://badge.dimensions.ai/badge.js" 
+        charset="utf-8"
+        integrity="sha384-QIh2gfcLKgTv//x5Mja9dU5Z0igK7AAbiaxTWojK171wrujpCnXjZ+rAmwBmNgbG"
+        crossorigin="anonymous"
+></script>
+<script type="text/javascript" src="//cdn.plu.mx/widget-popup.js"
+        integrity="sha384-fqFr8K30kCVD/ZqLSLjAmDid6ygTHxjRt+vBStf56uhE8BKMIozm4CJprCyU07BW"
+        crossorigin="anonymous"
+></script>
+<script type="application/javascript" src="https://cdn.scite.ai/badge/scite-badge-latest.min.js"
+        accesskey=""integrity="sha384-yC5j1JUhpqqbf8y9MdwGbVWj9CW9RBEuCqx1ImFnr+FvNyLTeCQvtjBgkdnDmvtB"
+        crossorigin="anonymous"
+></script>
 {if $links != ""}
     <div class="text-center">
       {$links}
