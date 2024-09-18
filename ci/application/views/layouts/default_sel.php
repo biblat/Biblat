@@ -48,8 +48,6 @@
         <![endif]-->
         {if $ENVIRONMENT == "production"}{literal}<!-- Global site tag (gtag.js) - Google Analytics -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=UA-33940112-1"
-                integrity="sha384-h95UkLTS41GXe39qA+bqMhlmhtyhopBiXe+v4XVpqpRhel3c9gAGWh4pDsSIlrry"
-                crossorigin="anonymous"
         ></script>
 		<script>
           window.dataLayer = window.dataLayer || [];
