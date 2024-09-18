@@ -1,12 +1,4 @@
-/*
- Highcharts JS v8.0.0 (2019-12-10)
 
- Data module
-
- (c) 2012-2019 Torstein Honsi
-
- License: www.highcharts.com/license
-*/
 (function(d){"object"===typeof module&&module.exports?(d["default"]=d,module.exports=d):"function"===typeof define&&define.amd?define("highcharts/modules/data",["highcharts"],function(v){d(v);d.Highcharts=v;return d}):d("undefined"!==typeof Highcharts?Highcharts:void 0)})(function(d){function v(z,d,v,y){z.hasOwnProperty(d)||(z[d]=y.apply(null,v))}d=d?d._modules:{};v(d,"mixins/ajax.js",[d["parts/Globals.js"],d["parts/Utilities.js"]],function(d,x){var z=x.objectEach;d.ajax=function(y){var n=d.merge(!0,
 {url:!1,type:"get",dataType:"json",success:!1,error:!1,data:!1,headers:{}},y);y={json:"application/json",xml:"application/xml",text:"text/plain",octet:"application/octet-stream"};var q=new XMLHttpRequest;if(!n.url)return!1;q.open(n.type.toUpperCase(),n.url,!0);n.headers["Content-Type"]||q.setRequestHeader("Content-Type",y[n.dataType]||y.text);z(n.headers,function(d,n){q.setRequestHeader(n,d)});q.onreadystatechange=function(){if(4===q.readyState){if(200===q.status){var d=q.responseText;if("json"===
 n.dataType)try{d=JSON.parse(d)}catch(D){n.error&&n.error(q,D);return}return n.success&&n.success(d)}n.error&&n.error(q,q.responseText)}};try{n.data=JSON.stringify(n.data)}catch(J){}q.send(n.data||!0)};d.getJSON=function(z,n){d.ajax({url:z,success:n,dataType:"json",headers:{"Content-Type":"text/plain"}})}});v(d,"modules/data.src.js",[d["parts/Globals.js"],d["parts/Utilities.js"]],function(d,x){var v=x.defined,y=x.extend,n=x.isNumber,q=x.objectEach,z=x.pick,D=x.splat;x=d.addEvent;var G=d.Chart,H=d.win.document,

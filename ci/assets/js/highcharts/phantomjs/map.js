@@ -1,10 +1,4 @@
-/*
- Highmaps JS v1.0.0-beta-modified ()
 
- (c) 2011-2014 Torstein Honsi
-
- License: www.highcharts.com/license
-*/
 (function(i){function F(a,b,d,c,e,f,g,h,j){a=a["stroke-width"]%2/2;b-=a;d-=a;return["M",b+f,d,"L",b+c-g,d,"C",b+c-g/2,d,b+c,d+g/2,b+c,d+g,"L",b+c,d+e-h,"C",b+c,d+e-h/2,b+c-h/2,d+e,b+c-h,d+e,"L",b+j,d+e,"C",b+j/2,d+e,b,d+e-j/2,b,d+e-j,"L",b,d+f,"C",b,d+f/2,b+f/2,d,b+f,d,"Z"]}var o=i.Axis,A=i.Chart,x=i.Color,y=i.Point,u=i.Pointer,B=i.Legend,D=i.LegendSymbolMixin,J=i.Renderer,v=i.Series,E=i.SVGRenderer,G=i.VMLRenderer,H=i.addEvent,k=i.each,p=i.extend,t=i.extendClass,n=i.merge,m=i.pick,I=i.numberFormat,
 z=i.getOptions(),l=i.seriesTypes,q=z.plotOptions,r=i.wrap,s=function(){};r(o.prototype,"getSeriesExtremes",function(a){var b=this.isXAxis,d,c,e=[],f;b&&k(this.series,function(a,b){if(a.useMapGeometry)e[b]=a.xData,a.xData=[]});a.call(this);if(b&&(d=m(this.dataMin,Number.MAX_VALUE),c=m(this.dataMax,Number.MIN_VALUE),k(this.series,function(a,b){if(a.useMapGeometry)d=Math.min(d,m(a.minX,d)),c=Math.max(c,m(a.maxX,d)),a.xData=e[b],f=!0}),f))this.dataMin=d,this.dataMax=c});r(o.prototype,"setAxisTranslation",
 function(a){var b=this.chart,d=b.plotWidth/b.plotHeight,c=b.xAxis[0];a.call(this);if(b.options.chart.preserveAspectRatio&&this.coll==="yAxis"&&c.transA!==void 0&&(this.transA=c.transA=Math.min(this.transA,c.transA),a=d/((c.max-c.min)/(this.max-this.min)),c=a<1?this:c,a=(c.max-c.min)*c.transA,c.pixelPadding=c.len-a,c.minPixelPadding=c.pixelPadding/2,a=c.fixTo)){a=a[1]-c.toValue(a[0],!0);a*=c.transA;if(Math.abs(a)>c.minPixelPadding||c.min===c.dataMin&&c.max===c.dataMax)a=0;c.minPixelPadding-=a}});r(o.prototype,

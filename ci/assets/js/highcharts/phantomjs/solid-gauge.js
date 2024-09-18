@@ -1,11 +1,4 @@
-/*
-  Highcharts JS v4.1.5 (2015-04-13)
- Solid angular gauge module
 
- (c) 2010-2014 Torstein Honsi
-
- License: www.highcharts.com/license
-*/
 (function(b){var q=b.getOptions().plotOptions,r=b.pInt,s=b.pick,j=b.each,k;q.solidgauge=b.merge(q.gauge,{colorByPoint:!0});k={initDataClasses:function(a){var c=this,e=this.chart,d,o=0,f=this.options;this.dataClasses=d=[];j(a.dataClasses,function(g,h){var p,g=b.merge(g);d.push(g);if(!g.color)f.dataClassColor==="category"?(p=e.options.colors,g.color=p[o++],o===p.length&&(o=0)):g.color=c.tweenColors(b.Color(f.minColor),b.Color(f.maxColor),h/(a.dataClasses.length-1))})},initStops:function(a){this.stops=
 a.stops||[[0,this.options.minColor],[1,this.options.maxColor]];j(this.stops,function(a){a.color=b.Color(a[1])})},toColor:function(a,c){var e,d=this.stops,b,f=this.dataClasses,g,h;if(f)for(h=f.length;h--;){if(g=f[h],b=g.from,d=g.to,(b===void 0||a>=b)&&(d===void 0||a<=d)){e=g.color;if(c)c.dataClass=h;break}}else{this.isLog&&(a=this.val2lin(a));e=1-(this.max-a)/(this.max-this.min);for(h=d.length;h--;)if(e>d[h][0])break;b=d[h]||d[h+1];d=d[h+1]||b;e=1-(d[0]-e)/(d[0]-b[0]||1);e=this.tweenColors(b.color,
 d.color,e)}return e},tweenColors:function(a,c,b){var d;!c.rgba.length||!a.rgba.length?a=c.raw||"none":(a=a.rgba,c=c.rgba,d=c[3]!==1||a[3]!==1,a=(d?"rgba(":"rgb(")+Math.round(c[0]+(a[0]-c[0])*(1-b))+","+Math.round(c[1]+(a[1]-c[1])*(1-b))+","+Math.round(c[2]+(a[2]-c[2])*(1-b))+(d?","+(c[3]+(a[3]-c[3])*(1-b)):"")+")");return a}};j(["fill","stroke"],function(a){HighchartsAdapter.addAnimSetter(a,function(c){c.elem.attr(a,k.tweenColors(b.Color(c.start),b.Color(c.end),c.pos))})});b.seriesTypes.solidgauge=

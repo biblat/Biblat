@@ -1,12 +1,4 @@
-/*
- Highcharts JS v8.0.0 (2019-12-10)
 
- Highcharts funnel module
-
- (c) 2010-2019 Torstein Honsi
-
- License: www.highcharts.com/license
-*/
 (function(b){"object"===typeof module&&module.exports?(b["default"]=b,module.exports=b):"function"===typeof define&&define.amd?define("highcharts/modules/funnel",["highcharts"],function(c){b(c);b.Highcharts=c;return b}):b("undefined"!==typeof Highcharts?Highcharts:void 0)})(function(b){function c(b,w,c,q){b.hasOwnProperty(w)||(b[w]=q.apply(null,c))}b=b?b._modules:{};c(b,"modules/funnel.src.js",[b["parts/Globals.js"],b["parts/Utilities.js"]],function(b,c){var w=c.pick;c=b.seriesType;var q=b.seriesTypes,
 J=b.fireEvent,E=b.addEvent,G=b.noop;c("funnel","pie",{animation:!1,center:["50%","50%"],width:"90%",neckWidth:"30%",height:"100%",neckHeight:"25%",reversed:!1,size:!0,dataLabels:{connectorWidth:1,verticalAlign:"middle"},states:{select:{color:"#cccccc",borderColor:"#000000"}}},{animate:G,translate:function(){function a(b,a){return/%$/.test(b)?a*parseInt(b,10)/100:parseInt(b,10)}var b=0,e=this,k=e.chart,f=e.options,h=f.reversed,d=f.ignoreHiddenPoint,c=k.plotWidth;k=k.plotHeight;var r=0,I=f.center,g=
 a(I[0],c),l=a(I[1],k),q=a(f.width,c),t,u=a(f.height,k),y=a(f.neckWidth,c),F=a(f.neckHeight,k),z=l-u/2+u-F;c=e.data;var B,C,E="left"===f.dataLabels.position?1:0,A,m,D,v,n,x,p;e.getWidthAt=function(b){var a=l-u/2;return b>z||u===F?y:y+(q-y)*(1-(b-a)/(u-F))};e.getX=function(b,a,d){return g+(a?-1:1)*(e.getWidthAt(h?2*l-b:b)/2+d.labelDistance)};e.center=[g,l,u];e.centerX=g;c.forEach(function(a){d&&!1===a.visible||(b+=a.y)});c.forEach(function(a){p=null;C=b?a.y/b:0;m=l-u/2+r*u;n=m+C*u;t=e.getWidthAt(m);

@@ -1,10 +1,4 @@
-/*
- Highcharts JS v8.0.0 (2019-12-10)
 
- (c) 2009-2019 Torstein Honsi
-
- License: www.highcharts.com/license
-*/
 (function(a){"object"===typeof module&&module.exports?(a["default"]=a,module.exports=a):"function"===typeof define&&define.amd?define("highcharts/modules/broken-axis",["highcharts"],function(h){a(h);a.Highcharts=h;return a}):a("undefined"!==typeof Highcharts?Highcharts:void 0)})(function(a){function h(a,g,h,m){a.hasOwnProperty(g)||(a[g]=m.apply(null,h))}a=a?a._modules:{};h(a,"modules/broken-axis.src.js",[a["parts/Globals.js"],a["parts/Utilities.js"]],function(a,g){var h=g.extend,m=g.isArray,q=g.pick;
 g=a.addEvent;var w=a.find,r=a.fireEvent,n=a.Axis,t=a.Series,u=function(f,c){return w(c,function(c){return c.from<f&&f<c.to})};h(n.prototype,{isInBreak:function(f,c){var a=f.repeat||Infinity,e=f.from,b=f.to-f.from;c=c>=e?(c-e)%a:a-(e-c)%a;return f.inclusive?c<=b:c<b&&0!==c},isInAnyBreak:function(f,c){var a=this.options.breaks,e=a&&a.length,b;if(e){for(;e--;)if(this.isInBreak(a[e],f)){var d=!0;b||(b=q(a[e].showPoints,!this.isXAxis))}var p=d&&c?d&&!b:d}return p}});g(n,"afterInit",function(){"function"===
 typeof this.setBreaks&&this.setBreaks(this.options.breaks,!1)});g(n,"afterSetTickPositions",function(){if(this.isBroken){var a=this.tickPositions,c=this.tickPositions.info,k=[],e;for(e=0;e<a.length;e++)this.isInAnyBreak(a[e])||k.push(a[e]);this.tickPositions=k;this.tickPositions.info=c}});g(n,"afterSetOptions",function(){this.isBroken&&(this.options.ordinal=!1)});n.prototype.setBreaks=function(a,c){function f(a){var d=a,c;for(c=0;c<b.breakArray.length;c++){var f=b.breakArray[c];if(f.to<=a)d-=f.len;

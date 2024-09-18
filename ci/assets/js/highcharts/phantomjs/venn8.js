@@ -1,11 +1,4 @@
-/*
- Highcharts JS v8.0.0 (2019-12-10)
 
- (c) 2017-2019 Highsoft AS
- Authors: Jon Arild Nygard
-
- License: www.highcharts.com/license
-*/
 (function(a){"object"===typeof module&&module.exports?(a["default"]=a,module.exports=a):"function"===typeof define&&define.amd?define("highcharts/modules/venn",["highcharts"],function(q){a(q);a.Highcharts=q;return a}):a("undefined"!==typeof Highcharts?Highcharts:void 0)})(function(a){function q(g,e,f,k){g.hasOwnProperty(e)||(g[e]=k.apply(null,f))}a=a?a._modules:{};q(a,"mixins/draw-point.js",[],function(){var g=function(e){var f=this,k=f.graphic,g=e.animatableAttribs,a=e.onComplete,y=e.css,w=e.renderer;
 if(f.shouldDraw())k||(f.graphic=k=w[e.shapeType](e.shapeArgs).add(e.group)),k.css(y).attr(e.attribs).animate(g,e.isNew?!1:void 0,a);else if(k){var x=function(){f.graphic=k=k.destroy();"function"===typeof a&&a()};Object.keys(g).length?k.animate(g,void 0,function(){x()}):x()}};return function(e){(e.attribs=e.attribs||{})["class"]=this.getClassName();g.call(this,e)}});q(a,"mixins/geometry.js",[],function(){return{getAngleBetweenPoints:function(g,e){return Math.atan2(e.x-g.x,e.y-g.y)},getCenterOfPoints:function(g){var e=
 g.reduce(function(e,g){e.x+=g.x;e.y+=g.y;return e},{x:0,y:0});return{x:e.x/g.length,y:e.y/g.length}},getDistanceBetweenPoints:function(g,e){return Math.sqrt(Math.pow(e.x-g.x,2)+Math.pow(e.y-g.y,2))}}});q(a,"mixins/geometry-circles.js",[a["mixins/geometry.js"]],function(g){function e(b,c){c=Math.pow(10,c);return Math.round(b*c)/c}function f(b){if(0>=b)throw Error("radius of circle must be a positive number.");return Math.PI*b*b}function k(b,c){return b*b*Math.acos(1-c/b)-(b-c)*Math.sqrt(c*(2*b-c))}

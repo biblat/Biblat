@@ -1,10 +1,4 @@
-/*
- Highcharts JS v4.1.5 (2015-04-13)
 
- (c) 2011-2014 Torstein Honsi
-
- License: www.highcharts.com/license
-*/
 (function(h){var m=h.Axis,r=h.Chart,k=h.Color,x=h.Legend,t=h.LegendSymbolMixin,u=h.Series,v=h.getOptions(),i=h.each,s=h.extend,y=h.extendClass,n=h.merge,l=h.pick,p=h.seriesTypes,w=h.wrap,o=function(){},q=h.ColorAxis=function(){this.isColorAxis=!0;this.init.apply(this,arguments)};s(q.prototype,m.prototype);s(q.prototype,{defaultColorAxisOptions:{lineWidth:0,gridLineWidth:1,tickPixelInterval:72,startOnTick:!0,endOnTick:!0,offset:0,marker:{animation:{duration:50},color:"gray",width:0.01},labels:{overflow:"justify"},
 minColor:"#EFEFFF",maxColor:"#003875",tickLength:5},init:function(a,b){var e=a.options.legend.layout!=="vertical",c;c=n(this.defaultColorAxisOptions,{side:e?2:1,reversed:!e},b,{isX:e,opposite:!e,showEmpty:!1,title:null,isColor:!0});m.prototype.init.call(this,a,c);b.dataClasses&&this.initDataClasses(b);this.initStops(b);this.isXAxis=!0;this.horiz=e;this.zoomEnabled=!1},tweenColors:function(a,b,e){var c;!b.rgba.length||!a.rgba.length?a=b.raw||"none":(a=a.rgba,b=b.rgba,c=b[3]!==1||a[3]!==1,a=(c?"rgba(":
 "rgb(")+Math.round(b[0]+(a[0]-b[0])*(1-e))+","+Math.round(b[1]+(a[1]-b[1])*(1-e))+","+Math.round(b[2]+(a[2]-b[2])*(1-e))+(c?","+(b[3]+(a[3]-b[3])*(1-e)):"")+")");return a},initDataClasses:function(a){var b=this,e=this.chart,c,d=0,f=this.options,g=a.dataClasses.length;this.dataClasses=c=[];this.legendItems=[];i(a.dataClasses,function(a,h){var i,a=n(a);c.push(a);if(!a.color)f.dataClassColor==="category"?(i=e.options.colors,a.color=i[d++],d===i.length&&(d=0)):a.color=b.tweenColors(k(f.minColor),k(f.maxColor),

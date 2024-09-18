@@ -1,10 +1,4 @@
-/*
- Highcharts JS v8.0.0 (2019-12-10)
 
- (c) 2009-2018 Torstein Honsi
-
- License: www.highcharts.com/license
-*/
 (function(S,M){"object"===typeof module&&module.exports?(M["default"]=M,module.exports=S.document?M(S):M):"function"===typeof define&&define.amd?define("highcharts/highcharts",function(){return M(S)}):(S.Highcharts&&S.Highcharts.error(16,!0),S.Highcharts=M(S))})("undefined"!==typeof window?window:this,function(S){function M(c,e,F,I){c.hasOwnProperty(e)||(c[e]=I.apply(null,F))}var J={};M(J,"parts/Globals.js",[],function(){var c="undefined"!==typeof S?S:"undefined"!==typeof window?window:{},e=c.document,
 F=c.navigator&&c.navigator.userAgent||"",I=e&&e.createElementNS&&!!e.createElementNS("http://www.w3.org/2000/svg","svg").createSVGRect,G=/(edge|msie|trident)/i.test(F)&&!c.opera,H=-1!==F.indexOf("Firefox"),v=-1!==F.indexOf("Chrome"),q=H&&4>parseInt(F.split("Firefox/")[1],10);return{product:"Highcharts",version:"8.0.0",deg2rad:2*Math.PI/360,doc:e,hasBidiBug:q,hasTouch:!!c.TouchEvent,isMS:G,isWebKit:-1!==F.indexOf("AppleWebKit"),isFirefox:H,isChrome:v,isSafari:!v&&-1!==F.indexOf("Safari"),isTouchDevice:/(Mobile|Android|Windows Phone)/.test(F),
 SVG_NS:"http://www.w3.org/2000/svg",chartCount:0,seriesTypes:{},symbolSizes:{},svg:I,win:c,marginNames:["plotTop","marginRight","marginBottom","plotLeft"],noop:function(){},charts:[],dateFormats:{}}});M(J,"parts/Utilities.js",[J["parts/Globals.js"]],function(c){function e(d,a){return parseInt(d,a||10)}function F(d){return"string"===typeof d}function I(d){d=Object.prototype.toString.call(d);return"[object Array]"===d||"[object Array Iterator]"===d}function G(d,a){return!!d&&"object"===typeof d&&(!a||

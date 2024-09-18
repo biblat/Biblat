@@ -1,11 +1,4 @@
-/*
- Highcharts JS v8.0.0 (2019-12-10)
 
- (c) 2016-2019 Highsoft AS
- Authors: Jon Arild Nygard
-
- License: www.highcharts.com/license
-*/
 (function(d){"object"===typeof module&&module.exports?(d["default"]=d,module.exports=d):"function"===typeof define&&define.amd?define("highcharts/modules/sunburst",["highcharts"],function(w){d(w);d.Highcharts=w;return d}):d("undefined"!==typeof Highcharts?Highcharts:void 0)})(function(d){function w(m,b,d,g){m.hasOwnProperty(b)||(m[b]=g.apply(null,d))}d=d?d._modules:{};w(d,"mixins/draw-point.js",[],function(){var m=function(b){var m=this,d=m.graphic,E=b.animatableAttribs,n=b.onComplete,q=b.css,z=b.renderer;
 if(m.shouldDraw())d||(m.graphic=d=z[b.shapeType](b.shapeArgs).add(b.group)),d.css(q).attr(b.attribs).animate(E,b.isNew?!1:void 0,n);else if(d){var G=function(){m.graphic=d=d.destroy();"function"===typeof n&&n()};Object.keys(E).length?d.animate(E,void 0,function(){G()}):G()}};return function(b){(b.attribs=b.attribs||{})["class"]=this.getClassName();m.call(this,b)}});w(d,"mixins/tree-series.js",[d["parts/Globals.js"],d["parts/Utilities.js"]],function(d,b){var m=b.extend,g=b.isArray,E=b.isNumber,n=b.isObject,
 q=b.pick,z=d.merge;return{getColor:function(m,l){var b=l.index,G=l.mapOptionsToLevel,r=l.parentColor,n=l.parentColorIndex,g=l.series,v=l.colors,z=l.siblings,u=g.points,E=g.chart.options.chart,A;if(m){u=u[m.i];m=G[m.level]||{};if(G=u&&m.colorByPoint){var J=u.index%(v?v.length:E.colorCount);var D=v&&v[J]}if(!g.chart.styledMode){v=u&&u.options.color;E=m&&m.color;if(A=r)A=(A=m&&m.colorVariation)&&"brightness"===A.key?d.color(r).brighten(b/z*A.to).get():r;A=q(v,E,D,A,g.color)}var w=q(u&&u.options.colorIndex,

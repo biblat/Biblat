@@ -1,10 +1,4 @@
-/*
- Highcharts JS v4.1.5 (2015-04-13)
 
- (c) 2009-2013 Torstein Hønsi
-
- License: www.highcharts.com/license
-*/
 (function(c){function o(d,a,b){var e,f,g=a.options.chart.options3d,h=!1;b?(h=a.inverted,b=a.plotWidth/2,a=a.plotHeight/2,e=g.depth/2,f=z(g.depth,1)*z(g.viewDistance,0)):(b=a.plotLeft+a.plotWidth/2,a=a.plotTop+a.plotHeight/2,e=g.depth/2,f=z(g.depth,1)*z(g.viewDistance,0));var j=[],i=b,k=a,v=e,q=f,b=w*(h?g.beta:-g.beta),g=w*(h?-g.alpha:g.alpha),p=l(b),s=m(b),t=l(g),u=m(g),x,C,r,o,n,y;c.each(d,function(a){x=(h?a.y:a.x)-i;C=(h?a.x:a.y)-k;r=(a.z||0)-v;o=s*x-p*r;n=-p*t*x-s*t*r+u*C;y=p*u*x+s*u*r+t*C;q>0&&
 q<Number.POSITIVE_INFINITY&&(o*=q/(y+v+q),n*=q/(y+v+q));o+=i;n+=k;y+=v;j.push({x:h?n:o,y:h?o:n,z:y})});return j}function n(d){return d!==void 0&&d!==null}function E(d){var a=0,b,e;for(b=0;b<d.length;b++)e=(b+1)%d.length,a+=d[b].x*d[e].y-d[e].x*d[b].y;return a/2}function D(d){var a=0,b;for(b=0;b<d.length;b++)a+=d[b].z;return d.length?a/d.length:0}function r(d,a,b,e,f,g,c,j){var i=[];return g>f&&g-f>p/2+1.0E-4?(i=i.concat(r(d,a,b,e,f,f+p/2,c,j)),i=i.concat(r(d,a,b,e,f+p/2,g,c,j))):g<f&&f-g>p/2+1.0E-4?
 (i=i.concat(r(d,a,b,e,f,f-p/2,c,j)),i=i.concat(r(d,a,b,e,f-p/2,g,c,j))):(i=g-f,["C",d+b*m(f)-b*A*i*l(f)+c,a+e*l(f)+e*A*i*m(f)+j,d+b*m(g)+b*A*i*l(g)+c,a+e*l(g)-e*A*i*m(g)+j,d+b*m(g)+c,a+e*l(g)+j])}function F(d){if(this.chart.is3d()){var a=this.chart.options.plotOptions.column.grouping;if(a!==void 0&&!a&&this.group.zIndex!==void 0&&!this.zIndexSet)this.group.attr({zIndex:this.group.zIndex*10}),this.zIndexSet=!0;var b=this.options,e=this.options.states;this.borderWidth=b.borderWidth=n(b.edgeWidth)?b.edgeWidth:
