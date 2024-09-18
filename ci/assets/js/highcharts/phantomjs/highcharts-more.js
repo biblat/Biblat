@@ -1,10 +1,4 @@
-/*
- Highcharts JS v4.1.5 (2015-04-13)
 
- (c) 2009-2014 Torstein Honsi
-
- License: www.highcharts.com/license
-*/
 (function(k,D){function K(a,b,c){this.init.call(this,a,b,c)}var P=k.arrayMin,Q=k.arrayMax,t=k.each,H=k.extend,o=k.merge,R=k.map,q=k.pick,x=k.pInt,p=k.getOptions().plotOptions,g=k.seriesTypes,v=k.extendClass,L=k.splat,u=k.wrap,M=k.Axis,y=k.Tick,I=k.Point,S=k.Pointer,T=k.CenteredSeriesMixin,z=k.TrackerMixin,s=k.Series,w=Math,E=w.round,B=w.floor,N=w.max,U=k.Color,r=function(){};H(K.prototype,{init:function(a,b,c){var d=this,e=d.defaultOptions;d.chart=b;if(b.angular)e.background={};d.options=a=o(e,a);
 (a=a.background)&&t([].concat(L(a)).reverse(),function(a){var h=a.backgroundColor,b=c.userOptions,a=o(d.defaultBackgroundOptions,a);if(h)a.backgroundColor=h;a.color=a.backgroundColor;c.options.plotBands.unshift(a);b.plotBands=b.plotBands||[];b.plotBands.unshift(a)})},defaultOptions:{center:["50%","50%"],size:"85%",startAngle:0},defaultBackgroundOptions:{shape:"circle",borderWidth:1,borderColor:"silver",backgroundColor:{linearGradient:{x1:0,y1:0,x2:0,y2:1},stops:[[0,"#FFF"],[1,"#DDD"]]},from:-Number.MAX_VALUE,
 innerRadius:0,to:Number.MAX_VALUE,outerRadius:"105%"}});var G=M.prototype,y=y.prototype,V={getOffset:r,redraw:function(){this.isDirty=!1},render:function(){this.isDirty=!1},setScale:r,setCategories:r,setTitle:r},O={isRadial:!0,defaultRadialGaugeOptions:{labels:{align:"center",x:0,y:null},minorGridLineWidth:0,minorTickInterval:"auto",minorTickLength:10,minorTickPosition:"inside",minorTickWidth:1,tickLength:10,tickPosition:"inside",tickWidth:2,title:{rotation:0},zIndex:2},defaultRadialXOptions:{gridLineWidth:1,

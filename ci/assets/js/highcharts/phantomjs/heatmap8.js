@@ -1,10 +1,4 @@
-/*
- Highmaps JS v8.0.0 (2019-12-10)
 
- (c) 2009-2019 Torstein Honsi
-
- License: www.highcharts.com/license
-*/
 (function(f){"object"===typeof module&&module.exports?(f["default"]=f,module.exports=f):"function"===typeof define&&define.amd?define("highcharts/modules/heatmap",["highcharts"],function(n){f(n);f.Highcharts=n;return f}):f("undefined"!==typeof Highcharts?Highcharts:void 0)})(function(f){function n(a,c,f,k){a.hasOwnProperty(c)||(a[c]=k.apply(null,f))}f=f?f._modules:{};n(f,"parts-map/ColorSeriesMixin.js",[f["parts/Globals.js"]],function(a){a.colorPointMixin={setVisible:function(a){var c=this,f=a?"show":
 "hide";c.visible=c.options.visible=!!a;["graphic","dataLabel"].forEach(function(a){if(c[a])c[a][f]()})}};a.colorSeriesMixin={optionalAxis:"colorAxis",colorAxis:0,translateColors:function(){var a=this,f=this.options.nullColor,k=this.colorAxis,u=this.colorKey;(this.data.length?this.data:this.points).forEach(function(c){var m=c[u];if(m=c.options.color||(c.isNull?f:k&&"undefined"!==typeof m?k.toColor(m,c):c.color||a.color))c.color=m})}}});n(f,"parts-map/ColorAxis.js",[f["parts/Globals.js"],f["parts/Utilities.js"]],
 function(a,c){var f=c.erase,k=c.extend,u=c.isNumber,m=c.pick,n=c.splat;c=a.addEvent;var p=a.Axis,q=a.Chart,t=a.Series,v=a.Point,l=a.color,g=a.Legend,A=a.LegendSymbolMixin,B=a.colorPointMixin,y=a.noop,r=a.merge;k(t.prototype,a.colorSeriesMixin);k(v.prototype,B);q.prototype.collectionsWithUpdate.push("colorAxis");q.prototype.collectionsWithInit.colorAxis=[q.prototype.addColorAxis];var w=a.ColorAxis=function(){this.init.apply(this,arguments)};k(w.prototype,p.prototype);k(w.prototype,{defaultColorAxisOptions:{lineWidth:0,

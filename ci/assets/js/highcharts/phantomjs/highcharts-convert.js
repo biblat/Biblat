@@ -1,14 +1,4 @@
-/**
- * @license Highcharts JS v3.0.1 (2012-11-02)
- *
- * (c) 20013-2014
- *
- * Author: Gert Vaartjes
- *
- * License: www.highcharts.com/license
- *
- * version: 2.0.1
- */
+
 
 /*jslint white: true */
 /*global window, require, phantom, console, $, document, Image, Highcharts, clearTimeout, clearInterval, options, cb, globalOptions, dataOptions, customCode */

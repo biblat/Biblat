@@ -1,12 +1,4 @@
-/*
- Highcharts JS v8.0.0 (2019-12-10)
 
- Highcharts Drilldown module
-
- Author: Torstein Honsi
- License: www.highcharts.com/license
-
-*/
 (function(e){"object"===typeof module&&module.exports?(e["default"]=e,module.exports=e):"function"===typeof define&&define.amd?define("highcharts/modules/drilldown",["highcharts"],function(n){e(n);e.Highcharts=n;return e}):e("undefined"!==typeof Highcharts?Highcharts:void 0)})(function(e){function n(h,e,n,q){h.hasOwnProperty(e)||(h[e]=q.apply(null,n))}e=e?e._modules:{};n(e,"modules/drilldown.src.js",[e["parts/Globals.js"],e["parts/Utilities.js"]],function(h,e){var n=e.animObject,q=e.extend,x=e.objectEach,
 u=e.pick,D=e.syncTimeout,r=h.addEvent,y=h.noop,z=h.color;e=h.defaultOptions;var E=h.format,p=h.Chart,t=h.seriesTypes,A=t.pie;t=t.column;var B=h.Tick,v=h.fireEvent,C=1;q(e.lang,{drillUpText:"\u25c1 Back to {series.name}"});e.drilldown={activeAxisLabelStyle:{cursor:"pointer",color:"#003399",fontWeight:"bold",textDecoration:"underline"},activeDataLabelStyle:{cursor:"pointer",color:"#003399",fontWeight:"bold",textDecoration:"underline"},animation:{duration:500},drillUpButton:{position:{align:"right",
 x:-10,y:10}}};h.SVGRenderer.prototype.Element.prototype.fadeIn=function(a){this.attr({opacity:.1,visibility:"inherit"}).animate({opacity:u(this.newOpacity,1)},a||{duration:250})};p.prototype.addSeriesAsDrilldown=function(a,b){this.addSingleSeriesAsDrilldown(a,b);this.applyDrilldown()};p.prototype.addSingleSeriesAsDrilldown=function(a,b){var c=a.series,d=c.xAxis,f=c.yAxis,g=[],l=[],k;var m=this.styledMode?{colorIndex:u(a.colorIndex,c.colorIndex)}:{color:a.color||c.color};this.drilldownLevels||(this.drilldownLevels=

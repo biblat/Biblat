@@ -1,11 +1,4 @@
-/*
- Highcharts JS v8.0.0 (2019-12-10)
 
- (c) 2014-2019 Highsoft AS
- Authors: Jon Arild Nygard / Oystein Moseng
-
- License: www.highcharts.com/license
-*/
 (function(b){"object"===typeof module&&module.exports?(b["default"]=b,module.exports=b):"function"===typeof define&&define.amd?define("highcharts/modules/treemap",["highcharts"],function(p){b(p);b.Highcharts=p;return b}):b("undefined"!==typeof Highcharts?Highcharts:void 0)})(function(b){function p(q,d,b,l){q.hasOwnProperty(d)||(q[d]=l.apply(null,b))}b=b?b._modules:{};p(b,"mixins/tree-series.js",[b["parts/Globals.js"],b["parts/Utilities.js"]],function(b,d){var q=d.extend,l=d.isArray,y=d.isNumber,h=
 d.isObject,v=d.pick,p=b.merge;return{getColor:function(e,k){var d=k.index,q=k.mapOptionsToLevel,n=k.parentColor,l=k.parentColorIndex,h=k.series,r=k.colors,G=k.siblings,t=h.points,p=h.chart.options.chart,w;if(e){t=t[e.i];e=q[e.level]||{};if(q=t&&e.colorByPoint){var y=t.index%(r?r.length:p.colorCount);var z=r&&r[y]}if(!h.chart.styledMode){r=t&&t.options.color;p=e&&e.color;if(w=n)w=(w=e&&e.colorVariation)&&"brightness"===w.key?b.color(n).brighten(d/G*w.to).get():n;w=v(r,p,z,w,h.color)}var C=v(t&&t.options.colorIndex,
 e&&e.colorIndex,y,l,k.colorIndex)}return{color:w,colorIndex:C}},getLevelOptions:function(e){var k=null;if(h(e)){k={};var d=y(e.from)?e.from:1;var b=e.levels;var n={};var v=h(e.defaults)?e.defaults:{};l(b)&&(n=b.reduce(function(k,e){if(h(e)&&y(e.level)){var b=p({},e);var l="boolean"===typeof b.levelIsConstant?b.levelIsConstant:v.levelIsConstant;delete b.levelIsConstant;delete b.level;e=e.level+(l?0:d-1);h(k[e])?q(k[e],b):k[e]=b}return k},{}));b=y(e.to)?e.to:1;for(e=0;e<=b;e++)k[e]=p({},v,h(n[e])?n[e]:

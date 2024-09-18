@@ -1,12 +1,4 @@
-/*
- Highmaps JS v8.0.0 (2019-12-10)
 
- Highmaps as a plugin for Highcharts or Highstock.
-
- (c) 2011-2019 Torstein Honsi
-
- License: www.highcharts.com/license
-*/
 (function(g){"object"===typeof module&&module.exports?(g["default"]=g,module.exports=g):"function"===typeof define&&define.amd?define("highcharts/modules/map",["highcharts"],function(y){g(y);g.Highcharts=y;return g}):g("undefined"!==typeof Highcharts?Highcharts:void 0)})(function(g){function y(a,b,g,p){a.hasOwnProperty(b)||(a[b]=p.apply(null,g))}g=g?g._modules:{};y(g,"parts-map/MapAxis.js",[g["parts/Globals.js"],g["parts/Utilities.js"]],function(a,b){var g=b.pick;b=a.addEvent;a=a.Axis;b(a,"getSeriesExtremes",
 function(){var a=[];this.isXAxis&&(this.series.forEach(function(k,b){k.useMapGeometry&&(a[b]=k.xData,k.xData=[])}),this.seriesXData=a)});b(a,"afterGetSeriesExtremes",function(){var a=this.seriesXData,k;if(this.isXAxis){var b=g(this.dataMin,Number.MAX_VALUE);var r=g(this.dataMax,-Number.MAX_VALUE);this.series.forEach(function(u,l){u.useMapGeometry&&(b=Math.min(b,g(u.minX,b)),r=Math.max(r,g(u.maxX,r)),u.xData=a[l],k=!0)});k&&(this.dataMin=b,this.dataMax=r);delete this.seriesXData}});b(a,"afterSetAxisTranslation",
 function(){var a=this.chart;var k=a.plotWidth/a.plotHeight;a=a.xAxis[0];var b;"yAxis"===this.coll&&"undefined"!==typeof a.transA&&this.series.forEach(function(a){a.preserveAspectRatio&&(b=!0)});if(b&&(this.transA=a.transA=Math.min(this.transA,a.transA),k/=(a.max-a.min)/(this.max-this.min),k=1>k?this:a,a=(k.max-k.min)*k.transA,k.pixelPadding=k.len-a,k.minPixelPadding=k.pixelPadding/2,a=k.fixTo)){a=a[1]-k.toValue(a[0],!0);a*=k.transA;if(Math.abs(a)>k.minPixelPadding||k.min===k.dataMin&&k.max===k.dataMax)a=

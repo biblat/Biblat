@@ -1,12 +1,4 @@
-/*
- Highcharts JS v8.0.0 (2019-12-10)
 
- Solid angular gauge module
-
- (c) 2010-2019 Torstein Honsi
-
- License: www.highcharts.com/license
-*/
 (function(b){"object"===typeof module&&module.exports?(b["default"]=b,module.exports=b):"function"===typeof define&&define.amd?define("highcharts/modules/solid-gauge",["highcharts","highcharts/highcharts-more"],function(k){b(k);b.Highcharts=k;return b}):b("undefined"!==typeof Highcharts?Highcharts:void 0)})(function(b){function k(b,e,k,t){b.hasOwnProperty(e)||(b[e]=t.apply(null,k))}b=b?b._modules:{};k(b,"modules/solid-gauge.src.js",[b["parts/Globals.js"],b["parts/Utilities.js"]],function(b,e){var k=
 e.clamp,t=e.extend,v=e.isNumber,u=e.pick,w=e.pInt;e=e.wrap;e(b.Renderer.prototype.symbols,"arc",function(a,b,f,d,g,c){a=a(b,f,d,g,c);c.rounded&&(d=((c.r||d)-c.innerR)/2,c=["A",d,d,0,1,1,a[12],a[13]],a.splice.apply(a,[a.length-1,0].concat(["A",d,d,0,1,1,a[1],a[2]])),a.splice.apply(a,[11,3].concat(c)));return a});var x={initDataClasses:function(a){var m=this.chart,f,d=0,g=this.options;this.dataClasses=f=[];a.dataClasses.forEach(function(c,h){c=b.merge(c);f.push(c);c.color||("category"===g.dataClassColor?
 (h=m.options.colors,c.color=h[d++],d===h.length&&(d=0)):c.color=b.color(g.minColor).tweenTo(b.color(g.maxColor),h/(a.dataClasses.length-1)))})},initStops:function(a){this.stops=a.stops||[[0,this.options.minColor],[1,this.options.maxColor]];this.stops.forEach(function(a){a.color=b.color(a[1])})},toColor:function(a,b){var f=this.stops,d=this.dataClasses,g;if(d)for(g=d.length;g--;){var c=d[g];var h=c.from;f=c.to;if(("undefined"===typeof h||a>=h)&&("undefined"===typeof f||a<=f)){var m=c.color;b&&(b.dataClass=

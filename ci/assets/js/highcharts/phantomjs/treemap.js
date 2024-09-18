@@ -1,11 +1,4 @@
-/*
- Highcharts JS v4.1.5 (2015-04-13)
 
- (c) 2014 Highsoft AS
- Authors: Jon Arild Nygard / Oystein Moseng
-
- License: www.highcharts.com/license
-*/
 (function(f){var i=f.seriesTypes,l=f.merge,t=f.extendClass,u=f.getOptions().plotOptions,v=function(){},m=f.each,s=f.pick,n=f.Series,q=f.Color;u.treemap=l(u.scatter,{showInLegend:!1,marker:!1,borderColor:"#E0E0E0",borderWidth:1,dataLabels:{enabled:!0,defer:!1,verticalAlign:"middle",formatter:function(){return this.point.name||this.point.id},inside:!0},tooltip:{headerFormat:"",pointFormat:"<b>{point.name}</b>: {point.value}</b><br/>"},layoutAlgorithm:"sliceAndDice",layoutStartingDirection:"vertical",
 alternateStartingDirection:!1,levelIsConstant:!0,states:{hover:{borderColor:"#A0A0A0",brightness:i.heatmap?0:0.1,shadow:!1}},drillUpButton:{position:{align:"left",x:10,y:-50}}});i.treemap=t(i.scatter,l({pointAttrToOptions:{stroke:"borderColor","stroke-width":"borderWidth",fill:"color",dashstyle:"borderDashStyle"},pointArrayMap:["value"],axisTypes:i.heatmap?["xAxis","yAxis","colorAxis"]:["xAxis","yAxis"],optionalAxis:"colorAxis",getSymbol:v,parallelArrays:["x","y","value","colorValue"],colorKey:"colorValue",
 translateColors:i.heatmap&&i.heatmap.prototype.translateColors},{type:"treemap",trackerGroups:["group","dataLabelsGroup"],pointClass:t(f.Point,{setState:function(a,b){f.Point.prototype.setState.call(this,a,b);a==="hover"?this.dataLabel&&this.dataLabel.attr({zIndex:1002}):this.dataLabel&&this.dataLabel.attr({zIndex:this.pointAttr[""].zIndex+1})}}),handleLayout:function(){var a=this.tree,b;if(this.points.length){if(!a)this.nodeMap=[],a=this.tree=this.getTree();if(!this.rootNode)this.rootNode="";this.levelMap=
