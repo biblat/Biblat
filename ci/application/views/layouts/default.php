@@ -52,6 +52,7 @@
                 integrity="sha384-h95UkLTS41GXe39qA+bqMhlmhtyhopBiXe+v4XVpqpRhel3c9gAGWh4pDsSIlrry"
                 crossorigin="anonymous"
         ></script>
+		<script>
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
