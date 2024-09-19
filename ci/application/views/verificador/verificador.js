@@ -6,10 +6,10 @@
 eval(function(p,a,c,k,e,r){e=function(c){return c.toString(a)};if(!''.replace(/^/,String)){while(c--)r[e(c)]=k[c]||e(c);k=[function(e){return r[e]}];e=function(){return'\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c]);return p}('3 a(b){2 c=\'\';4(2 1=0;1<b.5;1++){c+=\'\'+b.6(1).7(8)}9 c}',13,13,'|i|var|function|for|length|charCodeAt|toString|16|return|||'.split('|'),0,{}));
 eval(function(p,a,c,k,e,r){e=function(c){return c.toString(a)};if(!''.replace(/^/,String)){while(c--)r[e(c)]=k[c]||e(c);k=[function(e){return r[e]}];e=function(){return'\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c]);return p}('4 b(a){3 a=a.5();3 c="";6(3 1=0;1<a.7;1+=2)c+=8.9(d(a.e(1,2),f));g c}',17,17,'|i||var|function|toString|for|length|String|fromCharCode||||parseInt|substr|16|return'.split('|'),0,{}));
 
-
+revisa_extrae = [];
 class_ver = {
     cons:{
-        get_oai: '/metametrics/get_oai?oai=<oai>&years=<years>',
+        get_oai: '/api_metametrics/get_oai?oai=<oai>&years=<years>',
         get_issn: '/metametrics/get_data_by_issn?issn=<issn>',
         idiomas: {
                 'es_ES' : 'Español',
@@ -22,38 +22,6 @@ class_ver = {
                 'pt' : 'Portugués (Brasil)',
                 'fr' : 'Francés',                
             },
-        pub_id: {
-            '3.4.0': 'publication_id',
-            '3.3.0.11': 'publication_id',
-            '3.3.0': 'publication_id',
-            '3.2.0': 'publication_id',
-            '3.1.2': 'submission_id',
-            '3.0.0': 'submission_id',
-            '2.4.0': 'article_id',
-            '2.3.0': 'article_id'
-        },
-        pub_id_auth: {
-            '3.4.0': 'publication_id',
-            '3.3.0.11': 'publication_id',
-            '3.3.0': 'publication_id',
-            '3.2.0': 'publication_id',
-            '3.1.2': 'submission_id',
-            '3.0.0': 'submission_id',
-            '2.4.0': 'submission_id',
-            '2.3.0': 'submission_id'
-        },
-        pub_id_file: {
-            '3.4.0': 'submission_id',
-            '3.3.0.11': 'submission_id',
-            '3.3.0': 'submission_id',
-            '3.2.0': 'submission_id',
-            '3.1.2': 'submission_id',
-            '3.0.0': 'submission_id',
-            '2.4.0': 'article_id',
-            '2.3.0': 'article_id'
-        },
-        campos:['a', 'as', 'c_v_e_s', 'i', 'is', 'p', 'pg', 'ps', 'ss', 'pf', 's', 'ses']
-        ,
         expiry:1000 * 5 * 60, //ms * min * 60seg
         er: {
             'mayus2' : /^[A-Z]*.*[A-Z]{3}.*[A-Z]+$/,
@@ -373,7 +341,7 @@ class_ver = {
         datos[15] = class_ver.var.revista_electronica;
         datos[16] = class_ver.var.entidad_editora_issn;
         datos[17] = class_ver.var.pais_issn;
-        datos[18] = class_ver.var.idiomase;
+        datos[18] = class_ver.var.idiomase.join(', ');
         datos[19] = class_ver.var.idiomap;
         datos[20] = (class_ver.var.id_anio == '0')?'3 últimos fascículos':class_ver.var.id_anio;
         datos[21] = class_ver.var.sp;
@@ -454,6 +422,7 @@ class_ver = {
         $('.color-fondo').css('background-color','');
         $('.color-fondo').html('');
         $('#plugin').hide();
+        $('#error').hide();
         $('#sinDatos').hide();
         $("#numFasciculos").hide();
         $("#txt_val_final").hide();
@@ -466,7 +435,9 @@ class_ver = {
             $('#url_invalida').hide();
             var url = $('#'+class_ver.var.id_oai).val();
             
+            $('#mensaje_espera').html('El tiempo de respuesta puede variar dependiendo del sitio de la revista y del número de artículos');
             loading.start();
+            
             setTimeout( function(){
                 class_ver.html_reset();
                 
@@ -643,70 +614,38 @@ class_ver = {
             class_ver.var.data = JSON.parse(class_ver.var.datatxt);
         }*/
         //revista
-        try{
-            var revista = class_utils.find_prop(class_ver.var.data.js, 'setting_name', 'title').setting_value.trim();
-        }catch(e){
-            var revista = class_utils.filter_prop(class_ver.var.data.js, 'setting_name', 'name');
-            var revista_idioma = '';
-            try{
-                revista_idioma = class_utils.find_prop(revista, 'locale', class_ver.var.data.j[0].primary_locale)['setting_value'];
-            }catch(e){
-                revista_idioma = '';
-            }
-            
-            if(revista_idioma == ''){
-                $.each(revista, function(i,val){
-                    try{
-                        revista = val.setting_value.trim();
-                    }catch(e){
-                        revista = val.setting_value;
-                    }
-                    if([null,'undefined', ''].indexOf(revista) == -1){
-                        return false;
-                    }
-                });
-            }else{
-                revista = revista_idioma;
-            }
-        }
+        var revista = class_ver.var.data.revista;
+        
+        //Revisar el idioma de la etiqueta html
+        var revista_idioma = class_ver.var.data.idiomas[0];
         
         //issn
-        try{
-            var issn = class_utils.find_prop(class_ver.var.data.js, 'setting_name', 'printIssn').setting_value;
-            if(issn == ''){
-                issn = 'No especificado';
-            }
-        }catch(e){
+        
+        if( class_ver.var.data.issn[0] !== undefined ){
+            var issn = class_ver.var.data.issn[0];
+        }else{
             var issn = 'No especificado';
         }
-        //eissn
-        try{
-            var eissn = class_utils.find_prop(class_ver.var.data.js, 'setting_name', 'onlineIssn').setting_value;
-            if(eissn == ''){
-                eissn = 'No especificado';
-            }
-        }catch(e){
+        
+        if( class_ver.var.data.issn[1] !== undefined ){
+            var eissn = class_ver.var.data.issn[1];
+        }else{
             var eissn = 'No especificado';
         }
         
         //entidadEditora
-	try{
-            var editor = class_utils.find_prop(class_ver.var.data.js, 'setting_name', 'publisherInstitution').setting_value;
-            if(editor == ''){
-                editor = 'No especificado';
-            }
-	}catch(e){
+        if( class_ver.var.data.editor !== undefined ){
+            var editor = class_ver.var.data.editor;
+        }else{
             var editor = 'No especificado';
-        } 
+        }
+        
         //idioma
-        var idioma = '';
-        var idioma_principal = class_ver.var.data.j[0].primary_locale;
-        if( idioma_principal.indexOf('es') !== -1 )
-            idioma = 'Español';
-        else if( idioma_principal.indexOf('pt') !== -1 )
-            idioma = 'Portugués';
-        else if( idioma_principal.indexOf('en') !== -1 )
-            idioma = 'Inglés';
+        if( class_ver.var.data.idioma_principal[0] !== undefined ){
+            var idioma = class_ver.var.data.idioma_principal[0];
+        }else{
+            var idioma = 'No especificado';
+        }
 
         class_ver.var.revista_ojs = revista;
         class_ver.var.issni = (issn == '')?'No especificado':issn;
@@ -722,7 +661,8 @@ class_ver = {
         
         var editor_en_impreso = '';
         var url_en_impreso = '';
-        
+        $('#issn1').html('ISSN:');
+        $('#issn2').html('ISSN:');
         if(issn !== 'No especificado' ){
             url = class_ver.cons.get_issn.replace('<issn>', issn);
             $.when(
@@ -757,6 +697,15 @@ class_ver = {
                     class_ver.verifica_valor('url', url, resp_url);
                 }
                 
+                if(resp.tipo !== ''){
+                    if(resp.tipo == 'online'){
+                        $('#issn1').html('ISSN electrónico:');
+                    }
+                    if(resp.tipo == 'print'){
+                        $('#issn1').html('ISSN impreso:');
+                    }
+                }
+                
                 if(eissn !== 'No espedificado'){
                     url = class_ver.cons.get_issn.replace('<issn>', eissn);
                     $.when(
@@ -769,6 +718,15 @@ class_ver = {
                         if($('#pais').text() == ''){
                             class_ver.var.pais_issn = resp.pais.trim();
                             $('#pais').html(resp.pais.trim());
+                        }
+                        
+                        if(resp.tipo !== ''){
+                            if(resp.tipo == 'online'){
+                                $('#issn2').html('ISSN electrónico:');
+                            }
+                            if(resp.tipo == 'print'){
+                                $('#issn2').html('ISSN impreso:');
+                            }
                         }
                         
                         class_ver.var.issne_v = class_ver.verifica_valor('issne', resp.titulo.trim());
@@ -810,6 +768,15 @@ class_ver = {
                         $('#pais').html(resp.pais.trim());
                     }
                     
+                    if(resp.tipo !== ''){
+                        if(resp.tipo == 'online'){
+                            $('#issn2').html('ISSN electrónico:');
+                        }
+                        if(resp.tipo == 'print'){
+                            $('#issn2').html('ISSN impreso:');
+                        }
+                    }
+                    
                     class_ver.var.issne_v = class_ver.verifica_valor('issne', resp.titulo.trim());
                     class_ver.verifica_valor('revistae', revista, resp.titulo.trim());
                     if(editor_en_impreso == ''){
@@ -835,36 +802,9 @@ class_ver = {
             }
         }
 
-        //idiomas en envíos
-        var idiomas = class_utils.find_prop(class_ver.var.data.js, 'setting_name', 'supportedSubmissionLocales').setting_value;
-        idiomas = idiomas.split('"');
-        idiomas_envio = [];
-        var s_idiomas_envio = '';
-        $.each(idiomas, function(i,val){
-            if(['3.4.0'].indexOf(class_ver.var.data.ver) !== -1){
-                if (['', ','].indexOf(val) == -1){
-                    idiomas_envio.push(val);
-                    s_idiomas_envio += ( (s_idiomas_envio == '')?'':', ' ) + class_ver.cons.idiomas[val];
-                }
-            }else{
-                if (val.indexOf('_') !== -1){
-                    idiomas_envio.push(val);
-                    s_idiomas_envio += ( (s_idiomas_envio == '')?'':', ' ) + class_ver.cons.idiomas[val];
-                }
-            }
-        });
-        class_ver.var.idiomase = (s_idiomas_envio == '')?'No especificado':s_idiomas_envio;
-        $('#idiomas').html( class_ver.var.idiomase );
-
-        //Intercambio de valores en las tablas de opciones de envíos y en publicaciones
-        if (class_ver.var.data.ver == '3.1.2' || class_ver.var.data.ver == '3.0.0'){
-            var temp = JSON.parse(JSON.stringify(class_ver.var.data.ss));
-            class_ver.var.data.ss = JSON.parse(JSON.stringify(class_ver.var.data.p))
-            class_ver.var.data.p = temp;
-        }
         
         //secciones
-        
+        /*
         if(!class_ver.var.cambio_secciones){
             var secciones = class_utils.filter_prop(class_ver.var.data.ses, 'locale', idioma_principal);
             var ids_secciones = class_utils.unique(secciones, 'section_id');
@@ -886,8 +826,9 @@ class_ver = {
             $('#group_secciones').html(html_secciones);
         }
         
-        $('#div_secciones').show();
+        $('#div_secciones').show();*/
         
+        /*
         class_ver.var.seccion_no_indizable = [];
         $.each($('.seccion'), function(isec, valsec){
             if( !$('#'+valsec.id)[0].checked ){
@@ -896,26 +837,28 @@ class_ver = {
             $('#'+valsec.id).off('change').on('change', function(ic, valc){
                 class_ver.var.cambio_secciones = true;
             });
-        });
+        });*/
 
         //total de publicaciones
-        var publicaciones = class_utils.filter_prop(class_ver.var.data.p, 'status', '3');
+        var publicaciones = class_ver.var.data.articulos;
         var pubs_tmp = [];
+        var publicaciones_indizables = [];
+        
+        //Datos completos de las publicaciones Año, vol, num, pages, tit
+        arr_pubs = [];
+        
+        //Ids de las publicaciones vigentes
+        arr_id_pubs = [];
+        
         $.each(publicaciones, function(i,val){
-            //Revisión de que sólo existe una versión
-            var num_envios = class_utils.filter_prop(publicaciones, class_ver.cons.pub_id_file[class_ver.var.data.ver], val[class_ver.cons.pub_id_file[class_ver.var.data.ver]]);
-            if(num_envios.length > 1){
-                num_envios = num_envios.sort(class_utils.order_by(class_ver.cons.pub_id[class_ver.var.data.ver]));
-            }
-
-            //Revisión si es contenido indizable
-            var indizable = class_utils.filter_prop(class_ver.var.data.ps, class_ver.cons.pub_id[class_ver.var.data.ver], val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-            indizable = class_utils.filter_prop(indizable, 'setting_name', 'title');
+            
+            var indizable = val.titulo;
             var coincide_titulo = false;
+            
             $.each(class_ver.cons.er.titulo_completo, function(i_er, val_er){
                 $.each(indizable, function(i_tit, val_tit){
                     try{
-                        if( val_er.test(val_tit.setting_value.toLowerCase().trim()) ){
+                        if( val_er.test(val_tit.title.toLowerCase().trim()) ){
                             coincide_titulo = true;
                             return false;
                         }
@@ -924,409 +867,165 @@ class_ver = {
                     }
                 });
             });
-
+            
             if(!coincide_titulo){
-                //Si existe la propiedad versión se tomará la mayor
-                if('version' in val){
-                    if(val.version == num_envios[num_envios.length-1].version){
-                        pubs_tmp.push(val);
+                            $.each(class_ver.cons.er.titulo_parcial, function(i_t, val_t){
+                                $.each(indizable, function(i_tit, val_tit){
+                                    try{
+                                        if( val_t.test(val_tit.title.toLowerCase().trim()) ){
+                                            coincide_titulo = true;
+                                            return false;
+                                        }
+                                    }catch(e){
+
+                                    }
+                                });
+                            });
                     }
-                }else{
-                        pubs_tmp.push(val);
-                }
+            
+            if(!coincide_titulo){
+                arr_pubs.push(val);
+                arr_id_pubs.push(val.id);
+                pubs_tmp.push(val);
+                publicaciones_indizables.push(val);
             }
+
         });
         
         publicaciones = pubs_tmp;
         var publicaciones_totales = JSON.parse(JSON.stringify(publicaciones));
-        
-        //Ids de las publicaciones vigentes
-        var arr_id_pubs = [];
-        //Datos completos de las publicaciones Año, vol, num, pages, tit
-        arr_pubs = [];
-        //id's de las publicaciones
-        var tmp_publicaciones = [];
-        var publicaciones_indizables = [];
-        
-        $.each(publicaciones, function(i,val){
-            var coincide_titulo = false;
-            var coincide_titulo_indizable = true;
-            if ( ['3.2.0', '3.3.0', '3.3.0.11', '3.4.0'].indexOf(class_ver.var.data.ver) != -1 ){
-                var idioma_doc = val.locale;
-                if(idioma_doc == '' || idioma_doc == null || idioma_doc == undefined){
-                    var ss = class_utils.find_prop(class_ver.var.data.ss, 'submission_id', val['submission_id']);
-                    idioma_doc = (ss.locale == null)?idioma_principal:ss.locale
-                }
-                
-                //arr_id_pubs.push(val.submission_id);
-                //var title = class_utils.find_prop2(class_ver.var.data.ps, class_ver.cons.pub_id[class_ver.var.data.ver],'setting_name', val[class_ver.cons.pub_id[class_ver.var.data.ver]],'title').setting_value;
-                var title = class_utils.filter_prop(class_ver.var.data.ps, class_ver.cons.pub_id[class_ver.var.data.ver], val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                var title_locale = class_utils.filter_prop(title, 'locale', idioma_doc);
-                
-                var title_tmp = class_utils.find_prop(title_locale, 'setting_name', 'title');
-                if(title_tmp !== undefined){
-                    title_tmp = title_tmp.setting_value;
-                    if(title_tmp == ''){
-                        title_tmp = class_utils.find_prop(title_locale, 'setting_name', 'cleanTitle');
-                        if(title_tmp !== undefined){
-                            title_tmp = title_tmp.setting_value;
-                        }
-                    }
-                }else{
-                    title_tmp = class_utils.find_prop(title_locale, 'setting_name', 'cleanTitle');
-                    if(title_tmp !== undefined){
-                        title_tmp = title_tmp.setting_value;
-                    }
-                }
-                if(title_tmp == undefined || title_tmp == ''){
-                    var busca = class_utils.filter_prop(title_locale, 'setting_name', 'title');
-                    $.each(busca, function(i, val2){
-                        if(val2.setting_value !== undefined && val2.setting_value !== ''){
-                            title_tmp = val2.setting_value;
-                            return 0;
-                        }else{
-                            title_tmp = '';
-                        }
-                    });
-                    if(title_tmp == ''){
-                        busca = class_utils.filter_prop(title_locale, 'setting_name', 'cleanTitle');
-                        $.each(busca, function(i, val2){
-                            if(val2.setting_value !== undefined && val2.setting_value !== ''){
-                                title_tmp = val2.setting_value;
-                                return 0;
-                            }else{
-                                title_tmp = '';
-                            }
-                        });
-                    }
-                }
-                
-                var issue_id = class_utils.find_prop2(class_ver.var.data.ps, class_ver.cons.pub_id[class_ver.var.data.ver], 'setting_name', val[class_ver.cons.pub_id[class_ver.var.data.ver]], 'issueId').setting_value;
-                var pages = class_utils.find_prop2(class_ver.var.data.ps, class_ver.cons.pub_id[class_ver.var.data.ver],'setting_name', val[class_ver.cons.pub_id[class_ver.var.data.ver]],'pages');
-                if(pages !== undefined){
-                    pages = pages.setting_value;
-                }
-                var issue = class_utils.find_prop(class_ver.var.data.i, 'issue_id', issue_id);
-                val.year = issue.year;
-                val.volume = issue.volume;
-                val.number = issue.number;
-                val.pages = pages;
-                val.title = title_tmp;
-                
-                //Búsqueda de títulos que no entran en la valoración por una sección con contenido no indizable
-                if(class_ver.var.seccion_no_indizable.indexOf(String(val.section_id)) !== -1 ){
-                    coincide_titulo = true;
-                    coincide_titulo_indizable = false;
-                }else{
-                
-                    //Búsqueda de títulos que no debe entrar en la valoración
-                    $.each(class_ver.cons.er.titulo_completo, function(i_t, val_t){
-                        try{
-                            if( val_t.test(val.title.toLowerCase().trim()) ){
-                                coincide_titulo = true;
-                                return false;
-                            }
-                        }catch(e){
 
-                        }
-                    });
-                    if(!coincide_titulo){
-                        $.each(class_ver.cons.er.titulo_parcial, function(i_t, val_t){
-                            try{
-                                if( val_t.test(val.title.toLowerCase().trim()) ){
-                                    coincide_titulo = true;
-                                    return false;
-                                }
-                            }catch(e){
-
-                            }
-                        });
-                    }
-
-                    //Coincide con un título que no debe entrar en la valoración, pero se verifica si es contenido indizable
-                    if(coincide_titulo){
-                        //De inicio se marca como contenido no indizable
-                        coincide_titulo_indizable = false;
-                        $.each(class_ver.cons.er.contenido_indizable, function(i_t, val_t){
-                            try{
-                                if( val_t.test(val.title.toLowerCase().trim()) ){
-                                    //Si hay coincidencia en el listado siempre sí se marca como indizable
-                                    coincide_titulo_indizable = true;
-                                    return false;
-                                }
-                            }catch(e){
-
-                            }
-                        });
-                    }
-                }
-                
-            }else{ //if (class_ver.var.data.ver == '3.1.2'){
-            //}else{
-                //arr_id_pubs.push(val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                var idioma_doc = val.locale;
-                //var title = class_utils.find_prop2(class_ver.var.data.ps, class_ver.cons.pub_id[class_ver.var.data.ver],'setting_name', val[class_ver.cons.pub_id[class_ver.var.data.ver]],'title').setting_value;
-
-                /**Búsqueda de título**/
-                //Pimero busca por el idioma declarado en locale y la opcion title, si no lo encuentra busca en cleanTitle
-                //Si no hay resultado no se restringe el idioma y toma el primero que encuentra en 'title'
-                //Si aún no hay resultado no se restringe el idioma y toma el primero que encuentra en 'cleanTitle'
-                var title = class_utils.filter_prop(class_ver.var.data.ps, class_ver.cons.pub_id[class_ver.var.data.ver], val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                var title_locale = class_utils.filter_prop(title, 'locale', idioma_doc);
-                var title_tmp = class_utils.find_prop(title_locale, 'setting_name', 'title');
-                if(title_tmp !== undefined){
-                    title_tmp = title_tmp.setting_value;
-                    if(title_tmp == ''){
-                        title_tmp = class_utils.find_prop(title_locale, 'setting_name', 'cleanTitle');
-                        if(title_tmp !== undefined){
-                            title_tmp = title_tmp.setting_value;
-                        }
-                    }
-                }else{
-                    title_tmp = class_utils.find_prop(title_locale, 'setting_name', 'cleanTitle');
-                    if(title_tmp !== undefined){
-                        title_tmp = title_tmp.setting_value;
-                    }
-                }
-
-                if(title_tmp == undefined || title_tmp == ''){
-                    var busca = class_utils.filter_prop(title_locale, 'setting_name', 'title');
-                    $.each(busca, function(i, val2){
-                        if(val2.setting_value !== undefined && val2.setting_value !== ''){
-                            title_tmp = val2.setting_value;
-                            return 0;
-                        }else{
-                            title_tmp = '';
-                        }
-                    });
-                    if(title_tmp == ''){
-                        busca = class_utils.filter_prop(title_locale, 'setting_name', 'cleanTitle');
-                        $.each(busca, function(i, val2){
-                            if(val2.setting_value !== undefined && val2.setting_value !== ''){
-                                title_tmp = val2.setting_value;
-                                return 0;
-                            }else{
-                                title_tmp = '';
-                            }
-                        });
-                    }
-                }
-
-                var issue_id = class_utils.find_prop(class_ver.var.data.ss, class_ver.cons.pub_id[class_ver.var.data.ver], val[class_ver.cons.pub_id[class_ver.var.data.ver]]).issue_id;
-                var issue = class_utils.find_prop(class_ver.var.data.i, 'issue_id', issue_id);
-                val.year = issue.year;
-                val.volume = issue.volume;
-                val.number = issue.number;
-                val.title = title_tmp;
-                
-                //Búsqueda de títulos que no entran en la valoración por una sección con contenido no indizable
-                if(class_ver.var.seccion_no_indizable.indexOf(String(val.section_id)) !== -1 ){
-                    coincide_titulo = true;
-                    coincide_titulo_indizable = false;
-                }else{
-                
-                    //Búsqueda de títulos que no debe entrar en la valoración
-                    $.each(class_ver.cons.er.titulo_completo, function(i_t, val_t){
-                        try{
-                            if( val_t.test(val.title.toLowerCase().trim()) ){
-                                coincide_titulo = true;
-                                return false;
-                            }
-                        }catch(e){
-                            console.log(e);
-                        }
-                    });
-                    if(!coincide_titulo){
-                            $.each(class_ver.cons.er.titulo_parcial, function(i_t, val_t){
-                                try{
-                                    if( val_t.test(val.title.toLowerCase().trim()) ){
-                                        coincide_titulo = true;
-                                        return false;
-                                    }
-                                }catch(e){
-
-                                }
-                            });
-                    }
-
-                    //Coincide con un título que no debe entrar en la valoración, pero se verifica si es contenido indizable
-                    if(coincide_titulo){
-                        coincide_titulo_indizable = true;
-                        $.each(class_ver.cons.er.contenido_indizable, function(i_t, val_t){
-                            try{
-                                if( val_t.test(val.title.toLowerCase().trim()) ){
-                                    coincide_titulo_indizable = false;
-                                    return false;
-                                }
-                            }catch(e){
-
-                            }
-                        });
-                    }
-                }
-            }
-            if(!coincide_titulo){
-                arr_pubs.push(val);
-                tmp_publicaciones.push(val);
-                arr_id_pubs.push(val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-            }
-            if(coincide_titulo_indizable){
-                publicaciones_indizables.push(val);
-            }
-        });
-        
-        publicaciones = tmp_publicaciones;
         //Búsqued ajustes publicaciones
         var publicaciones_ajustes = '';
-        publicaciones_ajustes = class_utils.filter_prop_arr(class_ver.var.data.ps, class_ver.cons.pub_id[class_ver.var.data.ver], arr_id_pubs);
-
-        $.each(publicaciones_ajustes, function(i, val){
-            var pub = JSON.parse(JSON.stringify(class_utils.find_prop(class_ver.var.data.p, class_ver.cons.pub_id[class_ver.var.data.ver], val[class_ver.cons.pub_id[class_ver.var.data.ver]])));
-            delete pub.locale;
-            if('title' in pub)
-                delete pub.title;
-            Object.assign(val, pub);
-        });
-
-        var arr_palabras_clave = [];
-        var obj_palabras_clave = [];
-        var obj_palabras_clave_arr = [];
-
-        //palabras clave
-        if ( ['3.4.0', '3.3.0', '3.3.0.11', '3.2.0', '3.1.2', '3.0.0'].indexOf(class_ver.var.data.ver) != -1 ){
-            arr_palabras_clave = class_utils.filter_prop_arr(class_ver.var.data.c_v_e_s, 'assoc_id', arr_id_pubs);
-            $.each(arr_palabras_clave, function(i, val){
-                if( obj_palabras_clave[val.locale] == undefined){
-                    obj_palabras_clave[val.locale] = [];
-                    obj_palabras_clave_arr[val.locale] = [];
-                }
-                if(obj_palabras_clave[val.locale][val.assoc_id] == undefined){
-                    obj_palabras_clave[val.locale][val.assoc_id] = val.setting_value;
-                    val[class_ver.cons.pub_id[class_ver.var.data.ver]] = val.assoc_id;
-                    obj_palabras_clave_arr[val.locale][val.assoc_id] = val;
-                }else{
-                    obj_palabras_clave[val.locale][val.assoc_id] += ';' + val.setting_value;
-                    obj_palabras_clave_arr[val.locale][val.assoc_id].setting_value += ';' + val.setting_value;
-                }
-                
-            });
-        }
 
         //pubs con DOI
-        var publicaciones_doi = '';
-        if (class_ver.var.data.ver == '2.3.0'){
-            publicaciones_doi = class_utils.filterdiff_prop(publicaciones, 'doi', [null, '', undefined]);
-        }else{
-            publicaciones_doi = class_utils.filter_prop(publicaciones_ajustes, 'setting_name', 'pub-id::doi');
-            publicaciones_doi = class_utils.filterdiff_prop(publicaciones_doi, 'setting_value', [null, '', undefined]);
-        }
         
-        $.each(publicaciones_doi, function(i,val){
-            var pub = class_utils.find_prop(class_ver.var.data.p, class_ver.cons.pub_id[class_ver.var.data.ver], val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-            Object.assign(val, pub);
-        });
-
-        var publicaciones_doi_total = JSON.parse(JSON.stringify(publicaciones_doi));
+        var publicaciones_doi_total = class_utils.filterdiff_prop(publicaciones, 'doi', [null, '', undefined]);                
 
         /** DOI que están vacíos ***/
         arr_pub_id = class_ver.get_pub_id2(publicaciones_doi_total);
-        doi_faltantes = class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
+        doi_faltantes = class_utils.filter_prop_notarr(publicaciones, 'id', arr_pub_id);
 
         //var res_dois = [];
         //publicaciones_doi = class_ver.valida_dois(publicaciones_doi, res_dois);
 
-        var consistencia_doi = [];
-        if(publicaciones_doi_total.length > 0){
-            if('doi' in publicaciones_doi_total[0]){
-                consistencia_doi = class_utils.filter_prop_er(publicaciones_doi_total, 'doi', class_ver.cons.er.doi);
-            }else{
-                consistencia_doi = class_utils.filter_prop_er(publicaciones_doi_total, 'setting_value', class_ver.cons.er.doi);
-            }
-        }
+        var consistencia_doi = class_utils.filter_prop_er(publicaciones_doi_total, 'doi', class_ver.cons.er.doi);
 
         /** DOI no consistentes ***/
         arr_pubs_comp = publicaciones_doi_total;
         arr_pub_id = class_ver.get_pub_id2(consistencia_doi);
-        doi_incons = class_utils.filter_prop_notarr(arr_pubs_comp, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
+        doi_incons = class_utils.filter_prop_notarr(arr_pubs_comp, "id", arr_pub_id);
 
         //pubs con paginas
         var publicaciones_pags = class_utils.filterdiff_prop(publicaciones, 'pags', [null, '']);
 
-        var titulos = [];
-        var titulos_valor = [];
-        var titulos_mayus2 = [];
-        var titulos_idioma1 = [];
-        var titulos_idioma2 = [];
-        var titulos_idioma1_arr = [];
-        var titulos_idioma2_arr = [];
-        var titulos_i1_mayus = [];
-        var titulos_i2_mayus = [];
+        titulos = [];
+        titulos_valor = [];
+        titulos_mayus2 = [];
+        titulos_idioma1 = [];
+        titulos_idioma2 = [];
+        titulos_idioma1_arr = [];
+        titulos_idioma2_arr = [];
+        titulos_i1_mayus = [];
+        titulos_i2_mayus = [];
         var consis_titulos_i1 = [];
         var consis_titulos_i2 = [];
         var consis_autores = [];
-        var resumenes = [];
-        var resumenes_valor = [];
-        var resumenes_mayus2 = [];
-        var resumenes_idioma1 = [];
-        var resumenes_idioma2 = [];
-        var comp_resumenes_idioma1 = [];
-        var comp_resumenes_idioma2 = [];
-        var consis_resumenes_idioma1 = [];
-        var consis_resumenes_idioma2 = [];
-        var palabras_clave_idioma1 = [];
-        var palabras_clave_idioma2 = [];
-        var palabras_clave_idioma1_arr = [];
-        var palabras_clave_idioma2_arr = [];
-        var palabras_clave_idioma1b = [];
-        var palabras_clave_idioma2b = [];
-        var palabras_clave_idioma1b_arr = [];
-        var palabras_clave_idioma2b_arr = [];
-        var consis_palabras_clave_idioma1 = [];
-        var consis_palabras_clave_idioma2 = [];
-        var palabras_clave = [];
-        var palabras_clave_valor = [];
-        var palabras_clave_cinco = [];
-        var enlaces = [];
-        var enlaces_total = [];
-        var arr_enlaces_total = [];
+        resumenes = [];
+        resumenes_valor = [];
+        resumenes_mayus2 = [];
+        resumenes_idioma1 = [];
+        resumenes_idioma2 = [];
+        comp_resumenes_idioma1 = [];
+        comp_resumenes_idioma2 = [];
+        consis_resumenes_idioma1 = [];
+        consis_resumenes_idioma2 = [];
+        palabras_clave_idioma1 = [];
+        palabras_clave_idioma2 = [];
+        palabras_clave_idioma1_arr = [];
+        palabras_clave_idioma2_arr = [];
+         palabras_clave_idioma1b = [];
+         palabras_clave_idioma2b = [];
+         palabras_clave_idioma1b_arr = [];
+         palabras_clave_idioma2b_arr = [];
+         consis_palabras_clave_idioma1 = [];
+         consis_palabras_clave_idioma2 = [];
+         palabras_clave = [];
+         palabras_clave_valor = [];
+         palabras_clave_cinco = [];
+        enlaces = [];
+        enlaces_total = [];
+        arr_enlaces_total = [];
         ids_revisa = '';
+        
+        idiomas_envio = [];
+        //Obtiene idiomas envío
+        $.each(publicaciones, function(ip, valp){
+            $.each(valp.titulo, function(it, valt){
+                if(idiomas_envio.indexOf(valt.lan) == -1){
+                    idiomas_envio.push(valt.lan);
+                }
+            });
+        });
+        class_ver.var.idiomase = idiomas_envio;
+        $('#idiomas').html( class_ver.var.idiomase.join(', ') );
+        
         $.each(idiomas_envio, function(i,val){
-            var obj = class_utils.filter_prop_arr(publicaciones_ajustes, 'setting_name', 'title');
-            obj = class_utils.filter_prop_arr(obj, 'locale', val);
-
+            var obj =[];
+            
+            $.each(publicaciones, function(ip, valp){
+                //título, resumen y palabas de acuerdo al idioma
+                var titulo = class_utils.find_prop(valp.titulo, 'lan', val);
+                var resumen = class_utils.find_prop(valp.resumen, 'lan', val);
+                var palabra_clave = class_utils.find_prop(valp.palabra_clave, 'lan', val);
+                
+                //var obj_int = JSON.parse(JSON.stringify(valp));
+                var obj_int = JSON.parse(JSON.stringify(valp));
+                if(titulo !== undefined){
+                    obj_int["titulo_idioma"] = titulo.title;
+                }else{
+                    obj_int["titulo_idioma"] = null;
+                }
+                if(resumen !== undefined){
+                    obj_int["resumen_idioma"] = resumen.abstract;
+                }else{
+                    obj_int["resumen_idioma"] = null;
+                }
+                if(palabra_clave !== undefined){
+                    obj_int["palabra_clave_idioma"] = palabra_clave.keyword;
+                }else{
+                    obj_int["palabra_clave_idioma"] = null;
+                }
+                obj.push(obj_int);
+            });
+            
             titulos[val] = obj;
-            titulos_valor[val] = class_utils.filterdiff_prop(obj, 'setting_value', [null, '']);
-            titulos_mayus2[val] = class_utils.filter_prop_noter(titulos_valor[val], 'setting_value', class_ver.cons.er.mayus);
+            titulos_valor[val] = class_utils.filterdiff_prop(obj, 'titulo_idioma', [null, '']);
+            titulos_mayus2[val] = class_utils.filter_prop_noter(titulos_valor[val], 'titulo_idioma', class_ver.cons.er.mayus);
 
             //Si es el idioma principal llena el arreglo que contienen los ids de titulos en ese idioma
             $.each(titulos[val],function(i2, val2){
-                //Busca la publicación para obtener su idioma original
-                var pub = class_utils.find_prop(class_ver.var.data.p, class_ver.cons.pub_id[class_ver.var.data.ver], val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
+
                 var idioma_doc = '';
-
-                //En versiones recientes el idioma del documento se encuentra en las opciones del envío
-                if('locale' in pub){
-                    if(pub.locale !== null){
-                        idioma_doc = pub.locale;
-                    }else{
-                        var ss = class_utils.find_prop(class_ver.var.data.ss, 'submission_id', pub['submission_id']);
-                        idioma_doc = (ss.locale == null)?idioma_principal:ss.locale
-                    }
+                
+                if(val2["idioma_articulo"] !== null){
+                    idioma_doc = val2["idioma_articulo"];
                 }else{
-                    var ss = class_utils.find_prop(class_ver.var.data.ss, 'submission_id', pub['submission_id']);
-                    idioma_doc = (ss.locale == null)?idioma_principal:ss.locale
+                    idioma_doc = class_ver.var.idiomap;
                 }
+               
 
-                if( ['', null, undefined].indexOf(val2['setting_value']) == -1 ){
+                if( ['', null, undefined].indexOf(val2['titulo_idioma']) == -1 ){
                     if(idioma_doc == val){
-                        if( titulos_idioma1.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 ){
-                            titulos_idioma1.push(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                            titulos_idioma1_arr.push(Object.assign(val2, pub));
+                        if( titulos_idioma1.indexOf(val2["id"]) == -1 ){
+                            titulos_idioma1.push(val2["id"]);
+                            titulos_idioma1_arr.push(val2);
                         }
                     }else{
-                        if( titulos_idioma2.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 ){
-                            titulos_idioma2.push(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                            titulos_idioma2_arr.push(Object.assign(val2, pub));
+                        if( titulos_idioma2.indexOf(val2["id"]) == -1 ){
+                            titulos_idioma2.push(val2["id"]);
+                            //titulos_idioma2_arr.push(Object.assign(val2, pub));
+                            titulos_idioma2_arr.push(val2);
                         }
                     }
                 }
@@ -1334,99 +1033,87 @@ class_ver = {
 
             /**Títulos vacíos**/
             arr_pub_id = class_ver.get_pub_id2(titulos_idioma1_arr);
-            titulos_i1_faltantes = class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
+            titulos_i1_faltantes = class_utils.filter_prop_notarr(publicaciones, "id", arr_pub_id);
 
             /**Títulos en otro idioma vacíos**/
             arr_pub_id = class_ver.get_pub_id2(titulos_idioma2_arr);
-            titulos_idioma2_arr = titulos_idioma2_arr;
-            titulos_i2_faltantes = class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
+            titulos_i2_faltantes = class_utils.filter_prop_notarr(publicaciones, "id", arr_pub_id);
 
             //títulos que No tienen el título completamente en mayúsculas
-            titulos_i1_mayus = class_utils.filter_prop_er(titulos_idioma1_arr, 'setting_value', class_ver.cons.er.mayus);
+            titulos_i1_mayus = class_utils.filter_prop_er(titulos_idioma1_arr, 'titulo_idioma', class_ver.cons.er.mayus);
             //títulos que tienen longitud mayor a 1
-            consis_titulos_i1 = class_utils.filter_len(titulos_i1_mayus, 'setting_value', 1);
+            consis_titulos_i1 = class_utils.filter_len(titulos_i1_mayus, 'titulo_idioma', 1);
 
             /** Títulos no consistentes ***/
             arr_pubs_comp = titulos_idioma1_arr;
             arr_pub_id = class_ver.get_pub_id2(consis_titulos_i1);
-            titulos_i1_incons = class_utils.filter_prop_notarr(arr_pubs_comp, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
+            titulos_i1_incons = class_utils.filter_prop_notarr(arr_pubs_comp, "id", arr_pub_id);
 
             //títulos que No tienen el título completamente en mayúsculas
-            titulos_i2_mayus = class_utils.filter_prop_er(titulos_idioma2_arr, 'setting_value', class_ver.cons.er.mayus);
+            titulos_i2_mayus = class_utils.filter_prop_er(titulos_idioma2_arr, 'titulo_idioma', class_ver.cons.er.mayus);
             //títulos que tienen longitud mayor a 1
-            consis_titulos_i2 = class_utils.filter_len(titulos_i2_mayus, 'setting_value', 1);
+            consis_titulos_i2 = class_utils.filter_len(titulos_i2_mayus, 'titulo_idioma', 1);
 
             /** Títulos otro idioma no consistentes ***/
             arr_pubs_comp = titulos_idioma2_arr;
             arr_pub_id = class_ver.get_pub_id2(consis_titulos_i2);
-            titulos_i2_incons = class_utils.filter_prop_notarr(arr_pubs_comp, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
-
-
-            var obj2 = class_utils.filter_prop(publicaciones_ajustes, 'setting_name', 'abstract');
-            obj2 = class_utils.filter_prop_arr(obj2, 'locale', val);
-            resumenes[val] = obj2;
-            resumenes_valor[val] = class_utils.filterdiff_prop(obj2, 'setting_value', [null, '']);
-            resumenes_mayus2[val] = class_utils.filter_prop_er(resumenes_valor[val], 'setting_value', class_ver.cons.er.mayus2);
+            titulos_i2_incons = class_utils.filter_prop_notarr(arr_pubs_comp, "id", arr_pub_id);
+            
+            resumenes[val] = obj;
+            resumenes_valor[val] = class_utils.filterdiff_prop(obj, 'resumen_idioma', [null, '']);
+            resumenes_mayus2[val] = class_utils.filter_prop_noter(resumenes_valor[val], 'resumen_idioma', class_ver.cons.er.mayus);
 
             //revisión primer idioma
             $.each(resumenes[val],function(i2, val2){
-                //Busca la publicación para obtener su idioma original
-                var pub = class_utils.find_prop(class_ver.var.data.p, class_ver.cons.pub_id[class_ver.var.data.ver], val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
                 var idioma_doc = '';
-
-                //En versiones recientes el idioma del documento se encuentra en las opciones del envío
-                if('locale' in pub){
-                    if(pub.locale !== null){
-                        idioma_doc = pub.locale;
-                    }else{
-                        var ss = class_utils.find_prop(class_ver.var.data.ss, 'submission_id', pub['submission_id']);
-                        idioma_doc = (ss.locale == null)?idioma_principal:ss.locale;
-                    }
+                
+                if(val2["idioma_articulo"] !== null){
+                    idioma_doc = val2["idioma_articulo"];
                 }else{
-                    var ss = class_utils.find_prop(class_ver.var.data.ss, 'submission_id', pub['submission_id']);
-                    idioma_doc = (ss.locale == null)?idioma_principal:ss.locale
+                    idioma_doc = class_ver.var.idiomap;
                 }
 
-                if( ['', null, undefined].indexOf(val2['setting_value']) == -1 ){
+                if( ['', null, undefined].indexOf(val2['resumen_idioma']) == -1 ){
                     if(idioma_doc == val){
-                        if( resumenes_idioma1.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 ){
-                            resumenes_idioma1.push(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                            comp_resumenes_idioma1.push(Object.assign(val2, pub));
+                        if( resumenes_idioma1.indexOf(val2["id"]) == -1 ){
+                            resumenes_idioma1.push(val2["id"]);
+                            comp_resumenes_idioma1.push(val2);
                         }
                     }else{
-                        if( resumenes_idioma2.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 ){
-                            resumenes_idioma2.push(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                            comp_resumenes_idioma2.push(Object.assign(val2, pub));
+                        if( resumenes_idioma2.indexOf(val2["id"]) == -1 ){
+                            resumenes_idioma2.push(val2["id"]);
+                            comp_resumenes_idioma2.push(val2);
                         }
                     }
                 }
             });
 
             arr_pub_id = class_ver.get_pub_id2(comp_resumenes_idioma1);
-            resumenes_i1_faltantes = class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
+            resumenes_i1_faltantes = class_utils.filter_prop_notarr(arr_pubs, "id", arr_pub_id);
 
             arr_pub_id = class_ver.get_pub_id2(comp_resumenes_idioma2);
-            resumenes_i2_faltantes = class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
+            resumenes_i2_faltantes = class_utils.filter_prop_notarr(arr_pubs, "id", arr_pub_id);
 
-            consis_resumenes_idioma1 = class_utils.filter_prop_er(comp_resumenes_idioma1, 'setting_value', class_ver.cons.er.mayus);
-            consis_resumenes_idioma1 = class_utils.filter_len(consis_resumenes_idioma1, 'setting_value', 100);
+            consis_resumenes_idioma1 = class_utils.filter_prop_er(comp_resumenes_idioma1, 'resumen_idioma', class_ver.cons.er.mayus);
+            consis_resumenes_idioma1 = class_utils.filter_len(consis_resumenes_idioma1, 'resumen_idioma', 100);
 
             /** Resúmenes no consistentes ***/
             arr_pubs_comp = comp_resumenes_idioma1.slice();
             arr_pub_id = class_ver.get_pub_id2(consis_resumenes_idioma1);
-            resumenes_i1_incons = class_utils.filter_prop_notarr(arr_pubs_comp, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
+            resumenes_i1_incons = class_utils.filter_prop_notarr(arr_pubs_comp, "id", arr_pub_id);
 
-            consis_resumenes_idioma2 = class_utils.filter_prop_er(comp_resumenes_idioma2, 'setting_value', class_ver.cons.er.mayus);
-            consis_resumenes_idioma2 = class_utils.filter_len(consis_resumenes_idioma2, 'setting_value', 100);
+            consis_resumenes_idioma2 = class_utils.filter_prop_er(comp_resumenes_idioma2, 'resumen_idioma', class_ver.cons.er.mayus);
+            consis_resumenes_idioma2 = class_utils.filter_len(consis_resumenes_idioma2, 'resumen_idioma', 100);
 
             /** Resúmenes en otro idioma no consistentes ***/
             arr_pubs_comp = comp_resumenes_idioma2.slice();
             arr_pub_id = class_ver.get_pub_id2(consis_resumenes_idioma2);
-            resumenes_i2_incons = class_utils.filter_prop_notarr(arr_pubs_comp, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
+            resumenes_i2_incons = class_utils.filter_prop_notarr(arr_pubs_comp, 'id', arr_pub_id);
 
             var filter = function(obj){
                 return obj.filter(function(obj2){
-                    obj2 = obj2.setting_value.split(';');
+                    //obj2 = obj2.setting_value.split(';');
+                    obj2 = obj2["palabra_clave_idioma"];
                     return obj2.length >= 3;
                 });
             };
@@ -1443,342 +1130,173 @@ class_ver = {
                     return obj2 != undefined;
                 });
             };
-
-            if ( ['2.3.0', '2.4.0'].indexOf(class_ver.var.data.ver) != -1 ){
-                var obj3 = class_utils.filter_prop(publicaciones_ajustes, 'setting_name', 'subject');
-                obj3 = class_utils.filter_prop_arr(obj3, 'locale', val);
-                palabras_clave[val] = obj3;
-
-                if(val == idioma_principal){
-                    $.each(palabras_clave[val],function(i2, val2){
-                        var pub = class_utils.find_prop(class_ver.var.data.p, class_ver.cons.pub_id[class_ver.var.data.ver], val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                        if( palabras_clave_idioma1.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 ){
-                            palabras_clave_idioma1.push(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                            palabras_clave_idioma1_arr.push(Object.assign(val2, pub));
-                        }
-                    });
+            
+            palabras_clave[val] = obj;
+                
+                //revisión primer idioma
+            $.each(palabras_clave[val],function(i2, val2){
+                var idioma_doc = '';
+                
+                if(val2["idioma_articulo"] !== null){
+                    idioma_doc = val2["idioma_articulo"];
                 }else{
-                    $.each(palabras_clave[val],function(i2, val2){
-                        var pub = class_utils.find_prop(class_ver.var.data.p, class_ver.cons.pub_id[class_ver.var.data.ver], val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                        if( palabras_clave_idioma2.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 ){
-                            palabras_clave_idioma2.push(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                            palabras_clave_idioma2_arr.push(Object.assign(val2, pub));
-                        }
-                    });
+                    idioma_doc = class_ver.var.idiomap;
                 }
 
-                palabras_clave_idioma1_arr = class_utils.filterdiff_prop(palabras_clave_idioma1_arr, 'setting_value', [undefined, null, '']);
-                palabras_clave_idioma2_arr = class_utils.filterdiff_prop(palabras_clave_idioma2_arr, 'setting_value', [undefined, null, '']);
+                if( ['', null, undefined].indexOf(val2['palabra_clave_idioma']) == -1 ){
+                    if(idioma_doc == val){
+                        if( palabras_clave_idioma1.indexOf(val2["id"]) == -1 ){
+                            palabras_clave_idioma1.push(val2["id"]);
+                            palabras_clave_idioma1_arr.push(val2);
+                        }
+                    }else{
+                        if( palabras_clave_idioma2.indexOf(val2["id"]) == -1 ){
+                            palabras_clave_idioma2.push(val2["id"]);
+                            palabras_clave_idioma2_arr.push(val2);
+                        }
+                    }
+                }
+            });
+
+                palabras_clave_idioma1_arr = class_utils.filterdiff_prop(palabras_clave_idioma1_arr, 'palabra_clave_idioma', [undefined, null, '']);
+                palabras_clave_idioma2_arr = class_utils.filterdiff_prop(palabras_clave_idioma2_arr, 'palabra_clave_idioma', [undefined, null, '']);
 
                 /**Palabras clave vacíos**/
                 arr_pub_id = class_ver.get_pub_id2(palabras_clave_idioma1_arr);
-                palabras_clave_i1_faltantes = class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
+                palabras_clave_i1_faltantes = class_utils.filter_prop_notarr(arr_pubs, "id", arr_pub_id);
 
                 /**Palabras clave otro idioma vacíos**/
                 arr_pub_id = class_ver.get_pub_id2(palabras_clave_idioma2_arr);
-                palabras_clave_i2_faltantes = class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
+                palabras_clave_i2_faltantes = class_utils.filter_prop_notarr(arr_pubs, "id", arr_pub_id);
 
 
-                consis_palabras_clave_idioma1 = class_utils.filter_prop_er(palabras_clave_idioma1_arr, 'setting_value', class_ver.cons.er.mayus);
-                consis_palabras_clave_idioma1 = class_utils.filter_len(consis_palabras_clave_idioma1, 'setting_value', 1);
+                consis_palabras_clave_idioma1 = class_utils.filter_prop_er(palabras_clave_idioma1_arr, 'palabra_clave_idioma', class_ver.cons.er.mayus);
+                consis_palabras_clave_idioma1 = class_utils.filter_len(consis_palabras_clave_idioma1, 'palabra_clave_idioma', 1);
                 consis_palabras_clave_idioma1 = filter(consis_palabras_clave_idioma1);
-                consis_palabras_clave_idioma2 = class_utils.filter_prop_er(palabras_clave_idioma2_arr, 'setting_value', class_ver.cons.er.mayus);
-                consis_palabras_clave_idioma2 = class_utils.filter_len(consis_palabras_clave_idioma2, 'setting_value', 1);
+                consis_palabras_clave_idioma2 = class_utils.filter_prop_er(palabras_clave_idioma2_arr, 'palabra_clave_idioma', class_ver.cons.er.mayus);
+                consis_palabras_clave_idioma2 = class_utils.filter_len(consis_palabras_clave_idioma2, 'palabra_clave_idioma', 1);
                 consis_palabras_clave_idioma2 = filter(consis_palabras_clave_idioma2);
 
                 /** Palabras clave no consistentes ***/
                 arr_pubs_comp = palabras_clave_idioma1_arr.slice();
                 arr_pub_id = class_ver.get_pub_id2(consis_palabras_clave_idioma1);
-                palabras_clave_i1_incons = class_utils.filter_prop_notarr(arr_pubs_comp, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
+                palabras_clave_i1_incons = class_utils.filter_prop_notarr(arr_pubs_comp, "id", arr_pub_id);
 
                 /** Palabras clave idioma 2 no consistentes ***/
                 arr_pubs_comp = palabras_clave_idioma2_arr.slice();
                 arr_pub_id = class_ver.get_pub_id2(consis_palabras_clave_idioma2);
-                palabras_clave_i2_incons = class_utils.filter_prop_notarr(arr_pubs_comp, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
+                palabras_clave_i2_incons = class_utils.filter_prop_notarr(arr_pubs_comp, "id", arr_pub_id);
 
-                palabras_clave_valor[val] = class_utils.filterdiff_prop(obj3, 'setting_value', [null, '']);
+                palabras_clave_valor[val] = class_utils.filterdiff_prop(obj, 'palabra_clave_idioma', [null, '']);
                 palabras_clave_cinco[val] = filter(palabras_clave_valor[val]);
-            }else{
-                if(obj_palabras_clave[val] !== undefined){
-                    palabras_clave[val] = filter3(obj_palabras_clave[val]);
-                }else{
-                    palabras_clave[val] = [];
-                }
-                /*if(val == idioma_principal){
-                    palabras_clave_idioma1 = palabras_clave[val];
-                }else{
-                    $.each(palabras_clave[val],function(i2, val2){
-                        if( val2 != undefined ){
-                            if( palabras_clave_idioma2.indexOf(i2) == -1)
-                                palabras_clave_idioma2.push(i2);
-                        }
-                    });
-                }*/
-
-                if(val == idioma_principal){
-                    if(obj_palabras_clave_arr[val] !== undefined){
-                        $.each(obj_palabras_clave_arr[val],function(i2, val2){
-                            if (val2 !== undefined){
-                                var pub = class_utils.find_prop(class_ver.var.data.p, class_ver.cons.pub_id[class_ver.var.data.ver], val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                                if( palabras_clave_idioma1b.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 ){
-                                    palabras_clave_idioma1b.push(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                                    palabras_clave_idioma1b_arr.push(Object.assign(val2, pub));
-                                }
-                            }
-                        });
-                    }
-                }else{
-                    if(obj_palabras_clave_arr[val] !== undefined){
-                        $.each(obj_palabras_clave_arr[val],function(i2, val2){
-                            if (val2 !== undefined){
-                                var pub = class_utils.find_prop(class_ver.var.data.p, class_ver.cons.pub_id[class_ver.var.data.ver], val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                                if( palabras_clave_idioma2b.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 ){
-                                    palabras_clave_idioma2b.push(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                                    palabras_clave_idioma2b_arr.push(Object.assign(val2, pub));
-                                }
-                            }
-                        });
-                    }
-                }
-
-                palabras_clave_idioma1b_arr = class_utils.filterdiff_prop(palabras_clave_idioma1b_arr, 'setting_value', [undefined, null, '']);
-                palabras_clave_idioma2b_arr = class_utils.filterdiff_prop(palabras_clave_idioma2b_arr, 'setting_value', [undefined, null, '']);
-
-                arr_pub_id = class_ver.get_pub_id2(palabras_clave_idioma1b_arr);
-                palabras_clave_i1_faltantes = class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
-
-                arr_pub_id = class_ver.get_pub_id2(palabras_clave_idioma2b_arr);
-                palabras_clave_i2_faltantes = class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
-
-                consis_palabras_clave_idioma1 = class_utils.filter_prop_er(palabras_clave_idioma1b_arr, 'setting_value', class_ver.cons.er.mayus);
-                consis_palabras_clave_idioma1 = class_utils.filter_len(consis_palabras_clave_idioma1, 'setting_value', 1);
-                consis_palabras_clave_idioma1 = filter(consis_palabras_clave_idioma1);
-                consis_palabras_clave_idioma2 = class_utils.filter_prop_er(palabras_clave_idioma2b_arr, 'setting_value', class_ver.cons.er.mayus);
-                consis_palabras_clave_idioma2 = class_utils.filter_len(consis_palabras_clave_idioma2, 'setting_value', 1);
-                consis_palabras_clave_idioma2 = filter(consis_palabras_clave_idioma2);
-
-                /** Palabras clave no consistentes ***/
-                arr_pubs_comp = palabras_clave_idioma1b_arr.slice();
-                arr_pub_id = class_ver.get_pub_id2(consis_palabras_clave_idioma1);
-                palabras_clave_i1_incons = class_utils.filter_prop_notarr(arr_pubs_comp, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
-
-                /** Palabras clave idioma 2 no consistentes ***/
-                arr_pubs_comp = palabras_clave_idioma2b_arr.slice();
-                arr_pub_id = class_ver.get_pub_id2(consis_palabras_clave_idioma2);
-                palabras_clave_i2_incons = class_utils.filter_prop_notarr(arr_pubs_comp, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
-
-                palabras_clave_valor[val] = palabras_clave[val];
-                palabras_clave_cinco[val] = filter2(palabras_clave_valor[val]);
-            }
-
-
+            
         });
-        
-        if( palabras_clave_idioma2.length == 0){
-            palabras_clave_idioma2 = palabras_clave_idioma2b;
-        }
-        if( palabras_clave_idioma1.length == 0){
-            palabras_clave_idioma1 = palabras_clave_idioma1b;
-        }
 
         //Enlaces
-        enlaces = class_ver.var.data.pg;
+        enlaces = JSON.parse(JSON.stringify(publicaciones));
         $.each(enlaces, function(i2, val2){
-            if( arr_id_pubs.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) !== -1 ){
-                if( enlaces_total.indexOf(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 ){
+            if( arr_id_pubs.indexOf(val2["id"]) !== -1 ){
+                if( enlaces_total.indexOf(val2["id"]) == -1 ){
                     //Solo enlaces a pdf o html
                     //if(['html', 'pdf'].indexOf(val2.label.toLowerCase()) !== -1){
-                    if( val2.label.toLowerCase().indexOf('pdf') !== -1 || val2.label.toLowerCase().indexOf('html') !== -1){
-                        //Busca la publicación para obtener su idioma original
-                        var pub = class_utils.find_prop(class_ver.var.data.p, class_ver.cons.pub_id[class_ver.var.data.ver], val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                        var idioma_doc = '';
-
-                        //En versiones recientes el idioma del documento se encuentra en las opciones del envío
-                        if('locale' in pub){
-                            if(pub.locale !== null){
-                                idioma_doc = pub.locale;
-                            }else{
-                                var ss = class_utils.find_prop(class_ver.var.data.ss, 'submission_id', pub['submission_id']);
-                                idioma_doc = (ss.locale == null)?idioma_principal:ss.locale
-                            }
-                        }else{
-                            var ss = class_utils.find_prop(class_ver.var.data.ss, 'submission_id', pub['submission_id']);
-                            idioma_doc = (ss.locale == null)?idioma_principal:ss.locale
-                        }
-
-                        if(val2['locale'] == idioma_doc){
-                            enlaces_total.push(val2[class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                    if(val2.enlace_texto !== undefined){
+                        if( class_utils.filter_prop(val2.enlace_texto, 'format', 'pdf').length > 0 || class_utils.filter_prop(val2.enlace_texto, 'format', 'html').length >0){
+                            enlaces_total.push(val2["id"]);
                             arr_enlaces_total.push(val2);
                         }
                     }
+                    //NOTA: Buscar opción para validar idioma
                 }
             }
         });
-        
-        $.each(arr_enlaces_total, function(i,val){
-            var pub = class_utils.find_prop(class_ver.var.data.p, class_ver.cons.pub_id[class_ver.var.data.ver], val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-            Object.assign(val, pub);
-        });
-
 
         /** enlaces faltantes y no consistentes ***/
         arr_pubs_comp = arr_enlaces_total.slice();
         arr_pub_id = class_ver.get_pub_id2(arr_enlaces_total);
-        enlaces_faltantes = class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
-        enlaces_incons = class_utils.filter_prop_notarr(arr_pubs_comp, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
+        enlaces_faltantes = class_utils.filter_prop_notarr(arr_pubs, "id", arr_pub_id);
+        enlaces_incons = class_utils.filter_prop_notarr(arr_pubs_comp, "id", arr_pub_id);
 
         //Búsqueda de autores 1691
-        var autores = '';
-        if (['3.2.0', '3.3.0', '3.3.0.11', '3.4.0'].indexOf(class_ver.var.data.ver) != -1){
-            autores = class_utils.filter_prop_arr(class_ver.var.data.a, 'publication_id', arr_id_pubs);
-        }else{
-            autores = class_utils.filter_prop_arr(class_ver.var.data.a, 'submission_id', arr_id_pubs);
-        }
-
-        var arr_id_autores = [];
-        //id's de las publicaciones
-        $.each(autores, function(i,val){
-            //if (class_ver.var.data.ver == '3.2.0'){
-                arr_id_autores.push(val.author_id);
-            //}
-        });
-
-        var autores_s = '';
-        //if (class_ver.var.data.ver == '3.2.0'){
-            autores_s = class_utils.filter_prop_arr(class_ver.var.data.as, 'author_id', arr_id_autores);
-        //}
-        //Autores con nombre 1691
-        var autores_nombre = '';
-        var autores_nombre_id = [];
+        //var autores = JSON.parse(JSON.stringify(class_ver.var.data.articulos));
+        
+        autores_nombre_total = [];
         var autores_nombre_compara = [];
+        autores_nombre_id = [];
+        var arr_id_autores = [];
         autores_pub_id = [];
-        if ( ['3.4.0', '3.3.0', '3.3.0.11', '3.2.0', '3.1.2'].indexOf(class_ver.var.data.ver) !== -1 ){
-            var autores_nombre_total = [];
-            //No importa en qué idioma esté asentado el autor
-            $.each(idiomas_envio, function(i,val){
-                autores_nombre = class_utils.filter_prop_arr_or(autores_s, ['setting_name'], [["givenName", "familyName"]]);
-                autores_nombre = class_utils.filter_prop_arr_or(autores_nombre, ['locale'], [[val]]);
-                autores_nombre = class_utils.filterdiff_prop(autores_nombre, 'setting_value', [null, '', undefined]);
-                autores_nombre_total = autores_nombre_total.concat(autores_nombre);
+        
+        //Instituciones
+        var instituciones = [];
+        
+        //Citas
+        citas = [];
+        
+        //Licencia
+        licencia = [];
+        
+        class_ver.var.data.articulos = publicaciones;
+        
+        //id's de las publicaciones
+        $.each(class_ver.var.data.articulos, function(i, val){
+            if(val.referencias && val.referencias.length > 0){
+                citas.push(val);
+            }
+            $.each(val.licencia, function(i2, val2){
+                val2["id"] = val.id;
+                licencia.push(val2);
             });
-            $.each(autores_nombre_total, function(i,val){
-                if( autores_nombre_compara.indexOf(val['author_id']) == -1 ){
-                    autores_nombre_compara.push(val['author_id']);
-                    /*Agrega el id del documento*/
-                    val[class_ver.cons.pub_id_auth[class_ver.var.data.ver]] = class_utils.find_prop(class_ver.var.data.a, 'author_id', val['author_id'])[class_ver.cons.pub_id_auth[class_ver.var.data.ver]];
-                    autores_nombre_id.push(val);
+            $.each(val.autor, function(i2,val2){
+                arr_id_autores.push(val.id+'-'+i2);
+                val2["author_id"] = val.id+'-'+i2;
+                val2["id"] = val.id;
+                val2["numero"] = val.numero;
+                val2["titulo"] = val.titulo;
+                val2["enlace_texto"] = val.enlace_texto;
+                instituciones.push(val2);
+                if( autores_pub_id.indexOf(val.id)== -1 ){
+                    autores_pub_id.push(val.id);
                 }
-                var autor = class_utils.find_prop(class_ver.var.data.a, 'author_id', val['author_id']);
-
-                if( autores_pub_id.indexOf(autor[class_ver.cons.pub_id_auth[class_ver.var.data.ver]]) == -1 ){
-                    autores_pub_id.push(autor[class_ver.cons.pub_id_auth[class_ver.var.data.ver]]);
-                }
+                autores_nombre_total.push(val2);
             });
+        });
+        
+        $.each(autores_nombre_total, function(i,val){
+            if( autores_nombre_compara.indexOf(val['author_id']) == -1 ){
+                autores_nombre_compara.push(val['author_id']);
+                autores_nombre_id.push(val);
+            }
+        });
+            consis_autores = class_utils.filter_prop_er(autores_nombre_id, 'name', class_ver.cons.er.mayus);
+            consis_autores = class_utils.filter_len(consis_autores, 'name', 1);
+            consis_autores = class_utils.filter_prop_noter(consis_autores, 'name', class_ver.cons.er.inicial);
+            consis_autores = class_utils.filter_prop_noter(consis_autores, 'name', class_ver.cons.er.autor);
+            consis_autores = class_utils.filter_prop_noter(consis_autores, 'name', class_ver.cons.er.char);
 
-            consis_autores = class_utils.filter_prop_er(autores_nombre_id, 'setting_value', class_ver.cons.er.mayus);
-            consis_autores = class_utils.filter_len(consis_autores, 'setting_value', 1);
-            consis_autores = class_utils.filter_prop_noter(consis_autores, 'setting_value', class_ver.cons.er.inicial);
-            consis_autores = class_utils.filter_prop_noter(consis_autores, 'setting_value', class_ver.cons.er.autor);
-            consis_autores = class_utils.filter_prop_noter(consis_autores, 'setting_value', class_ver.cons.er.char);
-
-        }else{
-            autores_nombre = class_utils.filterdiff_prop_or(autores, ['first_name', 'last_name'], [[null, '', undefined], [null, '', undefined]]);
-            autores_nombre_id = autores_nombre;
-
-            autores_pub_id = class_ver.get_pub_id(autores_nombre);
-            /*$.each(autores_nombre, function(i,val){
-                if( autores_pub_id.indexOf(val[class_ver.cons.pub_id_auth[class_ver.var.data.ver]]) == -1 ){
-                    autores_pub_id.push(val[class_ver.cons.pub_id_auth[class_ver.var.data.ver]]);
-                }
-            });*/
-
-            var consis_autores_fn = class_utils.filter_prop_er(autores_nombre, 'first_name', class_ver.cons.er.mayus);
-            var consis_autores_ln = class_utils.filter_prop_er(autores_nombre, 'last_name', class_ver.cons.er.mayus);
-            consis_autores_fn = class_utils.filter_len(consis_autores_fn, 'first_name', 1);
-            consis_autores_ln = class_utils.filter_len(consis_autores_ln, 'last_name', 1);
-            consis_autores_fn = class_utils.filter_prop_noter(consis_autores_fn, 'first_name', class_ver.cons.er.inicial);
-            consis_autores_ln = class_utils.filter_prop_noter(consis_autores_ln, 'last_name', class_ver.cons.er.inicial);
-            consis_autores_fn = class_utils.filter_prop_noter(consis_autores_fn, 'first_name', class_ver.cons.er.autor);
-            consis_autores_ln = class_utils.filter_prop_noter(consis_autores_ln, 'last_name', class_ver.cons.er.autor);
-            consis_autores_fn = class_utils.filter_prop_noter(consis_autores_fn, 'first_name', class_ver.cons.er.char);
-            consis_autores_ln = class_utils.filter_prop_noter(consis_autores_ln, 'last_name', class_ver.cons.er.char);
-
-            $.each(consis_autores_fn, function(i2, val2){
-               var busca = class_utils.find_prop(consis_autores_ln, 'author_id', val2['author_id']);
-               if(busca !== undefined){
-                   consis_autores.push(val2);
-               }
-            });
-        }
-
-        autores_faltantes = class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
-        arr_pubs_b = class_utils.filter_prop_arr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
+        
+        autores_faltantes = class_utils.filter_prop_notarr(arr_pubs, "id", autores_pub_id);
+        arr_pubs_b = class_utils.filter_prop_arr(arr_pubs, "id", autores_pub_id);
 
         /** Autores no consistentes ***/
         autores_pub_id = class_ver.get_pub_id(consis_autores);
-        autores_incons = class_utils.filter_prop_notarr(arr_pubs_b, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
+        autores_incons = class_utils.filter_prop_notarr(arr_pubs_b, "id", autores_pub_id);
 
         var autores_apellido = [];
 
 
         //Autores con email 1691
-        var autores_email = class_utils.filterdiff_prop(autores, 'email', [null, '', undefined]);
-        autores_pub_id = class_ver.get_pub_id(autores_email);
-        email_faltantes = class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
+        var autores_email = [];//class_utils.filterdiff_prop(autores, 'email', [null, '', undefined]);
+        autores_pub_id = [];//class_ver.get_pub_id(autores_email);
+        email_faltantes = [];//class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
 
         //Autores con url = orcid
-        var autores_url = class_utils.filterdiff_prop(autores, 'url', [null, '', undefined]);
-
-        //Autores con orcid 0
-        var autores_orcid_tmp = '';
-        var autores_orcid_tmp2 = '';
-        if ( ['3.4.0', '3.3.0', '3.3.0.11', '3.2.0', '3.1.2', '3.0.0', '2.4.0'].indexOf(class_ver.var.data.ver) !== -1 ){
-            autores_orcid_tmp = class_utils.filter_prop_arr(autores_s, 'setting_name', "orcid");
-            autores_orcid_tmp = class_utils.filterdiff_prop(autores_orcid_tmp, 'setting_value', [null, '', undefined]);
-			
-            //Pueden existir los dos orcid y url
-            autores_orcid_tmp2 = class_utils.filter_prop_arr(autores_s, 'setting_name', "url");
-            autores_orcid_tmp2 = class_utils.filterdiff_prop(autores_orcid_tmp2, 'setting_value', [null, '', undefined]);
-			
-            //Se recorre el arreglo de url para ver si ya existe un orcid para el autor
-            var autores_orcid_concat = [];
-            $.each(autores_orcid_tmp2, function(iu, valu){
-                var obj = class_utils.filter_prop(autores_orcid_tmp, 'author_id', valu['author_id']);
-                //Si ya existe no se agrega al arreglo, si no, se cambia el nombre a orcid para que todos sean iguales y se agrega
-                if(obj.length == 0){
-                    valu['setting_name'] = 'orcid';
-                    autores_orcid_concat.push(valu);
-                }
-            });
-			
-            //se concatenan los 2 arreglos
-            autores_orcid_tmp = autores_orcid_tmp.concat(autores_orcid_concat);
-			
-            $.each(autores_orcid_tmp, function(i,val){
-                val[class_ver.cons.pub_id_auth[class_ver.var.data.ver]] = class_utils.find_prop(class_ver.var.data.a, 'author_id', val['author_id'])[class_ver.cons.pub_id_auth[class_ver.var.data.ver]];
-            });
-        }else{
-            autores_orcid_tmp = class_utils.filterdiff_prop(autores, 'orcid', [null, '', undefined]);
-        }
+        var autores_url = class_utils.filterdiff_prop(autores_nombre_total, 'orcid', [null, '', undefined]);
 
         var autores_orcid = [];
         var consis_orcid = [];
         
-        //union autores url y orcid
-        $.each(autores_orcid_tmp, function(i,val){
-            if(autores_orcid.indexOf(val.author_id) == -1){
-                autores_orcid.push(val.author_id);
-                val.exist_orcid = true;
-                consis_orcid.push(val);
-            }
-        });
         $.each(autores_url, function(i,val){
             if(autores_orcid.indexOf(val.author_id) == -1){
                 autores_orcid.push(val.author_id);
-                //var obj = {};
-                //obj.orcid = val['url'];
-                //obj.author_id = val['author_id'];
-                //consis_orcid.push(obj);
                 val.exist_url = true;
                 consis_orcid.push(val);
             }
@@ -1788,148 +1306,93 @@ class_ver = {
         // cuente con el orcid, esto se hace en la funcion de get_pub_id
 
         autores_pub_id = class_ver.get_pub_id(consis_orcid);
-        orcid_faltantes = class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
+        orcid_faltantes = class_utils.filter_prop_notarr(arr_pubs, "id", autores_pub_id);
 
-        arr_pubs_b = class_utils.filter_prop_arr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
+        arr_pubs_b = class_utils.filter_prop_arr(arr_pubs, "id", autores_pub_id);
         
         var temp_consis_orcid = [];
         
         $.each(consis_orcid, function(i,val){
-            if('exist_orcid' in val){
-                if('orcid' in val){
-                    temp_consis_orcid = temp_consis_orcid.concat(class_utils.filter_prop_er([val], 'orcid', class_ver.cons.er.orcid));
-                }else{
-                    temp_consis_orcid = temp_consis_orcid.concat(class_utils.filter_prop_er([val], 'setting_value', class_ver.cons.er.orcid));
-                }
-            }else if('exist_url' in val){
-                temp_consis_orcid = temp_consis_orcid.concat(class_utils.filter_prop_er([val], 'url', class_ver.cons.er.orcid));
-            }
+            temp_consis_orcid = temp_consis_orcid.concat(class_utils.filter_prop_er([val], 'orcid', class_ver.cons.er.orcid));
         });
         consis_orcid = temp_consis_orcid;
         
-        /*if(consis_orcid.length > 0){
-            if('exist_orcid' in consis_orcid[0]){
-                if('orcid' in consis_orcid[0]){
-                    consis_orcid = class_utils.filter_prop_er(consis_orcid, 'orcid', class_ver.cons.er.orcid);
-                }else{
-                    consis_orcid = class_utils.filter_prop_er(consis_orcid, 'setting_value', class_ver.cons.er.orcid);
-                }
-            }else if('exist_url' in consis_orcid[0]){
-                consis_orcid = class_utils.filter_prop_er(consis_orcid, 'url', class_ver.cons.er.orcid);
-            }
-        }*/
-
-        //var res_orcid = [];
-        //class_ver.valida_orcid(consis_orcid, res_orcid);
 
         autores_pub_id = class_ver.get_pub_id(consis_orcid);
-        
-        $.each(consis_orcid, function(i,val){
-            var pub = class_utils.find_prop(class_ver.var.data.p, class_ver.cons.pub_id[class_ver.var.data.ver], val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-            Object.assign(val, pub);
-        });
 
-        orcid_incons = class_utils.filter_prop_notarr(arr_pubs_b, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
+        orcid_incons = class_utils.filter_prop_notarr(arr_pubs_b, "id", autores_pub_id);
 
-        //Búsqueda de ajustes
-        //Instituciones
-        var instituciones = class_utils.filter_prop_arr(autores_s, 'setting_name', "affiliation");
         
         //Ya no se toma en cuenta el idioma en el que esté guardado el valor
         //instituciones = class_utils.filter_prop_arr(instituciones, 'locale', idioma_principal);
         //
         //Instituciones con valor
-        instituciones_valor = class_utils.filterdiff_prop(instituciones, 'setting_value', [null, '', undefined]);
-        instituciones_sinvalor = class_utils.filter_prop_arr(instituciones, 'setting_value', [null, '', undefined]);
-        //Algunas instituciones "sin valor" pueden estar en las de "valor" puesto que aparecen en algún campo de diferente idioma por lo tanto se quitan del arreglo
-        instituciones_sinvalor = class_utils.filter_prop_arr_diff(instituciones_sinvalor, 'author_id', instituciones_valor, 'author_id');
-        
+        instituciones_valor = class_utils.filterdiff_prop(instituciones, 'aff', [null, '', undefined]);
+        instituciones_sinvalor = class_utils.filter_prop_arr(instituciones, 'aff', [null, '', undefined]);
+                
         //Se obtienen los ids de las publicaciones que no tienen valor en la institución
         autores_pub_id_sv = class_ver.get_autores_pub_id2(instituciones_sinvalor);
         
         autores_pub_id = class_ver.get_autores_pub_id2(instituciones_valor);
         //instituciones_faltantes = class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
         //Esta parte es para tomar los ids de publicaciones con instituciones faltantes
-        instituciones_faltantes = class_utils.filter_prop_arr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id_sv);
+        instituciones_faltantes = class_utils.filter_prop_arr(arr_pubs, "id", autores_pub_id_sv);
 
-        var consis_instituciones = class_utils.filter_prop_noter(instituciones_valor, 'setting_value', class_ver.cons.er.doblemayus);
+        var consis_instituciones = class_utils.filter_prop_noter(instituciones_valor, 'aff', class_ver.cons.er.doblemayus);
         //instituciones que complan con esta expresión regular (inconsistentes)
-        var inconsis_instituciones = class_utils.filter_prop_er(instituciones_valor, 'setting_value', class_ver.cons.er.doblemayus);
-        inconsis_instituciones = class_utils.filter_prop_arr_diff(inconsis_instituciones, 'author_id', consis_instituciones, 'author_id');
+        var inconsis_instituciones = class_utils.filter_prop_er(instituciones_valor, 'aff', class_ver.cons.er.doblemayus);
 
-        arr_pubs_b = class_utils.filter_prop_arr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
+        arr_pubs_b = class_utils.filter_prop_arr(arr_pubs, "id", autores_pub_id);
         //autores_pub_id = class_ver.get_autores_pub_id2(consis_instituciones);
         autores_pub_id = class_ver.get_autores_pub_id2(inconsis_instituciones);
 
-        instituciones_incons = class_utils.filter_prop_notarr(arr_pubs_b, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
+        instituciones_incons = class_utils.filter_prop_notarr(arr_pubs_b, "id", autores_pub_id);
         //ids de las publicaciones donde existan estas instituciones inconsistentes
-        instituciones_incons = class_utils.filter_prop_arr(arr_pubs_b, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
+        instituciones_incons = class_utils.filter_prop_arr(arr_pubs_b, "id", autores_pub_id);
 
         //issues
-        var issues = class_utils.filter_prop(class_ver.var.data.i, 'published', '1');
+        var issues = class_ver.var.data.numeros;
         //anio
         var issues_anios = class_utils.filterdiff_prop(issues, 'year', [null, '', '0']);
         //volumen
-        var issues_volumenes = class_utils.filterdiff_prop(issues, 'volume', [null, '', '0']);
+        var issues_volumenes = class_utils.filterdiff_prop(issues, 'vol', [null, '', '0']);
         //number
-        var issues_numeros = class_utils.filterdiff_prop(issues, 'number', [null, '', '0']);
+        var issues_numeros = class_utils.filterdiff_prop(issues, 'num', [null, '', '0']);
 
         //Citas
-        var citas = '';
-        if ( ['2.3.0', '2.4.0', '3.0.0', '3.1.2'].indexOf(class_ver.var.data.ver) != -1 ){
-            citas = class_utils.filterdiff_prop(publicaciones, 'citations', [null, '', undefined]);
-        }else{
-            citas = class_utils.filter_prop(publicaciones_ajustes, 'setting_name', 'citationsRaw');
-            citas = class_utils.filterdiff_prop(citas, 'setting_value', [null, '', undefined]);
-        }
 
         arr_pub_id = class_ver.get_pub_id2(citas);
-        citas_faltantes = class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
+        citas_faltantes = class_utils.filter_prop_notarr(arr_pubs, "id", arr_pub_id);
         //citas que tienen longitud mayor a 30
-        var consis_citas = '';
-        if ( ['2.3.0', '2.4.0', '3.0.0', '3.1.2'].indexOf(class_ver.var.data.ver) != -1 ){
-            consis_citas = class_utils.filter_len(citas, 'citations', 30);
-        }else{
-            consis_citas = class_utils.filter_len(citas, 'setting_value', 30);
-        }
+        //var consis_citas = class_utils.filter_len(citas, 'citations', 30);
+        //AGREGAR CONSIS
+        var consis_citas = citas;
 
         /** Citas no consistentes **/
         arr_pubs_comp = citas.slice();
         arr_pub_id = class_ver.get_pub_id2(consis_citas);
-        citas_incons = class_utils.filter_prop_notarr(arr_pubs_comp, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
+        citas_incons = class_utils.filter_prop_notarr(arr_pubs_comp, "id", arr_pub_id);
 
         //Licencia
-        var licencia = '';
-        if ( ['2.3.0', '2.4.0', '3.0.0', '3.1.2'].indexOf(class_ver.var.data.ver) != -1 ){
-            licencia = class_utils.filter_prop(publicaciones_ajustes, 'setting_name', 'licenseURL');
-            licencia = class_utils.filterdiff_prop(licencia, 'setting_value', [null, '', undefined]);
-        }else{
-            licencia = class_utils.filter_prop(publicaciones_ajustes, 'setting_name', 'licenseUrl');
-            licencia = class_utils.filterdiff_prop(licencia, 'setting_value', [null, '', undefined]);
-        }
-        
-        $.each(licencia, function(i,val){
-            var pub = class_utils.find_prop(class_ver.var.data.p, class_ver.cons.pub_id[class_ver.var.data.ver], val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
-            Object.assign(val, pub);
-        });
 
         /** Licencias faltantes ***/
         arr_pub_id = class_ver.get_pub_id2(licencia);
-        licencias_faltantes = class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
+        licencias_faltantes = class_utils.filter_prop_notarr(arr_pubs, "id", arr_pub_id);
 
-        var consis_licencia = class_utils.filter_prop_er(licencia, 'setting_value', class_ver.cons.er.licencia);
+        var consis_licencia = class_utils.filter_prop_er(licencia, 'license', class_ver.cons.er.licencia);
 
         /** Licencias no consistentes ***/
         arr_pubs_comp = licencia.slice();
         arr_pub_id = class_ver.get_pub_id2(consis_licencia);
-        licencias_incons = class_utils.filter_prop_notarr(arr_pubs_comp, class_ver.cons.pub_id[class_ver.var.data.ver], arr_pub_id);
+        licencias_incons = class_utils.filter_prop_notarr(arr_pubs_comp, "id", arr_pub_id);
 
         /*** Termina ciclo por cada issue ***/
 
         class_ver.var.salida.revista = revista;
         class_ver.var.salida.issn = issn;
         class_ver.var.salida.eissn = eissn;
-        class_ver.var.salida.ip = idioma_principal;
+        //en version anerior es código del idioma
+        class_ver.var.salida.ip = idioma;
         class_ver.var.salida.idioma = idioma;
         class_ver.var.salida.idiomas_envio = idiomas_envio;
 
@@ -1942,7 +1405,7 @@ class_ver = {
         class_ver.var.salida.p_t = publicaciones_totales;
         class_ver.var.salida.p = publicaciones;
         class_ver.var.salida.pi = publicaciones_indizables;
-        class_ver.var.salida.pd = publicaciones_doi;
+        class_ver.var.salida.pd = publicaciones_doi_total;
         class_ver.var.salida.pdt = publicaciones_doi_total;
         class_ver.var.salida.pp = publicaciones_pags;
         class_ver.var.salida.pt = titulos;
@@ -1962,15 +1425,15 @@ class_ver = {
         class_ver.var.salida.ppc5 = palabras_clave_cinco;
 
         class_ver.var.salida.ida = arr_id_autores;
-        class_ver.var.salida.as = autores_s
-        class_ver.var.salida.a = autores;
+        class_ver.var.salida.as = autores_nombre_total;
+        class_ver.var.salida.a = autores_nombre_total;
         class_ver.var.salida.an = autores_nombre_id;
         class_ver.var.salida.aa = autores_apellido;
         class_ver.var.salida.ae = autores_email;
         class_ver.var.salida.ao = autores_orcid;
 
-        class_ver.var.salida.i = class_utils.unique(instituciones,'author_id');
-        class_ver.var.salida.iv = class_utils.unique(instituciones_valor,'author_id');
+        class_ver.var.salida.i = instituciones;
+        class_ver.var.salida.iv = instituciones_valor;
 
         class_ver.var.salida.en = enlaces;
         class_ver.var.salida.ent = enlaces_total;
@@ -1988,13 +1451,13 @@ class_ver = {
         class_ver.var.salida.consis_pci2 = consis_palabras_clave_idioma2;
         class_ver.var.salida.consis_a = consis_autores;
         class_ver.var.salida.consis_or = consis_orcid;
-        class_ver.var.salida.consis_ins = class_utils.unique(consis_instituciones,'author_id');
+        class_ver.var.salida.consis_ins = consis_instituciones;
         class_ver.var.salida.consis_lic = consis_licencia;
         class_ver.var.salida.consis_cit = consis_citas;
 
 
         var res_dois = [];
-        publicaciones_doi = class_ver.valida_dois(publicaciones_doi, res_dois);
+        publicaciones_doi = class_ver.valida_dois(publicaciones_doi_total, res_dois);
 
          //Armado de precisión
          /*
@@ -2060,7 +1523,7 @@ class_ver = {
     },
     graficaAuth:function(){
         var grafica = JSON.parse(JSON.stringify(class_utils.chartRadialBar));
-        grafica.xAxis.categories = ['Autor', /*'Apellidos', */'Email', 'Orcid', 'Afiliación']
+        grafica.xAxis.categories = ['Autor', /*'Apellidos', 'Email',*/ 'Orcid', 'Afiliación']
         
         var nombre = class_ver.var.salida.an.length / class_ver.var.salida.a.length * 100;
         //var apellido = class_ver.var.salida.aa.length / class_ver.var.salida.a.length * 100;
@@ -2073,7 +1536,7 @@ class_ver = {
         var completos = [ 
                                 parseFloat(nombre.toFixed(2)),
                                 //(apellido == 100)?100:0,
-                                parseFloat(email.toFixed(2)),
+                                //parseFloat(email.toFixed(2)),
                                 parseFloat(orcid.toFixed(2)),
                                 parseFloat(instituciones.toFixed(2))
                             ];
@@ -2081,7 +1544,7 @@ class_ver = {
         var sindato = [ 
                                 100 - parseFloat((nombre).toFixed(2)),
                                 //(apellido > 50 && apellido < 100)?apellido:0,
-                                100 - parseFloat((email).toFixed(2)),
+                                //100 - parseFloat((email).toFixed(2)),
                                 100 - parseFloat((orcid).toFixed(2)),
                                 100 - parseFloat((instituciones).toFixed(2))
                             ];
@@ -2655,7 +2118,7 @@ class_ver = {
             $.when(
                 //class_utils.getResource('http://biblat.local/verificador/get_doi_validate?doi='+val.setting_value)
                 //class_utils.getResource('https://doi.org/'+val.setting_value)
-                class_utils.getResource('/metametrics/get_doi_validate?doi='+val.setting_value)
+                class_utils.getResource('/metametrics/get_doi_validate?doi='+val.doi)
             )
             .then(function(resp){
                 var respuesta = resp.responseCode;
@@ -3091,8 +2554,10 @@ class_ver = {
         $.each(autores, function(i,val){
             auth_ids.push(val.author_id);
         });
-        $.each(autores, function(i,val){
-            var todos = class_utils.filter_prop(class_ver.var.data.a, class_ver.cons.pub_id_auth[class_ver.var.data.ver], val[class_ver.cons.pub_id_auth[class_ver.var.data.ver]]);
+        var articulos = JSON.parse(JSON.stringify(class_ver.var.data.articulos));
+        
+        $.each(articulos, function(i,val){
+            var todos = val.autor;
             var completos = true;
             $.each(todos, function(i2, val2){
                 if( auth_ids.indexOf(val2.author_id) == -1 ){
@@ -3100,8 +2565,8 @@ class_ver = {
                     return 0;
                 }
             });
-            if( autores_pub_id.indexOf(val[class_ver.cons.pub_id_auth[class_ver.var.data.ver]]) == -1 && completos){
-                autores_pub_id.push(val[class_ver.cons.pub_id_auth[class_ver.var.data.ver]]);
+            if( autores_pub_id.indexOf(val["id"]) == -1 && completos){
+                autores_pub_id.push(val["id"]);
             }
         });
         return autores_pub_id;
@@ -3120,8 +2585,8 @@ class_ver = {
     get_pub_id2: function(arr){
         var arr_pub_id = [];
         $.each(arr, function(i,val){
-            if( arr_pub_id.indexOf(val[class_ver.cons.pub_id[class_ver.var.data.ver]]) == -1 ){
-                arr_pub_id.push(val[class_ver.cons.pub_id[class_ver.var.data.ver]]);
+            if( arr_pub_id.indexOf(val.id) == -1 ){
+                arr_pub_id.push(val.id);
             }
         });
         return arr_pub_id;
@@ -3129,9 +2594,8 @@ class_ver = {
     get_autores_pub_id2: function(arr){
         var autores_pub_id = [];
         $.each(arr, function(i,val){
-            var autor = class_utils.find_prop(class_ver.var.data.a, 'author_id', val['author_id']);
-            if( autores_pub_id.indexOf(autor[class_ver.cons.pub_id_auth[class_ver.var.data.ver]]) == -1 ){
-                autores_pub_id.push(autor[class_ver.cons.pub_id_auth[class_ver.var.data.ver]]);
+            if( autores_pub_id.indexOf(val.id) == -1 ){
+                autores_pub_id.push(val.id);
             }
         });
         return autores_pub_id;
@@ -3151,14 +2615,18 @@ class_ver = {
         /* Si se indica un año fin, hasta ese año se obtendrá información */
         /* Si se indica anio_diferente, hará la búsqueda considerando que el año no es de longitud 4 */
         if (anio == null){
-            anio = (new Date()).getFullYear();
+            //anio = (new Date()).getFullYear();
         }else{
             if(anio_fin !== null){
                 evalua = null;
             }
         }
 	var url = $('#'+class_ver.var.id_oai).val();
-        url = class_ver.cons.get_oai.replace('<oai>', url).replace('<years>', anio);
+        if(anio == null){
+            url = class_ver.cons.get_oai.replace('<oai>', url).replace('&years=<years>', '');
+        }else{
+            url = class_ver.cons.get_oai.replace('<oai>', url).replace('<years>', anio);
+        }
         
         var local_data = class_utils.getWithExpiry($('#'+class_ver.var.id_oai).val()+'-'+class_ver.var.id_anio);
         if(local_data !== null){
@@ -3204,84 +2672,17 @@ class_ver = {
             var data = resp;
             var publicaciones = '';
             
-            //total de publicaciones
-            if (['3.0.0', '3.1.2'].indexOf(data.ver) !== -1){
-                //alert('version 3');
-                publicaciones = class_utils.filter_prop(data.ss, 'status', '3');
-            }else{
-                publicaciones = class_utils.filter_prop(data.p, 'status', '3');
-            }
+            publicaciones = data.articulos;
             
             //Revisión de issues
-            $.each(resp.i, function(i, val){
-                //Si no tiene año
-                if(!val.hasOwnProperty('year')){
-                    //PEro tiene fecha de publicación
-                    if(val.hasOwnProperty('date_published')){
-                        val.year = val.date_published.split('-')[0];
-                    }
-                }
-            });
             
-            //issues sólo del año
-            resp.i = class_utils.filter_prop(resp.i, 'year', anio);
-            
-            var issues_pre = class_utils.filter_prop(resp.i, 'published', '1');
+            var issues_pre = resp.numeros;
             
             if(issues_pre.length == 0){
                 publicaciones = [];
             }
             
-                    var ss = [];
-                    var p = [];
-                    var ps = [];
-                    var pre_ps = [];
-                    $.each(resp.i, function(i, val){
-                        if(['2.3.0', '2.4.0'].indexOf(resp.ver) !== -1){
-                            ss = ss.concat(class_utils.filter_prop(resp.ss, 'issue_id', val.issue_id));
-                        }
-                        if(['3.0.0', '3.1.2'].indexOf(resp.ver) !== -1){
-                            p = p.concat(class_utils.filter_prop(resp.p, 'issue_id', val.issue_id));
-                        }
-                        if(['3.3.0', '3.2.0', '3.3.0.11', '3.4.0'].indexOf(resp.ver) !== -1){
-                            var issues_id = class_utils.filter_prop(resp.ps, 'setting_name', 'issueId');
-                            issues_id = class_utils.filter_prop(issues_id, 'setting_value', val.issue_id);
-                            //alert('issues_id '+issues_id.length);
-                            pre_ps = pre_ps.concat(issues_id);
-                            //alert('pre_ps '+pre_ps.length);
-                        }
-                    });
-                    if(['2.3.0', '2.4.0'].indexOf(resp.ver) !== -1){
-                        $.each(ss, function(i, val){
-                            p = p.concat(class_utils.filter_prop(resp.p, 'article_id', val.article_id));
-                            ps = ps.concat(class_utils.filter_prop(resp.ps, 'article_id', val.article_id));
-                        });
-                        resp.ss = ss;
-                        resp.ps = ps;
-                    }
-                    if(['3.0.0', '3.1.2'].indexOf(resp.ver) !== -1){
-                        $.each(p, function(i, val){
-                            ss = ss.concat(class_utils.filter_prop(resp.ss, 'submission_id', val.submission_id));
-                            ps = ps.concat(class_utils.filter_prop(resp.ps, 'submission_id', val.submission_id));
-                        });
-                        resp.ss = ss;
-                        resp.ps = ps;
-                    }
-                    if(['3.3.0', '3.2.0', '3.3.0.11', '3.4.0'].indexOf(resp.ver) !== -1){
-                        $.each(pre_ps, function(i, val){
-                            ps = ps.concat(class_utils.filter_prop(resp.ps, 'publication_id', val.publication_id));
-                            p = p.concat(class_utils.filter_prop(resp.p, 'publication_id', val.publication_id));
-                        });
-                        //alert('ps '+ps.length);
-                        //alert('p '+p.length);
-                        $.each(p, function(i, val){
-                            ss = ss.concat(class_utils.filter_prop(resp.ss, 'submission_id', val.submission_id));
-                        });
-                        //alert('ss '+ss.length);
-                        resp.ss = ss;
-                        resp.ps = ps;
-                    }
-                    resp.p = p;
+                    //A qué número pertenece el artículo ??
             
             //alert(publicaciones.length);
             if(publicaciones.length > 0){
@@ -3289,7 +2690,8 @@ class_ver = {
                     //alert('data igual a 0')
                     class_ver.var.data = resp;
                 }else{
-                    $.each(class_ver.cons.campos, function(i,val){
+                    //$.each(class_ver.cons.campos, function(i,val){
+                    $.each(['articulos', 'idiomas', 'numeros', 'revista'], function(i,val){
                         if(val in class_ver.var.data){
                             //alert('campo' + val);
                             function concatenarUnicos(arreglo1, arreglo2) {
@@ -3350,69 +2752,58 @@ class_ver = {
             if(issues_pre.length == 0){
                 var issues = [];
             }else{
-                var issues = class_utils.filter_prop(class_ver.var.data.i, 'published', '1');
-                class_ver.var.data.i = class_utils.filter_prop(class_ver.var.data.i, 'published', '1');
+                var issues = class_ver.var.data.numeros;
+                //class_ver.var.data.i = issues_pre;
             }
             
             //Si con esta petición se obtienen los 3 números sólo se corta el arreglo
             //alert((issues.length + num_issues));
             //alert(evalua);
+            var obj_extrae={};
+            obj_extrae["numeros"] = JSON.parse(JSON.stringify(class_ver.var.data.numeros));
+            obj_extrae["issues.length"] = issues.length;
+            obj_extrae["evalua"] = evalua;
+            revisa_extrae.push(obj_extrae);
             if (evalua !== null){
                 //if( (issues.length + num_issues) >= evalua){
                 if( (issues.length) >= evalua){
                     //alert(issues.length+' '+(3-num_issues));
                     //class_ver.var.data.i = class_ver.var.data.i.slice(issues.length-(evalua-num_issues));
-                    class_ver.var.data.i = class_ver.var.data.i.slice(issues.length-(evalua));
-                    var ss = [];
-                    var p = [];
-                    var ps = [];
-                    var pre_ps = [];
-                    $.each(class_ver.var.data.i, function(i, val){
-                        if(['2.3.0', '2.4.0'].indexOf(class_ver.var.data.ver) !== -1){
-                            ss = ss.concat(class_utils.filter_prop(class_ver.var.data.ss, 'issue_id', val.issue_id));
-                        }
-                        if(['3.0.0', '3.1.2'].indexOf(class_ver.var.data.ver) !== -1){
-                            p = p.concat(class_utils.filter_prop(class_ver.var.data.p, 'issue_id', val.issue_id));
-                        }
-                        if(['3.3.0', '3.2.0', '3.3.0.11', '3.4.0'].indexOf(class_ver.var.data.ver) !== -1){
-                            var issues_id = class_utils.filter_prop(class_ver.var.data.ps, 'setting_name', 'issueId');
-                            issues_id = class_utils.filter_prop(issues_id, 'setting_value', val.issue_id);
-                            //alert('issues_id '+issues_id.length);
-                            pre_ps = pre_ps.concat(issues_id);
-                            //alert('pre_ps '+pre_ps.length);
-                        }
-                    });
-                    if(['2.3.0', '2.4.0'].indexOf(class_ver.var.data.ver) !== -1){
-                        $.each(ss, function(i, val){
-                            p = p.concat(class_utils.filter_prop(class_ver.var.data.p, 'article_id', val.article_id));
-                            ps = ps.concat(class_utils.filter_prop(class_ver.var.data.ps, 'article_id', val.article_id));
+                    var resto = class_ver.var.data.numeros.slice(3);
+                    class_ver.var.data.numeros = class_ver.var.data.numeros.slice(0,3);
+                    
+                    if(resto.length > 0){
+                        var actualiza_articulos = [];
+                        $.each(class_ver.var.data.articulos, function(i_art, val_art){
+                            $.each(resto, function(i_r, val_r){
+                                var str_art = '';
+                                var str_resto = '';
+
+                                str_art += ('year' in val_art.numero)?(val_art.numero.year + '-'):'-';
+                                str_art += ('vol' in val_art.numero)?(val_art.numero.vol + '-'):'-';
+                                str_art += ('num' in val_art.numero)?(val_art.numero.num + '-'):'-';
+                                str_art += ('mes' in val_art.numero)?(val_art.numero.mes + '-'):'-';
+                                str_art += ('especial' in val_art.numero)?(val_art.numero.especial + '-'):'-';
+
+                                str_resto += ('year' in val_r)?(val_r.year + '-'):'-';
+                                str_resto += ('vol' in val_r)?(val_r.vol + '-'):'-';
+                                str_resto += ('num' in val_r)?(val_r.num + '-'):'-';
+                                str_resto += ('mes' in val_r)?(val_r.mes + '-'):'-';
+                                str_resto += ('especial' in val_r)?(val_r.especial + '-'):'-';
+
+                                var obj_extrae={};
+                                obj_extrae["str_art"] = str_art;
+                                obj_extrae["str_resto"] = str_resto;
+                                revisa_extrae.push(obj_extrae);
+
+                                if(str_art !== str_resto){
+                                    actualiza_articulos.push(val_art);
+                                }
+                            });
                         });
-                        class_ver.var.data.ss = ss;
-                        class_ver.var.data.ps = ps;
+                        class_ver.var.data.articulos = actualiza_articulos;
                     }
-                    if(['3.0.0', '3.1.2'].indexOf(class_ver.var.data.ver) !== -1){
-                        $.each(p, function(i, val){
-                            ss = ss.concat(class_utils.filter_prop(class_ver.var.data.ss, 'submission_id', val.submission_id));
-                            ps = ps.concat(class_utils.filter_prop(class_ver.var.data.ps, 'submission_id', val.submission_id));
-                        });
-                        class_ver.var.data.ss = ss;
-                        class_ver.var.data.ps = ps;
-                    }
-                    if(['3.3.0', '3.2.0', '3.3.0.11', '3.4.0'].indexOf(class_ver.var.data.ver) !== -1){
-                        $.each(pre_ps, function(i, val){
-                            ps = ps.concat(class_utils.filter_prop(class_ver.var.data.ps, 'publication_id', val.publication_id));
-                            p = p.concat(class_utils.filter_prop(class_ver.var.data.p, 'publication_id', val.publication_id));
-                        });
-                        //alert('ps '+ps.length);
-                        //alert('p '+p.length);
-                        $.each(p, function(i, val){
-                            ss = ss.concat(class_utils.filter_prop(class_ver.var.data.ss, 'submission_id', val.submission_id));
-                        });
-                        //alert('ss '+ss.length);
-                        class_ver.var.data.ss = ss;
-                        class_ver.var.data.ps = ps;
-                    }
-                    class_ver.var.data.p = p;
+                    
                     class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-'+class_ver.var.id_anio, class_ver.var.data, class_ver.cons.expiry);
                     class_ver.analisis();
                     return 0;
@@ -3440,6 +2831,12 @@ class_ver = {
                     }
                 }
             }
+        }).fail(function(){
+            $('#error').show();
+            class_ver.var.plugin = 'No';
+            class_ver.setBitacora(2);
+            loading.end();
+            return 0;
         });
     },
     resultado: function(){
@@ -3507,38 +2904,37 @@ class_ver = {
                                     
                 arr_precis.sort(function(a, b){return b.length-a.length});
                 ids_precis = [];
-                                                   
+                         
                 //Recorre con base en el primer elemento que es el de mayor número de elementos
                 $.each(arr_faltantes[0], function(i, val){
                     $.each(orden_faltantes, function(i2, val2){
                         var obj = {};
-                        if (val2[i] !== undefined){
+                        if (val2[i] !== undefined && val2[i] !== []){
                             //var id = val2[i].year + '-' + val2[i].volume + '-' + val2[i].number + '-' + val2[i].pages + '-' + val2[i].title;
-                            var posicion = ids_faltantes.indexOf(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                            var posicion = ids_faltantes.indexOf(val2[i]["id"]);
                             //alert(posicion);
                             if( posicion == -1 ){
-                                obj.year = val2[i].year;
-                                obj.volume = ( ['', undefined, null].indexOf(val2[i].volume) !== -1 )?'':val2[i].volume;
-                                obj.number = ( ['', undefined, null].indexOf(val2[i].number) !== -1 )?'':val2[i].number;
-                                obj.pages = ( ['', undefined, null].indexOf(val2[i].pages) !== -1 )?'':val2[i].pages;
-                                obj.title = ( ['', undefined, null].indexOf(val2[i].title) !== -1 )?'<< No se encontró título >>':val2[i].title;
+                                obj.year = val2[i].numero.year;
+                                obj.volume = ( ['', undefined, null].indexOf(val2[i].numero.vol) !== -1 )?'':val2[i].numero.vol;
+                                obj.number = ( ['', undefined, null].indexOf(val2[i].numero.num) !== -1 )?'':val2[i].numero.num;
+                                obj.pages = ( ['', undefined, null].indexOf(val2[i].pags) !== -1 )?'':val2[i].pags;
+                                obj.title = ( ['', undefined, null].indexOf(val2[i].titulo[0].title) !== -1 )?'<< No se encontró título >>':val2[i].titulo[0].title;
                                 
-                                if('submission_id' in val2[i]){
-                                    obj.link = url.replace('oai', 'article/view/') + val2[i].submission_id;
-                                }else if('publication_id' in val2[i]){
-                                    var submission_id = class_utils.find_prop(class_ver.var.salida.p, 'publication_id', val2[i].publication_id).submission_id;
-                                    obj.link = url.replace('oai', 'article/view/') + submission_id;
-                                }else if('article_id' in val2[i]){
-                                    obj.link = url.replace('oai', 'article/view/') + val2[i].article_id;
+                                
+                                var enlace = class_utils.find_prop(val2[i].enlace_texto, 'format', 'html');
+                                if(enlace !== undefined){
+                                    obj.link = enlace["url"];
+                                }else{
+                                    obj.link = '#';
                                 }
                                 
-                                ids_faltantes.push(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                                ids_faltantes.push(val2[i]["id"]);
                                 tablas_faltantes[0].push(obj);
                                 tablas_faltantes[1].push(JSON.parse(JSON.stringify(obj)));
                                 //alert(ids_faltantes[0]);
                                 //alert(id);
                                 //alert(tablas_faltantes.length);
-                                posicion = ids_faltantes.indexOf(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                                posicion = ids_faltantes.indexOf(val2[i]["id"]);
                                 //alert(posicion);
                             }
                             tablas_faltantes[0][posicion][orden_tablas[i2]] = dicc_tablas[i2];//orden_tablas[i2].replaceAll('_', ' ');
@@ -3549,37 +2945,35 @@ class_ver = {
                 $.each(arr_consis[0], function(i, val){
                     $.each(orden_consis, function(i2, val2){
                         var obj = {};
-                        if (val2[i] !== undefined){
+                        if (val2[i] !== undefined && val2[i] !== []){
                             //var id = val2[i].year + '-' + val2[i].volume + '-' + val2[i].number + '-' + val2[i].pages + '-' + val2[i].title;
-                            var posicion = ids_faltantes.indexOf(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                            var posicion_consis = ids_consis.indexOf(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                            var posicion = ids_faltantes.indexOf(val2[i]["id"]);
+                            var posicion_consis = ids_consis.indexOf(val2[i]["id"]);
                             
                             if( posicion_consis == -1 ){
-                                ids_faltantes.push(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                                ids_faltantes.push(val2[i]["id"]);
                             }
                             //alert(posicion);
                             if( posicion_consis == -1 ){
-                                obj.year = val2[i].year;
-                                obj.volume = ( ['', undefined, null].indexOf(val2[i].volume) !== -1 )?'':val2[i].volume;
-                                obj.number = ( ['', undefined, null].indexOf(val2[i].number) !== -1 )?'':val2[i].number;
-                                obj.pages = ( ['', undefined, null].indexOf(val2[i].pages) !== -1 )?'':val2[i].pages;
-                                obj.title = ( ['', undefined, null].indexOf(val2[i].title) !== -1 )?'<< No se encontró título >>':val2[i].title;
+                                obj.year = val2[i].numero.year;
+                                obj.volume = ( ['', undefined, null].indexOf(val2[i].numero.vol) !== -1 )?'':val2[i].numero.vol;
+                                obj.number = ( ['', undefined, null].indexOf(val2[i].numero.num) !== -1 )?'':val2[i].numero.num;
+                                obj.pages = ( ['', undefined, null].indexOf(val2[i].pags) !== -1 )?'':val2[i].pags;
+                                obj.title = ( ['', undefined, null].indexOf(val2[i].titulo[0].title) !== -1 )?'<< No se encontró título >>':val2[i].titulo[0].title;
                                 
-                                if('submission_id' in val2[i]){
-                                    obj.link = url.replace('oai', 'article/view/') + val2[i].submission_id;
-                                }else if('publication_id' in val2[i]){
-                                    var submission_id = class_utils.find_prop(class_ver.var.salida.p, 'publication_id', val2[i].publication_id).submission_id;
-                                    obj.link = url.replace('oai', 'article/view/') + submission_id;
-                                }else if('article_id' in val2[i]){
-                                    obj.link = url.replace('oai', 'article/view/') + val2[i].article_id;
+                                var enlace = class_utils.find_prop(val2[i].enlace_texto, 'format', 'html');
+                                if(enlace !== undefined){
+                                    obj.link = enlace["url"];
+                                }else{
+                                    obj.link = '#';
                                 }
                                 
-                                ids_consis.push(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                                ids_consis.push(val2[i]["id"]);
                                 tablas_faltantes[1].push(obj);
                                 //alert(ids_faltantes[0]);
                                 //alert(id);
                                 //alert(tablas_faltantes.length);
-                                posicion = ids_faltantes.indexOf(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                                posicion = ids_faltantes.indexOf(val2[i]["id"]);
                                 //alert(posicion);
                             }
                             tablas_faltantes[1][posicion][orden_tablas_consis[i2]] = dicc_tablas[i2];//orden_tablas_consis[i2].replaceAll('_', ' ');
@@ -3591,31 +2985,29 @@ class_ver = {
                 $.each(arr_precis[0], function(i, val){
                     $.each(orden_precis, function(i2, val2){
                         var obj = {};
-                        if (val2[i] !== undefined){
+                        if (val2[i] !== undefined && val2[i] !== []){
                             //var id = val2[i].year + '-' + val2[i].volume + '-' + val2[i].number + '-' + val2[i].pages + '-' + val2[i].title;
-                            var posicion = ids_faltantes.indexOf(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
-                            var posicion_prec = ids_precis.indexOf(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                            var posicion = ids_faltantes.indexOf(val2[i]["id"]);
+                            var posicion_prec = ids_precis.indexOf(val2[i]["id"]);
                             //alert(posicion);
                             if( posicion == -1 ){
-                                ids_faltantes.push(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                                ids_faltantes.push(val2[i]["id"]);
                             }
                             if( posicion_prec == -1 ){
-                                obj.year = val2[i].year;
-                                obj.volume = ( ['', undefined, null].indexOf(val2[i].volume) !== -1 )?'':val2[i].volume;
-                                obj.number = ( ['', undefined, null].indexOf(val2[i].number) !== -1 )?'':val2[i].number;
-                                obj.pages = ( ['', undefined, null].indexOf(val2[i].pages) !== -1 )?'':val2[i].pages;
-                                obj.title = ( ['', undefined, null].indexOf(val2[i].title) !== -1 )?'<< No se encontró título >>':val2[i].title;
+                                obj.year = val2[i].numero.year;
+                                obj.volume = ( ['', undefined, null].indexOf(val2[i].numero.vol) !== -1 )?'':val2[i].numero.vol;
+                                obj.number = ( ['', undefined, null].indexOf(val2[i].numero.num) !== -1 )?'':val2[i].numero.num;
+                                obj.pages = ( ['', undefined, null].indexOf(val2[i].pags) !== -1 )?'':val2[i].pags;
+                                obj.title = ( ['', undefined, null].indexOf(val2[i].titulo[0].title) !== -1 )?'<< No se encontró título >>':val2[i].titulo[0].title;
                                 
-                                if('submission_id' in val2[i]){
-                                    obj.link = url.replace('oai', 'article/view/') + val2[i].submission_id;
-                                }else if('publication_id' in val2[i]){
-                                    var submission_id = class_utils.find_prop(class_ver.var.salida.p, 'publication_id', val2[i].publication_id).submission_id;
-                                    obj.link = url.replace('oai', 'article/view/') + submission_id;
-                                }else if('article_id' in val2[i]){
-                                    obj.link = url.replace('oai', 'article/view/') + val2[i].article_id;
+                                var enlace = class_utils.find_prop(val2[i].enlace_texto, 'format', 'html');
+                                if(enlace !== undefined){
+                                    obj.link = enlace["url"];
+                                }else{
+                                    obj.link = '#';
                                 }
                                 
-                                ids_precis.push(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                                ids_precis.push(val2[i]["id"]);
                                 if('orcid' in val2[i]){
                                     obj.orcid = val2[i].orcid;
                                 }else if('url' in val2[i]){
@@ -3624,7 +3016,7 @@ class_ver = {
                                     obj.orcid = val2[i].setting_value;
                                 }
                                 
-                                posicion = ids_faltantes.indexOf(val2[i][class_ver.cons.pub_id[class_ver.var.data.ver]]);
+                                posicion = ids_faltantes.indexOf(val2[i]["id"]);
                                 
                                 tablas_faltantes[2][posicion] = obj;
                                 //alert(posicion);
@@ -3709,4 +3101,6 @@ class_ver = {
 };
 
 $(class_ver.ready);
+
+
 
