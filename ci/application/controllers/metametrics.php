@@ -51,7 +51,7 @@ class Metametrics extends CI_Controller {
         $this->template->build('verificador/verificador', $data);
     }
 	
-	/*public function beta(){
+	public function beta(){
         $data = array();
         $pos = strpos(uri_string(), 'simulador');
         $pos2 = strpos(uri_string(), 'postular');
@@ -87,7 +87,7 @@ class Metametrics extends CI_Controller {
         $this->template->js('assets/js/datatables/input.js');
         $this->template->set_partial('main_js', 'verificador/verificador2.js', array(), TRUE, FALSE);
         $this->template->build('verificador/verificador', $data);
-    }*/
+    }
     
     public function sobreMetaMetrics(){
         $data = array();
