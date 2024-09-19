@@ -13,15 +13,15 @@
         {if !$simulador and !$postularPrimera}
             <p>Seleccione alguna de las revistas ya evaluadas por la herramienta para realizar una prueba.</p>
 
-            <p>O si desea verificar alguna otra revista, ingrese la URL oai, recuerde que debe tener instalado el <a href="{base_url('archivos/pdf/PluginBIBLAT.pdf')}" target="_blank">plugin de BIBLAT</a> para la recolección de metadatos.</p>
+            <p>O si desea verificar alguna otra revista, ingrese la URL oai</p>
         {/if}
         
         {if $simulador}
-        <p>Ingrese la URL oai de su revista, recuerde que debe tener instalado el <a href="{base_url('archivos/pdf/PluginBIBLAT.pdf')}" target="_blank">plugin de BIBLAT</a> para la recolección de metadatos.</p>
+        <p>Ingrese la URL oai de su revista.</p>
         {/if}
         
         {if $postularPrimera}
-        <p>Si usted es editor de una revista que desea postular para BIBLAT, antes de comenzar, instale el <a href="{base_url('archivos/pdf/PluginBIBLAT.pdf')}" target="_blank">plugin de BIBLAT</a> para la recolección de metadatos.</p>
+        <p>Si usted es editor de una revista que desea postular para BIBLAT, por favor, comience con la evaluación de metadatos.</p>
         {/if}
     </dd>
     
@@ -70,6 +70,9 @@
 </div>
 <div id="plugin" style="display: none">
     <center><b>Al parecer no tiene instalada la versión más reciente del plugin BIBLAT</b></center>
+</div>
+<div id="error" style="display: none">
+    <center><b>Ocurrió un error al intentar obtener su información</b></center>
 </div>
 <div id="sinDatos" style="display: none">
     <center><b>No se encontraron publicaciones para el año seleccionado</b></center>
