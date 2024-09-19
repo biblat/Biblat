@@ -341,7 +341,7 @@ class_ver = {
         datos[15] = class_ver.var.revista_electronica;
         datos[16] = class_ver.var.entidad_editora_issn;
         datos[17] = class_ver.var.pais_issn;
-        datos[18] = class_ver.var.idiomase;
+        datos[18] = class_ver.var.idiomase.join(', ');
         datos[19] = class_ver.var.idiomap;
         datos[20] = (class_ver.var.id_anio == '0')?'3 últimos fascículos':class_ver.var.id_anio;
         datos[21] = class_ver.var.sp;
