@@ -261,7 +261,7 @@ class_ver = {
                 class_ver.var.revista_electronica = '';
                 class_ver.var.entidad_editora_issn = '';
                 class_ver.var.pais_issn = '';
-                class_ver.var.idiomase = '';
+                class_ver.var.idiomase = [];
                 class_ver.var.idiomap = '';
                 class_ver.var.sp = '';
                 class_ver.var.cp = '';
@@ -2661,6 +2661,14 @@ class_ver = {
                         class_ver.get_data_anios(anio-1, anio_fin, num_issues, evalua, repetir-1);
                         return 0;
                     }else{
+                        $("#numFasciculos").show();
+                        class_ver.var.plugin = 'Si';
+                        class_ver.setBitacora(2);
+                        loading.end();
+                        return 0;
+                    }
+                }else if(anio == null){
+                    if( resp.numeros.length < 3 ){
                         $("#numFasciculos").show();
                         class_ver.var.plugin = 'Si';
                         class_ver.setBitacora(2);
