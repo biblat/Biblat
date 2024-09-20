@@ -35,14 +35,14 @@
                         
                         <li>{_('Contar con la plataforma Open Journal System (OJS) y tener al menos 3 fascículos publicados.')}</li>
                         
-                        <li>{_('Aceptar la instalación del')} <a href="{base_url('archivos/pdf/PluginBIBLAT.pdf')}" target="_blank" style='color:green'><b>{_('plugin de BIBLAT')}</b></a> {_('para la recolección de metadatos en OJS y aplicar la actualizaciones al mismo cuando BIBLAT las solicite.')}</li>                                               
+                        <li>{_('Tener habilitado el protocolo OAI-PMH para la recolección de metadatos en OJS.')}</li>
                         
                 </ol><br>
                 
                 <p>{_('Los pasos por seguir para que una revista sea evaluada son:')}</p>
                 
                 <ol>                    
-                    <li>{_('Instalar el plugin de BIBLAT para la recolección de metadatos en el OJS de la revista a postular, las instrucciones están disponibles en')} <a href="{base_url('archivos/pdf/PluginBIBLAT.pdf')}" target="_blank">{_('este enlace.')}</a></li>
+                    <li>{_('Habilitar el protocolo OAI-PMH para la recolección de metadatos en el OJS de la revista a postular.')}</li>
                         
                         <li>{_('Someter su revista a la validación de metadatos a través de la herramienta')} <a href="{site_url('metametrics/simulador')}">MetaMetrics</a>. {_('El mínimo aceptable es 80% de cumplimiento en la calidad de los metadatos, siendo obligatorio cumplir con el 100% de los metadatos de afiliación institucional de los autores. Una vez aprobada esta validación el sistema le permitirá pasar a la siguiente evaluación, de lo contrario, le permitirá descargar los resultados del proceso.')}</li>
                         
