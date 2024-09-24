@@ -1243,6 +1243,9 @@ class_ver = {
             }
             $.each(val.licencia, function(i2, val2){
                 val2["id"] = val.id;
+                val2["numero"] = val.numero;
+                val2["titulo"] = val.titulo;
+                val2["enlace_texto"] = val.enlace_texto;
                 licencia.push(val2);
             });
             $.each(val.autor, function(i2,val2){
