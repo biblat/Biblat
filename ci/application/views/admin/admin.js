@@ -17,7 +17,11 @@ class_admin = {
         idiomasTit: {
                 'Español' : 'spa',
                 'Inglés' : 'eng',
-                'Portugués' : 'por'
+                'Portugués' : 'por',
+                'Italiano': 'ita',
+                'Francés': 'fre',
+                'Alemán': 'ger',
+                'Ruso': 'rus'
             },
         idiomasRes: {
             'Español' : 'a',
