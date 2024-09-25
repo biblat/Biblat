@@ -1508,7 +1508,7 @@ class_av = {
                     $.ajax({
                         url:class_av.var.servidor + class_av.var.app + '/get_pdf/', 
                         type:'POST',
-                        timeout: 30000,
+                        timeout: 90000,
                         data: {url: url_pdf},
                         cache:false,
                         dataType:"json"
