@@ -1508,13 +1508,13 @@ class_av = {
                     $.ajax({
                         url:class_av.var.servidor + class_av.var.app + '/get_pdf/', 
                         type:'POST',
-                        timeout: 120000,
+                        timeout: 30000,
                         data: {url: url_pdf},
                         cache:false,
                         dataType:"json"
                     }).done(function(resp_pdf){
                         setArticulo(resp_pdf);
-                    }).error(function(){
+                    }).fail(function(){
                         var resp_pdf = {'result': 'fallo'};
                         setArticulo(resp_pdf);
                     });
