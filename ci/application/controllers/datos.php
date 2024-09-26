@@ -1012,15 +1012,15 @@ class Datos extends REST_Controller {
             $query = "
                         with agrupado as( 
                             with reg as(
-                                    select distinct c.sistema, id, nombre, nivel, max(fecha) fecha, 1 num from catalogador c 
-                                    inner join article a on a.sistema = c.sistema
+                                    select distinct c.sistema, nombre, max(fecha) fecha, 1 num from catalogador c  
+                                    inner join article a on a.sistema = c.sistema and c.nombre = a.\"asignadoPC\"
                                     where
                                     a.\"estatusPC\" in ('C')
                                     and
                                     extract(month from c.fecha) in (".$mes.") 
                                     and 
                                     extract(year from c.fecha) = ".$anio."
-                                    group by 1,2,3,4,6
+                                    group by 1,2
                             )
                             select 
                              replace(replace(ARRAY_AGG(nombre)::text,'{',''),'}','') nombre,
