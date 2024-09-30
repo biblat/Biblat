@@ -16,7 +16,7 @@ $(document).ready(function() {
             height: 500
     });
 	jQuery('a.numeros').colorbox({
-            width: 500,
+            width: "80%",
             height: 700
     });
     $('.copy-code').on('click', function(e){
