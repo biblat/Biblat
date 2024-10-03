@@ -361,7 +361,7 @@ class_admin = {
             doc.fecha_publicacion = anio.trim();
             doc.disciplina = class_admin.var.revista[2].trim();
 
-            doc.doi = val.doi.trim();
+            doc.doi = (val.doi == null)?null:val.doi.trim();
 
             doc.locale = val.idioma_articulo;
 
