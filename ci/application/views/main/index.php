@@ -14,6 +14,9 @@
         AVISO DE MANTENIMIENTO: jueves 1 de Agosto, a partir de las 7:00 y hasta las 9:00 horas.
     </div>
     <div id="primer" style="height:80px" class="item active">
+       <a target="_blank" href="{base_url('archivos/pdf/manual_indizacion_ojs_2ed.pdf')}"><img class="img-responsive center-block" src="{base_url('img/slides/banner-MANUAL.svg')}"/></a>
+    </div>
+    <div style="height:80px" class="item">
        <a target="_blank" href="{site_url('sobre-metametrics')}"><img class="img-responsive center-block" src="{base_url('img/slides/banner-metametrics.jpg')}"/></a>
     </div>
     <div style="height:80px" class="item">
