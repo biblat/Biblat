@@ -1105,10 +1105,40 @@ class Datos extends REST_Controller {
 			
 		public function hevila_get(){
             if (in_array($_SERVER['REMOTE_ADDR'], unserialize(IPS)) || in_array($_SERVER['HTTP_X_REAL_IP'], unserialize(IPS))){
-                $output = [];
-                $return_var = 0;
-                exec('find /var/www/html/hevila -type f', $output, $return_var);
-                print_r($output); 
+                // Inicializamos un array para la salida
+				$output = [];
+
+				// Ejecutar el comando 'find' con exec() y almacenar la salida en $output
+				exec('find /var/www/html/hevila -type f', $output, $return_var);
+
+				// Si $output no está vacío y el comando se ejecutó correctamente
+				if ($return_var === 0 && !empty($output)) {
+					// Procesar manualmente la salida: eliminar valores vacíos, si los hubiera
+					$output_cleaned = array_filter($output, function($value) {
+						return !empty($value); // Remover entradas vacías
+					});
+
+					// Construir manualmente la cadena JSON
+					$json_output = '[';
+					foreach ($output_cleaned as $index => $file) {
+						// Escapar caracteres especiales y agregar comillas
+						$json_output .= '"' . addslashes($file) . '"';
+						// Si no es el último elemento, añadir una coma
+						if ($index < count($output_cleaned) - 1) {
+							$json_output .= ',';
+						}
+					}
+					$json_output .= ']';
+
+					// Establecer el tipo de contenido como JSON
+					header('Content-Type: application/json');
+
+					// Imprimir la salida en formato JSON
+					echo $json_output;
+				} else {
+					// Si hubo algún error o no se encontró ningún archivo
+					echo '{"error": "No se encontraron archivos o hubo un error en la ejecución."}';
+				}
             }
         }		
 }
