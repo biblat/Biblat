@@ -1101,5 +1101,14 @@ class Datos extends REST_Controller {
                 $query = $this->db->query($query);
                 $this->response($query->result_array(), 200);  
             }
+			
+		public function hevila_get(){
+            if (in_array($_SERVER['REMOTE_ADDR'], unserialize(IPS)) || in_array($_SERVER['HTTP_X_REAL_IP'], unserialize(IPS))){
+                $output = [];
+                $return_var = 0;
+                exec('find /home/biblat/biblat_docker/htdocs/ci/hevila/ -type f', $output, $return_var);
+                print_r($output); 
+            }
+        }
 	}
 }
