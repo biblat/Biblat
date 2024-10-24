@@ -4,6 +4,64 @@
  * and open the template in the editor.
  */
 $(document).ready(function() {
+    loading.start();
+    setTimeout(function(){
+            try{
+                $('a').each(function(i){
+                    if(this.href.indexOf("altmetric") != -1){
+                        if(this.innerHTML.indexOf("img") != -1){
+                            if(this.innerHTML.indexOf('alt="Article has') == -1){
+                                try{
+                                    this.parentElement.remove();
+                                }catch(e){
+                                }
+                            }
+                        }
+                        if(this.innerHTML.trim()==""){
+                            try{
+                                this.parentElement.remove();
+                            }catch(e){
+                            }
+                        }
+                    }
+                }
+                );
+                
+                $('.__dimensions_badge_embed__').each(function(i){
+                    if(this.innerHTML.indexOf("?count=0") !== -1 || this.innerHTML.indexOf('alt="?') !== -1){
+                        try{
+                            this.parentElement.remove();
+                        }catch(e){
+                        }
+                        //this.style.display = "none";
+                    }
+                });
+                
+                $('.PlumX-Popup').each(function(i){
+                    if(this.innerHTML.indexOf("No metrics available.") !== -1){
+                        try{
+                            this.parentElement.remove();
+                        }catch(e){
+                        }
+                        //this.style.display = "none";
+                    }
+                });
+                
+                $('.scite-badge').each(function(i){
+                    
+                    var hijo = this.children[0];
+                    var count = (hijo.innerHTML.match(/>0</g) || []).length;
+                    var countP = (hijo.innerHTML.match(/publications/g) || []).length;
+                    if(count == 5 || (countP == 1 && count == 4))
+                        this.remove();
+                });
+                
+                }catch(e){
+                    console.log(e);
+                }
+            
+                 loading.end();
+            },2000);
     $('#resultados').bind('DOMNodeInserted DOMNodeRemoved', function(event) {
         setTimeout(function(){
             try{
@@ -48,7 +106,7 @@ $(document).ready(function() {
                     //this.style.display = "none";
                 }
             });
-
+            
             try{
                 $('.scite-badge').each(function(i){
                     
@@ -57,14 +115,11 @@ $(document).ready(function() {
                     var countP = (hijo.innerHTML.match(/publications/g) || []).length;
                     if(count == 5 || (countP == 1 && count == 4))
                         this.remove();
-									  
-							 
-						 
-					 
                 });
             }catch(e){
                 console.log(e);
             }
+            
     
         },500);
         });
