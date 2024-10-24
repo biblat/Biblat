@@ -254,7 +254,7 @@ class_asi = {
                                 if(id_anio == 'Todos'){
                                     var filter_anio = filter;
                                 }else{
-                                    var filter_anio = class_asi.var.revistasJSON.filter(str => regex.test(str));
+                                    var filter_anio = filter.filter(str => regex.test(str));
                                 }
                                 class_asi.setTabla(filter_anio);
                                 loading.end();
