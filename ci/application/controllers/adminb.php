@@ -97,6 +97,23 @@ class Adminb extends CI_Controller {
             redirect('main');
         }
     }
+	
+	public function hevila(){
+        if($this->session->userdata('usuario') && $this->session->userdata('rol') == 'Administrador'){
+            $this->template->set_breadcrumb(_('Menú Administrador'), site_url('adminb'));
+            $this->template->set_breadcrumb(_('Hevila'));
+            $data = array();
+            $data['page_title'] = _('Hevila');
+            $this->template->set_layout('default_sel');
+            $this->template->title(_('Hevila'));
+            $data['page_subtitle'] = $this->session->userdata('nombre');
+            $this->template->set_meta('description', _('Hevila'));
+            $this->template->set_partial('main_js', 'admin/hevila.js', array(), TRUE, FALSE);
+            $this->template->build('admin/hevila', $data);
+        }else{
+            redirect('main');
+        }
+    }
     
     public function avance(){
         if($this->session->userdata('usuario')){
