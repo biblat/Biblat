@@ -20,13 +20,21 @@
             </a>
         </div>
         <div class="col-xs-4">
-			<a href="<?=site_url("adminb/asignarev");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
-				<br><br>
-				<center>
-					<i class="glyphicon glyphicon-book" style="font-size:95px"></i><br><span style="font-weight: bold">Asignar revista</span>
-				</center>
-			</a>
-		</div>
+            <a href="<?=site_url("adminb/hevila");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
+                <br><br>
+                <center>
+                    <i class="glyphicon glyphicon-hdd" style="font-size:95px"></i><br><span style="font-weight: bold">Exportar hevila</span>
+                </center>
+            </a>
+        </div>
+        <div class="col-xs-4">
+            <a href="<?=site_url("adminb/asignarev");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
+                    <br><br>
+                    <center>
+                            <i class="glyphicon glyphicon-book" style="font-size:95px"></i><br><span style="font-weight: bold">Asignar revista</span>
+                    </center>
+            </a>
+        </div>
     {/if}
     {if $rol == "Administrador" || $rol == "Analista"}
         <div class="col-xs-4">
