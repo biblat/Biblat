@@ -79,7 +79,7 @@ class_asi = {
                             $('#menu-anio').html(options_anio);
                             $('#menu-rev').html(options_rev);
                             
-                            class_asi.setTabla(class_asi.var.revistasJSON);
+                            class_asi.setTabla([]);
                             //class_asi.control();
                             class_asi.filtro();
                             loading.end();
