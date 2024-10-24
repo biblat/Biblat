@@ -259,7 +259,7 @@ class_utils= {
 //                    "colvis": "Visibilidad"
 //                }
             },
-            footerCallback: function ( row, data, start, end, display ) {
+            /*footerCallback: function ( row, data, start, end, display ) {
                 var api = this.api(), data;
 
                 // Remove the formatting to get integer data for summation
@@ -290,7 +290,7 @@ class_utils= {
                 $( api.column( 1 ).footer() ).html(
                     '$'+pageTotal +' ( $'+ total +' total)'
                 );
-            }
+            }*/
         }
         return $('#'+id).DataTable( Object.assign(options_default,extra) );
     },
