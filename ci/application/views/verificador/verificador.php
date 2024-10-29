@@ -17,7 +17,10 @@
         {/if}
         
         {if $simulador}
-        <p>Ingrese la URL oai de su revista.</p>
+            <p>
+                <b>Atención:</b> está utilizando un simulador de la evaluación de metadatos, los resultados arrojados son meramente informativos. Para postular una revista haga clic <a href="{site_url('postular-revista/metametrics')}">aquí</a>.
+            </p>
+            <p>Ingrese la URL oai de su revista.</p>
         {/if}
         
         {if $postularPrimera}
