@@ -21,6 +21,13 @@
     Si reúne los criterios obligatorios, podrá enviar la postulación de la revista. En caso de no cumplir con dichos criterios, le proporcionaremos un resumen de la pre-evaluación, misma que será de utilidad para procurar el cumplimiento de los criterios faltantes y realizar posteriormente la postulación.<br>
     Los resultados obtenidos en esta pre-evaluación deberán ser revisados y validados por el Comité Evaluación para emitir el dictamen definitivo de aprobación.
     {/if}
+    
+    {if $simulador}
+    <br>
+    <p>
+        <b>Atención:</b> está utilizando un simulador de la preevaluación, los resultados arrojados son meramente informativos. Para postular una revista haga clic <a href="{site_url('postular-revista/metametrics')}">aquí</a>.
+    </p>
+    {/if}
     <div class="row"><br></div>
         <center>
             <button type="button" class="btn btn-warning" id="btn_comenzar">Comenzar</button>
