@@ -89,7 +89,11 @@ class_ver = {
                 /^normas\s*para\s*autores/,
                 /^nota.*comité\s*editorial/,
                 /^advertencia\s*editorial$/,
-                /^author\s*guidelines$/
+                /^author\s*guidelines$/,
+                /^contenido$/,
+                /^content$/,
+                /^directorio$/,
+                /^directory$/,
             ],
             'titulo_parcial' : [
                 /in\s*memóriam/,

@@ -116,7 +116,12 @@ class_admin = {
                 /^autores$/,
                 /^normas\s*para\s*autores/,
                 /^nota.*comité\s*editorial/,
-                /^advertencia\s*editorial$/
+                /^advertencia\s*editorial$/,
+				/^author\s*guidelines$/,
+                /^contenido$/,
+                /^content$/,
+                /^directorio$/,
+                /^directory$/,
             ]
         },
     },
@@ -365,7 +370,10 @@ class_admin = {
 
             doc.locale = val.idioma_articulo;
 
-            doc.idioma = val.idioma_articulo.charAt(0).toUpperCase() + val.idioma_articulo.slice(1).toLowerCase();
+            if(val.idioma_articulo == null || val.idioma_articulo == undefined)
+                doc.idioma = class_admin.var.registros.idioma_principal;
+            else
+                doc.idioma = val.idioma_articulo.charAt(0).toUpperCase() + val.idioma_articulo.slice(1).toLowerCase();
 
             var titulo = val.titulo;
             var arr_titulo = [];
