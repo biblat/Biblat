@@ -4,6 +4,28 @@
 	      <h5 class="panel-title">
                     <div class="row" id="indicadores">
                         <div class="col-xs-12 col-sm-6 col-md-4">
+                            <iframe width="250px" src="https://www.youtube.com/embed/2uhEejH1bp0?si=Bd7y7YHnbbdoUwha" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                            <div>&nbsp;</div>
+                        </div>
+           
+                        <div class="col-xs-12 col-sm-6 col-md-8">
+                            <a href="https://www.youtube.com/embed/2uhEejH1bp0?si=Bd7y7YHnbbdoUwha" target="_blank">
+                                <span class="fa fa-youtube-square"></span> Videoconferencia: <br>
+                                "BibLex: aplicación práctica de IA y PLN para la asignación de palabras clave en registros de Biblat"<br>
+                                9 octubre 2024
+                            </a>
+                        </div>
+                    </div>
+	      </h5>
+	    </div>
+	</div>
+</div>
+<div class="panel-group">
+	<div class="panel panel-default">
+	    <div class="panel-heading">
+	      <h5 class="panel-title">
+                    <div class="row" id="indicadores">
+                        <div class="col-xs-12 col-sm-6 col-md-4">
                             <iframe width="250px" src="https://www.youtube.com/embed/fDV58hyz-G0" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
                             <div>&nbsp;</div>
                         </div>
