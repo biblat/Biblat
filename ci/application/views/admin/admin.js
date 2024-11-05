@@ -406,7 +406,7 @@ class_admin = {
             $.each(resumen, function(i2, val2){
                 var obj = {};
                 obj.resumen = class_utils.cleanHtml(val2.abstract);
-                if(val.lan !== undefined){
+                if(val2.lan !== undefined){
                     obj.idioma = val2.lan.charAt(0).toUpperCase() + val2.lan.slice(1).toLowerCase();
                     if( 'resumen' in obj && obj.resumen !== ''){
                         arr_resumen.push(obj);
