@@ -385,17 +385,19 @@ class_admin = {
             var arr_titulo = [];
             $.each(titulo, function(i2, val2){
                 var obj = {};
+                
+                if(val2.lan !== undefined){
+                    if( val2['lan'] == doc.locale){
+                        doc.titulo_original = class_utils.cleanHtml(val2.title);
 
-                if( val2['lan'] == doc.locale){
-                    doc.titulo_original = class_utils.cleanHtml(val2.title);
+                    }else{
+                        obj.titulo = class_utils.cleanHtml(val2.title);
 
-                }else{
-                    obj.titulo = class_utils.cleanHtml(val2.title);
-
-                    obj.idioma = val2.lan.charAt(0).toUpperCase() + val2.lan.slice(1).toLowerCase();
+                        obj.idioma = val2.lan.charAt(0).toUpperCase() + val2.lan.slice(1).toLowerCase();
+                    }
+                    if ('idioma' in obj && obj.titulo !== '')
+                        arr_titulo.push(obj);
                 }
-                if ('idioma' in obj && obj.titulo !== '')
-                    arr_titulo.push(obj);
             });
 
             doc.titulo = arr_titulo;
