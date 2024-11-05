@@ -244,7 +244,7 @@ class_admin = {
                 
                 var tabla = '';
                 $.each(issue, function(i, val){
-                    tabla += class_admin.cons.td_num.replaceAll('<anio>', val.year).replaceAll('<num>', 'V'+val.vol+'N'+val.num) + ' ';
+                    tabla += class_admin.cons.td_num.replaceAll('<anio>', val.year).replaceAll('<num>', 'V'+val.vol+'N'+val.num + ((val.especial !== undefined)?'Esp':'') ) + ' ';
                 });
                 
                 if(tabla !== ''){
@@ -270,8 +270,9 @@ class_admin = {
                                             $('#mensajeFin').html('');
                                             var anio = id.split('__')[0];
                                             var vol = id.split('__')[1].split('V')[1].split('N')[0];
-                                            var num = id.split('__')[1].split('V')[1].split('N')[1];
-                                            class_admin.registrosCLAPER(anio, vol, num);
+                                            var num = id.split('__')[1].split('N')[1].split('Esp')[0];
+                                            var especial = (id.indexOf('Esp') !== -1)?true:false;
+                                            class_admin.registrosCLAPER(anio, vol, num, especial);
                                         }
                                 }
                             }
@@ -288,7 +289,7 @@ class_admin = {
         });
         
     },
-    registrosCLAPER: function(anio, vol, num){
+    registrosCLAPER: function(anio, vol, num, especial){
         loading.start();
         var issue = '';
         var ids_issue = '';
@@ -304,6 +305,11 @@ class_admin = {
             issue = class_utils.filter_prop(issue, 'num', null);
         }else{
             issue = class_utils.filter_prop(issue, 'num', num);
+        }
+        if (especial){
+            issue = class_utils.filter_prop(issue, 'especial', 'especial');
+        }else{
+            issue = class_utils.filter_prop(issue, 'especial', undefined);
         }
 
         console.log(issue);
@@ -365,11 +371,11 @@ class_admin = {
             doc.ciudad_editora = class_admin.var.revista[7].trim();
             doc.fecha_publicacion = anio.trim();
             doc.disciplina = class_admin.var.revista[2].trim();
-
+            
             doc.doi = (val.doi == null)?null:val.doi.trim();
 
             doc.locale = val.idioma_articulo;
-
+            
             if(val.idioma_articulo == null || val.idioma_articulo == undefined)
                 doc.idioma = class_admin.var.registros.idioma_principal;
             else
@@ -400,10 +406,12 @@ class_admin = {
             $.each(resumen, function(i2, val2){
                 var obj = {};
                 obj.resumen = class_utils.cleanHtml(val2.abstract);
-                obj.idioma = val2.lan.charAt(0).toUpperCase() + val2.lan.slice(1).toLowerCase();
-                if( 'resumen' in obj && obj.resumen !== ''){
-                    arr_resumen.push(obj);
-                    arr_idioma.push(obj.idioma);
+                if(val.lan !== undefined){
+                    obj.idioma = val2.lan.charAt(0).toUpperCase() + val2.lan.slice(1).toLowerCase();
+                    if( 'resumen' in obj && obj.resumen !== ''){
+                        arr_resumen.push(obj);
+                        arr_idioma.push(obj.idioma);
+                    }
                 }
             });
 
