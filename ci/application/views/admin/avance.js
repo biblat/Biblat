@@ -156,8 +156,24 @@ class_av = {
         var bar_progress = '';
         var avance_total = 0;
         $.each(class_av.var.avance_por_mes, function(i, val){
+            var pre_total = avance_total;
             var tmp = class_av.var.barra_avance;
             avance_total += parseFloat(val.total);
+            
+            if(avance_total > total_departamento){
+                val.total = total_departamento - pre_total;
+                $('#conseguida').show();
+                setTimeout(function(){
+                    $(".esperado").after('<div class="firework"></div>');
+                },1000);
+                setTimeout(function(){
+                    $(".esperado").after('<div class="firework2"></div>');
+                },2000);
+                setTimeout(function(){
+                    $(".esperado").after('<div class="firework3"></div>');
+                },3000);
+            }
+            
             if(i%2 !== 0){
                tmp = tmp.replaceAll('progress-bar-striped', '');
             }
