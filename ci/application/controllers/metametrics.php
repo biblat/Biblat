@@ -108,6 +108,8 @@ class Metametrics extends CI_Controller {
         curl_setopt($ch, CURLOPT_USERAGENT,'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:7.0.1) Gecko/20100101 Firefox/7.0.1');
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_ENCODING, "identity");
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         $data = curl_exec($ch);
         curl_close($ch);
         return $data;
@@ -127,10 +129,12 @@ class Metametrics extends CI_Controller {
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_ENCODING, "identity");
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         $data = curl_exec($ch);
         $info = curl_getinfo($ch);
         curl_close($ch);
-        if ($info['http_code'] == '404') {
+        if ($info['http_code'] >= 400) {
             return true;
         }else{
             return false;

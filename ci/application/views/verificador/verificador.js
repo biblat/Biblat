@@ -2166,7 +2166,7 @@ class_ver = {
                     //var url = resp.resource.primary.URL;
                     var url = resp.values[0].data.value;
                     $.when(
-                        class_utils.getResource('/metametrics/get_url_validate?url='+url)
+                        class_utils.getResource('/metametrics/get_url_validate?url='+url, false, 30000)
                     ).then(function(resp2){
                         num = num + 1;
                         recibidos = recibidos + 1;
@@ -2193,6 +2193,25 @@ class_ver = {
                             }
                         }
 
+                    }).fail(function(){
+                        num = num + 1;
+                        recibidos = recibidos + 1;
+                        $('#dois').html(mensaje.replace('<num>', num));
+                        val.resuelve = 0;
+                        res.push(val);
+                        
+                        if(recibidos == rango){
+                            if(rango == rango_fijo && dois.length !== rango){
+                                setTimeout(function(){class_ver.valida_dois(dois.slice(rango), res, total, num)},1000);
+                            }else{
+                                class_ver.var.salida.pd = res;
+                                class_utils.setWithExpiry($('#'+class_ver.var.id_oai).val()+'-doi'+'-'+class_ver.var.id_anio, class_ver.var.salida.pd, class_ver.cons.expiry);
+                                var res_orcid = [];
+                                class_ver.valida_orcid(class_ver.var.salida.consis_or, res_orcid);
+                                //class_ver.graficaDois();
+                                return res;
+                            }
+                        }
                     });
                 }
             }).fail(function(){
