@@ -852,20 +852,24 @@ class Datos extends REST_Controller {
             $data = array();
             $this->load->database();
             $query = "
-                        select valor, num from(
-                        SELECT valor, count(1) num
-                        FROM article, jsonb_array_elements_text(to_jsonb(\"palabraClave\")) AS valores(valor) 
-                        where LENGTH(valor) > 1
-                        and 
-						(
-							sistema ~ '^(CLA|PER)01'
-						 or
-							(sistema ~ '^(CLA|PER)99' and \"estatusPC\"='C')
-						)
-                        and \"palabraClave\" is not null
-                        group by valor
-                        order by 1
-                        )a where num > 1
+                        SELECT valor, num
+                        FROM (
+                            SELECT
+                                valores.valor,
+                                COUNT(*) AS num
+                            FROM
+                                article,
+                                jsonb_array_elements_text(to_jsonb(\"palabraClave\")) AS valores(valor)
+                            WHERE
+                                LENGTH(valores.valor) > 1
+                                AND (
+                                    sistema ~ '^(CLA|PER)01'
+                                    OR (sistema ~ '^(CLA|PER)99' AND \"estatusPC\" = 'C')
+                                )
+                            GROUP BY valores.valor
+                        ) a
+                        WHERE num > 1
+                        ORDER BY valor
             ";
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);  
@@ -875,19 +879,24 @@ class Datos extends REST_Controller {
             $data = array();
             $this->load->database();
             $query = "
-                        select valor, num from(
-                        SELECT valor, count(1) num
-                        FROM article, jsonb_array_elements_text(to_jsonb(\"keyword\")) AS valores(valor) 
-                        where LENGTH(valor) > 1
-                        and 
-						(
-							sistema ~ '^(CLA|PER)01'
-						 or
-							(sistema ~ '^(CLA|PER)99' and \"estatusPC\"='C')
-						)
-                        group by valor
-                        order by 1
-                        )a where num > 1
+                        SELECT valor, num
+                        FROM (
+                            SELECT
+                                valores.valor,
+                                COUNT(*) AS num
+                            FROM
+                                article,
+                                jsonb_array_elements_text(to_jsonb(\"keyword\")) AS valores(valor)
+                            WHERE
+                                LENGTH(valores.valor) > 1
+                                AND (
+                                    sistema ~ '^(CLA|PER)01'
+                                    OR (sistema ~ '^(CLA|PER)99' AND \"estatusPC\" = 'C')
+                                )
+                            GROUP BY valores.valor
+                        ) a
+                        WHERE num > 1
+                        ORDER BY valor
             ";
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);  

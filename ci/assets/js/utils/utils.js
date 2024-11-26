@@ -182,8 +182,12 @@ class_utils= {
                                 }
                         });
     },
-    getResource: function(resource, cancela=false) { 
-        var peticion = $.ajax({url:resource, dataType: 'json', type:'GET', cache:false});
+    getResource: function(resource, cancela=false, timeout=null) { 
+        if(timeout == null){
+            var peticion = $.ajax({url:resource, dataType: 'json', type:'GET', cache:false});
+        }else{
+            var peticion = $.ajax({url:resource, dataType: 'json', type:'GET', cache:false, timeout:timeout});
+        }
         if(cancela){
             class_utils.peticionActiva.push(peticion);
         }
