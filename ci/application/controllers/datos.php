@@ -852,11 +852,9 @@ class Datos extends REST_Controller {
             $data = array();
             $this->load->database();
             $query = "
-                        SELECT valor, num
-                        FROM (
+                        WITH expanded_data AS (
                             SELECT
-                                valores.valor,
-                                COUNT(*) AS num
+                                valores.valor
                             FROM
                                 article,
                                 jsonb_array_elements_text(to_jsonb(\"palabraClave\")) AS valores(valor)
@@ -866,10 +864,18 @@ class Datos extends REST_Controller {
                                     sistema ~ '^(CLA|PER)01'
                                     OR (sistema ~ '^(CLA|PER)99' AND \"estatusPC\" = 'C')
                                 )
-                            GROUP BY valores.valor
-                        ) a
-                        WHERE num > 1
-                        ORDER BY valor
+                        )
+                        SELECT
+                            valor,
+                            COUNT(*) AS num
+                        FROM
+                            expanded_data
+                        GROUP BY
+                            valor
+                        HAVING
+                            COUNT(*) > 1
+                        ORDER BY
+                            valor
             ";
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);  
@@ -879,11 +885,9 @@ class Datos extends REST_Controller {
             $data = array();
             $this->load->database();
             $query = "
-                        SELECT valor, num
-                        FROM (
+                        WITH expanded_data AS (
                             SELECT
-                                valores.valor,
-                                COUNT(*) AS num
+                                valores.valor
                             FROM
                                 article,
                                 jsonb_array_elements_text(to_jsonb(\"keyword\")) AS valores(valor)
@@ -893,10 +897,18 @@ class Datos extends REST_Controller {
                                     sistema ~ '^(CLA|PER)01'
                                     OR (sistema ~ '^(CLA|PER)99' AND \"estatusPC\" = 'C')
                                 )
-                            GROUP BY valores.valor
-                        ) a
-                        WHERE num > 1
-                        ORDER BY valor
+                        )
+                        SELECT
+                            valor,
+                            COUNT(*) AS num
+                        FROM
+                            expanded_data
+                        GROUP BY
+                            valor
+                        HAVING
+                            COUNT(*) > 1
+                        ORDER BY
+                            valor
             ";
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);  
