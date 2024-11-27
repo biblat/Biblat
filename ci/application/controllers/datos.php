@@ -852,30 +852,7 @@ class Datos extends REST_Controller {
             $data = array();
             $this->load->database();
             $query = "
-                        WITH expanded_data AS (
-                            SELECT
-                                valores.valor
-                            FROM
-                                article,
-                                jsonb_array_elements_text(to_jsonb(\"palabraClave\")) AS valores(valor)
-                            WHERE
-                                LENGTH(valores.valor) > 1
-                                AND (
-                                    sistema ~ '^(CLA|PER)01'
-                                    OR (sistema ~ '^(CLA|PER)99' AND \"estatusPC\" = 'C')
-                                )
-                        )
-                        SELECT
-                            valor,
-                            COUNT(*) AS num
-                        FROM
-                            expanded_data
-                        GROUP BY
-                            valor
-                        HAVING
-                            COUNT(*) > 1
-                        ORDER BY
-                            valor
+                        select valor, num from mvpalabrasclave
             ";
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);  
@@ -885,30 +862,7 @@ class Datos extends REST_Controller {
             $data = array();
             $this->load->database();
             $query = "
-                        WITH expanded_data AS (
-                            SELECT
-                                valores.valor
-                            FROM
-                                article,
-                                jsonb_array_elements_text(to_jsonb(\"keyword\")) AS valores(valor)
-                            WHERE
-                                LENGTH(valores.valor) > 1
-                                AND (
-                                    sistema ~ '^(CLA|PER)01'
-                                    OR (sistema ~ '^(CLA|PER)99' AND \"estatusPC\" = 'C')
-                                )
-                        )
-                        SELECT
-                            valor,
-                            COUNT(*) AS num
-                        FROM
-                            expanded_data
-                        GROUP BY
-                            valor
-                        HAVING
-                            COUNT(*) > 1
-                        ORDER BY
-                            valor
+                        select valor, num from mvkeywords
             ";
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);  
