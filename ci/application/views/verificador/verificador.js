@@ -183,6 +183,28 @@ class_ver = {
     ready:function(){
         class_ver.var.simulador = ((window.location.href).indexOf('simulador') !== -1)?true:false;
         class_ver.var.postular = ((window.location.href).indexOf('postular') !== -1)?true:false;
+		
+		if(class_ver.var.postular){
+            $.confirm({
+                columnClass: 'xlarge',
+                title: '<span style="color:#DF6521">Aviso sobre el proceso de postulación</span>',
+                content: 'Informamos a toda la comunidad editorial que el periodo de evaluación de revistas para su inclusión en nuestro portal ha finalizado.' +
+                         ' El sistema seguirá abierto para nuevas postulaciones, sin embargo, estas serán revisadas a partir de febrero de 2025.' +
+                         '<br>Agradecemos su comprensión.' +
+                         '<br><br>Atentamente,' +
+                        '<br>Comité de Evaluación y Selección de Publicaciones seriadas para las bases de datos CLASE, Periódica, portal Biblat y catálogo SeriUNAM',
+                buttons: {
+                    aceptar: {
+                            text: 'Aceptar',
+                            btnClass: 'btn-warning',
+                            action: function(){
+                                    return true;
+                            }
+                    }
+                }
+            });
+        }
+		
         if( !class_ver.var.simulador && !class_ver.var.postular){
             class_ver.var.id_oai = 'url_oai_sel';
             //$('#'+class_ver.var.id_oai).show();
