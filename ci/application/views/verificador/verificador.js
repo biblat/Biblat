@@ -189,13 +189,13 @@ class_ver = {
                 columnClass: 'xlarge',
                 title: '<span style="color:#DF6521">Aviso sobre el proceso de postulación</span>',
                 content: 'Informamos a toda la comunidad editorial que el periodo de evaluación de revistas para su inclusión en nuestro portal ha finalizado.' +
-                         ' El sistema seguirá abierto para nuevas postulaciones, sin embargo, estas serán revisadas a partir de febrero de 2025.' +
+                         '<br>El sistema seguirá abierto para nuevas postulaciones, sin embargo, estas serán revisadas a partir de febrero de 2025.' +
                          '<br>Agradecemos su comprensión.' +
                          '<br><br>Atentamente,' +
                         '<br>Comité de Evaluación y Selección de Publicaciones seriadas para las bases de datos CLASE, Periódica, portal Biblat y catálogo SeriUNAM',
                 buttons: {
                     aceptar: {
-                            text: 'Aceptar',
+                            text: 'Continuar',
                             btnClass: 'btn-warning',
                             action: function(){
                                     return true;
