@@ -5138,14 +5138,14 @@ class_av = {
 								agrega.push(adecuada.palabra);
 								//val = adecuada.palabra_adecuada;
 								palabras_pdf[i] = val;
-								cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-lock');
+								cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-comments');
 							}
 							if(adecuada_bloqueada !== undefined){
 								agrega.push(adecuada_bloqueada.palabra_adecuada);
 								agrega.push(adecuada_bloqueada.palabra);
 								//val = adecuada_bloqueada.palabra_adecuada;
 								palabras_doc[i] = val;
-								cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-lock');
+								cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-comments');
 							}
 							if(busca !== undefined){
 								html += cons_palabra_clave.replaceAll('<palabra>', val).replaceAll('<palabra-slug>', 't-'+class_utils.slug(val)).replaceAll('<num>', busca.num);
@@ -5186,12 +5186,12 @@ class_av = {
 							
 							//En cualquiera de los dos casos se bloquea
 							if(adecuada !== undefined){
-								val = adecuada.palabra_adecuada;
-								cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-lock');
+								//val = adecuada.palabra_adecuada;
+								cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-comments');
 							}
 							if(adecuada_bloqueada !== undefined){
-								val = adecuada_bloqueada.palabra_adecuada;
-								cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-lock');
+								//val = adecuada_bloqueada.palabra_adecuada;
+								cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-comments');
 							}
 							if(busca !== undefined){
 								html += cons_palabra_clave.replaceAll('<palabra>', val).replaceAll('<palabra-slug>', 't-'+class_utils.slug(val)).replaceAll('<num>', busca.num);
@@ -5242,16 +5242,16 @@ class_av = {
                         if(adecuada !== undefined){
                             agrega.push(adecuada.palabra_adecuada);
                             agrega.push(adecuada.palabra);
-                            val = adecuada.palabra_adecuada;
+                            //val = adecuada.palabra_adecuada;
                             palabras_doc[i] = val;
-                            cons_keyword = cons_keyword.replaceAll('fa-pencil', 'fa-lock');
+                            cons_keyword = cons_keyword.replaceAll('fa-pencil', 'fa-comments');
                         }
                         if(adecuada_bloqueada !== undefined){
                             agrega.push(adecuada_bloqueada.palabra_adecuada);
                             agrega.push(adecuada_bloqueada.palabra);
-                            val = adecuada_bloqueada.palabra_adecuada;
+                            //val = adecuada_bloqueada.palabra_adecuada;
                             palabras_doc[i] = val;
-                            cons_keyword = cons_keyword.replaceAll('fa-pencil', 'fa-lock');
+                            cons_keyword = cons_keyword.replaceAll('fa-pencil', 'fa-comments');
                         }
                         
                         
