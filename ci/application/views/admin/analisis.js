@@ -5033,6 +5033,7 @@ class_av = {
             .then(function(resp_pdf, resp_sustituye){
                 resp_sustituye = resp_sustituye[0];
                 resp_pdf = resp_pdf[0][0];
+				class_av.var.palabras_sustituye = resp_sustituye;
 
                 class_av.var.palabras_clave = class_av.cons.option_badge.replace('<valor>', '').replace('<opcion>', '').replace('<num>', '');
                 $.each(class_av.var.palabras_clave0, function(i, val){
@@ -5070,7 +5071,9 @@ class_av = {
 
                 if (class_av.var.documentoJSON[0].palabraClave !== undefined && class_av.var.documentoJSON[0].palabraClave !== null && class_av.var.documentoJSON[0].palabraClave !== ''){
                     palabras_doc = JSON.parse(class_av.var.documentoJSON[0].palabraClave);
+                    palabras_doc = [...new Set(palabras_doc)];
                     revisa_palabras = JSON.parse(class_av.var.documentoJSON[0].palabraClave);
+                    revisa_palabras = [...new Set(revisa_palabras)];
                     $('#div_palabras_clave_texto').show();
                     $('#div_palabras_clave_autor').show();
                     var html = '';
@@ -5082,20 +5085,20 @@ class_av = {
                         var cons_palabra_clave = class_av.cons.palabra_clave;
                         
                         //En cualquiera de los dos casos se bloquea
-                        if(adecuada !== undefined){
+                        /*if(adecuada !== undefined){
                             agrega.push(adecuada.palabra_adecuada);
                             agrega.push(adecuada.palabra);
                             val = adecuada.palabra_adecuada;
                             palabras_doc[i] = val;
-                            cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-lock');
+                            cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-comments');
                         }
                         if(adecuada_bloqueada !== undefined){
                             agrega.push(adecuada_bloqueada.palabra_adecuada);
                             agrega.push(adecuada_bloqueada.palabra);
                             val = adecuada_bloqueada.palabra_adecuada;
                             palabras_doc[i] = val;
-                            cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-lock');
-                        }
+                            cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-comments');
+                        }*/
                         if(busca !== undefined){
                             html += cons_palabra_clave.replaceAll('<palabra>', val).replaceAll('<num>', busca.num).replaceAll('<palabra-slug>', 'a-'+class_utils.slug(val));
                         }else{
@@ -5122,32 +5125,34 @@ class_av = {
 
                     html = '';
                     $.each(palabras_pdf, function(i, val){
-                        var busca = class_utils.find_prop(class_av.var.palabras_clave0,'valor',val);
-                        //busca si existe en las palabras para cambiar o si ya es una de las adecuadas
-                        var adecuada = class_utils.find_prop(resp_sustituye,'palabra',val);
-                        var adecuada_bloqueada = class_utils.find_prop(resp_sustituye,'palabra_adecuada',val);
-                        var cons_palabra_clave = class_av.cons.palabra_clave;
-                        
-                        //En cualquiera de los dos casos se bloquea
-                        if(adecuada !== undefined){
-                            agrega.push(adecuada.palabra_adecuada);
-                            agrega.push(adecuada.palabra);
-                            val = adecuada.palabra_adecuada;
-                            palabras_pdf[i] = val;
-                            cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-lock');
-                        }
-                        if(adecuada_bloqueada !== undefined){
-                            agrega.push(adecuada_bloqueada.palabra_adecuada);
-                            agrega.push(adecuada_bloqueada.palabra);
-                            val = adecuada_bloqueada.palabra_adecuada;
-                            palabras_doc[i] = val;
-                            cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-lock');
-                        }
-                        if(busca !== undefined){
-                            html += cons_palabra_clave.replaceAll('<palabra>', val).replaceAll('<palabra-slug>', 't-'+class_utils.slug(val)).replaceAll('<num>', busca.num);
-                        }else{
-                            html += cons_palabra_clave.replaceAll('<palabra>', val).replaceAll('<palabra-slug>', 't-'+class_utils.slug(val)).replaceAll('<num>', '0');
-                        }
+						if(val.length > 1){
+							var busca = class_utils.find_prop(class_av.var.palabras_clave0,'valor',val);
+							//busca si existe en las palabras para cambiar o si ya es una de las adecuadas
+							var adecuada = class_utils.find_prop(resp_sustituye,'palabra',val);
+							var adecuada_bloqueada = class_utils.find_prop(resp_sustituye,'palabra_adecuada',val);
+							var cons_palabra_clave = class_av.cons.palabra_clave;
+							
+							//En cualquiera de los dos casos se bloquea
+							if(adecuada !== undefined){
+								agrega.push(adecuada.palabra_adecuada);
+								agrega.push(adecuada.palabra);
+								//val = adecuada.palabra_adecuada;
+								palabras_pdf[i] = val;
+								cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-lock');
+							}
+							if(adecuada_bloqueada !== undefined){
+								agrega.push(adecuada_bloqueada.palabra_adecuada);
+								agrega.push(adecuada_bloqueada.palabra);
+								//val = adecuada_bloqueada.palabra_adecuada;
+								palabras_doc[i] = val;
+								cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-lock');
+							}
+							if(busca !== undefined){
+								html += cons_palabra_clave.replaceAll('<palabra>', val).replaceAll('<palabra-slug>', 't-'+class_utils.slug(val)).replaceAll('<num>', busca.num);
+							}else{
+								html += cons_palabra_clave.replaceAll('<palabra>', val).replaceAll('<palabra-slug>', 't-'+class_utils.slug(val)).replaceAll('<num>', '0');
+							}
+						}
                     });
 
                     //$('#palabras_clave').html(resp_pdf.palabras.join("; "));
@@ -5172,26 +5177,28 @@ class_av = {
 
                     html = '';
                     $.each(palabrasb_pdf, function(i, val){
-                        var busca = class_utils.find_prop(class_av.var.palabras_clave0,'valor',val);
-                        //busca si existe en las palabras para cambiar o si ya es una de las adecuadas
-                        var adecuada = class_utils.find_prop(resp_sustituye,'palabra',val);
-                        var adecuada_bloqueada = class_utils.find_prop(resp_sustituye,'palabra_adecuada',val);
-                        var cons_palabra_clave = class_av.cons.palabra_clave;
-                        
-                        //En cualquiera de los dos casos se bloquea
-                        if(adecuada !== undefined){
-                            val = adecuada.palabra_adecuada;
-                            cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-lock');
-                        }
-                        if(adecuada_bloqueada !== undefined){
-                            val = adecuada_bloqueada.palabra_adecuada;
-                            cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-lock');
-                        }
-                        if(busca !== undefined){
-                            html += cons_palabra_clave.replaceAll('<palabra>', val).replaceAll('<palabra-slug>', 't-'+class_utils.slug(val)).replaceAll('<num>', busca.num);
-                        }else{
-                            html += cons_palabra_clave.replaceAll('<palabra>', val).replaceAll('<palabra-slug>', 't-'+class_utils.slug(val)).replaceAll('<num>', '0');
-                        }
+						if(val.length > 1){
+							var busca = class_utils.find_prop(class_av.var.palabras_clave0,'valor',val);
+							//busca si existe en las palabras para cambiar o si ya es una de las adecuadas
+							var adecuada = class_utils.find_prop(resp_sustituye,'palabra',val);
+							var adecuada_bloqueada = class_utils.find_prop(resp_sustituye,'palabra_adecuada',val);
+							var cons_palabra_clave = class_av.cons.palabra_clave;
+							
+							//En cualquiera de los dos casos se bloquea
+							if(adecuada !== undefined){
+								val = adecuada.palabra_adecuada;
+								cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-lock');
+							}
+							if(adecuada_bloqueada !== undefined){
+								val = adecuada_bloqueada.palabra_adecuada;
+								cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-lock');
+							}
+							if(busca !== undefined){
+								html += cons_palabra_clave.replaceAll('<palabra>', val).replaceAll('<palabra-slug>', 't-'+class_utils.slug(val)).replaceAll('<num>', busca.num);
+							}else{
+								html += cons_palabra_clave.replaceAll('<palabra>', val).replaceAll('<palabra-slug>', 't-'+class_utils.slug(val)).replaceAll('<num>', '0');
+							}
+						}
                     });
                     //$('#palabras_clave2').html(resp_pdf.palabras_b.join("; "));
                     $('#palabras_clave2').html(html);
@@ -5307,7 +5314,7 @@ class_av = {
                        class_av.prompt_n(this.id, 'eng', resp_sustituye);
                     });
                     
-                    $('.fa-lock.edita_palabra').off('click');
+                    //$('.fa-lock.edita_palabra').off('click');
 
                 if( resp_pdf.titulo !== undefined ){
                     $('#titulo').val(resp_pdf.titulo);
