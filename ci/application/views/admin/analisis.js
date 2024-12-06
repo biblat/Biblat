@@ -88,6 +88,7 @@ class_av = {
         palabras_clave: [],
         palabras_clave0: null,
         palabras_clave_n: [],
+		palabras_sustituye: [],
         keywords: [],
         keywords0: null,
         keywords_n: [],
@@ -1505,19 +1506,24 @@ class_av = {
                         class_av.var.cambios_de_inicio = false;
                     };
                     
-                    $.ajax({
-                        url:class_av.var.servidor + class_av.var.app + '/get_pdf/', 
-                        type:'POST',
-                        timeout: 90000,
-                        data: {url: url_pdf},
-                        cache:false,
-                        dataType:"json"
-                    }).done(function(resp_pdf){
-                        setArticulo(resp_pdf);
-                    }).fail(function(){
-                        var resp_pdf = {'result': 'fallo'};
-                        setArticulo(resp_pdf);
-                    });
+					
+					if(!revision_pc){
+						$.ajax({
+							url:class_av.var.servidor + class_av.var.app + '/get_pdf/', 
+							type:'POST',
+							timeout: 90000,
+							data: {url: url_pdf},
+							cache:false,
+							dataType:"json"
+						}).done(function(resp_pdf){
+							setArticulo(resp_pdf);
+						}).fail(function(){
+							var resp_pdf = {'result': 'fallo'};
+							setArticulo(resp_pdf);
+						});
+					}else{
+                        setArticulo('');
+                    }
                 //});
             });
             
@@ -3728,8 +3734,13 @@ class_av = {
             content: '' +
             '<form action="" class="formName">' +
             '<div class="form-group">' +
-            'Asignar un término más adecuado para<br> <b>' +id+ '</b>:' +
-            '<br><select class="name form-control" name="palabra_clave_sel" id="palabra_clave_sel" style="width:100%" width="100%" required>' +
+            'Asignar un término más adecuado para<br><b>' +id+ '</b>:<br><br>' +
+            '<div id="sugerencias" style="display:none">' +
+            'Palabras sugeridas por analistas' +
+            '<br><select class="name-s form-control" name="palabra_sugerida_sel" id="palabra_sugerida_sel" style="width:100%" width="100%"></select>' +
+            '<br><br>Otras palabras clave<br>'+
+            '</div>' +
+            '<select class="name form-control" name="palabra_clave_sel" id="palabra_clave_sel" style="width:100%" width="100%" >' +
             '</select>' +
             '</div>' +
             '</form>',
@@ -3746,11 +3757,16 @@ class_av = {
                     btnClass: 'btn-warning',
                     action: function () {
                         var name = this.$content.find('.name').val();
+                        var name_s = this.$content.find('.name-s').val();
                         var name_ant = '';
-                        if(!name || name == id){
+                        if((!name || name == id) && (!name_s || name_s == id)){
                             $.alert('No es una palabra válida');
                             return false;
                         }else{
+                            if(!name){
+                                name = name_s;
+                            }
+                            
                             name = name.trim();
                             
                             var duplicada = false;
@@ -3761,12 +3777,13 @@ class_av = {
                                 var_palabras_clave = class_av.var.keywords_n;
                             }
                             
+                            var sustituye = undefined;
                             //Revisa si existe una palabra más apropiada
-                            var sustituye = class_utils.find_prop(arr_sustituye, 'palabra', name);
+                            /*var sustituye = class_utils.find_prop(arr_sustituye, 'palabra', name);
                             if(sustituye !== undefined){
                                 name_ant = name;
                                 name = sustituye.palabra_adecuada;    
-                            }
+                            }*/
 
                             $(clase).each(function() {
                                 var palabra = $(this).html();
@@ -3807,44 +3824,72 @@ class_av = {
                 },
             },
             onContentReady: function () {
-                $("#palabra_clave_sel").select2({
-                tags: true,
-                allowClear: true,
-                placeholder: "Selecciona o escribe una palabra clave",
-                ajax: {
-                  url: '/datos/vacio',
-                  dataType: 'json',
-                  delay: 1000,
-                  data: (params) => {
-                    return {
-                      q: params.term,
-                    }
-                  },
-                  processResults: (data, params) => {
-                    var arr_busca = class_av.var.palabras_clave0;
-                    if(idioma == 'eng'){
-                        arr_busca = class_av.var.keywords0;
-                    }
-                    const results = class_utils.filter_prop_er(arr_busca,'valor',new RegExp("^" + params.term + ".*", "i")).map(item => {
-                      return {
-                        id: item.valor,
-                        text: item.valor,
-                        num: item.num
-                      };
+                var adecuadas = class_utils.filter_prop(class_av.var.palabras_sustituye, 'palabra', id);
+                var data = [{id:'', text:''}];
+                $.each(adecuadas, function(i, val){
+                    data.push({
+                       id: val.palabra_adecuada,
+                       text: val.palabra_adecuada
                     });
-                    return {
-                      results: results,
-                    }
-                  }
-                },
-                language: {
-                            inputTooShort: function () {
-                            return "";
-                            }
-                        },
-                minimumInputLength: 2,
-                templateResult: formatRepo,
                 });
+                
+                if(data.length > 1){
+                    
+                    $("#sugerencias").show();
+                    $("#palabra_sugerida_sel").select2({
+                        allowClear: true,
+                        placeholder: "Selecciona una palabra sugerida",
+                        data: data
+                    });
+                }
+                
+                var inicia_sel = function(){
+                        $("#palabra_clave_sel").select2({
+                        tags: true,
+                        allowClear: true,
+                        placeholder: "Selecciona o escribe otra palabra clave",
+                        ajax: {
+                          url: '/datos/vacio',
+                          dataType: 'json',
+                          delay: 1000,
+                          data: (params) => {
+                            return {
+                              q: params.term,
+                            }
+                          },
+                          processResults: (data, params) => {
+                            var arr_busca = class_av.var.palabras_clave0;
+                            if(idioma == 'eng'){
+                                arr_busca = class_av.var.keywords0;
+                            }
+                            const results = class_utils.filter_prop_er(arr_busca,'valor',new RegExp("^" + params.term + ".*", "i")).map(item => {
+                              return {
+                                id: item.valor,
+                                text: item.valor,
+                                num: item.num
+                              };
+                            });
+                            
+                            //Cambio al seleccionar una opción
+                            $('#palabra_clave_sel').on('select2:closing', function(){
+                                if ($('#palabra_clave_sel').val() !== '' && $('#palabra_clave_sel').val() !== null)
+                                    $('#palabra_sugerida_sel').val(null).trigger('change.select2');
+                             });
+                            
+                            return {
+                              results: results,
+                            }
+                          }
+                        },
+                        language: {
+                                    inputTooShort: function () {
+                                    return "";
+                                    }
+                                },
+                        minimumInputLength: 2,
+                        templateResult: formatRepo,
+                        });
+                    };
                 
                 function formatRepo (repo) {
                     if (repo.loading) {
@@ -3857,6 +3902,26 @@ class_av = {
 
                     return $container;
                   };
+                  
+                 inicia_sel();
+                 
+                $('#palabra_sugerida_sel').on('select2:select', function(){
+                    $('#palabra_clave_sel').val(null).trigger('change.select2'); // Limpiar el valor seleccionado
+                    $('#palabra_clave_sel').html('');
+                    $('#palabra_clave_sel').select2({
+                        data: [] // Opcional: vaciar datos internos si es necesario
+                    });
+                    $('#palabra_clave_sel').off('select2:select');
+                    $('#palabra_clave_sel').select2('destroy').select2();
+                    inicia_sel();
+                    $('#palabra_clave_sel').on('select2:select', function(){
+                            $('#palabra_sugerida_sel').val(null).trigger('change.select2');
+                    });
+                 });
+                 
+                $('#palabra_clave_sel').on('select2:select', function(){
+                    $('#palabra_sugerida_sel').val(null).trigger('change.select2');
+                 });
                 
                   /*
                   function formatRepoSelection (repo) {
@@ -3914,13 +3979,15 @@ class_av = {
                             clase ='.keyword.palabra_clave';
                             var_palabras_clave = class_av.var.keywords_n;
                         }
-                                                
+                           
+                        var sustituye = undefined;
+                        var existe_sugerencia = class_utils.find_prop(arr_sustituye, 'palabra', name);
                         //Revisa si existe una palabra más apropiada
-                        var sustituye = class_utils.find_prop(arr_sustituye, 'palabra', name);
+                        /*var sustituye = class_utils.find_prop(arr_sustituye, 'palabra', name);
                         if(sustituye !== undefined){
                             name_ant = name;
                             name = sustituye.palabra_adecuada;    
-                        }
+                        }*/
                         
                         $(clase).each(function() {
                             var palabra = $(this).html();
@@ -3954,9 +4021,18 @@ class_av = {
                                 class_av.var.keywords_n.push(name);
                             }
                             var html= '';
-                            var cons_palabra_clave = class_av.cons.palabra_clave_n;
-                            if(idioma == 'eng'){
-                                cons_palabra_clave = class_av.cons.keyword_n;
+                            if (existe_sugerencia !== undefined){
+                                var cons_palabra_clave = class_av.cons.palabra_clave;
+                                if(idioma == 'eng'){
+                                    cons_palabra_clave = class_av.cons.keyword;
+                                }
+                                cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-comments');
+                                class_av.mensaje('La palabra cuenta con alguna(s) sugerencia(s)');
+                            }else{
+                                var cons_palabra_clave = class_av.cons.palabra_clave_n;
+                                if(idioma == 'eng'){
+                                    cons_palabra_clave = class_av.cons.keyword_n;
+                                }
                             }
                             $.each(var_palabras_clave, function(i, val){
                                 var busca = class_utils.find_prop(class_av.var.palabras_clave0,'valor',val);
@@ -4029,6 +4105,15 @@ class_av = {
                                 class_av.mensaje('Se encontró una palabra que fue considerada más adecuada:<br><br><b>'+name_ant+'</b> será sustituida por <b>' + name +'</b>');
                             }else{
                                 class_av.mensaje('<b>'+ name +'</b> ha sido agregada correctamente');
+                            }
+                            
+                            if(existe_sugerencia !== undefined){
+                                $('.fa-pencil.edita_palabra, .fa-comments.edita_palabra').off('click').on('click', function(){
+                                    class_av.prompt(this.id, 'esp', class_av.var.palabras_sustituye);
+                                });
+                                $('.fa-pencil.edita_keyword, .fa-comments.edita_palabra').off('click').on('click', function(){
+                                    class_av.prompt(this.id, 'eng', class_av.var.palabras_sustituye);
+                                });
                             }
                         }
                     }
