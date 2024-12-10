@@ -4111,7 +4111,7 @@ class_av = {
                                 $('.fa-pencil.edita_palabra, .fa-comments.edita_palabra').off('click').on('click', function(){
                                     class_av.prompt(this.id, 'esp', class_av.var.palabras_sustituye);
                                 });
-                                $('.fa-pencil.edita_keyword, .fa-comments.edita_palabra').off('click').on('click', function(){
+                                $('.fa-pencil.edita_keyword, .fa-comments.edita_keyword').off('click').on('click', function(){
                                     class_av.prompt(this.id, 'eng', class_av.var.palabras_sustituye);
                                 });
                             }
@@ -5304,7 +5304,7 @@ class_av = {
                     $('.fa-pencil.edita_palabra, .fa-comments.edita_palabra').off('click').on('click', function(){
                        class_av.prompt(this.id, 'esp', resp_sustituye);
                     });
-                    $('.fa-pencil.edita_keyword, .fa-comments.edita_palabra').off('click').on('click', function(){
+                    $('.fa-pencil.edita_keyword, .fa-comments.edita_keyword').off('click').on('click', function(){
                        class_av.prompt(this.id, 'eng', resp_sustituye);
                     });
                     $('#add-palabra').off('click').on('click', function(){
