@@ -132,7 +132,7 @@ class_av = {
     },
     setTabla: function(data){
         var tbody = '';
-        var total_departamento = 30000;
+        var total_departamento = 30958;
         var total_meta = 0;
         $.each(data, function(i, val){
             if( val['nombre'] !== 'EDITOR' || cons.rol.val == 'Administrador'){
