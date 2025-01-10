@@ -36,7 +36,7 @@ class Revista extends CI_Controller{
 					\"autoresJSON\",
 					\"institucionesJSON\",
 					regexp_replace(regexp_replace(doi,'[^a-z0-9]*$',''),'^[^a-z0-9]*','') doi";
-		$queryFrom = "FROM \"vSearchFull\" WHERE \"revistaSlug\"='{$revistaSlug}'";
+		$queryFrom = "FROM \"mvSearch\" WHERE \"revistaSlug\"='{$revistaSlug}'";
 		$query = "{$queryFields}
 				{$queryFrom}
 				ORDER BY \"anioRevista\" DESC, regexp_replace(volumen, '([0-9]+?)[^0-9].+?$', '\1') DESC, regexp_replace(numero, '([0-9]+?)[^0-9].+?$', '\1') DESC, \"articuloSlug\"";
@@ -105,7 +105,7 @@ class Revista extends CI_Controller{
 				s.\"keyword\",
 				s.\"resumen\",
 				s.url
-			FROM \"vSearchFull\" s
+			FROM \"mvSearch\" s
 			WHERE \"revistaSlug\"='{$uriVar['revista']}' AND \"articuloSlug\"='{$uriVar['articulo']}'";
 		$query = $this->db->query($query);
 		$articulo = $query->row_array();
