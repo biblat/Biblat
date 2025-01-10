@@ -112,7 +112,7 @@ class Datos extends REST_Controller {
             $query = 'SELECT t."institucionSlug", t."revistaSlug", t."paisRevistaSlug", t."disciplinaSlug", (array_agg(t."disciplinaRevista"))[1] AS "disciplinaRevista", (array_agg(t."paisRevista"))[1] AS "paisRevista", (array_agg(t.revista))[1] AS revista, (array_agg(t.institucion))[1] AS institucion, sum(t.documentos) AS documentos
                 FROM ( SELECT i.slug AS "institucionSlug", (array_agg(i.institucion))[1] AS institucion, s."paisRevistaSlug", s."paisRevista", s."disciplinaRevista", s."disciplinaSlug", s."revistaSlug", s.revista, count(DISTINCT s.sistema) AS documentos
                         FROM institution i
-                        JOIN "vSearchFull" s ON i.sistema::text = s.sistema::text
+                        JOIN "mvSearch" s ON i.sistema::text = s.sistema::text
                         GROUP BY i.slug, s."revistaSlug", s.revista, s."paisRevistaSlug", s."paisRevista", s."disciplinaSlug", s."disciplinaRevista"
                         ORDER BY i.slug, s."revistaSlug", (count(DISTINCT s.sistema)) DESC) t
                 where t."institucionSlug"=\'' . $institucion .'\'
