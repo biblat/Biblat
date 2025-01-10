@@ -1157,6 +1157,7 @@ class Datos extends REST_Controller {
             ";
             
             $this->db->query($query);
-            $this->response('{res:200}', 200);
+            
+            $this->db->close();
         }		
 }
