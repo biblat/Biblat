@@ -125,6 +125,7 @@ class Datos extends REST_Controller {
                 GROUP BY t."institucionSlug", t."revistaSlug", t."paisRevistaSlug", t."disciplinaSlug", t."disciplinaRevista"
                 order by "paisRevista" asc';
             $query = $this->db->query($query);
+			$this->output->set_content_type('application/json');
             $this->response($query->result_array(), 200);
         }
         
