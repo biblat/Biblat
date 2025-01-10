@@ -42,7 +42,7 @@ class Indice extends CI_Controller{
 		$data['header']['title'] = _sprintf('Indice alfabético "%s"', strtoupper($letra));
 		/*Consultas*/
 		$this->load->database();
-		$query = "SELECT revista, \"revistaSlug\", count(revista) AS articulos FROM \"vSearchFull\" WHERE SUBSTRING(LOWER(revista), 1, 1)='{$letra}' GROUP BY revista, \"revistaSlug\" ORDER BY revista;";
+		$query = "SELECT revista, \"revistaSlug\", count(revista) AS articulos FROM \"mvSearch\" WHERE SUBSTRING(LOWER(revista), 1, 1)='{$letra}' GROUP BY revista, \"revistaSlug\" ORDER BY revista;";
 		$query = $this->db->query($query);
 		$data['alfabetico']['registrosTotalArticulos'] = 0;
 		foreach ($query->result_array() as $row):
@@ -77,7 +77,7 @@ class Indice extends CI_Controller{
 		$query->free_result();
 		$data['disciplina']['current'] = $data['disciplina']['disciplinas'][$disciplina];
 		/*Obteniendo registros*/
-		$query = "SELECT revista, \"revistaSlug\", count(revista) AS articulos FROM \"vSearchFull\" WHERE id_disciplina = '{$data['disciplina']['current']['id_disciplina']}' GROUP BY revista, \"revistaSlug\" ORDER BY articulos DESC";
+		$query = "SELECT revista, \"revistaSlug\", count(revista) AS articulos FROM \"mvSearch\" WHERE id_disciplina = '{$data['disciplina']['current']['id_disciplina']}' GROUP BY revista, \"revistaSlug\" ORDER BY articulos DESC";
 		$query = $this->db->query($query);
 		$data['disciplina']['registrosTotalArticulos'] = 0;
 		foreach ($query->result_array() as $row):
@@ -109,7 +109,7 @@ class Indice extends CI_Controller{
 		$query->free_result();
 		$data['pais']['current'] = $data['pais']['paises'][$pais];
 		/*Obteniendo registros*/
-		$query = "SELECT revista, \"revistaSlug\", count(revista) AS articulos FROM \"vSearchFull\" WHERE \"paisRevistaSlug\"='{$pais}' GROUP BY revista, \"revistaSlug\" ORDER BY articulos DESC";
+		$query = "SELECT revista, \"revistaSlug\", count(revista) AS articulos FROM \"mvSearch\" WHERE \"paisRevistaSlug\"='{$pais}' GROUP BY revista, \"revistaSlug\" ORDER BY articulos DESC";
 		$query = $this->db->query($query);
 		$data['pais']['registrosTotalArticulos'] = 0;
 		foreach ($query->result_array() as $row):
