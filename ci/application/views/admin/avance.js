@@ -124,6 +124,7 @@ class_av = {
                     class_av.setTablaPC(class_av.var.avance_pc);
                 }
                 if(cons.rol.val == 'Administrador'){
+					$('.avance-mes').show();
                     $('.avance-mes, #avance-actual').css('cursor', 'pointer');
                     class_av.control_admin();
                 }
