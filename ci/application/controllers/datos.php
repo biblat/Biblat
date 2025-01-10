@@ -283,15 +283,20 @@ class Datos extends REST_Controller {
             $this->response($query->result_array(), 200);
         }
         
-        public function avance_get(){
+        public function avance_get($anio=null){
             $data = array();
-            //$this->load->database('prueba');
-			$this->load->database();
+            $this->load->database();
+            
+            if($anio == null){
+                $txtAnio = 'extract(year from c.fecha) = extract(year from CURRENT_DATE)';
+            }else{
+                $txtAnio = 'extract(year from c.fecha) = ' . $anio;
+            }
             
             $query = "
                     with registros as (
                         select 
-						distinct a.sistema,
+                        distinct a.sistema,
                         asignado, estatus, nombre
                         from article a
                         inner join
@@ -299,17 +304,19 @@ class Datos extends REST_Controller {
                         on a.sistema = c.sistema
                         where 
                         (
-                            estatus in ('A', 'R')
-                            and 
                             c.nombre in ('OJS', 'SciELO')
+                            and
+                            estatus in ('A', 'R')
                         )
                         or
                         (
-                            estatus in ('C', 'B')
-                            and
                             c.nombre <> 'OJS' and c.nombre <> 'SciELO'
                             and
-                            extract(year from c.fecha) = extract(year from CURRENT_DATE)
+                            estatus in ('C', 'B')
+                            and
+                            "
+                            .$txtAnio.
+                            "
                         )
                     )
                     select 
@@ -325,10 +332,16 @@ class Datos extends REST_Controller {
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);
         }
-		
-		public function avancepc_get(){
+        
+        public function avancepc_get($anio=null){
             $data = array();
             $this->load->database();
+            
+            if($anio == null){
+                $txtAnio = 'extract(year from c.fecha) = extract(year from CURRENT_DATE)';
+            }else{
+                $txtAnio = 'extract(year from c.fecha) = ' . $anio;
+            }
             
             $query = "
                     with registros as (
@@ -347,7 +360,9 @@ class Datos extends REST_Controller {
                         (
                             \"estatusPC\" in ('C', 'B')
                             and
-                            extract(year from c.fecha) = extract(year from CURRENT_DATE)
+                            "
+                            .$txtAnio.
+                            "
                         )
                     )
                     select 
@@ -363,12 +378,17 @@ class Datos extends REST_Controller {
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);
         }
-		
-		public function avance_total_get() {
+        
+        public function avance_total_get($anio=null) {
             $data = array();
-            //$this->load->database('prueba');
-			$this->load->database();
-			
+            $this->load->database();
+            
+            if($anio == null){
+                $txtAnio = 'extract(year from c.fecha) = extract(year from CURRENT_DATE)';
+            }else{
+                $txtAnio = 'extract(year from c.fecha) = ' . $anio;
+            }
+            
             $query = "
                     with registros as (
                         select 
@@ -385,7 +405,9 @@ class Datos extends REST_Controller {
 							and
 							c.nombre <> 'OJS' and c.nombre <> 'SciELO'
 							and
-                            extract(year from c.fecha) = extract(year from CURRENT_DATE)
+                            "
+                            .$txtAnio.
+                            "
                         )
 						or
 						(
@@ -397,7 +419,9 @@ class Datos extends REST_Controller {
 							and
 							c.nombre <> 'OJS' and c.nombre <> 'SciELO'
                             and
-                            extract(year from c.fecha) = extract(year from CURRENT_DATE)
+                            "
+                            .$txtAnio.
+                            "
 						)
                     )
                     select 
