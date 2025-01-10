@@ -365,7 +365,6 @@ mapaChart = {
 };
 
 loading.start();
-class_utils.getResource('/datos/cierraconecciones');
 $.when(
         class_utils.getResource('/datos/datosPais')        
 //        (window.location.href.indexOf('mapa') !== -1)?class_utils.getResource('/datos/datosRevistas'):window.location.href,
