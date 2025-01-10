@@ -6,6 +6,7 @@ class Datos extends REST_Controller {
 	public function __construct()
 	{
 		parent::__construct();
+		header('Content-Type: application/json');
 	}
 
 	public function datosPais_get(){
