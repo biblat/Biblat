@@ -6,6 +6,7 @@ class Datos extends REST_Controller {
 	public function __construct()
 	{
 		parent::__construct();
+		$this->reset_conections();
 	}
 
 	public function datosPais_get(){
@@ -1115,5 +1116,20 @@ class Datos extends REST_Controller {
 					echo '{"error": "No se encontraron archivos o hubo un error en la ejecución."}';
 				}
             }
+        }
+
+		public function reset_conections(){
+            $this->load->database();
+            $query = "
+                SELECT pg_cancel_backend(pid)
+                FROM pg_stat_activity
+                WHERE datname = 'claper'
+                AND pid <> pg_backend_pid()
+                AND now() - backend_start > interval '10 minutes'
+            ";
+            
+            $this->db->query($query);
+            
+            $this->db->close();
         }		
 }
