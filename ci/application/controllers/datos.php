@@ -126,7 +126,7 @@ class Datos extends REST_Controller {
                 order by "paisRevista" asc';
             $query = $this->db->query($query);
 			$this->output->set_content_type('application/json');
-            $this->response($query->result_array(), 200);
+            $this->response(json_encode($query->result_array()), 200);
         }
         
         public function tabla_get($tabla){
