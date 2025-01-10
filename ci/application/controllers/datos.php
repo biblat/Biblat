@@ -1124,7 +1124,11 @@ class Datos extends REST_Controller {
                 FROM pg_stat_activity
                 WHERE datname = 'claper'
                 AND pid <> pg_backend_pid()
-                AND now() - backend_start > interval '10 minutes'
+                AND 
+				(
+					state = 'idle' or 
+					now() - backend_start > interval '10 minutes'
+				)
             ";
             
             $this->db->query($query);
