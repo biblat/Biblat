@@ -226,6 +226,10 @@
 <div class="progress" style='height: 40px'>
   
 </div>
+{if $rol == "Administrador"}
+    <div class="row"><br></div>
+    <center><button id="12" type="button" class="btn btn-warning avance-mes" style="width:160px;border-radius:5px;display:none">Ver diciembre</button></center>
+{/if}
 <div class="row">
     <div class="col-sm-12">
         <div id="div_tabla" style="display:block">
