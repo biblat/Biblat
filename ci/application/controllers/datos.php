@@ -422,6 +422,11 @@ class Datos extends REST_Controller {
             //$this->load->database('prueba');
 			$this->load->database();
 			
+			$prequery ="SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'claper' AND pid <> pg_backend_pid() AND 
+                  (state = 'idle' OR now() - backend_start > interval '10 minutes')";
+                
+            $this->db->query($prequery);
+			
             $usuario = $this->session->userdata('usu_base');
             $query = '
                         select
