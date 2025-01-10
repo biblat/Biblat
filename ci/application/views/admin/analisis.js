@@ -321,6 +321,7 @@ class_av = {
         cambios_institucion: false
     },
     initClient: function() {
+		class_utils.getResource('/datos/cierraconecciones');
         $.when(class_utils.getResource('/datos/articulos/'),
         class_utils.getResource('/datos/tabla_by_user/usuario_institution_dic')
         ) 
