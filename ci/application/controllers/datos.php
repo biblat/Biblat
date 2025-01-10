@@ -11,12 +11,6 @@ class Datos extends REST_Controller {
 	public function datosPais_get(){
 		$data = array();
 		$this->load->database();
-                
-                $prequery ="SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'claper' AND pid <> pg_backend_pid() AND 
-                  (state = 'idle' OR now() - backend_start > interval '10 minutes')";
-                
-                $this->db->query($prequery);
-                
 		$query = "select \"paisRevistaSlug\" pais, count(distinct slug(\"revista\")) revistas, sum(art) articulos from(" .
                             "select ve.\"paisRevistaSlug\", ve.\"revista\", count(1) art from \"mvPaisRevistaArticulo\" ve group by 1,2".
                             ") a group by \"paisRevistaSlug\"";
@@ -125,10 +119,7 @@ class Datos extends REST_Controller {
                 GROUP BY t."institucionSlug", t."revistaSlug", t."paisRevistaSlug", t."disciplinaSlug", t."disciplinaRevista"
                 order by "paisRevista" asc';
             $query = $this->db->query($query);
-            //$this->response(json_encode($query->result_array()), 200);
-            $this->output
-            ->set_content_type('application/json') // Establece el encabezado Content-Type
-            ->set_output(json_encode($query->result_array()));  
+            $this->response($query->result_array(), 200);
         }
         
         public function tabla_get($tabla){
