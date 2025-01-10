@@ -1115,5 +1115,20 @@ class Datos extends REST_Controller {
 					echo '{"error": "No se encontraron archivos o hubo un error en la ejecución."}';
 				}
             }
+        }
+
+		public function cierraconecciones_get(){
+            $this->load->database();
+            $query = "
+                SELECT pg_terminate_backend(pid)
+                FROM pg_stat_activity
+                WHERE datname = 'claper'
+                AND pid <> pg_backend_pid()
+                AND now() - backend_start > interval '10 minutes'
+            ";
+            
+            $this->db->query($query);
+            
+            $this->db->close();
         }		
 }
