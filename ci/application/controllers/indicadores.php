@@ -1081,7 +1081,7 @@ class Indicadores extends CI_Controller {
 		endif;
 		/*Datos de la revista*/
 		$this->load->database();
-		$queryRevista = "SELECT revista FROM \"vSearchFull\" WHERE \"revistaSlug\"='{$uri_args['revista']}' LIMIT 1";
+		$queryRevista = "SELECT revista FROM \"mvSearch\" WHERE \"revistaSlug\"='{$uri_args['revista']}' LIMIT 1";
 		$queryRevista = $this->db->query($queryRevista);
 		$this->db->close();
 		$queryRevista = $queryRevista->row_array();
