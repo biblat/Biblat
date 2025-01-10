@@ -82,6 +82,7 @@ class_av = {
 		tproduccionpc: []
     },
     initClient: function() {
+		class_utils.getResource('/datos/cierraconecciones');
         $.when(class_utils.getResource('/datos/avance/'),
                 class_utils.getResource('/datos/avance_total/'),
                 class_utils.getResource('/datos/avancepc/')
