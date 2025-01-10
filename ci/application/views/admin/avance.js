@@ -83,25 +83,27 @@ class_av = {
 		tproduccionpc: []
     },
     initClient: function() {
-		class_utils.getResource('/datos/cierraconecciones');
-        $.when(class_utils.getResource('/datos/avance/'),
+		$.when(class_utils.getResource('/datos/cierraconecciones'))
+		.then(function(res){
+			$.when(class_utils.getResource('/datos/avance/'),
                 class_utils.getResource('/datos/avance_total/'),
                 class_utils.getResource('/datos/avancepc/')
-        )  
-        .then(function(resp_analistas, resp_total, resp_avancepc){
-            class_av.var.analistasJSON = resp_analistas[0];
-            class_av.var.avance_por_mes = resp_total[0];
-            class_av.var.avance_pc = resp_avancepc[0];
-            class_av.setTabla(class_av.var.analistasJSON);
-            if(cons.rol.val == 'Administrador' || cons.pal_cla.val == '1'){
-                class_av.setTablaPC(class_av.var.avance_pc);
-            }
-            if(cons.rol.val == 'Administrador'){
-                $('.avance-mes, #avance-actual').css('cursor', 'pointer');
-                class_av.control_admin();
-            }
-            loading.end();
-        });
+			)  
+			.then(function(resp_analistas, resp_total, resp_avancepc){
+				class_av.var.analistasJSON = resp_analistas[0];
+				class_av.var.avance_por_mes = resp_total[0];
+				class_av.var.avance_pc = resp_avancepc[0];
+				class_av.setTabla(class_av.var.analistasJSON);
+				if(cons.rol.val == 'Administrador' || cons.pal_cla.val == '1'){
+					class_av.setTablaPC(class_av.var.avance_pc);
+				}
+				if(cons.rol.val == 'Administrador'){
+					$('.avance-mes, #avance-actual').css('cursor', 'pointer');
+					class_av.control_admin();
+				}
+				loading.end();
+			});
+		});
     },
     ready: function(){
         loading.start();

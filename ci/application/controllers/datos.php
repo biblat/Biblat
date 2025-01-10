@@ -1152,12 +1152,11 @@ class Datos extends REST_Controller {
                 AND 
 				(
 					state = 'idle' or 
-					now() - backend_start > interval '10 minutes'
+					now() - backend_start > interval '5 minutes'
 				)
             ";
             
             $this->db->query($query);
-            
-            $this->db->close();
+            $this->response('{res:200}', 200);
         }		
 }
