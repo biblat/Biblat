@@ -207,6 +207,12 @@
                         pal_cla: Object.freeze( { val: '<?php echo $pal_cla; ?>'})
                     };
 </script>
+
+{if $rol == "Administrador"}
+    <div class="row"><br></div>
+    <center><button type="button" class="btn btn-warning" id="btn-anio" style="width:160px;border-radius:5px">Ver año anterior</button></center>
+{/if}
+
 <div class="row"><br></div>
 <center><div class="row" id="meta_departamento"><b>Meta del departamento:</b> 30,958 Registros</div></center>
 <div class="row"><br></div>
