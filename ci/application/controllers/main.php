@@ -201,7 +201,7 @@ class Main extends CI_Controller{
 		$query = ' SELECT '. 
                             ' v.revista, v."revistaSlug", v.articulos, "revistaISSN","revistaSiglum","disciplinaSlug",coautoriapricezakutina,subramayan,tasalawani,pratt,exogena '.
                             ' from '.
-                            ' (SELECT max(v.revista) revista, v."revistaSlug", count(v.revista) AS articulos FROM "vSearchFull" v GROUP BY v."revistaSlug") v '.
+                            ' (SELECT max(v.revista) revista, v."revistaSlug", count(v.revista) AS articulos FROM "mvSearch" v GROUP BY v."revistaSlug") v '.
                             ' LEFT JOIN (SELECT distinct "revistaSlug", "revistaISSN","revistaSiglum","disciplinaSlug",coautoriapricezakutina,subramayan,tasalawani,pratt,exogena '.
                             ' FROM "vIndicadoresRevistaGeneral" WHERE substr("revistaSlug", 1 , 1)=\''.$alpha.'\')a '.
                             ' ON a."revistaSlug" = v."revistaSlug" '.
