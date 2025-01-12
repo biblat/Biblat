@@ -148,7 +148,7 @@ class Buscar extends CI_Controller{
 			\"autoresJSON\",
 			\"institucionesJSON\",
 			regexp_replace(regexp_replace(doi,'[^a-z0-9]*$',''),'^[^a-z0-9]*','') doi";
-		$queryFrom="FROM \"mvSearch\" s
+		$queryFrom="FROM \"mvSearch_all\" s
 				WHERE  {$slugQuerySearch['where']} {$whereTextoCompleto} {$whereDisciplina}";
 		$query = "{$queryFields}
 		{$queryFrom}
@@ -156,6 +156,7 @@ class Buscar extends CI_Controller{
 
 
 		$queryCount = "SELECT count (*) as total {$queryFrom}";
+		$queryCount = str_replace("mvSearch_all", "mvSearch_count", $queryCount);
 
 		/*Creando paginacion*/
 		if($disciplina == "null"):
