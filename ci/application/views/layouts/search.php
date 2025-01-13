@@ -1,4 +1,13 @@
-    <form action="{site_url('buscar')}" id="searchform" method="post" role="search" autocomplete="off">
+    <?php
+        // Generar el token si no existe
+        if (!$this->session->userdata('csrf_token')) {
+            $csrf_token = bin2hex(random_bytes(32));
+            $this->session->set_userdata('csrf_token', $csrf_token); // Guardar el token en la sesión
+        } else {
+            $csrf_token = $this->session->userdata('csrf_token');
+        }
+    ?>
+	<form action="{site_url('buscar')}" id="searchform" method="post" role="search" autocomplete="off">
         <div class="form-group">
             <div class="input-group">
                 <div class="input-group-addon">
@@ -25,5 +34,6 @@
             </div><!--input-group-->
             <input type="hidden" name="disciplina" value=""/>
             <input type="hidden" name="filtro" id="filtro" value="todos"/>
+			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
         </div><!--form-group-->
     </form>
