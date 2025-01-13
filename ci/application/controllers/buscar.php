@@ -299,6 +299,7 @@ class Buscar extends CI_Controller{
                 // Bloquea al usuario hasta el siguiente día si excede el límite
                 $midnight = strtotime('tomorrow midnight');
                 $this->session->set_userdata('block_until', $midnight);
+				$this->insertIP();
                 return false;
             }
 
@@ -308,4 +309,37 @@ class Buscar extends CI_Controller{
             $this->session->set_userdata('rate_limit', $rate_limit);
             return true;
         }
+		
+		public function insertIP(){
+            $ip = $this->get_ip();
+            $this->load->database();
+            $query="Insert into ip_blacklist values(NOW()::timestamp::date, '" . $ip . "')";
+            $this->db->query($query);
+        }
+        
+        private function get_ip(){
+			$realip = '';
+			if ($_SERVER) {  
+			   if ( $_SERVER["HTTP_X_FORWARDED_FOR"] ) {  
+				   $realip = $_SERVER["HTTP_X_FORWARDED_FOR"];  
+			   } elseif ( $_SERVER["HTTP_CLIENT_IP"] ) {  
+				   $realip = $_SERVER["HTTP_CLIENT_IP"];  
+			   } elseif ($_SERVER["REMOTE_ADDR"]){
+				   $realip = $_SERVER["REMOTE_ADDR"];  
+			   } else{
+				   $realip = 'UNKNOWN';
+			   }
+			} else {  
+				if ( getenv( 'HTTP_X_FORWARDED_FOR' ) ) {  
+				   $realip = getenv( 'HTTP_X_FORWARDED_FOR' );  
+				} elseif ( getenv( 'HTTP_CLIENT_IP' ) ) {  
+				   $realip = getenv( 'HTTP_CLIENT_IP' );  
+				} elseif (getenv( 'REMOTE_ADDR' )){  
+				   $realip = getenv( 'REMOTE_ADDR' );  
+				} else{
+				   $realip = 'UNKNOWN';
+				}
+			}
+			return $realip;
+		}
 }
