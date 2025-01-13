@@ -22,6 +22,10 @@ class Buscar extends CI_Controller{
 			}
 		}
 		
+		if(!$this->validaSolicitud()){
+			http_response_code(403);
+		}
+		
 		/*Arrego con descripcion y sql para cada indice*/
 		$indiceArray['palabra-clave'] = array('sql' => 'palabrasClaveSlug', 'descripcion' => _('Palabras clave'));
 		$indiceArray['articulo'] = array('sql' => 'articuloSlug', 'descripcion' => _('Artículo'));
@@ -279,7 +283,9 @@ class Buscar extends CI_Controller{
             $now = time();
 
             //  Elimina solicitudes más antiguas de un período de tiempo (ejemplo: 1 minuto)
-            $rate_limit = array_filter($rate_limit, fn($timestamp) => $now - $timestamp < 60);
+            $rate_limit = array_filter($rate_limit, function($timestamp) use ($now) {
+				return $now - $timestamp < 60;
+			});
 
             // Verifica el número de solicitudes restantes
             if (count($rate_limit) >= 5) { // Permite solo 10 solicitudes por minuto
