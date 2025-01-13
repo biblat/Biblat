@@ -22,9 +22,9 @@ class Buscar extends CI_Controller{
 			}
 		}
 		
-		if(!$this->validaSolicitud()){
-			http_response_code(403);
-		}
+		//if(!$this->validaSolicitud()){
+		//	http_response_code(403);
+		//}
 		
 		/*Arrego con descripcion y sql para cada indice*/
 		$indiceArray['palabra-clave'] = array('sql' => 'palabrasClaveSlug', 'descripcion' => _('Palabras clave'));
