@@ -22,6 +22,10 @@ class Buscar extends CI_Controller{
 			}
 		}
 		
+		if(!$this->validaSolicitud()){
+			http_response_code(403);
+		}
+		
 		/*Arrego con descripcion y sql para cada indice*/
 		$indiceArray['palabra-clave'] = array('sql' => 'palabrasClaveSlug', 'descripcion' => _('Palabras clave'));
 		$indiceArray['articulo'] = array('sql' => 'articuloSlug', 'descripcion' => _('Artículo'));
@@ -256,4 +260,41 @@ class Buscar extends CI_Controller{
 		}
 		return json_decode($this->session->userdata('discipliasBusqueda'), TRUE);
 	}
+	
+	public function validaSolicitud(){
+            // Obtén la IP del cliente
+            $ip_cliente = $this->input->ip_address();
+
+            // Verifica si la IP está dentro del rango 132.248.*
+            //if (strpos($ip_cliente, '132.248.') === 0) {
+                // IP permitida, sin restricciones
+                //return true;
+            //}
+            
+            if (!$this->session->userdata('rate_limit')) {
+                $rate_limit = [];
+                $now = time();
+                $rate_limit[] = $now;
+                $this->session->set_userdata('rate_limit', $rate_limit);
+            }else{
+                $rate_limit = $this->session->userdata('rate_limit');
+            }
+            
+            $now = time();
+
+            //  Elimina solicitudes más antiguas de un período de tiempo (ejemplo: 1 minuto)
+            $rate_limit = array_filter($rate_limit, fn($timestamp) => $now - $timestamp < 60);
+
+            // Verifica el número de solicitudes restantes
+            if (count($rate_limit) >= 5) { // Permite solo 10 solicitudes por minuto
+                //show_error('Límite de solicitudes alcanzado. Inténtelo más tarde.', 429);
+                return false;
+            }
+
+            // Registra la nueva solicitud
+            $rate_limit[] = $now;
+            $rate_limit = array_unique($rate_limit);
+            $this->session->set_userdata('rate_limit', $rate_limit);
+            return true;
+        }
 }
