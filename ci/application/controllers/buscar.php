@@ -271,6 +271,14 @@ class Buscar extends CI_Controller{
                 //return true;
             //}
             $rate_limit = [];
+            $block_until = $this->session->userdata('block_until') ?: null;
+            
+            $now = time();
+            
+            // Verifica si el usuario está bloqueado
+            if ($block_until && $now < $block_until) {
+                return false; // Usuario bloqueado hasta el siguiente día
+            }
             
             if (!$this->session->userdata('rate_limit')) {
                 $now = time();
@@ -279,17 +287,18 @@ class Buscar extends CI_Controller{
             }else{
                 $rate_limit = $this->session->userdata('rate_limit');
             }
-            
-            $now = time();
 
             //  Elimina solicitudes más antiguas de un período de tiempo (ejemplo: 1 minuto)
             $rate_limit = array_filter($rate_limit, function($timestamp) use ($now) {
-				return $now - $timestamp < 60;
-			});
+                return $now - $timestamp < 60;
+            });
 
             // Verifica el número de solicitudes restantes
-            if (count($rate_limit) >= 5) { // Permite solo 10 solicitudes por minuto
+            if (count($rate_limit) >= 3) { // Permite solo 10 solicitudes por minuto
                 //show_error('Límite de solicitudes alcanzado. Inténtelo más tarde.', 429);
+                // Bloquea al usuario hasta el siguiente día si excede el límite
+                $midnight = strtotime('tomorrow midnight');
+                $this->session->set_userdata('block_until', $midnight);
                 return false;
             }
 
