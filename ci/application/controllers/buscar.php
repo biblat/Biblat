@@ -13,14 +13,14 @@ class Buscar extends CI_Controller{
 	}
 
 	public function index($filtro="", $disciplina="", $slug="", $textoCompleto=""){
-		if( $this->input->get_post('csrf_token') ){
+		/*if( $this->input->get_post('csrf_token') ){
 			if( $this->input->get_post('csrf_token') !== $this->session->userdata('csrf_token') ){
 				http_response_code(403);
 			}else{
 				$nuevo_token = bin2hex(random_bytes(32));
 				$this->session->set_userdata('csrf_token', $nuevo_token);
 			}
-		}
+		}*/
 		
 		//if(!$this->validaSolicitud()){
 		//	http_response_code(403);
