@@ -189,6 +189,14 @@ class Buscar extends CI_Controller{
 			$data['main']['paginationURL'] = $paginationURL;
 		endif;
 		$perPage = 20;
+		
+		if (strpos($query, 'generalSlug') !== false) {
+			$patron = '/%.{0,3}%/';
+			if (preg_match($patron, $query)) {
+				http_response_code(403);
+			}
+		}
+		
 		$articulosResultado = articulosResultado($query, $queryCount, $paginationURL, $perPage, $countCompleto=TRUE);
 
 		$data['main']['links'] = $articulosResultado['links'];
