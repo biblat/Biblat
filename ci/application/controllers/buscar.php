@@ -263,16 +263,16 @@ class Buscar extends CI_Controller{
 	
 	public function validaSolicitud(){
             // Obtén la IP del cliente
-            $ip_cliente = $this->input->ip_address();
+            //$ip_cliente = $this->input->ip_address();
 
             // Verifica si la IP está dentro del rango 132.248.*
             //if (strpos($ip_cliente, '132.248.') === 0) {
                 // IP permitida, sin restricciones
                 //return true;
             //}
+            $rate_limit = [];
             
             if (!$this->session->userdata('rate_limit')) {
-                $rate_limit = [];
                 $now = time();
                 $rate_limit[] = $now;
                 $this->session->set_userdata('rate_limit', $rate_limit);
