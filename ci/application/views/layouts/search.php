@@ -6,6 +6,9 @@
         } else {
             $csrf_token = $this->session->userdata('csrf_token');
         }
+		
+		$rate_limit_f = $this->session->userdata('rate_limit');
+        $rate_limit_f = implode(',', $rate_limit_f);
     ?>
 	<form action="{site_url('buscar')}" id="searchform" method="post" role="search" autocomplete="off">
         <div class="form-group">
@@ -35,5 +38,6 @@
             <input type="hidden" name="disciplina" value=""/>
             <input type="hidden" name="filtro" id="filtro" value="todos"/>
 			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+			<input type="hidden" name="rate" value="<?php echo $rate_limit_f; ?>">
         </div><!--form-group-->
     </form>
