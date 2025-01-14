@@ -160,7 +160,13 @@ class_nr = {
         $('#txtTabla').html(class_nr.texto.tabla1);
         class_nr.var.paises = class_nr.var.paises.sort(class_utils.order_by('y', 'desc'));
         
-        var txtProcedencia = class_nr.texto.procedencia
+        var txtProcedencia = class_nr.texto.procedencia;
+        
+        if(class_nr.var.num_internacional == undefined){
+            txtProcedencia = txtProcedencia.replace(', sólo <num_inter> de las revistas <es_son> por un organismo internacional', '');
+        }
+        
+        txtProcedencia = txtProcedencia
                             .replace('<num_pais>', class_nr.var.paises.length-1)
                             .replace('<num_inter>', class_nr.var.num_internacional)
                             .replace('<es_son>', (class_nr.var.num_internacional == 1)?"es editada":"son editadas" )
