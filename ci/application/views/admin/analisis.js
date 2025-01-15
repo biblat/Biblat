@@ -1030,10 +1030,10 @@ class_av = {
                                     });
                                     if(val2.institucion !== null && val2.institucion !== undefined && val2.institucion !== ''){
                                         //Primero realiza la búsqueda, si no la encuentra agrega la opción en el componente select2
-                                        if ($('#institucion-'+val2.id).find("option[value='" + val2.institucion.replaceAll('"', "&quot;") + "']").length) {
+                                        if ($('#institucion-'+val2.id).find("option[value='" + val2.institucion.replaceAll('"', "&quot;").replace(/'/g, "\\'") + "']").length) {
                                             $('#institucion-'+val2.id).val(val2.institucion).trigger('change');
                                         }else{
-                                            var newOption = new Option(val2.institucion, val2.institucion.replaceAll('"', "&quot;"), true, true);
+                                            var newOption = new Option(val2.institucion, val2.institucion.replaceAll('"', "&quot;").replace(/'/g, "\\'"), true, true);
                                             $('#institucion-'+val2.id).append(newOption).trigger('change');
                                         }
 
