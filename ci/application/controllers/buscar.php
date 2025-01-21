@@ -191,42 +191,42 @@ class Buscar extends CI_Controller{
 		$perPage = 20;
 		
 		if (strpos($query, 'generalSlug') !== false) {
-                    $patron = "/'.*?%.{0,2}%.*?'/";
-                    if (preg_match($patron, $query)) {
-                        $this->insertIP();
-                        redirect('main');
-                    }else{
-                        $articulosResultado = articulosResultado($query, $queryCount, $paginationURL, $perPage, $countCompleto=TRUE);
+			$patron = "/'.*?%.{0,2}%.*?'/";
+			if (preg_match($patron, $query)) {
+				$this->insertIP();
+				redirect('main');
+			}
+        }else{
+				$articulosResultado = articulosResultado($query, $queryCount, $paginationURL, $perPage, $countCompleto=TRUE);
 
-                        $data['main']['links'] = $articulosResultado['links'];
-                        /*Datos de la busqueda*/
-                        $data['main']['search']['slug'] = slugSearchClean($slug);
-                        $data['main']['search']['disciplina'] = $disciplina['disciplina'];
-                        $data['main']['search']['total'] = $articulosResultado['totalRows'];
-                        $data['main']['search']['totalCompleto'] = $articulosResultado['totalCompleto'];
-                        $data['main']['search'] = $data['main']['search'];
-                        $data['header']['slugHighLight']=slugHighLight($slug);
-                        /*Resultados de la página*/
-                        $data['main']['resultados']=$articulosResultado['articulos'];
-                        $this->db->close();
-                        /*Vistas*/
-                        $this->template->set_partial('view_js', 'buscar/header', $data['header'], TRUE, FALSE);
-                        $this->template->title($data['header']['title']);
-                        $this->template->css('assets/css/colorbox.css');
-                        $this->template->css('assets/css/colorboxIndices.css');
-                        $this->template->js('assets/js/colorbox.js');
-                        $this->template->js('assets/js/jquery.highlight.js');
-                $this->template->set_partial('main_js','revista/badges.js', array(), TRUE, FALSE);
-                        if(ENVIRONMENT === "production"):
-                                $this->template->js('//s7.addthis.com/js/300/addthis_widget.js#pubid=herz');
-                        endif;
-                        $this->template->set_meta('description', $data['main']['page_title']);
-                        $this->template->set_partial('view_article', 'revista/index');
-                        $this->template->build('buscar/index', $data['main']);
+				$data['main']['links'] = $articulosResultado['links'];
+				/*Datos de la busqueda*/
+				$data['main']['search']['slug'] = slugSearchClean($slug);
+				$data['main']['search']['disciplina'] = $disciplina['disciplina'];
+				$data['main']['search']['total'] = $articulosResultado['totalRows'];
+				$data['main']['search']['totalCompleto'] = $articulosResultado['totalCompleto'];
+				$data['main']['search'] = $data['main']['search'];
+				$data['header']['slugHighLight']=slugHighLight($slug);
+				/*Resultados de la página*/
+				$data['main']['resultados']=$articulosResultado['articulos'];
+				$this->db->close();
+				/*Vistas*/
+				$this->template->set_partial('view_js', 'buscar/header', $data['header'], TRUE, FALSE);
+				$this->template->title($data['header']['title']);
+				$this->template->css('assets/css/colorbox.css');
+				$this->template->css('assets/css/colorboxIndices.css');
+				$this->template->js('assets/js/colorbox.js');
+				$this->template->js('assets/js/jquery.highlight.js');
+		$this->template->set_partial('main_js','revista/badges.js', array(), TRUE, FALSE);
+				if(ENVIRONMENT === "production"):
+						$this->template->js('//s7.addthis.com/js/300/addthis_widget.js#pubid=herz');
+				endif;
+				$this->template->set_meta('description', $data['main']['page_title']);
+				$this->template->set_partial('view_article', 'revista/index');
+				$this->template->build('buscar/index', $data['main']);
                         
                         
-                    }
-                }	
+        }
 	}
 
 	public function getList(){
