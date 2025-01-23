@@ -18,7 +18,7 @@
 
 {_('Dra. Araceli Noguez O.')}<br/>
 
-{_('Correo electrónico:')} <a target="_blank" href="mailto:anoguez@dgb.unam.mx">anoguez@dgb.unam.mx</a><br/>
+{_('Correo electrónico:')} <a target="_blank" href="mailto:anoguezo@dgb.unam.mx">anoguezo@dgb.unam.mx</a><br/>
 
 {_('Departamento de Información y Servicios Documentales- Subdirección de Servicios de Información Especializada-DGB-UNAM')}<br/>
 
