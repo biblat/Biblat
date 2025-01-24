@@ -316,7 +316,8 @@ class Generic_model extends CI_Model {
                                 //Si no existe el registro hace el insert
                                 if($q->num_rows() == 0){
                                     $this->db->insert($tabla, $value);
-                                }else{                               
+                                }else{
+									$this->db->where($array);									
                                     $this->db->update($tabla, $value);
                                 }
 			}
