@@ -1,7 +1,7 @@
 
 <div class="row">
     <div id="error-message" style="display: block; color: #DF6521; text-align: center; padding: 20px;">
-            Si no visualiza el contenido y tiene una sesión iniciada en el navegador Chrome, intente con una cuenta no institucional.
+            Si no visualiza el contenido y tiene una sesión iniciada en el navegador Chrome, intente con una cuenta no institucional o utilice otro navegador.
     </div>
 </div>
 
