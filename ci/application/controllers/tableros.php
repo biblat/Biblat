@@ -51,6 +51,24 @@ class Tableros extends CI_Controller {
         $this->template->set_partial('main_js', 'tableros/nucleo_revistas.js', array(), TRUE, FALSE);
         $this->template->build('tableros/nucleo_revistas', $data);
     }
+	
+	public function redes_investigacion(){
+        $data = array();
+        $data['page_title'] = _('Redes de investigación');
+        $this->template->set_layout('default_sel');
+        $this->template->title(_('Redes de investigación'));
+        $this->template->set_meta('description', _('Redes de investigación'));
+        $this->template->build('tableros/redes_investigacion', $data);
+    }
+    
+    public function dictaminacion(){
+        $data = array();
+        $data['page_title'] = _('Monitor Latinoamericano de Dictaminadores');
+        $this->template->set_layout('default_sel');
+        $this->template->title(_('Monitor Latinoamericano de Dictaminadores'));
+        $this->template->set_meta('description', _('Monitor Latinoamericano de Dictaminadores'));
+        $this->template->build('tableros/dictaminacion', $data);
+    }
     
     public function get_nucleo(){
         $this->load->database();
