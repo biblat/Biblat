@@ -215,6 +215,8 @@ $route[$langs.'/metametrics/estadisticas'] = 'tableros/metametrics';
 $route[$langs.'/nucleorevistas'] = 'tableros/nucleorevistas';
 $route[$langs.'/editores(.*)'] = 'sesion/editores$1';
 $route[$langs.'/preevaluacion/revista'] = 'main/preevaluacion';
+$route[$langs.'/redes-investigacion'] = 'tableros/redes_investigacion';
+$route[$langs.'/dictaminacion'] = 'tableros/dictaminacion';
 
 // URI like '/en/about' -> use controller 'about'
 $route[$langs.'/(.+)$'] = "$1";
