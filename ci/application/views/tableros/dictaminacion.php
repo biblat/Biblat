@@ -10,12 +10,3 @@
         <iframe id="myIframe" width="100%" height="1000px" src="https://lookerstudio.google.com/embed/reporting/a1a4634b-9c25-4d7a-8980-fbe8624e9db7/page/p_18tdhtv3jd" frameborder="0" style="border:0;display: block" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
     </div>
 </div>
-
-<script>
-    fetch('https://lookerstudio.google.com/embed/reporting/a1a4634b-9c25-4d7a-8980-fbe8624e9db7/page/p_18tdhtv3jd')
-    .then(response => response.text())
-    .then(html => {
-        document.getElementById('contenedor').innerHTML = html;
-    });
-       
-</script>
