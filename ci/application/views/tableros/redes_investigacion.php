@@ -5,7 +5,7 @@
             Utilice el cuadro "Search for node" para buscar una institución. Haga zoom sobre la red con el scroll del ratón o utilice los botones del lado derecho. Ha clic en el ícono de imagen para capturar lo que observe en la red.
         <p>
         <p>
-        Si requiere ayuda o tiene dudas sobre este gráfico escriba un correo a <a href="pgarridov@dgb.unam.mx">pgarridov@dgb.unam.mx</a> 
+        Si requiere ayuda o tiene dudas sobre este gráfico escriba un correo a <a href="mailto:pgarridov@dgb.unam.mx">pgarridov@dgb.unam.mx</a> 
         </p>
     </dd>
 </div>
