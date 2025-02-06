@@ -175,6 +175,10 @@
                                                             </ul>
                                                         </li-->
                                                         <!--<li class="divider"></li>-->
+                                                        <li><a href="{site_url('redes-investigacion')}">{_('Redes de investigación')}</a></li>
+                                                        <li class="divider"></li>
+                                                        <li><a href="{site_url('dictaminacion')}">{_('Dictaminación')}</a></li>
+                                                        <li class="divider"></li>
                                                         <li><a href="{site_url('bibliometria/indicadores-por-revista')}">{_('Indicadores por revista')}</a></li>
                                                     </ul>
                                                 </li>
