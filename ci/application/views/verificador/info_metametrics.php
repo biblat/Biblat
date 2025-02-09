@@ -18,4 +18,4 @@ La validación que realiza MetaMetrics comprende los siguientes aspectos:
 <br><br>
 <a href="{site_url('metametrics')}" style="font-size: 15px"><b>Ingrese a MetaMetrics</b></a>
 <br>
-<img src="/img/validacion_metadatos.png" style="width:100%">
+<img id="imagen" src="/img/validacion_metadatos.png" style="width:100%">
