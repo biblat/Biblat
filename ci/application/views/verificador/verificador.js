@@ -184,7 +184,7 @@ class_ver = {
         class_ver.var.simulador = ((window.location.href).indexOf('simulador') !== -1)?true:false;
         class_ver.var.postular = ((window.location.href).indexOf('postular') !== -1)?true:false;
 		
-		if(class_ver.var.postular){
+		/*if(class_ver.var.postular){
             $.confirm({
                 columnClass: 'xlarge',
                 title: '<span style="color:#DF6521">Aviso sobre el proceso de postulación</span>',
@@ -198,12 +198,11 @@ class_ver = {
                             text: 'Continuar',
                             btnClass: 'btn-warning',
                             action: function(){
-                                    return true;
                             }
                     }
                 }
             });
-        }
+        }*/
 		
         if( !class_ver.var.simulador && !class_ver.var.postular){
             class_ver.var.id_oai = 'url_oai_sel';
