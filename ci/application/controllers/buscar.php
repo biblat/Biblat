@@ -202,14 +202,16 @@ class Buscar extends CI_Controller{
 
 		// Lista de prefijos de IP denegadas
 		$denied_ips = [
-			"157.55.39",
-			"20.15.133",
-			"207.46.13",
-			"40.77.167",
-			"52.167.144",
-			"66.249.65",
-			"66.249.73"
-		];
+                    "157.55.39",
+                    "20.15.133",
+                    "207.46.13",
+                    "40.77.167",
+                    "52.167.144",
+                    "47.82.11",
+                    "47.82.10",
+                    "66.249",
+                    "66.249"
+                ];
 
 		foreach ($denied_ips as $prefix) {
 			if (strpos($ip, $prefix) === 0) { // Si la IP empieza con un prefijo denegado
