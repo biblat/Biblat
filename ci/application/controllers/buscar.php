@@ -197,6 +197,26 @@ class Buscar extends CI_Controller{
 				redirect('main');
 			}
         }
+		
+		$ip = $this->get_ip(); // Obtener la IP del visitante
+
+		// Lista de prefijos de IP denegadas
+		$denied_ips = [
+			"157.55.39",
+			"20.15.133",
+			"207.46.13",
+			"40.77.167",
+			"52.167.144",
+			"66.249.65",
+			"66.249.73"
+		];
+
+		foreach ($denied_ips as $prefix) {
+			if (strpos($ip, $prefix) === 0) { // Si la IP empieza con un prefijo denegado
+				redirect('main');
+			}
+		}
+		
 		$articulosResultado = articulosResultado($query, $queryCount, $paginationURL, $perPage, $countCompleto=TRUE);
 
 		$data['main']['links'] = $articulosResultado['links'];
