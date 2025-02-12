@@ -191,7 +191,7 @@ class Buscar extends CI_Controller{
 		$perPage = 20;
 		
 		if (strpos($query, 'generalSlug') !== false) {
-			$patron = "/'.*?%.{0,2}%.*?'/";
+			$patron = "/'.*?%.{0,3}%.*?'/";
 			if (preg_match($patron, $query)) {
 				$this->insertIP();
 				redirect('main');
