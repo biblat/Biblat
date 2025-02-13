@@ -20,6 +20,7 @@
                         </button>
                         <ul id="search-opts" class="dropdown-menu" role="menu">
                         <li rel="todos"><a href="#"><span id="op-todos" class="fa fa-cloud fa-fw"></span> {_('Buscar en todos los campos')}</a></li>
+						<li rel="ia" style="display: none"><a href="#"><span id="op-ia" class="fa fa-file-text fa-fw"></span> {_('Buscar en título y resumen utilizando lenguaje natural')}</a></li>
                         <li rel="palabra-clave"><a href="#"><span id="op-palabra-clave" class="fa fa-key fa-fw"></span> {_('Buscar por palabra clave')}</a></li>
                         <li rel="autor"><a href="#"><span id="op-autor" class="fa fa-user fa-fw"></span> {_('Buscar por autor')}</a></li>
                         <li rel="revista"><a href="#"><span id="op-revista" class="fa fa-book fa-fw"></span> {_('Buscar por revista')}</a></li>
