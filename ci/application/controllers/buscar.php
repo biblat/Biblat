@@ -38,7 +38,7 @@ class Buscar extends CI_Controller{
 			}
 				$disciplina =null;
 				// URL de la aplicación Python
-				 $url = site_url('buscadoria/search_ai');
+				 $url = base_url('buscadoria/search_ai');
 
 				 // Datos que deseas enviar en la solicitud POST
 				 $data = array(
