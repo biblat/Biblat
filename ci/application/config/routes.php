@@ -77,13 +77,13 @@ $route[$langs.'/conacyt/area(.*)'] = 'conacyt/pdf_viewer/area$1';
 $route[$langs.'/conacyt/reporte(.*)'] = 'conacyt/pdf_viewer/reporte$1';
 
 $route[$langs.'/buscar/getList'] = 'buscar/getList';
-$route[$langs.'/buscar/(autor|articulo|institucion|revista|palabra-clave|avanzada)/(.+)/(texto-completo)(.*)'] = 'buscar/index/$1/null/$2/$3$4';
+$route[$langs.'/buscar/(autor|articulo|institucion|revista|palabra-clave|avanzada|ia)/(.+)/(texto-completo)(.*)'] = 'buscar/index/$1/null/$2/$3$4';
 $route[$langs.'/buscar/(.*)/(.*)/(texto-completo)(.*)'] = 'buscar/index/null/$1/$2/$3$4';
 $route[$langs.'/buscar/(.*)/(texto-completo)(.*)'] = 'buscar/index/null/null/$1/$2$3';
-$route[$langs.'/buscar/(autor|articulo|institucion|revista|palabra-clave|avanzada)/(.+)/([0-9]+$)'] = 'buscar/index/$1/null/$2/$3';
+$route[$langs.'/buscar/(autor|articulo|institucion|revista|palabra-clave|avanzada|ia)/(.+)/([0-9]+$)'] = 'buscar/index/$1/null/$2/$3';
 $route[$langs.'/buscar/(.*)/(.*)/([0-9]+$)'] = 'buscar/index/null/$1/$2/$3';
 $route[$langs.'/buscar/(.*)/([0-9]+$)'] = 'buscar/index/null/null/$1/$2';
-$route[$langs.'/buscar/(autor|articulo|institucion|revista|palabra-clave|avanzada)/(.+)'] = 'buscar/index/$1/null/$2';
+$route[$langs.'/buscar/(autor|articulo|institucion|revista|palabra-clave|avanzada|ia)/(.+)'] = 'buscar/index/$1/null/$2';
 $route[$langs.'/buscar/(.*)/(.*)'] = 'buscar/index/null/$1/$2';
 $route[$langs.'/buscar/(.*)'] = 'buscar/index/null/null/$1';
 

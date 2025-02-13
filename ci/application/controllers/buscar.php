@@ -26,6 +26,65 @@ class Buscar extends CI_Controller{
 			http_response_code(403);
 		}
 		
+		$queryFields='';
+        $queryFrom='';
+		
+		if($this->input->get_post('filtro') == 'ia' || $filtro == 'ia'){
+			$returnURL = site_url(preg_replace('%[/]+%', '/', "buscar/{$this->input->get_post('filtro')}/".rawurlencode($this->input->get_post('slug'))));
+			if ($this->input->get_post('ajax')){
+				$this->output->enable_profiler(false);
+				echo $returnURL;
+				return;
+			}
+				$disciplina =null;
+				// URL de la aplicación Python
+				 $url = '/buscadoria/search_ai';
+
+				 // Datos que deseas enviar en la solicitud POST
+				 $data = array(
+					 'input_text' => rawurldecode($slug)//$this->input->get_post('slug')
+				 );
+
+				 // Inicializar cURL
+				 $ch = curl_init($url);
+
+				 // Configurar opciones de cURL
+				 curl_setopt($ch, CURLOPT_POST, true); // Indicar que es una solicitud POST
+				 curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data)); // Enviar los datos
+				 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // Obtener la respuesta como una cadena
+
+				 // Ejecutar la solicitud y obtener la respuesta
+				 $response = curl_exec($ch);
+
+				 // Cerrar la sesión cURL
+				 curl_close($ch);
+
+				 $this->load->database();
+
+				 $queryFields="SELECT s.sistema,
+						 articulo,
+						 \"articuloSlug\",
+						 revista,
+						 \"revistaSlug\",
+						 \"paisRevista\",
+						 \"anioRevista\",
+						 volumen,
+						 numero,
+						 periodo,
+						 paginacion,
+						 url->>0 AS url,
+						 \"autoresJSON\",
+						 \"institucionesJSON\",
+			 regexp_replace(regexp_replace(doi,'[^a-z0-9]*$',''),'^[^a-z0-9]*','') doi";
+				 $queryFrom="FROM \"mvSearch_all\" s
+						 WHERE  sistema in (".$response.")";
+				 
+				 $query = "{$queryFields}
+							{$queryFrom}
+								ORDER BY ARRAY_POSITION(ARRAY[{$response}]::varchar[], sistema::varchar)
+							";
+		}else{
+		
 		/*Arrego con descripcion y sql para cada indice*/
 		$indiceArray['palabra-clave'] = array('sql' => 'palabrasClaveSlug', 'descripcion' => _('Palabras clave'));
 		$indiceArray['articulo'] = array('sql' => 'articuloSlug', 'descripcion' => _('Artículo'));
@@ -167,7 +226,8 @@ class Buscar extends CI_Controller{
 		{$queryFrom}
 				ORDER BY \"anioRevista\" DESC, regexp_replace(volumen, '([0-9]+?)[^0-9].+?$', '\1') DESC, regexp_replace(numero, '([0-9]+?)[^0-9].+?$', '\1') DESC, \"articuloSlug\"";
 
-
+		}
+		
 		$queryCount = "SELECT count (*) as total {$queryFrom}";
 		$queryCount = str_replace("mvSearch_all", "mvSearch_count", $queryCount);
 
