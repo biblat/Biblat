@@ -11,6 +11,14 @@
                 </center>
             </a>
         </div>
+		<div class="col-xs-4">
+            <a href="<?=site_url("adminb/importaXML");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
+                <br><br>
+                <center>
+                    <i class="glyphicon glyphicon-import" style="font-size:100px"></i><br><span style="font-weight: bold">Importar desde XML</span>
+                </center>
+            </a>
+        </div>
         <div class="col-xs-4">
             <a href="<?=site_url("adminb/asigna");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
                 <br><br>

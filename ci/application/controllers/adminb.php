@@ -241,6 +241,23 @@ class Adminb extends CI_Controller {
             redirect('main');
         }
     }
+	
+	public function importaXML(){
+        if($this->session->userdata('usuario') && $this->session->userdata('rol') == 'Administrador'){
+            $this->template->set_breadcrumb(_('Menú Administrador'), site_url('adminb'));
+            $this->template->set_breadcrumb(_('Importar desde XML'));
+            $data = array();
+            $data['page_title'] = _('Importar desde XML');
+            $this->template->set_layout('default_sel');
+            $this->template->title(_('Importar desde XML'));
+            $data['page_subtitle'] = $this->session->userdata('nombre');
+            $this->template->set_meta('description', _('Importar desde XML'));
+            $this->template->set_partial('main_js', 'admin/admin.js', array(), TRUE, FALSE);
+            $this->template->build('admin/importar', $data);
+        }else{
+            redirect('main');
+        }
+    }
     
     private function get_ip(){
         $realip = '';
