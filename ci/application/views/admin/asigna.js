@@ -24,12 +24,16 @@ class_asi = {
         tabla: '<table id="tbl_revistas" class="display responsive nowrap" style="width:100%;font-size:11px">' +
                             '<thead>' +
                                 '<tr>' +
-                                    '<th rowspan="1" style="padding:15px">Revista</th>' +
-                                    '<th rowspan="1" style="padding:15px">Base</th>' +
-                                    '<th rowspan="1" style="padding:15px">Anio</th>' +
-                                    '<th rowspan="1" style="padding:15px">Volumen</th>' +
-                                    '<th rowspan="1" style="padding:15px">Número</th>' +
-                                    '<th rowspan="1" style="padding:15px">Parte</th>' +
+                                    '<th style="width: 15%" rowspan="1" style="padding:15px">Revista</th>' +
+//                                    '<th rowspan="1" style="padding:15px">País</th>' +
+//                                    '<th rowspan="1" style="padding:15px">Base</th>' +
+//                                    '<th rowspan="1" style="padding:15px">Cosecha</th>' +
+                                    '<th rowspan="1" style="padding:15px">Datos generales</th>' +
+//                                    '<th rowspan="1" style="padding:15px">Anio</th>' +
+//                                    '<th rowspan="1" style="padding:15px">Volumen</th>' +
+//                                    '<th rowspan="1" style="padding:15px">Número</th>' +
+//                                    '<th rowspan="1" style="padding:15px">Parte</th>' +
+                                    '<th rowspan="1" style="padding:15px">Descripción</th>' +
                                     '<th rowspan="1" style="padding:15px">Artículos</th>' +
                                     '<th rowspan="1" style="padding:15px">PDF</th>' +
                                     '<th rowspan="1" style="padding:15px">HTML</th>' +
@@ -43,7 +47,22 @@ class_asi = {
                                 '</tr>'+
                             '</thead>' +
                             '<tbody id="body_revistas"><body></tbody></table>',
-        tr: '<tr><td><revista></td><td><base></td><td><anio></td><td><volumen></td><td><numero></td><td><parte></td><td><articulos></td><td><conpdf></td><td><conhtml></td><td><ingreso></td><td><asignado></td><td><select_asigna></td><td><vacio></td>' +
+//        tr: '<tr><td><revista></td><td><pais></td><td><base></td><td><cosecha></td><td><anio></td><td><volumen></td><td><numero></td><td><parte></td><td><articulos></td><td><conpdf></td><td><conhtml></td><td><ingreso></td><td><asignado></td><td><select_asigna></td><td><vacio></td>' +
+        tr: '<tr><td><revista></td>' +
+                        '<td><table> <tr> <td>País:</td> <td><pais></td> </tr> '+
+                                    '<tr> <td>Base:</td> <td><base></td> </tr> '+
+                                    '<tr> <td>Cosecha:</td><td><cosecha></td></tr>'+
+                                    '</table></td>'+
+                        '<td><table> <tr> <td>Año:</td>         <td><anio></td>    </tr> '+
+                                    '<tr> <td>Volumen:</td>     <td><volumen></td> </tr> '+
+                                    '<tr> <td>Número:</td>      <td><numero></td>  </tr> '+
+                                    '<tr> <td>Parte:</td>       <td><parte></td> </tr>'+
+                                    '</table></td>'+
+//                        '<td><anio></td>'+
+//                        '<td><volumen></td>'+
+//                        '<td><numero></td>'+
+//                        '<td><parte></td>'+
+                        '<td><articulos></td><td><conpdf></td><td><conhtml></td><td><ingreso></td><td><asignado></td><td><select_asigna></td><td><vacio></td>' +
             '<td><asignado_pc></td><td><select_asigna_pc></td><td><vacio_pc></td>',
         option: '<li><a class="<class>" id="<option_id>"><option></a></li>'
             
@@ -467,7 +486,9 @@ class_asi = {
                 };
 
                 var tr = class_asi.var.tr.replace('<revista>', val['revista'])
+								.replace('<pais>', val['pais'])
                                 .replace('<base>', val['base'])
+								.replace('<cosecha>', val['cosecha'])
                                 .replace('<anio>', val['anioRevista'])
                                 .replace('<volumen>', val['volumen'])
                                 .replace('<numero>', val['numero'])
@@ -527,14 +548,16 @@ class_asi = {
                                 extend: 'csvHtml5',
                                 text: 'Exportar CSV',
                                 exportOptions: {
-                                    columns: [0,1,2,3,4,5,6,7,8,9,10,12,13,15] // Aquí indicas los índices de las columnas a exportar (0, 2 y 3 en este caso)
+                                    //columns: [0,1,2,3,4,5,6,7,8,9,10,12,13,15] // Aquí indicas los índices de las columnas a exportar (0, 2 y 3 en este caso)
+                                    columns: [0,1,2,3,4,5,6,8,9,11,12]
                                 }
                             },
                             {
                                 extend: 'excelHtml5',
                                 text: 'Exportar Excel',
                                 exportOptions: {
-                                    columns: [0,1,2,3,4,5,6,7,8,9,10,12,13,15] // Igual que en el caso anterior, indicas los índices de las columnas a exportar
+//                                    columns: [0,1,2,3,4,5,6,7,8,9,10,12,13,15] // Igual que en el caso anterior, indicas los índices de las columnas a exportar
+                                    columns: [0,1,2,3,4,5,6,7,8,10,11,12]
                                 }
                             }
                         ],
@@ -550,12 +573,14 @@ class_asi = {
                                     //Sustituye el valor de la celda por esto agregando un div para que se mantenga dentro del tamaño definido
                                     return '<div style="width: 100%; text-align: left; white-space: normal;">' + data + '</div>';
                                 },
-                                targets: [0,1,2,3,4,5,6,7,8,9,10,11,13,14]
+//                                targets: [0,1,2,3,4,5,6,7,8,9,10,11,13,14]
+                                targets: [0,1,2,3,4,5,6,7,8,10,11]
                             },
                             {
                                 visible: false,
                                 searchable: true,
-                                targets: [12,15]
+//                                targets: [12,15]
+                                targets: [9,12]
                             }
                         ],
                         //Reajusta el ancho de las columnas
