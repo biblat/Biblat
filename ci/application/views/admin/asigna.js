@@ -561,7 +561,7 @@ class_asi = {
                                 }
                             }
                         ],
-                        order: [[ 1, 'asc' ]],
+                        order: [[ 0, 'asc' ]],
                         bLengthChange: false,
                         pageLength: 10,
                         //Opción para introducir el número de página en el footer de la tabla
