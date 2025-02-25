@@ -1,4 +1,8 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+require 'vendor/autoload.php';
+require 'vendor/google-api/vendor/autoload.php';
+require 'vendor/phpgangsta/vendor/phpgangsta/googleauthenticator/PHPGangsta/GoogleAuthenticator.php';
+
 class Buscar extends CI_Controller{
 
 	public function __construct(){
@@ -95,6 +99,10 @@ class Buscar extends CI_Controller{
 		$indiceArray['disciplina'] = array('sql' => 'id_disciplina', 'descripcion' => _('Disciplina'));
 		/*Si se hizo una consulta con POST redirigimos a una url correcta*/
 		if($this->input->get_post('slug')):
+			if($this->input->get_post('filtro') == "institucion"):
+				$this->session->set_userdata('buscaIns', $this->get_control_autoridades($this->input->get_post('slug')));
+			endif;
+			
 			if($this->input->get_post('textoCompleto')):
 				$textoCompleto="texto-completo";
 			endif;
@@ -182,7 +190,11 @@ class Buscar extends CI_Controller{
 
 		$slugQuerySearch = slugQuerySearch($slug);
 		if( $filtro != "null"):
-			$slugQuerySearch = slugQuerySearch($slug, $indiceArray[$filtro]['sql']);
+			if($filtro == "institucion" && strlen($this->session->userdata('buscaIns')) > 0){
+				$slugQuerySearch = slugQuerySearch($slug, $indiceArray[$filtro]['sql'], $this->session->userdata('buscaIns'));
+			}else{
+				$slugQuerySearch = slugQuerySearch($slug, $indiceArray[$filtro]['sql']);
+			}
 			$data['header']['title'] = _sprintf('Búsqueda por %s: "%s"', strtolower($indiceArray[$filtro]['descripcion']), slugSearchClean($slug));
 			$data['main']['page_title'] = _sprintf('Resultados de la búsqueda por %s: %s', strtolower($indiceArray[$filtro]['descripcion']), slugSearchClean($slug));
 		endif;
@@ -432,4 +444,76 @@ $this->template->set_partial('main_js','revista/badges.js', array(), TRUE, FALSE
 			}
 			return $realip;
 		}
+		
+		private function get_control_autoridades($institucion){           
+            putenv("GOOGLE_APPLICATION_CREDENTIALS=credentials2.json");
+            $client = new Google_Client();
+            $client->setApplicationName('Biblat');
+            $client->setScopes(Google_Service_Sheets::SPREADSHEETS_READONLY);
+            $client->useApplicationDefaultCredentials();
+            // ID de la hoja de cálculo
+            $spreadsheetId = sheetControlAutoridades;
+            
+            // Inicializar el cliente
+            $service = new Google_Service_Sheets($client);
+
+            // Rango de celdas 
+            $range = hojaControl;
+
+            // Leer datos de la hoja de cálculo
+             try {
+                $response = $service->spreadsheets_values->get($spreadsheetId, $range);
+                $values = $response->getValues();
+            } catch (Exception $e) {
+                return 'Error1';
+            }
+
+            $columnas = [];
+            $codigo = mt_rand(100000, 999999).'';
+            $existe = FALSE;
+
+            if (empty($values)) {
+                return 'Error2';
+            } else {
+                $renglon = 0;
+                $encontrado = false;
+                foreach ($values as $x => $v){
+                    //Recorrido de los encabezados
+                    if($x == 0){
+                        foreach ($v as $x2 => $v2){
+                            $columnas[$x2] = $v2;
+                        }
+                        $idx_tipo = array_search('Tipo de dato', $columnas);
+                        $idx_variantes = array_search('Variantes', $columnas);
+                        $idx_nombre_normalizado = array_search('Nombre normalizado', $columnas);
+                        $idx_aprobado = array_search('Aprobado', $columnas);
+                    }
+                    
+                    foreach ($v as $x2 => $v2){
+                        if (!isset($v[$idx_tipo], $v[$idx_aprobado])) continue;
+                        
+                        if($x2 == $idx_tipo){
+                            if($v2 == 'Nombre de la institución de afiliación' && $v[$idx_aprobado] == 'sí'){
+                                $cadena1 = $v[$idx_variantes];
+                                $cadena2 = trim($v[$idx_nombre_normalizado]);
+                                $cadena3 = trim($institucion);
+                                
+                                $arreglo1 = strlen($cadena1) > 0 ? array_map('trim', explode(";", $cadena1)): [];
+
+                                if (!in_array($cadena2, $arreglo1) && $cadena2 !== '') {
+                                    $arreglo1[] = $cadena2;
+                                }
+                                
+                                if(in_array($cadena3, $arreglo1)){
+                                    $encontrado = true;
+                                    $cadena_instituciones = implode(";", $arreglo1);
+                                    return $cadena_instituciones;
+                                }
+                            }
+                        }
+                    }
+                }
+                return 'No encontrado';
+            }
+        }
 }

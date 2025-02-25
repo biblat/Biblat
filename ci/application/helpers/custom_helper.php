@@ -72,7 +72,7 @@ if ( ! function_exists('slugSearchClean') ):
 endif;
 
 if ( ! function_exists('slugQuerySearch') ):
-	function slugQuerySearch($string, $whereField="generalSlug"){
+	function slugQuerySearch($string, $whereField="generalSlug", $catalogoAutoIns=null){
 		$rstring['where'] = "";
 		$operador = NULL;
 		if ( strrpos($string, "+") > 0):
@@ -119,6 +119,7 @@ if ( ! function_exists('slugQuerySearch') ):
 			$astring = trim($astring);
 			$astring = explode(" ", $astring);
 			if( count($astring) > 1 ):
+                            if( is_null($catalogoAutoIns) ){
 				$totalIndex = count($astring);
 				$currentIndex = 1;
 				$rstring['where'] .= "\"{$whereField}\" ~~ '%";
@@ -130,6 +131,14 @@ if ( ! function_exists('slugQuerySearch') ):
 					$currentIndex++;
 				endforeach;
 				$rstring['where'] .= "%'";
+                            }else{
+                                $conditions = [];
+                                $cstring = explode(';', $catalogoAutoIns);
+                                foreach ($cstring as $value) {
+                                    $conditions[] = "\"{$whereField}\" ~~ format('%%%s%%',replace(regexp_replace(slug('{$value}'), '-+', '-', 'g'),'-', '_'))";
+                                }
+                                $rstring['where'] .= implode(' OR ', $conditions);
+                            }
 			else:
 				$rstring['where'] .= "\"{$whereField}\" ~~ '%{$astring[0]}%'";
 			endif;
