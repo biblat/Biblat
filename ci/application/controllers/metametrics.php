@@ -44,6 +44,8 @@ class Metametrics extends CI_Controller {
         $this->template->js('js/jquery.slider.min.js');
         $this->template->js('js/jquery.serializeJSON.min.js');
         $this->template->js('js/colorbox.js');
+		$this->template->js('assets/js/jspdf/jspdf.js');
+        $this->template->js('js/Aptos-normal.js');
         $this->template->js('js/env.js');
         $this->template->js('assets/js/datatables/datatables.min.js');
         $this->template->js('assets/js/datatables/input.js');
