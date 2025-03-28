@@ -3238,6 +3238,7 @@ class_ver = {
             data.slice(1).forEach(row => { // Excluimos el encabezado (primer elemento)
                 let maxHeight = minRowHeight; // Altura máxima inicial de la fila
                 let cellTexts = [];
+                let cellHref = [];
 
                 // Calcular la altura más grande de la fila
                 columnNames.forEach(col => {
@@ -3248,7 +3249,15 @@ class_ver = {
                     if(col in colAumenta){
                         colWidth = colWidth + 20;
                     }
-                    let text = doc.splitTextToSize(row[col].toString(), colWidth - 10); // Ajuste del texto
+                    
+                    let text = '';
+                    if(typeof row[col] == 'object'){
+                        text = doc.splitTextToSize(row[col].text.toString(), colWidth - 10); // Ajuste del texto
+                        cellHref.push(row[col].href);
+                    }else{
+                        text = doc.splitTextToSize(row[col].toString(), colWidth - 10); // Ajuste del texto
+                        cellHref.push("");
+                    }
                     cellTexts.push({ text, colWidth });
                     let rowHeight = text.length * 15; // Cada línea ocupa 10 puntos
                     if (rowHeight > maxHeight) {
@@ -3263,10 +3272,18 @@ class_ver = {
 
                 // Dibujar la fila
                 x = startX;
+                let i = 0;
                 cellTexts.forEach(cell => {
-                    doc.text(cell.text, x + 5, y + 12);
+                    if(cellHref[i] == ""){
+                        doc.text(cell.text, x + 5, y + 12);
+                    }else{
+                        doc.setTextColor(0, 0, 255);
+                        doc.textWithLink(cell.text[0], x + 5, y + 12, { url: cellHref[i] });
+                        doc.setTextColor(0, 0, 0);
+                    }
                     doc.rect(x, y, cell.colWidth, maxHeight);
                     x += cell.colWidth;
+                    i++;
                 });
 
                 y += maxHeight; // Mover a la siguiente fila
@@ -3439,7 +3456,7 @@ class_ver = {
             
             //doc.text(splitText, 50, 345, { align: "left" });
             
-            var data = class_ver.htmlToArrPdf(tabla);
+            var data = class_ver.htmlToArrPdfHref(tabla);
                 
             var tablaY = y + (separaY)
             // Parámetros:
@@ -3499,6 +3516,44 @@ class_ver = {
                 var enlace = celda.querySelector('a');
                 if (enlace) {
                     filaData[key] = enlace.textContent.trim();
+                } else {
+                    filaData[key] = celda.textContent.trim();
+                }
+            });
+
+            data.push(filaData);
+        });
+
+        return data;
+    },
+	htmlToArrPdfHref: function(htmlTabla) {
+        var tempDiv = document.createElement('div');
+        tempDiv.innerHTML = htmlTabla;
+
+        var tabla = tempDiv.querySelector('table');
+        var encabezados = Array.from(tabla.querySelectorAll('thead th')).map((th, index) => ({
+            key: `col${index + 1}`,
+            label: th.textContent.trim()
+        }));
+
+        var filas = tabla.querySelectorAll('tbody tr');
+
+        var data = [
+            Object.fromEntries(encabezados.map(({ key, label }) => [key, label]))
+        ];
+
+        filas.forEach(fila => {
+            var celdas = fila.querySelectorAll('td');
+            var filaData = {};
+
+            celdas.forEach((celda, index) => {
+                var key = `col${index + 1}`;
+                var enlace = celda.querySelector('a');
+                if (enlace) {
+                    filaData[key] = {
+                        text: enlace.textContent.trim(),
+                        href: enlace.getAttribute('href')
+                    };
                 } else {
                     filaData[key] = celda.textContent.trim();
                 }
