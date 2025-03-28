@@ -290,6 +290,12 @@
 </div>
 
 <div class="row"><br></div>
+<div class="row">
+    <center>
+        <button type="button" class="btn btn-warning" style="display:none" id="btn_pdf">Descargar Resumen en PDF</button>
+    </center>
+</div>
+<div class="row"><br></div>
 
 <div class="row">
     <div class="col-xs-12">
