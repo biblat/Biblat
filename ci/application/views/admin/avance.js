@@ -56,6 +56,16 @@ class_av = {
                                 '</tr>'+
                             '</thead>' +
                             '<tbody id="body_produccion"><body></tbody></table>',
+		tabla_prod_analista: '<table id="tbl_produccion" class="display responsive nowrap" style="width:50%;font-size:11px">' +
+                            '<thead>' +
+                                '<tr>' +
+                                    '<th rowspan="1" style="width:200px">Analista</th>' +
+                                    '<th rowspan="1" style="width:200px">CLASE</th>' +
+                                    '<th rowspan="1" style="width:200px">PERIÓDICA</th>' +
+                                    '<th rowspan="1" style="width:200px">Total</th>' +
+                                '</tr>'+
+                            '</thead>' +
+                            '<tbody id="body_produccion"><body></tbody></table>',
         tr_prod: '<tr><td><usuario></td><td><cla></td><td><per></td>' +
                     '<td><hr_to></td>' +
                     '<td><hr_tr></td>' +
@@ -63,6 +73,7 @@ class_av = {
                     '<td><t_min></td>' +
                     '<td><t_max></td>' +
                     '<td><t_prom></td> </tr>',
+		tr_prod_analista: '<tr><td><usuario></td><td><cla></td><td><per></td><td><total></td> </tr>',
         barra_avance:   '<div id="<id>" class="progress-bar progress-bar-warning progress-bar-striped avance-mes" role="progressbar" aria-valuenow="<avance>" aria-valuemin="0" aria-valuemax="100" style="width: <avance>%">' +
                         '<span style="color:black;font-size:11px"><b><mes></b></span><br>' +
                         '<span style="color:black;font-size:11px"><b><avance>%</b></span>' +
@@ -98,7 +109,10 @@ class_av = {
 			if(cons.rol.val == 'Administrador'){
 				$('.avance-mes, #avance-actual').css('cursor', 'pointer');
 				class_av.control_admin();
-			}
+			}else{
+                $('.avance-mes, #avance-actual').css('cursor', 'pointer');
+                class_av.control_analista();
+            }
 			loading.end();
 		});
     },
@@ -129,6 +143,10 @@ class_av = {
                     class_av.control_admin();
                 }
                 loading.end();
+				$('#btn-anio').html('Ver año actual');
+                $('#btn-anio').off('click').on('click', function(){
+                   window.location.reload(); 
+                });
             });
         });
 		
@@ -152,6 +170,61 @@ class_av = {
                 class_av.setTablaProdPC(resp_produccionpc[0]);
                 class_av.setGraficaProd();
                 class_av.setGraficaProdPC();
+                loading.end();
+            });
+        });
+        $('#avance-actual').off('click').on('click', function(){
+           class_av.ready();
+        });
+    },
+	control_analista: function(){
+        $('#btn-anio').off('click').on('click', function(){
+            loading.start();
+            var anio = (new Date(Date.now())).getFullYear()-1;
+            class_av.var.anio = anio;
+            $.when(class_utils.getResource('/datos/avance/'+anio),
+                class_utils.getResource('/datos/avance_total/'+anio),
+                class_utils.getResource('/datos/avancepc/'+anio)
+            ) 
+            .then(function(resp_analistas, resp_total, resp_avancepc){
+                class_av.var.analistasJSON = resp_analistas[0];
+                class_av.var.avance_por_mes = resp_total[0];
+                class_av.var.avance_pc = resp_avancepc[0];
+                class_av.setTabla(class_av.var.analistasJSON);
+                if(cons.rol.val == 'Administrador' || cons.pal_cla.val == '1'){
+                    class_av.setTablaPC(class_av.var.avance_pc);
+                }
+                if(cons.rol.val == 'Administrador'){
+                    $('.avance-mes').show();
+                    $('.avance-mes, #avance-actual').css('cursor', 'pointer');
+                    class_av.control_admin();
+                }else{
+                    $('.avance-mes').show();
+                    $('.avance-mes, #avance-actual').css('cursor', 'pointer');
+                    class_av.control_analista();
+                }
+                loading.end();
+                $('#btn-anio').html('Ver año actual');
+                $('#btn-anio').off('click').on('click', function(){
+                   window.location.reload(); 
+                });
+            });
+        });
+        
+        $('.avance-mes').off('click').on('click', function(){
+            loading.start();
+           var mes = this.id;
+           var anio = class_av.var.anio;
+            if(anio == null){
+                anio = (new Date(Date.now())).getFullYear();
+            }
+            $.when( 
+                    class_utils.getResource('/datos/produccion_analista/'+mes+'/'+anio),
+                    class_utils.getResource('/datos/produccionpc/'+mes+'/'+anio)
+            )
+            .then(function(resp_produccion, resp_produccionpc){
+                class_av.setTablaProdAnalista(resp_produccion[0]);
+                class_av.setTablaProdPCAnalista(resp_produccionpc[0]);
                 loading.end();
             });
         });
@@ -409,6 +482,55 @@ class_av = {
         class_utils.setTabla('tbl_produccion', op);
         
     },
+	setTablaProdAnalista: function(data){
+        var tbody = '';
+        
+        $.each(data, function(i, val){             
+                var tr = class_av.var.tr_prod_analista.replace('<usuario>', val['nombre'])
+                                .replace('<cla>', val['clase'])
+                                .replace('<per>', val['periodica'])
+                                .replace('<total>', val['total'] );
+                tbody += tr;
+        });
+                
+        var tabla = class_av.var.tabla_prod_analista
+                .replace('<body>', tbody);
+        
+        $('#div_tabla').html(tabla);
+        
+        var op = {
+                        dom: 'Bfrtip',
+                        buttons: [
+                            {
+                                extend: 'csvHtml5',
+                                text: 'Exportar CSV',
+                                exportOptions: {
+                                    columns: [0,1,2,3]
+                                }
+                            }
+                        ],
+                        order: [[ 0, 'asc' ]],
+                        bLengthChange: false,
+                        paging: false,
+                        pagingType: 'input',
+                        autoWidth: true,
+                        columnDefs: [
+                            {
+                                render: function (data, type, full, meta) {
+                                    //Sustituye el valor de la celda por esto agregando un div para que se mantenga dentro del tamaño definido
+                                    return '<div style="width: 100%; text-align: left; white-space: normal;">' + data + '</div>';
+                                },
+                                targets: [0,1,2,3]
+                            }
+                        ],
+                        //Reajusta el ancho de las columnas
+                        drawCallback: function( settings ) {
+                            $(this).DataTable().columns.adjust();
+                        }
+                    }; 
+        class_utils.setTabla('tbl_produccion', op);
+        
+    },
 	setTablaProdPC: function(data){
         var tbody = '';
         var categorias = class_utils.unique_obj(class_av.var.tproduccionpc,'fecha').map(fechas => fechas.fecha);
@@ -504,6 +626,56 @@ class_av = {
                                 text: 'Exportar CSV',
                                 exportOptions: {
                                     columns: [0,1,2,3,4,5,6,7,8]
+                                }
+                            }
+                        ],
+                        order: [[ 0, 'asc' ]],
+                        bLengthChange: false,
+                        paging: false,
+                        pagingType: 'input',
+                        autoWidth: true,
+                        columnDefs: [
+                            {
+                                render: function (data, type, full, meta) {
+                                    //Sustituye el valor de la celda por esto agregando un div para que se mantenga dentro del tamaño definido
+                                    return '<div style="width: 100%; text-align: left; white-space: normal;">' + data + '</div>';
+                                },
+                                targets: [0,1,2]
+                            }
+                        ],
+                        //Reajusta el ancho de las columnas
+                        drawCallback: function( settings ) {
+                            $(this).DataTable().columns.adjust();
+                        }
+                    }; 
+        class_utils.setTabla('tbl_produccionPC', op);
+        
+    },
+	setTablaProdPCAnalista: function(data){
+        var tbody = '';
+        
+        $.each(data, function(i, val){               
+                var tr = class_av.var.tr_prod_analista.replace('<usuario>', val['nombre'])
+                                .replace('<cla>', val['clase'])
+                                .replace('<per>', val['periodica'])
+                                .replace('<total>', parseInt(val['clase']) + parseInt(val['periodica']) );
+                tbody += tr;
+        });
+                
+        var tabla = class_av.var.tabla_prod_analista
+                .replace('<body>', tbody)
+                .replace('tbl_produccion', 'tbl_produccionPC');
+        
+        $('#div_tablaPC').html(tabla);
+        
+        var op = {
+                        dom: 'Bfrtip',
+                        buttons: [
+                            {
+                                extend: 'csvHtml5',
+                                text: 'Exportar CSV',
+                                exportOptions: {
+                                    columns: [0,1,2]
                                 }
                             }
                         ],
