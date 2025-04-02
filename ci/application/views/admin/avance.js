@@ -224,7 +224,9 @@ class_av = {
             )
             .then(function(resp_produccion, resp_produccionpc){
                 class_av.setTablaProdAnalista(resp_produccion[0]);
-                class_av.setTablaProdPCAnalista(resp_produccionpc[0]);
+                if(cons.pal_cla.val == '1'){
+                    class_av.setTablaProdPCAnalista(resp_produccionpc[0]);
+                }
                 loading.end();
             });
         });
@@ -485,12 +487,14 @@ class_av = {
 	setTablaProdAnalista: function(data){
         var tbody = '';
         
-        $.each(data, function(i, val){             
+        $.each(data, function(i, val){
+			if (val['nombre'] !== 'EDITOR'){
                 var tr = class_av.var.tr_prod_analista.replace('<usuario>', val['nombre'])
                                 .replace('<cla>', val['clase'])
                                 .replace('<per>', val['periodica'])
                                 .replace('<total>', val['total'] );
                 tbody += tr;
+			}
         });
                 
         var tabla = class_av.var.tabla_prod_analista
