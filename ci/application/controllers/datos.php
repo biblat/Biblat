@@ -1012,6 +1012,60 @@ class Datos extends REST_Controller {
             $this->response($query->result_array(), 200);  
         }
 		
+		public function produccion_analista_get($mes, $anio){
+            $data = array();
+            $this->load->database();
+            $query = "
+                        with agrupado as( 
+                            with reg as(
+                                    select distinct c.sistema, id, nombre, nivel, max(fecha) fecha, 1 num from catalogador c 
+                                    inner join article a on a.sistema = c.sistema
+                                    where
+                                    c.nombre not in ('OJS', 'SciELO')
+                                    and
+                                        (
+                                                (
+                                                        a.estatus in ('C')
+                                                        and 
+                                                        c.id=2
+                                                        and
+                                                        c.nombre <> 'OJS' and c.nombre <> 'SciELO'
+                                                )
+                                                or
+                                                (
+                                                        a.estatus is null
+                                                        and
+                                                        c.nombre is not null
+                                                        and
+                                                        c.id = 1
+                                                )
+                                        )
+                                    and
+                                    extract(month from c.fecha) in (".$mes.") 
+                                    and 
+                                    extract(year from c.fecha) = ".$anio."
+                                    group by 1,2,3,4,6
+                            )
+                            select 
+                             replace(replace(ARRAY_AGG(nombre)::text,'{',''),'}','') nombre,
+                             COUNT(reg.sistema) filter (where reg.sistema like 'CLA%') clase,
+                             COUNT(reg.sistema) filter (where reg.sistema like 'PER%') periodica 
+                             from reg
+                             group by sistema
+                            )
+                            select 
+                                    nombre,
+                                    COUNT(clase) filter (where a.clase > 0) clase,
+                                    COUNT(periodica) filter (where a.periodica > 0) periodica,
+									COUNT(clase) filter (where a.clase > 0) + COUNT(periodica) filter (where a.periodica > 0) total
+                            from agrupado a
+                            group by nombre
+                            order by nombre
+            ";
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);  
+        }
+		
 		public function produccionpc_get($mes, $anio){
             $data = array();
             $this->load->database();
