@@ -488,7 +488,7 @@ class_av = {
         var tbody = '';
         
         $.each(data, function(i, val){
-			if (val['nombre'] !== 'EDITOR'){
+			if (val['nombre'].indexOf('EDITOR') < 0){
                 var tr = class_av.var.tr_prod_analista.replace('<usuario>', val['nombre'])
                                 .replace('<cla>', val['clase'])
                                 .replace('<per>', val['periodica'])
