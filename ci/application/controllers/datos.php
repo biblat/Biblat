@@ -924,7 +924,7 @@ class Datos extends REST_Controller {
             $query = "
                         with agrupado as( 
                             with reg as(
-                                    select distinct c.sistema, id, nombre, nivel, max(fecha) fecha, 1 num from catalogador c 
+                                    select distinct c.sistema, id, case when c.id=1 then nombre||',ALEPH' else nombre end nombre, nivel, max(fecha) fecha, 1 num from catalogador c 
                                     inner join article a on a.sistema = c.sistema
                                     where
                                     c.nombre not in ('OJS', 'SciELO')
@@ -994,7 +994,7 @@ class Datos extends REST_Controller {
                                     order by num
                             )
                             select 
-                             replace(replace(ARRAY_AGG(nombre)::text,'{',''),'}','') nombre,
+                             replace(replace(replace(ARRAY_AGG(nombre)::text,'{',''),'}',''),'\"','') nombre,
                              COUNT(reg.sistema) filter (where reg.sistema like 'CLA%') clase,
                              COUNT(reg.sistema) filter (where reg.sistema like 'PER%') periodica 
                              from reg
@@ -1018,7 +1018,7 @@ class Datos extends REST_Controller {
             $query = "
                         with agrupado as( 
                             with reg as(
-                                    select distinct c.sistema, id, nombre, nivel, max(fecha) fecha, 1 num from catalogador c 
+                                    select distinct c.sistema, id, case when c.id=1 then nombre ||' - ALEPH' else nombre ||' - BIBLAT CENTRAL' end nombre, nivel, max(fecha) fecha, 1 num from catalogador c 
                                     inner join article a on a.sistema = c.sistema
                                     where
                                     c.nombre not in ('OJS', 'SciELO')
@@ -1047,7 +1047,7 @@ class Datos extends REST_Controller {
                                     group by 1,2,3,4,6
                             )
                             select 
-                             replace(replace(ARRAY_AGG(nombre)::text,'{',''),'}','') nombre,
+                             replace(replace(replace(ARRAY_AGG(nombre)::text,'{',''),'}',''),'\"','') nombre,
                              COUNT(reg.sistema) filter (where reg.sistema like 'CLA%') clase,
                              COUNT(reg.sistema) filter (where reg.sistema like 'PER%') periodica 
                              from reg
