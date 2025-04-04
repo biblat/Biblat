@@ -278,6 +278,22 @@ class Generic_model extends CI_Model {
                                             $value[$x] = json_encode($new_array_palabras);
                                         }
                                     }
+									
+									if($x == 'url' && $v == 'errata'){
+                                        unset($value['url']);
+                                        $query = "
+                                                UPDATE article
+                                                        SET url = to_jsonb(
+                                                            (
+                                                                SELECT jsonb_agg(elem)
+                                                                FROM jsonb_array_elements(url::jsonb) AS elem
+                                                                WHERE elem->>'y' NOT ILIKE '%fe de erratas%'
+                                                            )
+                                                        )
+                                                        WHERE sistema = '".$value['sistema']."'
+                                                ";
+                                                $query = $this->db->query($query);
+                                    }
 				}
                                 $this->db->where($array);
 				$this->db->update($tabla, $value);
