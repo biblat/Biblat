@@ -7,7 +7,8 @@ class_av = {
         option_badge: '<option value="<valor>"><opcion> i-badge<num>f-badge</option>',
         //caracteres: /!|#|\$|%|&|\(|\/|\\|\)|=|\?|¿|¡|,|;|:|_|\[|{|}|]|\+|\*|\~|<|>|\'|\"|’/g
         caracteres: /[^a-zA-Z0-9 ]/g,
-        char_i: /\(|\)|,|`|;|:|=|#|\/|\.|@|\[|\]|\|«|»|\*|'/g,
+		//char_i: /\(|\)|,|`|;|:|=|#|\/|\.|@|\[|\]|\|«|»|\*|'/g,
+        char_i : /[()`,;:=#\/.@[\]|«»*']/g,
         cargando: '<i id="check-titulo-load" class="fa fa-spinner fa-pulse" aria-hidden="true" style="color: #ff8000; display: true"></i>',
         estatus:{
             A: 'Sin movimiento',
