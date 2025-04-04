@@ -1219,5 +1219,22 @@ class Datos extends REST_Controller {
             $this->db->query($query);
             
             $this->db->close();
-        }		
+        }
+		
+		public function titulos_get($base, $titulo){
+            $this->load->database();
+            $query = "
+                select 
+                    sistema, 
+                    articulo,
+                    case when url->0->>'u' is not null then url->0->>'u' else '' end url1,
+                    case when url->0->>'y' is not null then url->0->>'y' else '' end tipo1,
+                    case when url->1->>'u' is not null then url->1->>'u' else '' end url2,
+                    case when url->1->>'y' is not null then url->1->>'y' else '' end tipo2
+                    from article where slug(articulo) like '%'||'".$titulo."'||'%' and sistema ~ '^".$base."' order by articulo
+            ";
+            
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);
+        }
 }
