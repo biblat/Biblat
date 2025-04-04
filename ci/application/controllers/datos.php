@@ -690,9 +690,19 @@ class Datos extends REST_Controller {
                                     url->1->>\'u\'
                             else
                                     null
-                            end url2
+                            end url2,
+                            
+                            "notaGeneral",
+                            "sistemaErrata",
+                            (Select a2.articulo from article a2 where a2.sistema = a1."sistemaErrata") original,
+                            (Select a2."notaGeneral" from article a2 where a2.sistema = a1."sistemaErrata") nota_original,
+                            
+                            case when "descripcionBibliografica"->>\'a\' is not null then "descripcionBibliografica"->>\'a\' else \'\' end ||
+                            case when "descripcionBibliografica"->>\'b\' is not null then "descripcionBibliografica"->>\'b\' else \'\' end ||
+                            case when "descripcionBibliografica"->>\'c\' is not null then "descripcionBibliografica"->>\'c\' else \'\' end ||
+                            case when "descripcionBibliografica"->>\'e\' is not null then \', \' || ("descripcionBibliografica"->>\'e\')::text else \'\' end as descripcion
 
-                            from article where sistema = \''.$sistema.'\'
+                            from article a1 where sistema = \''.$sistema.'\'
                         ';
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);
