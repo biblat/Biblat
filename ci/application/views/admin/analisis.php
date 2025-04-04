@@ -333,6 +333,20 @@
                                     </select>
                             </div>
                         </div>
+						<div class="row" id="row_errata">
+                            <div id="div_busca_original" class="col-xs-12 form-group" style="display:none">
+                                <br>
+                                <center>
+                                    <button id="add-errata" type="button" class="btn btn-dark"><i class="fa fa-search" aria-hidden="true" style="color: #ff8000;"></i><span> Buscar documento original</span></button>
+                                </center>
+                                <span><b>No sistema:</b></span>&nbsp;&nbsp;&nbsp;<span id="sistema_original"></span><br>
+                                <span><b>Título:</b></span>&nbsp;&nbsp;&nbsp;<span id="titulo_original"></span><br>
+                            </div>
+                            <div id="div_nota_general" class="col-xs-12 form-group" style="display:none">
+                                <br>
+                                <span><b>Nota general:</b></span><br><input id='nota_general' style="min-width: 100%" type="text">
+                            </div>
+                        </div>
                         <div class="row">
                             <br>
                         </div>

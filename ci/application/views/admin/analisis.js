@@ -108,6 +108,7 @@ class_av = {
         institucion_anterior: '',
         institucion_cambio: '',
         institucion_diccionario: {},
+		selectedData: '',
         tabla: '<table id="tbl_articulos" class="display responsive nowrap" style="width:100%;font-size:11px">' +
                             '<thead>' +
                                 '<tr>' +
@@ -399,6 +400,30 @@ class_av = {
                             $('#tipo_documento').html(options);
                             $('#tipo_documento').on('change', function(){
                                 class_av.var.cambios_documento = (true && !class_av.var.cambios_de_inicio);
+								
+								if( $('#tipo_documento').val() == 'Errata' ){
+                                    $('#div_busca_original').show();
+                                }else{
+                                    $('#sistema_original').text('');
+                                    $('#titulo_original').text('');
+                                    $('#div_busca_original').hide();
+                                }
+                                
+                                if( $('#tipo_documento').val() == 'Documento retractado' || $('#tipo_documento').val() == 'Errata'){
+                                    $('#row_errata').css('border-top', 'solid');
+                                    $('#row_errata').css('border-bottom', 'solid');
+                                    $('#row_errata').css('border-color', 'lightgrey');
+                                    $('#row_errata').css('border-width', '1px');
+                                    $('#div_nota_general').show();
+                                    $('#nota_general').val('');
+                                }else{
+                                    $('#row_errata').css('border-top', '');
+                                    $('#row_errata').css('border-bottom', '');
+                                    $('#row_errata').css('border-color', '');
+                                    $('#row_errata').css('border-width', '');
+                                    $('#nota_general').val('');
+                                    $('#div_nota_general').hide();
+                                }
                             });
                             $('#tipo_documento').select2({ tags: false, placeholder: "Seleccione un tipo de documento", allowClear: true});
                             
@@ -815,6 +840,26 @@ class_av = {
 
                         /******************************************************************/
                         $('#tipo_documento').val(class_av.var.documentoJSON[0].tipo_documento).trigger('change');
+						
+						if(class_av.var.documentoJSON[0].tipo_documento == 'Errata'){
+                            $('#row_errata').css('border-top', 'solid');
+                            $('#row_errata').css('border-bottom', 'solid');
+                            $('#row_errata').css('border-color', 'lightgrey');
+                            $('#row_errata').css('border-width', '1px');
+                            $('#div_busca_original').show();
+                            $('#div_nota_general').show();
+                            
+                            $('#sistema_original').text(class_av.var.documentoJSON[0].sistemaErrata);
+                            $('#titulo_original').text(class_av.var.documentoJSON[0].original);
+                            $('#nota_general').val(class_av.var.documentoJSON[0].nota_original);
+                        }else{
+                            $('#row_errata').css('border-top', '');
+                            $('#row_errata').css('border-bottom', '');
+                            $('#row_errata').css('border-color', '');
+                            $('#row_errata').css('border-width', '');
+                            $('#div_busca_original').hide();
+                            $('#div_nota_general').hide();
+                        }
 
                         /******************************************************************/
                         $('.disciplina').val(null).trigger('change');
@@ -3075,10 +3120,12 @@ class_av = {
         var columns = ['sistema'];
         $.each(class_av.var.documentoJSON, function(i,val){
             var obj = {};
+			var obj2 = {};
             var objDes = {};
             var arrArt = [];
             var objRes = {};
             var arrURL = [];
+			var arrURL2 = [];
             var arrDisc = [];
             var arrSubdisc = [];
            
@@ -3295,6 +3342,65 @@ class_av = {
                 }
                 if(tipourl2 == 'html'){
                     arrURL.push({u: url2, y: "Texto completo (Ver HTML)"});
+                }
+            }
+			
+			if( $('#tipo_documento').val() == 'Errata' ){
+                obj2['sistema'] = class_av.var.selectedData[0].id;
+                obj2['sistemaErrata'] = class_av.var.sistema;
+                obj2['notaGeneral'] = $('#nota_general').val();
+                
+                obj['sistemaErrata'] = class_av.var.selectedData[0].id;
+                if( class_av.var.selectedData[0].url1 !== '' && class_av.var.selectedData[0].url1 !== null){
+                    
+                    arrURL2.push({u: class_av.var.selectedData[0].url1, y: class_av.var.selectedData[0].tipo1});
+                    
+                    if( class_av.var.selectedData[0].tipo1.indexOf('PDF') !== -1 ){
+                        arrURL.push({u: class_av.var.selectedData[0].url1, y: "Texto completo (Ver original PDF)"});
+                    }else{
+                        arrURL.push({u: class_av.var.selectedData[0].url1, y: "Texto completo (Ver original HTML)"});
+                    }
+                }
+                if( class_av.var.selectedData[0].url2 !== '' && class_av.var.selectedData[0].url2 !== null){
+                    
+                    arrURL2.push({u: class_av.var.selectedData[0].url2, y: class_av.var.selectedData[0].tipo2});
+                    
+                    if( class_av.var.selectedData[0].tipo2.indexOf('PDF') !== -1 ){
+                        arrURL.push({u: class_av.var.selectedData[0].url2, y: "Texto completo (Ver original PDF)"});
+                    }else{
+                        arrURL.push({u: class_av.var.selectedData[0].url2, y: "Texto completo (Ver original HTML)"});
+                    }
+                }
+                
+                if(url1){
+                    if(tipourl1 == 'pdf'){
+                        arrURL2.push({u: url1, y: "Texto completo (Fe de erratas PDF)"});
+                    }
+                    if(tipourl1 == 'html'){
+                        arrURL2.push({u: url1, y: "Texto completo (Fe de erratas HTML)"});
+                    }
+                }
+                
+                if(url2){
+                    if(tipourl2 == 'pdf'){
+                        arrURL2.push({u: url2, y: "Texto completo (Fe de erratas PDF)"});
+                    }
+                    if(tipourl2 == 'html'){
+                        arrURL2.push({u: url2, y: "Texto completo (Fe de erratas HTML)"});
+                    }
+                }
+                
+                obj2['url'] = JSON.stringify(arrURL2);
+                data_int.push(obj2);
+            }else{
+                if(class_av.var.documentoJSON[0].articulo == 'Errata'){
+                    obj2['sistema'] = class_av.var.documentoJSON[0].sistemaErrata;
+                    obj2['sistemaErrata'] = null;
+                    obj2['notaGeneral'] = null;
+                    obj2['url'] = 'errata';
+                    obj['sistemaErrata'] = null;
+                    
+                    data_int.push(obj2);
                 }
             }
             
@@ -4432,6 +4538,18 @@ class_av = {
                 }
             }
         });
+		
+		if( $('#tipo_documento').val() == 'Errata' ){
+            if( $('#sistema_original').text() == '' ){
+                error = 'Información de documento original'
+            }
+        }
+        
+        if( $('#tipo_documento').val() == 'Errata' || $('#tipo_documento').val() == 'Documento retractado'){
+            if( $('nota_general').val() == '' ){
+                error = 'Nota general'
+            }
+        }
         
         return error;
     },
@@ -5446,7 +5564,96 @@ class_av = {
         data['data'] = data_int;
         data['data_ant'] = [{'usuario': obj['usuario']}];
         return data;
-    }
+    },
+	prompt_articulo: function(){
+        var agregar = 'Documento original:';
+        
+        $.confirm({
+            title: '',
+            content: '' +
+            '<form action="" class="formName">' +
+            '<div class="form-group">' +
+            agregar +
+            '<br><select class="name form-control" name="errata_sel" id="errata_sel" style="width:100%" width="100%" required>' +
+            '</select>' +
+            '</div>' +
+            '</form>',
+            buttons: {
+                cancelar: {
+                    text: 'Cancelar',
+                    action: function(){
+                    }
+                },
+                formSubmit: {
+                    text: 'Seleccionar',
+                    btnClass: 'btn-warning',
+                    action: function () {
+                        class_av.var.selectedData = $('#errata_sel').select2('data');
+                        $('#sistema_original').text(class_av.var.selectedData[0].id);
+                        $('#titulo_original').text(class_av.var.selectedData[0].text);
+                        $('#nota_general').val("Para este documento se publicó una errata en el " + class_av.var.documentoJSON[0].descripcion);
+                    }
+                },
+            },
+            onContentReady: function () {
+                
+                $("#errata_sel").select2({
+                tags: true,
+                allowClear: true,
+                placeholder: "Escribe parte del título del documento",
+                ajax: {
+                  url: function (params) {
+                    return '/datos/titulos/'+class_av.var.sistema.substr(0,3)+'/'+class_utils.slug(params.term.trim());
+                  },
+                  dataType: 'json',
+                  processResults: function (data) {
+                    return {
+                      results: data.map(function (item) {
+                        return {
+                          id: item.sistema,
+                          text: item.articulo,
+                          desc: item.descripcion,
+                          url1: item.url1,
+                          tipo1: item.tipo1,
+                          url2: item.url2,
+                          tipo2: item.tipo2,
+                        };
+                      })
+                    };
+                  }
+                },
+                language: {
+                            inputTooShort: function () {
+                            return "";
+                            }
+                        },
+                minimumInputLength: 3,
+                templateResult: formatRepo,
+                });
+                
+                function formatRepo (repo) {
+                    if (repo.loading) {
+                      return repo.text;
+                    }
+                    
+                    var $container = $(
+                        "<div class='select2-result-repository__title'>" + repo.text +'</span></div>'
+                    );
+
+                    return $container;
+                  };
+                  $('.jconfirm').css('z-index',0);
+                
+                // bind to events
+                var jc = this;
+                this.$content.find('form').on('submit', function (e) {
+                    // if the user submits the form by pressing enter in the field.
+                    e.preventDefault();
+                    jc.$$formSubmit.trigger('click'); // reference the button and click it
+                });
+            }
+        });
+    },
 };
 
 $(class_av.ready);
