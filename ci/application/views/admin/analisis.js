@@ -1598,6 +1598,10 @@ class_av = {
             $('#div_tabla').show();
             $('#btn_nuevo_articulo').show();
         });
+		
+		$('#add-errata').off('click').on('click', function(){
+            class_av.prompt_articulo();
+         });
     },
     control_aa: function(pc){
         if(cons.res.val == "1"){
