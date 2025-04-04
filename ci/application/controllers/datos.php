@@ -690,17 +690,7 @@ class Datos extends REST_Controller {
                                     url->1->>\'u\'
                             else
                                     null
-                            end url2,
-							
-							"notaGeneral",
-                            "sistemaErrata",
-                            (Select a2.articulo from article a2 where a2.sistema = a1."sistemaErrata") original,
-                            (Select a2."notaGeneral" from article a2 where a2.sistema = a1."sistemaErrata") nota_original,
-                            
-                            case when "descripcionBibliografica"->>\'a\' is not null then "descripcionBibliografica"->>\'a\' else \'\' end ||
-                            case when "descripcionBibliografica"->>\'b\' is not null then "descripcionBibliografica"->>\'b\' else \'\' end ||
-                            case when "descripcionBibliografica"->>\'c\' is not null then "descripcionBibliografica"->>\'c\' else \'\' end ||
-                            case when "descripcionBibliografica"->>\'e\' is not null then \', \' || ("descripcionBibliografica"->>\'e\')::text else \'\' end as descripcion
+                            end url2
 
                             from article where sistema = \''.$sistema.'\'
                         ';
@@ -1229,22 +1219,5 @@ class Datos extends REST_Controller {
             $this->db->query($query);
             
             $this->db->close();
-        }
-
-		public function titulos_get($base, $titulo){
-            $this->load->database();
-            $query = "
-                select 
-                    sistema, 
-                    articulo,
-                    case when url->0->>'u' is not null then url->0->>'u' else '' end url1,
-                    case when url->0->>'y' is not null then url->0->>'y' else '' end tipo1,
-                    case when url->1->>'u' is not null then url->1->>'u' else '' end url2,
-                    case when url->1->>'y' is not null then url->1->>'y' else '' end tipo2
-                    from article where slug(articulo) like '%'||'".$titulo."'||'%' and sistema ~ '^".$base."' order by articulo
-            ";
-            
-            $query = $this->db->query($query);
-            $this->response($query->result_array(), 200);
-        }
+        }		
 }
