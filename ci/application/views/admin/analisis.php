@@ -339,12 +339,15 @@
                                 <center>
                                     <button id="add-errata" type="button" class="btn btn-dark"><i class="fa fa-search" aria-hidden="true" style="color: #ff8000;"></i><span> Buscar documento original</span></button>
                                 </center>
-                                <span><b>No sistema:</b></span>&nbsp;&nbsp;&nbsp;<span id="sistema_original"></span><br>
+                                <br>
+                                <div id="div_datos_original" style="display:none">
+                                <span><b>No sistema:</b></span>&nbsp;&nbsp;&nbsp;<span id="sistema_original"></span>&nbsp;&nbsp;&nbsp;<button id="importar_original" type="button" class="btn btn-dark"><i class="fa fa-id-card-o" aria-hidden="true" style="color: #ff8000;"></i><span> Importar Autores e Instituciones para corrección</span></button><br>
                                 <span><b>Título:</b></span>&nbsp;&nbsp;&nbsp;<span id="titulo_original"></span><br>
+                                </div>
                             </div>
                             <div id="div_nota_general" class="col-xs-12 form-group" style="display:none">
                                 <br>
-                                <span><b>Nota general:</b></span><br><input id='nota_general' style="min-width: 100%" type="text">
+                                <span id="txt_nota_general"><b>Nota general (Documento original):</b></span><br><input id='nota_general' style="min-width: 100%" type="text">
                             </div>
                         </div>
                         <div class="row">
