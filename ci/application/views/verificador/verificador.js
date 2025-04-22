@@ -3325,7 +3325,7 @@ class_ver = {
             doc.setFontSize(10);
             const texto = "Sistema de revistas científicas latinoamericanas Biblat (CLASE+PERIÓDICA) \n"+
                             "Universidad Nacional Autónoma de México, Dirección General de Bibliotecas y \n"+
-                            "Servicios Digitales de Información, Departamento de Bibliografía";
+                            "Servicios Digitales de Información, Departamento de Bibliografía Latinoamericana";
 
             doc.text(texto, 370, 80, { align: 'center' });
             
