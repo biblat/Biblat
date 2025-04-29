@@ -110,11 +110,23 @@ class Frecuencias extends CI_Controller {
 		$this->load->database();
 		$queryAutor = "SELECT nombre AS autor FROM author WHERE slug='{$slug}' LIMIT 1";
 		$queryAutor = $this->db->query($queryAutor);
+		
+		/*Datos del humanindex*/
+		$query = "SELECT encode(rfc::bytea, 'base64') AS rfc FROM humanindex WHERE slug='{$slug}' LIMIT 1";
+		$query = $this->db->query($query);
+		$query = $query->row_array();
+		if($query['rfc']){
+			$rfc = $query['rfc'];
+		}
 		$this->db->close();
+		
 		$queryAutor = $queryAutor->row_array();
 		$args['breadcrumb'][] = array('title' => _('Autor'), 'link' => 'frecuencias/autor');
 		$args['breadcrumb'][] = array('title' => $queryAutor['autor'], 'link' => "frecuencias/autor/{$slug}");
 		$args['page_title'] = sprintf('%s (%%d documentos)', $queryAutor['autor']);
+		if($rfc){
+                    $args['page_title'] .= '<br>' . "<a target='_blank' href='https://www.humanindex.unam.mx/humanindex/pagina/pagina_publicaciones.php?rfc={$rfc}'><img src='/img/hidx.png' style='width: 50px; height: 50px;'></a>&nbsp;&nbsp;&nbsp;Ver publicaciones en Humanindex";
+                }
 		$args['title'] = _sprintf('%s (%%d documentos)', $queryAutor['autor']);
 		return $this->_renderDocuments($args);
 	}
@@ -508,11 +520,21 @@ class Frecuencias extends CI_Controller {
 				'slug' => $autor,
 				'autor' => $query['autor']
 			);
+		/*Datos del humanindex*/
+		$query = "SELECT encode(rfc::bytea, 'base64') AS rfc FROM humanindex WHERE slug='{$autor['slug']}' LIMIT 1";
+		$query = $this->db->query($query);
+		$query = $query->row_array();
+		if($query['rfc']){
+			$rfc = $query['rfc'];
+		}
 		$this->db->close();
 		$args['breadcrumb'][] = array('title' => _('Institución'), 'link' => "frecuencias/institucion");
 		$args['breadcrumb'][] = array('title' => $institucion['institucion'], 'link' => "frecuencias/institucion/{$institucion['slug']}");
 		$args['breadcrumb'][] = array('title' => _('Autor'), 'link' => "frecuencias/institucion/{$institucion['slug']}/autor");
 		$args['page_title'] = sprintf('%s (%%d documentos)', $autor['autor']);
+		if($rfc){
+                    $args['page_title'] .= '<br>' . "<a target='_blank' href='https://www.humanindex.unam.mx/humanindex/pagina/pagina_publicaciones.php?rfc={$rfc}'><img src='/img/hidx.png' style='width: 50px; height: 50px;'></a>&nbsp;&nbsp;&nbsp;Ver publicaciones en Humanindex";
+                }
 		$args['title'] = _sprintf('%s (%%d documentos)', $institucion['institucion']);
 		return $this->_renderDocuments($args);
 	}
