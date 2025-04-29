@@ -10,6 +10,8 @@
         <h4>{_sprintf('<i>%s documentos publicados</i>', $search['total'])}
 {if !$textoCompleto && $search.totalCompleto > 0}, {$atitle=_sprintf('mostrar %s resultados en texto completo', $search.totalCompleto) anchor("$paginationURL/texto-completo", _sprintf('<b>mostrar "%s" resultados en texto completo</b>', $search.totalCompleto), 'title="$atitle"')}{/if}
 {if $textoCompleto}{_('en texto completo')}{/if}
+		<br><br>
+        <img src='/img/hidx.png' style='width: 50px; height: 50px;'> - Publicaciones del autor en Humanindex
         </h4>
       <hr/>
     </div>

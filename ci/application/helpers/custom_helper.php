@@ -284,6 +284,9 @@ if ( ! function_exists('articulosResultado') ):
 					if ( isset($autor['z']) ):
 						$row['autoresHTML'] .= "<sup>{$autor['z']}</sup>";
 					endif;
+					if ( isset($autor['r']) ):
+						$row['autoresHTML'] .= "&nbsp;<a target='_blank' href='https://www.humanindex.unam.mx/humanindex/pagina/pagina_publicaciones.php?rfc={$autor['r']}'><img src='/img/hidx.png' style='width: 30px; height: 30px;' title='Ver publicaciones del autor en Humanindex'></a>&nbsp;&nbsp;";
+					endif;
 					if($indexAutor < $totalAutores):
 						$row['autoresHTML'] .= "; ";
 					endif;
