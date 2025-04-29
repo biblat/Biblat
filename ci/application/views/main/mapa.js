@@ -481,10 +481,10 @@ c_frec = {
         tabla_paises: '<table id="paises" class="display" style="font-size:11px;width:200px"><thead><tr><th>País</th><th>Ver</th></tr></thead><tbody id="body_paises"></tbody></table>',
         tr_paises: '<tr><td style="width:100px" id="<pais_id>_html"><pais></td><td style="width:10px;cursor:pointer;color:lightgreen"><i id="<pais_id>" class="fa fa-eye"></i></td></tr>',
         tabla_autores: '<span style="font-size:11px"></span><table id="autores" class="display" style="width:100%;font-size:11px"><thead><tr><th style="background-color: #ff800040">Autor</th><th style="background-color: #ff800040">Documentos</th></tr></thead><tbody id="body_autores"></tbody></table>',
-        tr_autores: '<tr id="tr_<id>"><td class="td_tabla"><span id="<id>" style="cursor:pointer"><autor></span></td><td><doc></td></tr>',
+        tr_autores: '<tr id="tr_<id>"><td class="td_tabla"><span id="<id>" style="cursor:pointer"><autor><hidx></span></td><td><doc></td></tr>',
         tabla_coautoria: '<span style="font-size:11px"></span><table id="coautoria" class="display" style="width:100%;font-size:11px"><thead><tr><th style="background-color: #ff800040">Institución coautora</th><th style="background-color: #ff800040">Documentos</th></tr></thead><tbody id="body_coautoria"></tbody></table>',
         tr_coautoria: '<tr id="tr_<id>"><td class="td_tabla"><span id="<id>" style="cursor:pointer"><coautor></span></td><td><doc></td></tr>',
-        subtitulo: '<hr><h4><center><sub><br>Autores e Instituciones coautoras</center></h4><hr>',
+        subtitulo: '<hr><h4><center><sub><br>Autores e Instituciones coautoras<br><img src="/img/hidx.png" style="width: 40px; height: 40px;"> - Publicaciones del autor en Humanindex</center></h4><hr>',
         data_frecuencias: '',
         data_frec_pais: '',
         data_frec_disc: '',
@@ -771,6 +771,11 @@ c_frec = {
                 c_frec.var.body_autores += c_frec.var.tr_autores.replace('<autor>',val.autor)
                                          .replace('<doc>','<a target="_blank" class="enlace" href="/frecuencias/institucion/' + val.institucionSlug + '/autor/' + val.autorSlug + '" >' + new Intl.NumberFormat("en").format(val.documentos) + '</a>' )
                                          .replace(/<id>/g,val.autorSlug);
+				if(val.rfc !== ''){
+                    c_frec.var.body_autores = c_frec.var.body_autores.replace('<hidx>','&nbsp;&nbsp;&nbsp;<a target="_blank" href="https://www.humanindex.unam.mx/humanindex/pagina/pagina_publicaciones.php?rfc='+val.rfc+'"><img src="/img/hidx.png" style="width: 25px; height: 25px;"></a>');
+                }else{
+                    c_frec.var.body_autores = c_frec.var.body_autores.replace('<hidx>','');
+                }
             });
             if( $('#total_autor')[0]=== undefined )
                 $('#div_tabla_autor').parent().prepend(c_frec.var.btn_top.replace(/<id>/g,'autor').replace(/<button/g,'<button style="font-size:11px"'));

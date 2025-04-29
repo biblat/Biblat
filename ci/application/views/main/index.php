@@ -181,7 +181,7 @@
 
             <div class="col-md-8">
 
-                <div class="col-md-12 page_title" style="height:100px" id="subtitulo">
+                <div class="col-md-12 page_title" style="height:150px" id="subtitulo">
 
                 </div>
 
