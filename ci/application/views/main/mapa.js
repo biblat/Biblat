@@ -767,16 +767,20 @@ c_frec = {
     get_tabla_autor: function(){
         $('#subtitulo').html(c_frec.var.subtitulo.replace('<sub>',c_frec.var.df_sub));
         c_frec.var.body_autores = '';
-        $.each(c_frec.var.data_frec_autor,function(i,val){
-                c_frec.var.body_autores += c_frec.var.tr_autores.replace('<autor>',val.autor)
-                                         .replace('<doc>','<a target="_blank" class="enlace" href="/frecuencias/institucion/' + val.institucionSlug + '/autor/' + val.autorSlug + '" >' + new Intl.NumberFormat("en").format(val.documentos) + '</a>' )
-                                         .replace(/<id>/g,val.autorSlug);
-				if(val.rfc !== ''){
-                    c_frec.var.body_autores = c_frec.var.body_autores.replace('<hidx>','&nbsp;&nbsp;&nbsp;<a target="_blank" href="https://www.humanindex.unam.mx/humanindex/pagina/pagina_publicaciones.php?rfc='+val.rfc+'"><img src="/img/hidx.png" style="width: 25px; height: 25px;"></a>');
-                }else{
-                    c_frec.var.body_autores = c_frec.var.body_autores.replace('<hidx>','');
-                }
-            });
+        c_frec.var.body_autores = c_frec.var.data_frec_autor.map(val => {
+            let row = c_frec.var.tr_autores
+                .replace('<autor>', val.autor)
+                .replace('<doc>', `<a target="_blank" class="enlace" href="/frecuencias/institucion/${val.institucionSlug}/autor/${val.autorSlug}">${new Intl.NumberFormat("en").format(val.documentos)}</a>`)
+                .replace(/<id>/g, val.autorSlug);
+
+            if (val.rfc !== '') {
+                row = row.replace('<hidx>', `&nbsp;&nbsp;&nbsp;<a target="_blank" href="https://www.humanindex.unam.mx/humanindex/pagina/pagina_publicaciones.php?rfc=${val.rfc}"><img src="/img/hidx.png" style="width: 25px; height: 25px;"></a>`);
+            } else {
+                row = row.replace('<hidx>', '');
+            }
+
+            return row;
+        }).join('');
             if( $('#total_autor')[0]=== undefined )
                 $('#div_tabla_autor').parent().prepend(c_frec.var.btn_top.replace(/<id>/g,'autor').replace(/<button/g,'<button style="font-size:11px"'));
             $('#div_tabla_autor').html(c_frec.var.tabla_autores);
