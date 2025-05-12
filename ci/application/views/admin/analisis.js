@@ -4972,6 +4972,7 @@ class_av = {
                                                     class_av.mensaje('Su sesión expiró, es necesario iniciar nuevamente.', function(){window.location.reload();});
                                                 }else{
                                                     class_av.cambio_estatus(class_av.var.sistema, 'B');
+													class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).estatus = 'B';
                                                     $('.'+class_av.var.sistema).removeClass('sistema');
                                                     $('.'+class_av.var.sistema).addClass('cerrado');
                                                     $('.'+class_av.var.sistema).css('cursor','');
