@@ -46,7 +46,7 @@
                         
                         <li>{_('Someter su revista a la validación de metadatos a través de la herramienta')} <a href="{site_url('metametrics/simulador')}">MetaMetrics</a>. {_('El mínimo aceptable es 80% de cumplimiento en la calidad de los metadatos, siendo obligatorio cumplir con el 100% de los metadatos de afiliación institucional de los autores. Una vez aprobada esta validación el sistema le permitirá pasar a la siguiente evaluación, de lo contrario, le permitirá descargar los resultados del proceso.')}</li>
                         
-                        <li>{_('Superada la validación de metadatos, deberá acceder al')} <a href="{site_url('preevaluacion/simulador')}">{_('módulo de preevaluación')}</a> {_('e indicar qué criterios cumple o no la revista postulante. Si cumple con al menos 40 puntos (33 obligatorios y 7 optativos) el sistema le solicitará algunos datos y le permitirá enviar su postulación al Comité, de lo contrario, le permitirá descargar los resultados del proceso.')}</li>
+                        <li>{_('Superada la validación de metadatos, deberá acceder al')} <a href="{site_url('preevaluacion/simulador')}">{_('módulo de preevaluación')}</a> {_('e indicar qué criterios cumple o no la revista postulante. Si cumple con al menos 28 puntos (23 obligatorios y 5 optativos) el sistema le solicitará algunos datos y le permitirá enviar su postulación al Comité, de lo contrario, le permitirá descargar los resultados del proceso.')}</li>
                         
                         <li>{_('El Comité revisará las postulaciones de las revistas que hayan superado la validación de metadatos y la preevaluación, en un plazo de hasta 1 mes emitirá un dictamen que será enviado al correo electrónico que se haya indicado durante la preevaluación.')}</li>
                 </ol>
@@ -55,7 +55,7 @@
                 
                 <p><b>{_('¿Qué evaluamos?')}</b></p><br>
                 
-                <p>{_('Se evalúan 48 criterios editoriales, de los cuales, del 1 al 33 son obligatorios y deben ser cumplidos para que las revistas sean consideradas en el proceso de postulación. Los criterios 34 al 48 son un referente de calidad editorial y se exige un mínimo de 7 criterios.')}</p><br>
+                <p>{_('Se evalúan 32 criterios editoriales, de los cuales, del 1 al 23 son obligatorios y deben ser cumplidos para que las revistas sean consideradas en el proceso de postulación. Los criterios 24 al 32 son un referente de calidad editorial y se exige un mínimo de 5 criterios.')}</p><br>
                                 
                 <p>{_('Todas las revistas son evaluadas por nuestro Comité de Evaluación a partir de 3 tipos de criterios.')}</p><br>                    
                 
