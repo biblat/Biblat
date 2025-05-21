@@ -87,7 +87,7 @@
 			<tbody>
 				<tr>
 					<td id="1">1</td>
-					<td><b>{_('Mención de un editor o responsable de la revista:')}</b> {_('Se valora positivamente la mención de un editor, director o responsable de la revista.')}</td>
+					<td><b>{_('Mención de un editor de la revista:')}</b> {_('Se valora positivamente la mención de un editor o director de la revista.')}</td>
 				</tr>
 				<tr>
 					<td id="2">2</td>
@@ -95,129 +95,94 @@
 				</tr>
 				<tr>
 					<td id="3">3</td>
-					<td><b>{_('Existencia de tabla de contenidos o índice:')}</b> {_('Se valora positivamente si la revista proporciona la tabla de contenido o sumario en la que consten, entre otros, los nombres de los autores, título del trabajo y páginas.')}</td>
+					<td><b>{_('Existencia de tabla de contenido o índice:')}</b> {_('Se valora positivamente si la revista proporciona la tabla de contenido o sumario en la que consten, entre otros, los nombres de los autores, título del trabajo y páginas.')}</td>
 				</tr>
 				<tr>
 					<td id="4">4</td>
-					<td><b>{_('Identificación de los autores personales o institucionales en los documentos:')}</b> {_('Los trabajos deben estar firmados por los autores con nombre y apellidos o declaración de autor institucional.')}</td>
+					<td><b>{_('Membrete bibliográfico en la portada digital:')}</b> {_('Esta deberá incluir al menos el título completo de la revista, ISSN, año, volumen, número y membrete bibliográfico.')}</td>
 				</tr>
 				<tr>
 					<td id="5">5</td>
-					<td><b>{_('Referencias bibliográficas en los documentos:')}</b> {_('Los documentos publicados deben proporcionar una lista de referencias bibliográficas, obras citadas o notas bibliográficas al pie de página. La presencia de estas referencias será valorada solamente en artículos, ensayos o reseñas y no en cartas al editor, editoriales, entrevistas, reportajes u otro tipo de documentos que no suelen citar referencias bibliográficas.')}</td>
+					<td><b>{_('60%% de contenido indizable:')}</b> {_('Al menos el 60%% de los documentos publicados en un fascículo, deben ser: artículos originales, ensayos, reseñas de libro, revisiones bibliográficas, notas de más de una cuartilla, informes técnicos o cartas al editor.')}</td>
 				</tr>
 				<tr>
 					<td id="6">6</td>
-					<td><b>{_('Membrete bibliográfico en cubiertas o páginas de presentación:')}</b> {_('Estas deberán incluir al menos el título completo de la revista, así como ISSN, volumen, número, fecha y membrete bibliográfico.')}</td>
+					<td><b>{_('ISSN:')}</b> {_('Es obligatorio contar con código ISSN para la versión electrónica de la revista y en caso de tener una versión impresa esta también deberá tener su propio código ISSN.')}</td>
 				</tr>
 				<tr>
 					<td id="7">7</td>
-					<td><b>{_sprintf('60%% de contenido indizable:')}</b> {_sprintf('Al menos el 60%% de los documentos publicados en un fascículo, deben ser: artículos originales, ensayos, reseñas de libro, revisiones bibliográficas, notas de más de una cuartilla, informes técnicos o cartas al editor.')}</td>
+					<td><b>{_sprintf('Mención del objetivo de la revista:')}</b> {_sprintf('En la portada digital se debe hacer mención de los objetivos que la publicación persigue. Puede valorarse también si hace explícita su especialización temática y/o la audiencia a la que va dirigida.')}</td>
 				</tr>
 				<tr>
 					<td id="8">8</td>
-					<td><b>{_('ISSN:')}</b> {_('Es obligatorio contar con código ISSN e ISSN para la versión electrónica en su caso.')}</td>
-				</tr>
+                                        <td><b>{_('Periodicidad semestral o más frecuente:')}</b> {_('Califica positivamente si la revista es semestral o más frecuente, ya que se aprecia que cumpla con su misión de difundir sus contenidos en el menor tiempo posible.')}<br>
+                                                                                                    {_('Validación de frecuencia: Se entiende que una revista cumple con este parámetro si a lo largo del año cumple con la periodicidad por la revista (por ejemplo, tres fascículos al año, en el caso de las revistas cuatrimestrales).')}<br>
+                                                                                                    {_('Publicación al inicio del periodo programado: para aprobar este punto se requiere que la publicación de los contenidos de la revista se realice al inicio del período según la frecuencia. Para tal efecto, se verifica la frecuencia definida por la revista y la fecha observada en el sitio web de la revista. Cuando los artículos se reúnen en ediciones periódicas, éstas deben estar finalizadas preferentemente al inicio del período.')}<br>
+                                                                                                    {_('Se valora como la mejor práctica editorial la publicación continua de artículos, esto es, que los documentos se publiquen en línea tan pronto como sean aprobados y editados. En este caso, los artículos quedan reunidos en un volumen anual con o sin ediciones periódicas (números). Cuando no se adoptan ediciones (números), la publicación de los artículos debe ocurrir a lo largo del año.')}<br>
+                                                                                                    {_('Es deseable que el número de artículos publicados anualmente por una revista de publicación continua sea a mayor o igual a 36 documentos, que pueden ser: artículos, ensayos, reseñas de libro, revisiones bibliográficas, notas de más de una cuartilla, informes técnicos o cartas al editor.',.')}<br>
+                                        </td>
+                                </tr>
 				<tr>
 					<td id="9">9</td>
-					<td><b>{_('Mención del objetivo de la revista:')}</b> {_('En el fascículo se debe hacer mención de los objetivos que la publicación persigue. Puede valorarse también si hace explícita su especialización temática y/o la audiencia a la que va dirigida.')}</td>
+					<td><b>{_('Disponibilidad de contenidos retrospectivos:')}</b> {_('Aplica a revistas electrónicas y se refiere al acceso a números y documentos en texto completo publicados anteriormente a su postulación para la base de datos, para revistas con una antigüedad de seis años de su publicación electrónica se considera un periodo de al menos 5 años de disponibilidad. Para aquellas con menos de 5 años de antigüedad se considera un periodo de 3 años. En el caso de nuevas ediciones se consideran al menos 3 fascículos publicados a partir de su año de inicio. En el caso de revistas nuevas de publicación continua se consideran al menos 12 artículos en el año de inicio de su publicación.')}</td>
 				</tr>
 				<tr>
 					<td id="10">10</td>
-					<td><b>{_('Mención de periodicidad:')}</b> {_('Para su valoración la revista debe declarar su periodicidad sin ambigüedad o bien el número de ejemplares que ofrece al año. Este criterio califica solamente la mención de periodicidad, no su cumplimiento.')}</td>
+					<td><b>{_('Existencia de un consejo, comité o cuerpo editorial:')}</b> {_('Deberá constar en la revista la existencia de un cuerpo editorial que apoye al editor en diversas responsabilidades inherentes a la gestión de la revista o bien a la evaluación de las contribuciones y deberán proporcionarse los nombres de cada una de las personas que forman parte de esas instancias. Este consejo, comité o cuerpo editorial deberá contar con evaluadores externos a la entidad editora, lo que se hará constar mediante su afiliación institucional. Al menos el 30% de los miembros del consejo editorial deberán pertenecer a instituciones diferentes a la editora, de lo contrario no calificará positivamente.')}</td>
 				</tr>
 				<tr>
 					<td id="11">11</td>
-					<td><b>{_('Periodicidad semestral o más frecuente:')}</b> {_('Califica positivamente si la periodicidad de la revista es semestral o más frecuente, ya que se aprecia que cumpla con su misión de difundir sus contenidos en el menor tiempo posible.')}</td>
+					<td><b>{_('Servicios de indización que cubren la revista:')}</b> {_('Califica positivamente si la revista está incluida en algún servicio de índices y resúmenes, directorios, catálogos, hemerotecas virtuales y listas del núcleo básico de revistas nacionales o internacionales, entre otros servicios de información. Este campo califica positivamente solo si el servicio de información es mencionado por la propia revista y sus enlaces son verificables.')}</td>
 				</tr>
 				<tr>
 					<td id="12">12</td>
-					<td><b>{_('Cumplimiento de periodicidad:')}</b> {_('Se entiende que una revista cumple su periodicidad si a lo largo del año publica el número de fascículos que se corresponden con la periodicidad expresada por la revista (por ejemplo, tres fascículos al año, en el caso de las revistas cuatrimestrales). Por lo tanto, para poder calificar este criterio es indispensable que la revista explicite el número de ejemplares que ofrece al año (No aplica en periodicidad continua).')}</td>
+					<td><b>{_('Instrucciones a los autores:')}</b> {_('Califica positivamente si aparecen las instrucciones a los autores sobre el envío de originales en la página principal o de inicio de la revista.')}</td>
 				</tr>
                                 <tr>
 					<td id="13">13</td>
-					<td><b>{_('Disponibilidad de contenidos retrospectivos:')}</b> {_('Aplica a revistas electrónicas y el requisito se refiere al acceso a números y documentos en texto completo publicados anteriormente, considerando un lapso de tiempo de 5 años al menos o desde que se inició la publicación de la revista.')}</td>
+					<td><b>{_('Identificación de autores en documentos:')}</b> {_('Los trabajos deben estar firmados por los autores, con nombre y apellidos o mediante declaración de autoría institucional. Es esencial registrar exhaustivamente las afiliaciones para identificar el origen institucional y geográfico de los documentos. Cada autor debe tener su afiliación especificada, incluyendo el nombre de la institución y su ubicación (ciudad, estado, país). Si un autor tiene múltiples afiliaciones, deben registrarse por separado. La presentación de las afiliaciones debe ser uniforme y seguir ciertas pautas, como agruparlas bajo los nombres de los autores y no incluir currículo. Los nombres de las instituciones deben presentarse completos y en el idioma original o traducidos al inglés si es necesario.')}</td>
 				</tr>                                
 				<tr>
 					<td id="14">14</td>
-					<td><b>{_('Existencia de un consejo, comité o cuerpo editorial:')}</b> {_('Deberá constar en la revista la existencia de un cuerpo editorial que apoye al editor en diversas responsabilidades inherentes a la gestión de la revista o bien a la evaluación de las contribuciones, y deberán proporcionarse los nombres de cada uno de los que forman parte de esas instancias.')}</td>
+					<td><b>{_('Referencias bibliográficas en los documentos:')}</b> {_('Los documentos publicados deben proporcionar una lista de referencias bibliográficas, obras citadas o notas bibliográficas al pie de página. La presencia de estas referencias será valorada solamente en artículos, ensayos, reseñas, datasets, archivos históricos, colecciones y programas informáticos y no en cartas al editor, editoriales, entrevistas, reportajes u otro tipo de documentos que no suelen incluir referencias bibliográficas')}
+                                                                                                    <br>{_('Para las citas y referencias bibliográficas se recomienda la adopción fiel de normas establecidas como estándares internacionales o las más utilizadas en el área temática de la revista. (APA, Harvard, ISO, Vancouver o alguna otra).',')}</td>
 				</tr>
 				<tr>
 					<td id="15">15</td>
-					<td><b>{_('Servicios de indización que cubren la revista:')}</b> {_('Califica positivamente si la revista está incluida en algún servicio de índices y resúmenes, directorios, catálogos, hemerotecas virtuales y listas del núcleo básico de revistas nacionales, entre otros servicios de información. Este campo califica positivamente solamente si el servicio de información es mencionado por la propia revista.')}</td>
+					<td><b>{_('Membrete bibliográfico al inicio del documento:')}</b> {_('Califica positivamente si éste aparece al inicio de cada artículo e identifica a la fuente. Para darlo por cumplido, cada documento ya sea en PDF y/o HTML, debe incluir un membrete que contenga por lo menos: título completo o abreviado, algún identificador de recursos uniforme (URI) como pueden ser DOI, Handle o algún identificador alternativo nacional y la numeración de la revista (año, volumen, número, parte, mes).')}</td>
 				</tr>
 				<tr>
 					<td id="16">16</td>
-					<td><b>{_('Clasificación de los tipos de documentos publicados (Tabla de contenido)')}</b> {_('ya sea por los tipos de documentos publicados (artículo original, revisiones, reseñas, por ej.) o por temáticas específicas.')}</td>
+					<td><b>{_('Descarga individual de contenidos')}</b> {_('Permite la descarga de los artículos de manera individual.')}</td>
 				</tr>
 				<tr>
 					<td id="17">17</td>
-					<td><b>{_('Instrucciones a los autores:')}</b> {_('Califica positivamente si aparecen las instrucciones a los autores sobre el envío de originales.')}</td>
+					<td><b>{_('Fechas de recepción y/o aceptación del documento:')}</b> {_('Califica positivamente sólo si indica ambas fechas. Esta información se puede ubicar al inicio o al final de cada artículo y es sólo exigible para artículos originales. El tiempo promedio de procesamiento de los manuscritos debe ser como máximo de hasta 6 (seis) meses, considerando el tiempo entre las fechas de recepción y de decisión final en cuanto a la publicación, y de hasta 12 (doce) meses, considerando el tiempo entre las fechas de recepción y publicación del manuscrito. Sin embargo, se recomienda un ciclo total medio de 6 (seis) meses.')}</td>
 				</tr>
 				<tr>
 					<td id="18">18</td>
-					<td><b>{_('Normas para referencias bibliográficas:')}</b> {_('En las instrucciones a los autores deben indicarse las normas de elaboración de las referencias bibliográficas basadas en alguna norma internacional ampliamente aceptada (APA, Harvard, ISO, Vancouver u alguna otra).')}</td>
+					<td><b>{_('Resumen del documento:')}</b> {_('Califica positivamente si se incluyen resúmenes del trabajo en el idioma original y en un segundo idioma.')}</td>
 				</tr>
 				<tr>
 					<td id="19">19</td>
-					<td><b>{_('Membrete bibliográfico al inicio del documento:')}</b> {_('Califica positivamente si éste aparece al inicio de cada artículo e identifica a la fuente. Para darlo por cumplido, cada documento ya sea en PDF y/o HTML, debe incluir un membrete que contenga por lo menos: título completo o abreviado, DOI y la numeración de la revista (año, volumen, número, parte, mes).')}</td>
+					<td><b>{_('Palabras clave:')}</b> {_('Deben proporcionarse palabras clave en el idioma original y en un segundo idioma, las cuales deben describir el contenido del documento. Al igual que con los resúmenes, las palabras clave se valoran solamente en artículos.')}</td>
 				</tr>
 				<tr>
 					<td id="20">20</td>
-					<td><b>{_('Membrete bibliográfico en cada página del documento:')}</b> {_('Califica positivamente si el membrete que identifica al documento (PDF y/o HTML) aparece en páginas pares o impares del artículo, no necesariamente en ambas.')}</td>
+					<td><b>{_('Mención del sistema de arbitraje:')}</b> {_('En la revista deberá constar que el procedimiento empleado para la selección de los artículos a publicar es el arbitraje, ya sea abierto o por pares mediante el sistema "doble ciego"')}</td>
 				</tr>
 				<tr>
 					<td id="21">21</td>
-					<td><b>{_('Uso del identificador de recursos uniforme (URI):')}</b> {_('Por ejemplo, Handle o el Digital Object Identifier (DOI) para cada uno de los documentos publicados. Este requisito aplica para las revistas electrónicas.')}</td>
-				</tr>
-				<tr>
-					<td id="22">22</td>
-					<td><b>{_('Descarga individual de contenidos:')}</b> {_('Permite la descarga de los artículos de manera individual.')}</td>
-				</tr>
-				<tr>
-					<td id="23">23</td>
-					<td><b>{_('Fechas de recepción y/o aceptación del documento:')}</b> {_('Califica positivamente sólo si indica ambas fechas. Esta información puede ser localizada al inicio o al final de cada artículo y es sólo exigible para artículos originales.')}</td>
-				</tr>
-				<tr>
-					<td id="24">24</td>
-					<td><b>{_('Resumen del documento:')}</b> {_('Califica positivamente si se incluyen resúmenes en el idioma original del trabajo.')}</td>
-				</tr>
-				<tr>
-					<td id="25">25</td>
-					<td><b>{_('Resumen del documento en dos idiomas:')}</b> {_('Califica positivamente si se incluyen resúmenes en el idioma original del trabajo y en un segundo idioma.')}</td>
-					<!--<td>(1 pt)</td>-->
-				</tr>
-				<tr>
-					<td id="26">26</td>
-					<td><b>{_('Afiliación de los autores:')}</b> {_('Deberá proporcionarse el nombre de la institución de trabajo del autor o autores de cada artículo.')}</td>
-				</tr>
-				<tr>
-					<td id="27">27</td>
-					<td><b>{_('Palabras clave:')}</b> {_('Deben proporcionarse palabras clave, en cualquier idioma, que describan el contenido del documento. Al igual que con los resúmenes, las palabras clave se valoran solamente en artículos.')}</td>
-				</tr>
-				<tr>
-					<td id="28">28</td>
-					<td><b>{_('Palabras clave en dos idiomas:')}</b> {_('Las palabras clave deben proporcionarse en dos idiomas y al igual que en el criterio referido al idioma de los resúmenes, en este caso tampoco se considera obligatorio que estén presentes en otro tipo de documentos diferentes a los artículos.')}</td>
-				</tr>
-				<tr>
-					<td id="29">29</td>
-					<td><b>{_('Mención del sistema de arbitraje por pares:')}</b> {_('En la revista deberá constar que el procedimiento empleado para la selección de los artículos a publicar es el arbitraje por pares.')}</td>
-				</tr>
-				<tr>
-					<td id="30">30</td>
-					<td><b>{_('Sistema de arbitraje doble ciego:')}</b> {_('En la revista deberá constar que el procedimiento empleado para la selección de los artículos a publicar es el arbitraje por pares especificando que sea mediante el sistema "doble ciego".')}</td>
-				</tr>
-				<tr>
-					<td id="31">31</td>
 					<td><b>{_('Mención de originalidad de los documentos:')}</b> {_('Califica positivamente si en la presentación de la revista o en las instrucciones a los autores se menciona explícitamente esta exigencia para los trabajos sometidos a publicación.')}</td>
 				</tr>
 				<tr>
-					<td id="32">32</td>
-					<td><b>{_('Apertura institucional del consejo, comité o cuerpo editorial:')}</b> {_sprintf('Para calificar positivamente, los cuerpos editoriales deberán contar con evaluadores externos a la entidad editora, por lo que deberá constar su afiliación institucional. Al menos el 50%% de los miembros del consejo editorial deberán pertenecer a instituciones diferentes a la editora, de lo contrario no calificará positivamente.')}</td>
+					<td id="22">22</td>
+					<td><b>{_('Declaración de política de derecho de autor respecto al acceso de los documentos:')}</b> {_('En particular se recomienda utilizar licencias Creative Commons (https://creativecommons.org/licenses). La información del tipo de licencia adoptada por la revista debe constar obligatoriamente en los formatos PDF, XML y otros que utilice la revista para la publicación en línea.')}</td>
 				</tr>
-                                <tr>
-					<td id="33">33</td>
-					<td><b>{_('Declaración de política de derecho de autor respecto al acceso de los documentos:')}</b> {_sprintf('En particular se recomienda utilizar licencias Creative Commons (https://creativecommons.org/licenses). La información del tipo de licencia adoptada por la revista debe constar obligatoriamente en los formatos PDF, XML y otros que utilice la revista para la publicación en línea.')}</td>
-				</tr>                                
+				<tr>
+					<td id="23">23</td>
+					<td><b>{_('Fuentes de financiamiento:')}</b> {_('Indicar si la revista efectúa cobro por el procesamiento de artículos (APC) y/o mencionar cuáles son sus fuentes de financiamiento.')}</td>
+				</tr>     
 			</tbody>
                         <thead>
 				<tr class="encabezado">
@@ -227,136 +192,55 @@
                         </thead>
                         <tbody>
                             <tr>
-				<td id="34">34</td>
-				<td><b>{_('Adopción de códigos de ética:')}</b> {_('La revista debe informar su adhesión a normas y códigos de ética internacionales: Pueden ser los establecidos por el Committee on Publication Ethics (Code of Conduct and Best Practices Guidelines for Journals Editors, COPE https://publicationethics.org), por el Council of Science Editors (http://www.councilscienceeditors.org), Council for International Organizations of Medical Sciences (CIOMS, http://cioms.ch), el International Committee of Medical Journal Editors (ICJME, http://www.icmje.org), algún otro o bien, tener su propio código de ética.')}</td>
+				<td id="24">24</td>
+				<td><b>{_('Adopción de códigos de ética:')}</b> {_('La revista debe informar su adhesión a normas y códigos de ética internacionales: Pueden ser los establecidos por el Committee on Publication Ethics (Code of Conduct and Best Practices Guidelines for Journals Editors, COPE https://publicationethics.org), por el Council of Science Editors (http://www.councilscienceeditors.org), Council for International Organizations of Medical Sciences (CIOMS, http://cioms.ch), el International Committee of Medical Journal Editors (ICJME, http://www.icmje.org), algún otro, o bien tener su propio código de ética y en este caso darlo a conocer.')}</td>
                             </tr>
                             <tr>
-				<td id="35">35</td>
-				<td><b>{_('Fuentes de financiamiento:')}</b> {_('Indicar si la revista efectúa cobro por el procesamiento de artículos (APC).')}</td>
+				<td id="25">25</td>
+				<td><b>{_('Formato de dictaminación visible:')}</b> {_('Califica positivamente si este formato es público y está disponible.')}</td>
                             </tr>
                             <tr>
-				<td id="36">36</td>
-				<td><b>{_('Formato de dictaminación visible:')}</b> {_('Es público y disponible el formulario de evaluación utilizado por los dictaminadores.')}</td>
-                            </tr>
-                            <tr>
-				<td id="37">37</td>
-				<td><b>{_('Publicación al inicio del periodo programado:')}</b> {_('Para aprobar este punto se requiere que la publicación de los contenidos de la revista se realice al inicio del período según la frecuencia definida por la revista. Para tal efecto, se verifica la frecuencia definida por la revista y la fecha observada en el sitio web de la revista. La fecha en que se debe publicar es al comienzo del periodo declarado. Este punto es obviado si la revista ha adoptado el modelo de publicación continua.')}</td>
-                            </tr>
-                            <tr>
-				<td id="38">38</td>
-				<td><b>{_('Tiempo de procesamiento de los manuscritos:')}</b> {_('El tiempo promedio de procesamiento de los manuscritos debe ser como máximo de hasta 6 (seis) meses, considerando el tiempo entre las fechas de recepción y de decisión final en cuanto a la publicación, y de hasta 12 (doce) meses, considerando el tiempo entre las fechas de recepción y publicación del manuscrito. Sin embargo, se recomienda un ciclo total medio de 6 (seis) meses.')}</td>
-                            </tr>
-                            <tr>
-				<td id="39">39</td>
+				<td id="26">26</td>
 				<td><b>{_('Recepción continua de manuscritos:')}</b> {_('La recepción de artículos para su dictaminación y probable publicación por la revista debe estar disponible de forma continua, es decir, no es válido que las revistas suspendan la recepción de manuscritos en ningún período por ninguna razón.')}</td>
                             </tr>
                             <tr>
-                                <td id="40">40</td>
-                                <td>
-                                    <p><b>{_('Periodicidad y número de artículos publicados por año aceptables:')}</b> {_('La periodicidad y el número de artículos publicados al año son indicadores del flujo de producción editorial de la revista y de la producción científica del área temática correspondiente. Los valores de referencia requeridos dependen del área temática en la que la revista está clasificada.')}</p>                                
-                                    <p>{_('Se valora como la mejor práctica editorial la publicación continua de artículos, esto es, que los documentos se publiquen en línea tan pronto como sean aprobados y editados. En este caso, los artículos quedan reunidos en un volumen anual con o sin ediciones periódicas (números). Cuando no se adoptan ediciones (números), la publicación de los artículos debe ocurrir a lo largo del año (ver punto 38). Cuando los artículos se reúnen en ediciones periódicas, éstas deben estar finalizadas preferentemente al inicio del período.')}</p>
+				<td id="27">27</td>
+				<td><b>{_('Composición e internacionalidad de los editores y del cuerpo editorial (Editores asociados o Editores por sección:')}</b> {_('Las revistas pueden adoptar diferentes estructuras y denominaciones de instancias de gestión editorial. Estas estructuras y las funciones que realizan deben estar documentadas formalmente y actualizadas periódicamente/anualmente.')}
+                                                                                                                                                                <br> {_('Editores-jefes: Todas las revistas deben tener uno o más editores-jefes definidos, con afiliación nacional o extranjera. Los editores-jefes son investigadores nacionales o extranjeros reconocidos en el área de la revista y su afiliación institucional y sus currículos actualizados deben estar disponibles en línea y accesibles de preferencia por los respectivos números de registro del ORCID. En el nivel de coordinación editorial, las revistas pueden tener vice editores o editores asistentes.')}</td>
+                            </tr>
+                            <tr>
+				<td id="28">28</td>
+				<td><b>{_('Internacionalidad de los dictaminadores/árbitros:')}</b> {_('Los expertos encargados de la dictaminación de los artículos deben ser investigadores nacionales y extranjeros reconocidos en el tema de los manuscritos que evalúan. Debe maximizarse la participación de árbitros afiliados a instituciones extranjeras.')}</td>
+                            </tr>
+                            <tr>
+				<td id="29">29</td>
+				<td><b>{_('Declaración de la contribución de autores y colaboradores:')}</b> 
+                                    {_('La autoría de un documento atribuye crédito e implica la responsabilidad del contenido publicado. Las revistas deben instruir a los autores a registrar al final de los artículos la contribución de cada uno de los autores y colaboradores, expresada en las instrucciones a los autores, con la utilización de dos criterios mínimos de autoría:')}
+                                    <ol type="a">
+                                        <li>{_('a. Participar activamente en la discusión de los resultados;')}</li>
+                                        <li>{_('b. Revisión y aprobación de la versión final del trabajo.')}</li>
+                                    </ol>
                                 </td>
                             </tr>
                             <tr>
-                                <td id="41">41</td>
-                                <td>
-                                    <p><b>{_('Composición e internacionalidad de los editores y del cuerpo editorial (Editores asociados o Editores por sección):')}</b></p>
-                                    <p>{_('Las revistas pueden adoptar diferentes estructuras y denominaciones de instancias de gestión editorial. Estas estructuras y las funciones que realizan deben estar documentadas formalmente y actualizadas periódicamente/anualmente.')}</p>
-                                    <p>
-                                        <ul>
-                                            <li>{_('Editores-jefes: Todas las revistas deben tener uno o más editores-jefes definidos, con afiliación nacional o extranjera. Los editores-jefes son investigadores nacionales o extranjeros reconocidos en el área de la revista y su afiliación institucional y sus currículos actualizados deben estar disponibles en línea y accesibles de preferencia por los respectivos números de registro del ORCID. Son responsables del desarrollo e implantación de la política y gestión editorial y del desempeño final de las revistas. En el nivel de coordinación editorial, las revistas pueden tener vice editores o editores asistentes.')}</li>
-                                        </ul>
-                                    </p>
-                                </td>    
-                            </tr>
-                            <tr>
-                                <td id="42">42</td>
-                                <td>
-                                    <p><b>{_('Cuerpo de editores asociados o de sección:')}</b> {_('La gestión editorial debe contar preferentemente con uno o más grupos definidos de editores que colaboran activa y sistemáticamente con el editor jefe en la gestión del flujo de evaluación de manuscritos, con énfasis en la selección e interacción con los evaluadores y autores. En general, estos editores se agrupan bajo la denominación de editores asociados o editores de sección, son parte formal del equipo editorial y contribuyen sistemáticamente a la evaluación de manuscritos. Bajo la denominación de editores asociados o de sección, deben ser listados solamente investigadores que contribuyen sistemáticamente con la evaluación de manuscritos. Los editores ad hoc que colaboran en la evaluación esporádica de manuscritos, después de la solicitud del editor jefe o incluso de un editor asociado, deben ser listados por separado.')}</b></p>
-                                    <p>{_('Las revistas pueden adoptar diferentes estructuras y denominaciones de instancias de gestión editorial. Estas estructuras y las funciones que realizan deben estar documentadas formalmente y actualizadas periódicamente/anualmente.')}</p>
-                                    <p>{_('Las revistas deben maximizar la internacionalización del cuerpo de editores.')}</p>
-                                </td>    
-                            </tr>
-                            <tr>
-                                <td id="43">43</td>
-                                <td>
-                                    <b>{_('Internacionalidad de los dictaminadores/árbitros:')}</b> {_('Los expertos encargados de la dictaminación de los artículos deben ser investigadores nacionales y extranjeros reconocidos en el tema de los manuscritos que evalúan. Debe maximizarse la participación de árbitros afiliados a instituciones extranjeras.')}
-                                </td>    
-                            </tr>
-                            <tr>
-                                <td id="44">44</td>
-                                <td>
-                                    <b>{_('Identificación de la afiliación institucional e internacionalidad de los autores:')}</b> {_('Se requiere el registro exhaustivo de las afiliaciones de los autores para la identificación del origen institucional y geográfico de las investigaciones publicadas. Así, todos los tipos de documentos, sin excepción, deben tener autoría con especificación completa de las instancias institucionales y geográficas a las que están afiliados cada uno de los autores. Cada instancia institucional es identificada por nombres de hasta tres niveles jerárquicos o programáticos y por la ubicación geográfica (ciudad, estado y país) en que está localizada. Cuando un autor está afiliado a más de una instancia, cada afiliación debe identificarse por separado. Cuando dos o más autores están afiliados a la misma instancia, la identificación de la instancia se realiza una vez. Cuando el autor no tiene afiliación institucional se registra la afiliación indicando que se trata de un investigador autónomo, incluyendo los demás elementos de la localización geográfica.')}
-                                    <p>{_('Las instancias académicas son las afiliaciones más comunes de los autores. Las estructuras típicas de afiliación académica combinan normalmente dos o tres niveles jerárquicos, como por ejemplo: departamento-universidad, programa de post-graduación-universidad, instituto de investigación-universidad, hospital-facultad de medicina-universidad, etc. Son comunes también institutos, empresas o fundaciones públicas o privadas relacionadas con investigación y desarrollo. También se presentan instancias que desarrollan o participan en investigación que son órganos de gobierno, ligados a ministerios, secretarías estatales o municipales. Otros autores también están afiliados a empresas nacionales y multinacionales. También los autores están afiliados a instancias programáticas o involucrando a comunidades de investigadores o profesionales que funcionan en torno a un programa, proyecto o red y pueden tener vida limitada.')}</p>
-                                    <p>{_('La presentación de la afiliación debe guardar uniformidad en todos los documentos y se recomienda el siguiente formato:')}</p>
-                                    <p>
-                                        <ul>
-                                            <li>{_('La identificación de las afiliaciones debe venir agrupada, justo debajo de los nombres de los autores, en líneas distintas. Los nombres y las afiliaciones se relacionan entre sí por etiquetas;')}</li>
-                                            <li>{_('La identificación de las instancias institucionales, cuando proceda, deberá indicar las unidades jerárquicas correspondientes. Se recomienda que las unidades jerárquicas se presenten en orden decreciente, por ejemplo, universidad, facultad y departamento;')}</li>
-                                            <li>{_('En ningún caso las afiliaciones deben venir acompañadas de mini currículos de los autores. En todo caso éstos deben ser publicados separadamente de las afiliaciones como notas del autor;')}</li>
-                                            <li>{_('Los nombres de las instituciones y programas deberán presentarse por extenso y en el idioma original de la institución o en la versión en inglés, cuando la escritura no sea latina. Por ejemplo:')}</li>
-                                            <ul>
-                                                <li>{_('Universidade de São Paulo, Instituto de Quimica, São Paulo. Brasil')}</li>
-                                                <li>{_('Universidad Nacional Autónoma de México, Instituto de Investigaciones Biomédicas, Departamento de Pediatría, Ciudad de México, México;')}</li>
-                                                <li>{_('John Hopkins University, Bloomberg School of Public Health, Baltimore, Maryland. United States of America')}</li>
-                                            </ul>
-                                            <li>{_('Los nombres de los autores deben venir acompañados de los respectivos números de registro del ORCID.')}</li>                                            
-                                        </ul>
-                                    </p>
-                                    <p>{_('Las revistas deben maximizar la internacionalización de la afiliación de los autores.')}</p>
-                                </td>    
-                            </tr>
-                            <tr>
-                                <td id="45">45</td>
-                                <td>
-                                    <b>{_('Normalización de los textos, citas y referencias bibliográficas')}</b>
-                                    <p>{_('Las revistas deben especificar en las instrucciones a los autores las normas que siguen para la estructuración y presentación de los textos y para la presentación y formato de las citas y de las referencias bibliográficas.')}</p>
-                                    <p>{_('La estructuración de los textos es dependiente de las áreas temáticas y tipos de documentos. Las revistas deben de preferencia seguir las patrones y prácticas más comunes en las respectivas áreas temáticas. Algunas áreas temáticas cuentan con guías y directrices para la publicación de ciertos tipos de investigaciones, como es el caso de la Red Equator para las ciencias de la salud: http://www.equator-network.org.')}</p>
-                                    <p>{_('Para las citas y referencias bibliográficas se recomienda la adopción fiel de normas establecidas formalmente como estándares nacional y/o internacional y más utilizadas internacionalmente en el área temática de la revista. La adopción precisa de normas bibliográficas es esencial para viabilizar el proceso de marcación y generación estructurada de los textos en XML. Las citas y referencias bibliográficas se utilizan cuando se utilizan textos, métodos, datos, archivos históricos, colecciones y programas informáticos en los artículos.')}</p>
-                                    <p>{_('Sólo las referencias listadas al final del texto en una sección bien definida se marcarán para permitir su carga en las bases de datos para su inclusión en las métricas de citas. Las referencias bibliográficas que aparecen en notas al pie de la página y no incluidas en la lista de referencias al final del artículo no serán marcadas y no participarán en las métricas de SciELO.')}</p>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td id="46">46</td>
-                                <td>
-                                    <p><b>{_('Declaración de la contribución de autores y colaboradores:')}</b> {_('La autoría de un documento atribuye crédito e implica la responsabilidad del contenido publicado. Las revistas deben instruir a los autores a registrar al final de los artículos la contribución de cada uno de los autores y colaboradores, expresada en las instrucciones a los autores, con la utilización de dos criterios mínimos de autoría:')}</b></p>
-                                    <p>
-                                        <ol type="a">
-                                            <li>{_('Participar activamente en la discusión de los resultados;')}</li>
-                                            <li>{_('Revisión y aprobación de la versión final del trabajo.')}</li>
-                                        </ol>
-                                    </p>
-                                    <p>{_('Se recomienda orientarse con la guía CRediT:')}<a href="http://docs.casrai.org/CRediT" target="_blank">http://docs.casrai.org/CRediT</a></p>
-                                    <p>{_('CRediT [online]. CASRAI Disponible en:')}<a href="http://docs.casrai.org/CRediT" target="_blank">http://docs.casrai.org/CRediT</a></p>
-                                    <p>{_('Lecturas recomendadas:')}</p>
-                                    <p>
-                                        <ul>
-                                            <li>{_('Criterios de autoría preservan la integridad en la comunicación científica ( publicado en blog SciELO en Perspectiva ):')} <a href="https://blog.scielo.org/es/2018/03/14/criterios-de-autoria-preservan-la-integridad-en-la-comunicacion-cientifica/#.XKKlO_ZFyUk" target="_blank">https://blog.scielo.org/es/2018/03/14/criterios-de-autoria-preservan-la-integridad-en-la-comunicacion-cientifica/#.XKKlO_ZFyUk</a></li>
-                                            <li>{_('Los créditos del autor … ¿autor de qué? ( publicado en blog SciELO en Perspectiva ):')} <a href="https://blog.scielo.org/es/2014/07/17/los-creditos-del-autor-autor-de-que/#.XKKmKvZFyUk" target="_blank">https://blog.scielo.org/es/2014/07/17/los-creditos-del-autor-autor-de-que/#.XKKmKvZFyUk</a></li>                                             
-                                        </ul>
-                                    </p>
-                                </td>    
-                            </tr>
-                            <tr>
-                                <td id="47">47</td>
+                                <td id="30">30</td>
                                 <td>
                                     <b>{_('Adopción de lineamiento de Ciencia Abierta:')}</b> {_('La Ciencia Abierta preconiza la apertura de todos los componentes que fundamentan la comunicación de la investigación, como son los métodos, datos y programas de computadora. Esta apertura pretende contribuir a acelerar la publicación de las investigaciones, facilitar la evaluación de los manuscritos, la replicabilidad de las investigaciones y reutilización de los datos recolectados. En este sentido, se requiere la implantación de los siguientes avances:')}
-                                    <p>
-                                        <ul>
-                                            <li>{_('Aceleración de la publicación de las investigaciones mediante la publicación contínua;')}</li>
-                                            <li>{_('Aceleración de la publicación de las investigaciones mediante preprints, entendido como manuscritos listos para envío a revistas y que están disponibles en acceso abierto en la Web en repositorios de preprints antes de la presentación formal a una revista. Las revistas deberán especificar en las instrucciones a los autores los criterios de aceptación de preprints;')}</li>
-                                            <li>{_('Identificación y recomendación de repositorios de datos por área temática para orientar el depósito de estos datos: Se recomienda la adopción de los principios FAIR (Findable, Accessible, Interoperable y Reutilizable) para la calificación de los repositorios de datos;')}</li>
-                                            <li>{_('Adopción de las directrices TOP (Transparencia y Openness Promotion) para la calificación de los artículos y revistas con relación a la cita y referencia de datos, métodos, programas de computadora, etc.')}</li>                                            
-                                            <li>{_('Disponibilidad de los datos de la investigación: La disponibilidad de los datos de las investigaciones utilizados en los artículos en repositorios de acceso abierto, siguiendo patrones de registro que aseguran la autoría, el uso y citación de los datos, así como del artículo correspondiente, es recomendable pues contribuye a la replicabilidad de las investigaciones, aumenta la visibilidad y las citas de las investigaciones y de las revistas.')}</li>                                            
-                                        </ul>
-                                    </p>
-                                </td>    
+                                    <ul>
+                                        <li>{_('Aceleración de la publicación de las investigaciones mediante preprints, entendido como manuscritos listos para envío a revistas y que están disponibles en acceso abierto en la Web en repositorios de preprints antes de la presentación formal a una revista. Las revistas deberán especificar en las instrucciones a los autores los criterios de aceptación de preprints;')}</li>
+                                        <li>{_('Identificación y recomendación de repositorios de datos por área temática para orientar el depósito de estos datos: Se recomienda la adopción de los principios FAIR (Findable, Accessible, Interoperable y Reutilizable) para la calificación de los repositorios de datos;')}</li>
+                                        <li>{_('Adopción de las directrices TOP (Transparencia y Openness Promotion) para la calificación de los artículos y revistas con relación a la cita y referencia de datos, métodos, programas de computadora, etc.')}</li>
+                                        <li>{_('Disponibilidad de los datos de la investigación: La disponibilidad de los datos de las investigaciones utilizados en los artículos en repositorios de acceso abierto, siguiendo patrones de registro que aseguran la autoría, el uso y citación de los datos, así como del artículo correspondiente, es recomendable pues contribuye a la replicabilidad de las investigaciones, aumenta la visibilidad y las citas de las investigaciones y de las revistas.')}</li>
+                                    </ul>
+                                </td>
                             </tr>
                             <tr>
-                                <td id="48">48</td>
-                                <td>
-                                    <p><b>{_('Erratas y retractaciones:')}</b> {_('Los editores deben mencionar en las instrucciones a los autores, que permiten la publicación de erratas y por otra parte se responsabilizan de la retractación de artículos.')}</p>
-                                </td>
+				<td id="31">31</td>
+				<td><b>{_('Erratas y retractaciones:')}</b> {_('Los editores deben mencionar en las instrucciones a los autores, que permiten la publicación de erratas y por otra parte se responsabilizan de la retractación de artículos.')}</td>
+                            </tr>
+                            <tr>
+				<td id="32">32</td>
+				<td><b>{_('Es recomendable la adopción de programas para la detección del plagio')}</td>
                             </tr>
  
                         </tbody>                            
