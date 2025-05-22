@@ -204,6 +204,26 @@ class_ver = {
             });
         }*/
 		
+		if(class_ver.var.postular){
+            $.confirm({
+                columnClass: 'xlarge',
+                title: '<span style="color:#DF6521">Aviso sobre los criterios de selección</span>',
+                content: 'Informamos a toda la comunidad editorial que el Comité de Selección y Evaluación ha realizado cambios a los criterios que las revistas deben cumplir para ser indizadas.' +
+                         '<br>Estos cambios aplican a partir del 21 de mayo de 2025.' +
+                         '<br>Los criterios de selección pueden ser consultados <a href="https://biblat.unam.mx/es/postular-revista/criterios-de-seleccion">Aquí</a>' +
+                         '<br><br>Atentamente,' +
+                        '<br>Comité de Evaluación y Selección de Publicaciones seriadas para las bases de datos CLASE, Periódica, portal Biblat y catálogo SeriUNAM',
+                buttons: {
+                    aceptar: {
+                            text: 'Continuar',
+                            btnClass: 'btn-warning',
+                            action: function(){
+                            }
+                    }
+                }
+            });
+        }
+		
         if( !class_ver.var.simulador && !class_ver.var.postular){
             class_ver.var.id_oai = 'url_oai_sel';
             //$('#'+class_ver.var.id_oai).show();
