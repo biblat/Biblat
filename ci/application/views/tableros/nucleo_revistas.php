@@ -116,6 +116,9 @@
     <div class="col-xs-12" id="graficaRed">
         
     </div>
+	<div class="col-xs-12" style="height:800px">
+        <iframe width="100%" width="100%" height="100%" src="regional" frameborder="0" style="border:none" allowfullscreen ></iframe>
+    </div>
     <div class="row" id="clic"><br><br></div>
     <div class="col-xs-12" style="height:500px">
         <iframe width="100%" height="100%" src="https://lookerstudio.google.com/embed/reporting/a1a4634b-9c25-4d7a-8980-fbe8624e9db7/page/p_18tdhtv3jd" frameborder="0" style="border:0" allowfullscreen sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>

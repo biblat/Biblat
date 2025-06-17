@@ -69,6 +69,17 @@ class Tableros extends CI_Controller {
         $this->template->set_meta('description', _('Monitor Latinoamericano de Dictaminadores'));
         $this->template->build('tableros/dictaminacion', $data);
     }
+	
+	public function regional() {
+        $path = 'assets/maps/regional.html';
+        if (file_exists($path)) {
+            $this->output
+                ->set_content_type('text/html')
+                ->set_output(file_get_contents($path));
+        } else {
+            show_404();
+        }
+    }
     
     public function get_nucleo(){
         $this->load->database();
