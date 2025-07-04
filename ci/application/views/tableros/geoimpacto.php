@@ -7,9 +7,7 @@
 		Cada color identifica una revista diferente. La selección de las revistas se realiza mediante la opción "filtro" y seleccionado el título deseado en la lista disponible en: 
 		
 		<center>
-			<img src="{base_url('img/geoinst1.png')}" style="height: 300px;"/><br/>
-		</center>
-		<center>
+			<img src="{base_url('img/geoinst1.png')}" style="height: 300px;"/>
 			<img src="{base_url('img/geoinst2.png')}" style="height: 300px;"/><br/>
 		</center>
 		<center>
