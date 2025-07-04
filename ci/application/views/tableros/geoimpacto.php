@@ -1,5 +1,20 @@
 <div class="row">
     <dd style="margin: 20px">
+        Visualización de la representación geográfica de los artículos publicados en revistas indizadas en BIBLAT. 
+		En el mapa de la República Mexicana se visualiza la cantidad de artículos cuyos contenidos refieran a localidades específicas. 
+		La identificación de la cobertura geográfica se extrae de los títulos y palabras clave de los artículos. 
+		Solamente se identifican aquellos artículos en los que se ha asentado el nombre de un Estado o Ciudad en el título del artículo y/o en las palabras clave. 
+		Cada color identifica una revista diferente. La selección de las revistas se realiza mediante la opción "filtro" y seleccionado el título deseado en la lista disponible en: 
+		
+		<center>
+			<img src="{base_url('img/geoinst1.png')}" /><br/>
+		</center>
+		<center>
+			<img src="{base_url('img/geoinst2.png')}" /><br/>
+		</center>
+		<center>
+			<img src="{base_url('img/geoinst3.png')}" /><br/>
+		</center>
         
     </dd>
 </div>
