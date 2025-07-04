@@ -218,6 +218,7 @@ $route[$langs.'/preevaluacion/revista'] = 'main/preevaluacion';
 $route[$langs.'/redes-investigacion'] = 'tableros/redes_investigacion';
 $route[$langs.'/dictaminacion'] = 'tableros/dictaminacion';
 $route[$langs.'/geoimpacto'] = 'tableros/geoimpacto';
+$route[$langs.'/geoimpacto_mapa'] = 'tableros/geoimpacto_mapa';
 
 // URI like '/en/about' -> use controller 'about'
 $route[$langs.'/(.+)$'] = "$1";
