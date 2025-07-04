@@ -70,15 +70,21 @@ class Tableros extends CI_Controller {
         $this->template->build('tableros/dictaminacion', $data);
     }
 	
-	public function regional() {
-        $path = 'assets/maps/regional.html';
+	public function geoimpacto() {
+        /*$path = 'assets/maps/regional.html';
         if (file_exists($path)) {
             $this->output
                 ->set_content_type('text/html')
                 ->set_output(file_get_contents($path));
         } else {
             show_404();
-        }
+        }*/
+		$data = array();
+        $data['page_title'] = _('Geoimpacto territorial');
+        $this->template->set_layout('default_sel');
+        $this->template->title(_('Geoimpacto territorial'));
+        $this->template->set_meta('description', _('Geoimpacto territorial'));
+        $this->template->build('tableros/geoimpacto', $data);
     }
     
     public function get_nucleo(){
