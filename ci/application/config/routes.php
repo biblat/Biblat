@@ -217,7 +217,7 @@ $route[$langs.'/editores(.*)'] = 'sesion/editores$1';
 $route[$langs.'/preevaluacion/revista'] = 'main/preevaluacion';
 $route[$langs.'/redes-investigacion'] = 'tableros/redes_investigacion';
 $route[$langs.'/dictaminacion'] = 'tableros/dictaminacion';
-$route[$langs.'/regional'] = 'tableros/regional';
+$route[$langs.'/geoimpacto'] = 'tableros/geoimpacto';
 
 // URI like '/en/about' -> use controller 'about'
 $route[$langs.'/(.+)$'] = "$1";
