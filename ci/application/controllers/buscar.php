@@ -400,7 +400,7 @@ $this->template->set_partial('main_js','revista/badges.js', array(), TRUE, FALSE
             });
 
             // Verifica el número de solicitudes restantes
-            if (count($rate_limit) >= 5) { // Permite solo 10 solicitudes por minuto
+            if (count($rate_limit) >= 20) { // Permite solo 10 solicitudes por minuto
                 //show_error('Límite de solicitudes alcanzado. Inténtelo más tarde.', 429);
                 // Bloquea al usuario hasta el siguiente día si excede el límite
                 $midnight = strtotime('tomorrow midnight');
