@@ -285,7 +285,8 @@ class Buscar extends CI_Controller{
                     "14.63.199",
                     "216.244.91",
                     "172.214.134",
-                    "89.117.55"
+                    "89.117.55",
+					"148.204.63"
                 ];
 
 		foreach ($denied_ips as $prefix) {
