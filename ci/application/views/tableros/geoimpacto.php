@@ -20,3 +20,14 @@
 <div class="col-xs-12" style="height:800px">
         <iframe width="100%" width="100%" height="100%" src="geoimpacto_mapa" frameborder="0" style="border:none" allowfullscreen ></iframe>
 </div>
+
+<div class="row">
+    <br><br>
+</div>
+
+<div class="row">
+    <div class="col-xs-12">
+        Si requiere ayuda o tiene dudas sobre esta visualización escriba un correo a Patricia Garrido Villegas: <a href="mailto:pgarridov@dgb.unam.mx">pgarridov@dgb.unam.mx</a>
+    </div>
+</div>
+<br><br>
