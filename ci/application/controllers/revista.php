@@ -687,7 +687,7 @@ class Revista extends CI_Controller{
                 // Resultado exitoso
                 $result = array(
                     'type'    => 'success',
-                    'title' => '<br/></br>' . _('La solicitud ha sido registrada. Elige cómo enviarla desde tu correo personal.'),
+                    'title' => _('La solicitud ha sido registrada. Elige cómo enviarla desde tu correo personal.'),
                     'links'   => array(
                         'mailto'  => $mailto,
                         'gmail'   => $gmail,

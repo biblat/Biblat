@@ -177,7 +177,8 @@
 								<div class="text-center">
 								<div id='recaptcha'>{$recaptcha->render()}</div>
 								<input id='enviar_solicitud' class="fa btn btn-default" type="button" value="{_('Enviar')}   &#xf0e0;"/>
-                                <div id="resultado-solicitud"></div>
+                                <br><br>
+								<div id="resultado-solicitud"></div>
 								</div>
 								
 							</fieldset>
