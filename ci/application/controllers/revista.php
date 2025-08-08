@@ -375,7 +375,8 @@ class Revista extends CI_Controller{
 		$this->parser->parse('revista/numeros', $arr_numeros);
 		return;
 	}
-
+	
+	/*
 	public function solicitudDocumento(){
 		$this->output->enable_profiler(FALSE);
 		$send_email = TRUE;
@@ -424,7 +425,7 @@ class Revista extends CI_Controller{
 			$body = $this->parser->parse('revista/mail_solicitud_usuario', $data, TRUE);
 			$this->email->message($body);
 			$this->email->send();
-			/*Almacenando registro en la bitácora*/
+			//Almacenando registro en la bitácora
 			$database = ($data['database'] == "CLASE") ? 0 : 1;
 			$ip = (isset($_SERVER['REDIRECT_GEOIP_ADDR'])) ? $_SERVER['REDIRECT_GEOIP_ADDR'] : $_SERVER['REMOTE_ADDR'];
 			$pais = (isset($_SERVER['REDIRECT_GEOIP_COUNTRY_NAME'])) ? "'{$_SERVER['REDIRECT_GEOIP_COUNTRY_NAME']}'" : "NULL";
@@ -441,5 +442,96 @@ class Revista extends CI_Controller{
 				);
 		endif;
 		echo json_encode($result);
-	}
+	}*/
+	
+	function compact_text($html) {
+            $txt = html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            // compacta espacios/tabs múltiples y normaliza saltos de línea
+            $txt = preg_replace('/[ \t]+/', ' ', $txt);
+            $txt = preg_replace("/(\r\n|\r|\n){2,}/", "\n\n", $txt);
+            return trim($txt);
+        }
+        
+	public function solicitudDocumento() {
+            $this->output->enable_profiler(FALSE);
+            $send_email = TRUE;
+
+            $result = array(
+                'type' => 'error',
+                'title' => _('No se pudo enviar la solicitud')
+            );
+
+            // Validaciones básicas
+            if (empty($_POST['email']) || empty($_POST['from']) || empty($_POST['revista']) || empty($_POST['articulo'])):
+                $result = array(
+                    'type' => 'error',
+                    'title' => _('Faltan datos por completar')
+                );
+                $send_email = FALSE;
+            endif;
+
+
+            $captcha_answer = $this->input->post('g-recaptcha-response');
+            $response = $this->recaptcha->verifyResponse($captcha_answer);
+
+            if (!$response['success']):
+                $send_email = FALSE;
+                $result['title'] .= '<br/>' . _('Verificación incorrecta');
+            endif;
+
+            if ($send_email):
+                $data = $_POST;
+
+                // Obtener ficha del documento y convertir a texto plano
+                $data['fichaDocumento'] = $this->compact_text($this->articulo_mail($data['revista'], $data['articulo'], 'true'));
+
+                // Guardar en bitácora
+                $biblatDB = $this->load->database('biblat', TRUE);
+                $database = ($data['database'] == "CLASE") ? 0 : 1;
+                $ip = (isset($_SERVER['REDIRECT_GEOIP_ADDR'])) ? $_SERVER['REDIRECT_GEOIP_ADDR'] : $_SERVER['REMOTE_ADDR'];
+                $pais = (isset($_SERVER['REDIRECT_GEOIP_COUNTRY_NAME'])) ? "'{$_SERVER['REDIRECT_GEOIP_COUNTRY_NAME']}'" : "NULL";
+                $ciudad = (isset($_SERVER['REDIRECT_GEOIP_REGION_NAME'])) ? "'{$_SERVER['REDIRECT_GEOIP_REGION_NAME']}'" : "NULL";
+                $session_id = $this->session->userdata('session_id');
+                $split_ip = explode(".", $ip);
+                $geoip = ((int)$split_ip[0] * pow(256,3)) + ((int)$split_ip[1] * pow(256,2)) + ((int)$split_ip[2] * pow(256,1)) + ((int)$split_ip[3] * pow(256,0));
+
+                $query = "INSERT INTO \"logSolicitudDocumento\"(database, sistema, nombre, email, instituto, telefono, ip, pais, ciudad, session_id, geoip)
+                    VALUES ({$database}, '{$data['sistema']}', '{$data['from']}', '{$data['email']}', '{$data['instituto']}', '{$data['telefono']}', '{$ip}', {$pais}, {$ciudad}, '{$session_id}', {$geoip});";
+                $biblatDB->query($query);
+
+                // Construcción del mailto:
+                $to = 'sinfo@dgb.unam.mx';
+                $cc = 'anoguezo@dgb.unam.mx';
+                $subject = 'Solicitud de documento Biblat';
+
+                $body = <<<EOT
+                    A quien corresponda:
+
+                    El usuario con los siguientes datos:
+
+                    Nombre: {$data['from']}
+                    Correo electrónico: {$data['email']}
+                    Teléfono: {$data['telefono']}
+                    Instituto: {$data['instituto']}
+
+                    Ha solicitado el siguiente documento:
+
+                    {$data['fichaDocumento']}
+                    EOT;
+
+                $mailto = 'mailto:' . rawurlencode($to) .
+                          '?cc=' . rawurlencode($cc) .
+                          '&subject=' . rawurlencode($subject) .
+                          '&body=' . rawurlencode($body);
+
+                // Resultado exitoso
+                $result = array(
+                    'type' => 'success',
+                    'title' => _('La solicitud ha sido registrada. Da clic para enviarla desde tu correo personal.'),
+                    'mailto' => $mailto
+                );
+            endif;
+
+            echo json_encode($result);
+        }
 }
