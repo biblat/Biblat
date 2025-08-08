@@ -206,42 +206,47 @@ $(document).on('click', '.translate', function(e) {
 	});
 	
 	$('body').on('click', '#enviar_solicitud', function(e) {
-                fetch("<?= site_url('revista/solicitud/documento'); ?>", {
-                    method: 'POST',
-                    body: new FormData(document.getElementById('formSolicitudDocumento2'))
-                })
-                .then(res => res.json())
-                .then(response => {
-                    const contenedor = document.getElementById('resultado-solicitud');
-                    contenedor.innerHTML = ''; // Limpia contenido anterior
+            fetch("<?= site_url('revista/solicitud/documento'); ?>", {
+                method: 'POST',
+                body: new FormData(document.getElementById('formSolicitudDocumento2'))
+            })
+            .then(res => res.json())
+            .then(response => {
+                const contenedor = document.getElementById('resultado-solicitud');
+                contenedor.innerHTML = ''; // limpia
 
-                    if (response.type === 'success') {
-                        // Mostrar mensaje y botón para abrir el mail
-                        const mensaje = document.createElement('p');
-                        mensaje.textContent = response.title;
+                if (response.type === 'success') {
+                    const mensaje = document.createElement('p');
+                    mensaje.textContent = response.title;
+                    contenedor.appendChild(mensaje);
 
-                        const boton = document.createElement('a');
-                        boton.href = response.mailto;
-                        boton.textContent = 'Enviar solicitud desde mi correo';
-                        boton.style.display = 'inline-block';
-                        boton.style.marginTop = '10px';
-                        boton.style.padding = '10px 15px';
-                        boton.style.background = '#007BFF';
-                        boton.style.color = '#fff';
-                        boton.style.textDecoration = 'none';
-                        boton.style.borderRadius = '5px';
+                    // Crear enlaces simples
+                    const lista = document.createElement('div');
 
-                        contenedor.appendChild(mensaje);
-                        contenedor.appendChild(boton);
-                    } else {
-                        contenedor.innerHTML = `<p style="color: red;">${response.title}</p>`;
-                    }
-                })
-                .catch(error => {
-                    console.error(error);
-                    alert("Ocurrió un error al enviar la solicitud.");
-                });
+                    const enlaceGenerico = document.createElement('p');
+                    enlaceGenerico.innerHTML = `<a href="${response.links.mailto}" target="_blank">Enviar con mi aplicación de correo</a>`;
+                    lista.appendChild(enlaceGenerico);
+
+                    const enlaceGmail = document.createElement('p');
+                    enlaceGmail.innerHTML = `<a href="${response.links.gmail}" target="_blank">Enviar con Gmail</a>`;
+                    lista.appendChild(enlaceGmail);
+
+                    const enlaceOutlook = document.createElement('p');
+                    enlaceOutlook.innerHTML = `<a href="${response.links.outlook}" target="_blank">Enviar con Outlook/Hotmail</a>`;
+                    lista.appendChild(enlaceOutlook);
+
+                    contenedor.appendChild(lista);
+
+                } else {
+                    contenedor.innerHTML = `<p style="color: red;">${response.title}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                alert("Ocurrió un error al enviar la solicitud.");
             });
+        });
+	
 }); 
 
 $(window).bind('beforeunload', function() {
