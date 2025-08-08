@@ -656,20 +656,14 @@ class Revista extends CI_Controller{
                 $cc = 'anoguezo@dgb.unam.mx';
                 $subject = 'Solicitud de documento Biblat';
 
-                $body = <<<EOT
-                    A quien corresponda:
-
-                    El usuario con los siguientes datos:
-
-                    Nombre: {$data['from']}
-                    Correo electrónico: {$data['email']}
-                    Teléfono: {$data['telefono']}
-                    Instituto: {$data['instituto']}
-
-                    Ha solicitado el siguiente documento:
-
-                    {$data['fichaDocumento']}
-                    EOT;
+                $body = "A quien corresponda:\n\n"
+					  . "El usuario con los siguientes datos:\n\n"
+					  . "Nombre: {$data['from']}\n"
+					  . "Correo electrónico: {$data['email']}\n"
+					  . "Teléfono: {$data['telefono']}\n"
+					  . "Instituto: {$data['instituto']}\n\n"
+					  . "Ha solicitado el siguiente documento:\n\n"
+					  . "{$data['fichaDocumento']}";
 
                 $mailto = 'mailto:' . rawurlencode($to) .
                           '?cc=' . rawurlencode($cc) .
