@@ -204,45 +204,6 @@ $(document).on('click', '.translate', function(e) {
 		});
 		return false;
 	});
-	
-	$('body').on('click', '#enviar_solicitud', function(e) {
-                fetch("<?= site_url('revista/solicitud/documento'); ?>", {
-                    method: 'POST',
-                    body: new FormData(document.getElementById('formSolicitudDocumento2'))
-                })
-                .then(res => res.json())
-                .then(response => {
-                    const contenedor = document.getElementById('resultado-solicitud');
-                    contenedor.innerHTML = ''; // Limpia contenido anterior
-
-                    if (response.type === 'success') {
-                        // Mostrar mensaje y botón para abrir el mail
-                        const mensaje = document.createElement('p');
-                        mensaje.textContent = response.title;
-
-                        const boton = document.createElement('a');
-                        boton.href = response.mailto;
-                        boton.textContent = 'Enviar solicitud desde mi correo';
-                        boton.style.display = 'inline-block';
-                        boton.style.marginTop = '10px';
-                        boton.style.padding = '10px 15px';
-                        boton.style.background = '#007BFF';
-                        boton.style.color = '#fff';
-                        boton.style.textDecoration = 'none';
-                        boton.style.borderRadius = '5px';
-
-                        contenedor.appendChild(mensaje);
-                        contenedor.appendChild(boton);
-                    } else {
-                        contenedor.innerHTML = `<p style="color: red;">${response.title}</p>`;
-                    }
-                })
-                .catch(error => {
-                    console.error(error);
-                    alert("Ocurrió un error al enviar la solicitud.");
-                });
-            });
-	
 });
 
 $(window).bind('beforeunload', function() {
