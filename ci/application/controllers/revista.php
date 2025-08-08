@@ -340,6 +340,158 @@ class Revista extends CI_Controller{
 		$this->template->build('revista/articulo', $data['main']);
 	}
 	
+	public function articulo_mail($revista='', $articulo='', $mail=''){
+		$uriVar = $this->uri->ruri_to_assoc();
+		if($mail == 'true'):
+			$uriVar['revista'] = $revista;
+			$uriVar['articulo'] = $articulo;
+			$uriVar['mail'] = $mail;
+		endif;
+
+		/*Consultas*/
+		$this->load->database();
+		$query = "SELECT
+				s.sistema,
+				s.articulo,
+				s.\"articuloSlug\",
+				s.revista,
+				s.\"revistaSlug\",
+				s.issn,
+				s.\"anioRevista\",
+				s.volumen,
+				s.numero,
+				s.periodo,
+				s.paginacion,
+				s.\"paisRevista\",
+				s.idioma,
+				s.\"tipoDocumento\",
+				s.\"enfoqueDocumento\",
+				s.\"autoresJSON\",
+				s.\"institucionesJSON\",
+				s.\"disciplinas\",
+				s.\"palabraClave\",
+				s.\"keyword\",
+				s.\"resumen\",
+				s.url
+			FROM \"mvSearch\" s
+			WHERE \"revistaSlug\"='{$uriVar['revista']}' AND \"articuloSlug\"='{$uriVar['articulo']}'";
+		$query = $this->db->query($query);
+		$articulo = $query->row_array();
+		$query->free_result();
+		$this->db->close();
+		/*Ordenando los datos del articulo*/
+		
+		/*Generando ulr*/
+		if($articulo['url'] != NULL):
+			$articulo['url'] = json_decode($articulo['url'], TRUE);
+		endif;
+
+		/*Limpiando caracteres html*/
+		$articulo = htmlspecialchars_deep($articulo);
+		/*Creando lista de autores en html*/
+
+		if (isset($articulo['paginacion'])):
+			$articulo['paginacionFirst'] = preg_replace("/[-\s]+/", "", preg_replace('/(^\s*\d+\s*?-|^\s*\d+?\s*$).*/m', '\1', $articulo['paginacion']));
+			$articulo['paginacionLast'] = preg_replace("/[-\s]+/", "", preg_replace('/.*(-\s*\d+\s*?$|^\s*\d+?\s*$).*/m', '\1', $articulo['paginacion']));
+		endif;
+
+		/*Generando database*/
+		$articulo['database'] = $this->database[substr($articulo['sistema'], 0, 5) ];
+		/*Limpiando número de sistema*/
+		$articulo['sistema'] = substr($articulo['sistema'], 5, 9);
+
+		$articulo = remove_empty($articulo);
+
+		$data['main']['articulo'] = $articulo;
+		$data['header']['articulo'] = $data['main']['articulo'];
+		$data['header']['title'] = _sprintf('%s', $articulo['articulo']);
+		$data['main']['page_title'] = "<span itemprop=\"name\">{$articulo['articulo']}</span>";
+		$data['main']['mail'] = FALSE;
+		/*Vistas*/
+		if(isset($_POST['ajax'])):
+			$this->output->enable_profiler(FALSE);
+			$data['main']['ajax'] = TRUE;
+			$this->parser->parse('revista/articulo', $data['main']);
+			return;
+		endif;
+		if(isset($uriVar['mail']) && $uriVar['mail'] == "true"):
+			$this->output->enable_profiler(FALSE);
+			$data['main']['mail'] = TRUE;
+			return $this->parser->parse('revista/articulo', $data['main'], TRUE);
+		endif;
+
+		$this->template->set_partial('view_js', 'revista/articulo_header', array(), TRUE);
+		$this->template->title($data['header']['title']);
+		if(ENVIRONMENT === "production"):
+			$this->template->js('//s7.addthis.com/js/300/addthis_widget.js#pubid=herz');
+		endif;
+		$this->template->set_meta('description', $articulo['articulo']);
+		/*Article meta*/
+		if(isset($articulo)):
+			$this->template->set_breadcrumb($articulo['revista'], site_url("revista/{$articulo['revistaSlug']}"));
+			$this->template->set_meta('citation_title', $articulo['articulo']);
+			$this->template->set_meta('eprints.title', $articulo['articulo']);
+			$this->template->set_meta('citation_journal_title', $articulo['revista']);
+			if(isset($articulo['issn'])):
+				$this->template->set_meta('citation_issn', $articulo['issn']);
+			endif;
+			$this->template->set_meta('eprints.type', "article");
+			$this->template->set_meta('eprints.ispublished', "pub");
+			$this->template->set_meta('eprints.date_type', "published");
+			$this->template->set_meta('eprints.publication', $articulo['revista']);
+			$this->template->set_meta('prism.publicationName', $articulo['revista']);
+			if(isset($articulo['issn'])):
+				$this->template->set_meta('prism.issn', $articulo['issn']);
+			endif;
+			$this->template->set_meta('dc.title', $articulo['articulo']);
+			if(isset($articulo['numero'])):
+				$this->template->set_meta('citation_issue', $articulo['numero']);
+				$this->template->set_meta('prism.number', $articulo['numero']);
+			endif;
+			if(isset($articulo['volumen'])):
+				$this->template->set_meta('citation_volume', $articulo['volumen']);
+				$this->template->set_meta('eprints.volume', $articulo['volumen']);
+			endif;
+			if(isset($articulo['paginacion'])):
+				$this->template->set_meta('citation_firstpage', $articulo['paginacionFirst']);
+				$this->template->set_meta('citation_lastpage', $articulo['paginacionLast']);
+				$this->template->set_meta('eprints.pagerange', $articulo['paginacion']);
+				$this->template->set_meta('prism.startingPage', $articulo['paginacionFirst']);
+				$this->template->set_meta('prism.endingPage', $articulo['paginacionLast']);
+			endif;
+			if(isset($articulo['anioRevista'])):
+				$this->template->set_meta('citation_date', $articulo['anioRevista']);
+				$this->template->set_meta('eprints.date', $articulo['anioRevista']);
+				$this->template->set_meta('prism.publicationDate', $articulo['anioRevista']);
+				$this->template->set_meta('dc.date', $articulo['anioRevista']);
+			endif;
+			if(isset($articulo['autores'])):
+				foreach ($articulo['autores'] as $autor):
+					$this->template->append_metadata(sprintf('<meta name="eprints.creators_name" content="%s" />', $autor['a']));
+					$this->template->append_metadata(sprintf('<meta name="dc.creator" content="%s" />', $autor['a']));
+					$this->template->append_metadata(sprintf('<meta name="citation_author" content="%s" />', $autor['a']));
+					if((int)$autor['z'] > 0):
+						$institucion = $articulo['instituciones'][(int)$autor['z']-1];
+						$this->template->append_metadata(sprintf('<meta name="citation_author_institution" content="%s, %s, %s, %s" />', $institucion['u'], $institucion['v'], $institucion['w'], $institucion['x']));
+					endif;
+				endforeach;
+			endif;
+			if(isset($articulo["url"])):
+				foreach ($articulo["url"] as $url):
+					if (is_array($url))
+						$url = $url['u'];
+					if(preg_match('/.*pdf.*/', $url)):
+						$this->template->set_meta('citation_pdf_url', $url);
+					else:
+						$this->template->set_meta('citation_fulltext_html_url', $url);
+					endif;
+				endforeach;
+			endif;
+		endif;
+		/*Article meta*/
+		$this->template->build('revista/articulo', $data['main']);
+	}
+	
 	public function numeros($revista){
 		$query = 'select revista, "anioRevista", volumen, numero || parte as numero from "mvNumerosRevista" where "revistaSlug"=\''.$revista.'\' order by 2 desc, 3 desc, NULLIF(regexp_replace(numero, \'\D\', \'999\', \'g\'), \'\')::numeric';
 		$this->load->database();
