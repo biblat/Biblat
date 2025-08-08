@@ -155,7 +155,8 @@
 						{if strtotime('now') > strtotime('2015-06-26 23:59:59.0') AND strtotime('now') < strtotime('2015-07-27')}
 						<p class="temporal">{_('Debido al período vacacional, el servicio de solicitud de documentos se suspenderá a partir del día 26 de junio de 2015 y se reanudará el día 27 de julio de 2015.')}</p>
 						{else}
-						<form id="formSolicitudDocumento2" action="{site_url('revista/solicitud/documento')}" method="POST" class="contacto">
+						<!--form id="formSolicitudDocumento" action="{site_url('revista/solicitud/documento')}" method="POST" class="contacto"-->
+                        <form id="formSolicitudDocumento2" method="POST" class="contacto">
 							<fieldset>
 								<b>{_('Nota:')}</b> {_('El envío del documento tiene costo.')}<br/><br/>
 								<label>{_('Nombre')}</label><br/>
