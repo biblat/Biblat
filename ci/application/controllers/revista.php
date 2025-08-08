@@ -652,29 +652,47 @@ class Revista extends CI_Controller{
                 $biblatDB->query($query);
 
                 // Construcción del mailto:
-                $to = 'sinfo@dgb.unam.mx';
-                $cc = 'anoguezo@dgb.unam.mx';
+                $to      = 'sinfo@dgb.unam.mx';
+                $cc      = 'anoguezo@dgb.unam.mx';
                 $subject = 'Solicitud de documento Biblat';
 
                 $body = "A quien corresponda:\n\n"
-					  . "El usuario con los siguientes datos:\n\n"
-					  . "Nombre: {$data['from']}\n"
-					  . "Correo electrónico: {$data['email']}\n"
-					  . "Teléfono: {$data['telefono']}\n"
-					  . "Instituto: {$data['instituto']}\n\n"
-					  . "Ha solicitado el siguiente documento:\n\n"
-					  . "{$data['fichaDocumento']}";
+                      . "El usuario con los siguientes datos:\n\n"
+                      . "Nombre: {$data['from']}\n"
+                      . "Correo electrónico: {$data['email']}\n"
+                      . "Teléfono: {$data['telefono']}\n"
+                      . "Instituto: {$data['instituto']}\n\n"
+                      . "Ha solicitado el siguiente documento:\n\n"
+                      . "{$data['fichaDocumento']}";
 
-                $mailto = 'mailto:' . rawurlencode($to) .
-                          '?cc=' . rawurlencode($cc) .
-                          '&subject=' . rawurlencode($subject) .
-                          '&body=' . rawurlencode($body);
+                // Genérico mailto
+                $mailto = 'mailto:' . rawurlencode($to)
+                        . '?cc=' . rawurlencode($cc)
+                        . '&subject=' . rawurlencode($subject)
+                        . '&body=' . rawurlencode($body);
+
+                // Gmail
+                $gmail = 'https://mail.google.com/mail/?view=cm&fs=1'
+                       . '&to=' . rawurlencode($to)
+                       . '&cc=' . rawurlencode($cc)
+                       . '&su=' . rawurlencode($subject)
+                       . '&body=' . rawurlencode($body);
+
+                // Outlook/Hotmail
+                $outlook = 'https://outlook.live.com/owa/?path=/mail/action/compose'
+                        . '&to=' . rawurlencode($to . ',' . $cc)
+                        . '&subject=' . rawurlencode($subject)
+                        . '&body=' . rawurlencode($body);
 
                 // Resultado exitoso
                 $result = array(
-                    'type' => 'success',
-                    'title' => _('La solicitud ha sido registrada. Da clic para enviarla desde tu correo personal.'),
-                    'mailto' => $mailto
+                    'type'    => 'success',
+                    'title' => '<br/></br>' . _('La solicitud ha sido registrada. Elige cómo enviarla desde tu correo personal.'),
+                    'links'   => array(
+                        'mailto'  => $mailto,
+                        'gmail'   => $gmail,
+                        'outlook' => $outlook
+                    )
                 );
             endif;
 
