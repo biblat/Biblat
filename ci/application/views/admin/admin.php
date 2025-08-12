@@ -54,6 +54,7 @@
             </a>
         </div>
     {/if}
+	{if $rol == "Administrador" || $rol == "Analista" || $rol == "Editor"}
     <div class="col-xs-4">
         <a href="<?=site_url("adminb/analisis");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
             <br><br>
@@ -62,6 +63,18 @@
             </center>
         </a>
     </div>
+	{/if}
+    {if $rol == "Administrador" || $rol == "Servicios de Información"}
+        <div class="col-xs-4">
+            <a href="<?=site_url("adminb/solicitudes");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
+                <br><br>
+                <center>
+                    <i class="glyphicon glyphicon-envelope" style="font-size:95px"></i><br><span style="font-weight: bold">Solicitudes</span>
+                </center>
+            </a>
+        </div>
+    {/if}
+    {if $rol == "Administrador" || $rol == "Analista" || $rol == "Editor"}
     <div class="col-xs-4">
         <a href="<?=site_url("adminb/ayuda");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
             <br><br>
@@ -70,4 +83,5 @@
             </center>
         </a>
     </div>
+    {/if}
 </div>

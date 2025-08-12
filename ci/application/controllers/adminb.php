@@ -26,6 +26,7 @@ class Adminb extends CI_Controller {
                 $this->template->js('js/colorbox.js');
                 $this->template->js('assets/js/utils/utils.js');
                 $this->template->js('assets/js/datatables/datatables.min.js');
+				$this->template->js('assets/js/datatables/jszip.js');
                 $this->template->js('assets/js/datatables/input.js');
             }else{
                 redirect('main');
