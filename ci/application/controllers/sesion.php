@@ -236,7 +236,7 @@ class Sesion extends CI_Controller {
                 $this->session->set_userdata($usuario_data);
             }
             
-            if($_POST['rol'] == 'Administrador' or $_POST['rol'] == 'Analista'){
+            if($_POST['rol'] == 'Administrador' or $_POST['rol'] == 'Analista' or $_POST['rol'] == 'Servicios de Información'){
                 header('Content-Type: application/json');
                 echo json_encode(["page" => "adminb"]);
             }else{
