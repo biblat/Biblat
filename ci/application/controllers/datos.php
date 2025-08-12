@@ -1247,4 +1247,67 @@ class Datos extends REST_Controller {
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);
         }
+		
+		public function solicitudes_get($anio){
+            $this->load->database();
+            
+            $query = "
+                with solicitudes as(
+                select * from
+                dblink('dbname=biblat user=postgres'::text, 'select database, sistema, nombre, email, instituto, telefono, datetime from \"logSolicitudDocumento\" where extract(year from datetime) = ".$anio."'::text)
+                a(
+                  database integer,
+                  sistema character varying,
+                  nombre character varying,
+                  email character varying,
+                  instituto character varying,
+                  telefono character varying,
+                  datetime timestamp
+                )
+                )
+                select
+                case when sol.database = 0 then 'CLASE' else 'PERIODICA' end as base,
+                sol.sistema,
+                sol.nombre,
+                sol.email as correo,
+                sol.instituto as institucion,
+                sol.telefono,
+                sol.datetime::date as fecha,
+                a.articulo,
+                a.revista,
+                a.\"anioRevista\" as anio,
+                a.\"descripcionBibliografica\"->>'a' as vol,
+                a.\"descripcionBibliografica\"->>'b' as num,
+                a.\"descripcionBibliografica\"->>'e' as pags,
+                string_agg(DISTINCT au.nombre, '; ' ORDER BY au.nombre) AS autores
+
+                from solicitudes sol
+                inner join
+                article a
+                on a.sistema = (case when sol.database = 0 then 'CLA' else 'PER' end) || '01' || sol.sistema
+                left join
+                author au
+                on a.sistema = au.sistema
+
+                GROUP BY
+                sol.database,
+                sol.sistema,
+                sol.nombre,
+                sol.email,
+                sol.instituto,
+                sol.telefono,
+                sol.datetime,
+                a.articulo,
+                a.revista,
+                a.\"anioRevista\",
+                a.\"descripcionBibliografica\"->>'a',
+                a.\"descripcionBibliografica\"->>'b',
+                a.\"descripcionBibliografica\"->>'e'
+
+                order by sol.datetime desc
+            ";
+            
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);
+        }
 }
