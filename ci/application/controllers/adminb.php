@@ -259,6 +259,24 @@ class Adminb extends CI_Controller {
             redirect('main');
         }
     }
+	
+	public function solicitudes(){
+        if($this->session->userdata('usuario')){
+            $this->template->set_breadcrumb(_('Menú '.$this->session->userdata('rol')), site_url('adminb'));
+            $this->template->set_breadcrumb(_('Solicitudes'));
+            $data = array();
+            $data['page_title'] = _('Solicitudes');
+            $this->template->set_layout('default_sel');
+            $this->template->title(_('Solicitudes'));
+            $data['page_subtitle'] = $this->session->userdata('nombre');
+            $data['rol'] = $this->session->userdata('rol');
+            $this->template->set_meta('description', _('Solicitudes'));
+            $this->template->set_partial('main_js', 'admin/solicitudes.js', array(), TRUE, FALSE);
+            $this->template->build('admin/solicitudes', $data);
+        }else{
+            redirect('main');
+        }
+    }
     
     private function get_ip(){
         $realip = '';
