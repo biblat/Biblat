@@ -30,8 +30,8 @@ class_av = {
         },
     },   
     var: {
-        servidor: 'https://biblat.unam.mx',
         app: '',
+        servidor: 'https://biblat.unam.mx',
         usuariosJSON: [],
         analistasJSON: [],
         documentoJSON: '',
@@ -142,8 +142,8 @@ class_av = {
             "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
           ]
     },
-    initClient: function() {
-        $.when(class_utils.getResource('/datos/solicitudes/2025'),
+    initClient: function(anio='2025') {
+        $.when(class_utils.getResource('/datos/solicitudes/'+anio),
         ) 
         .then(function(resp_articulos){
             
@@ -321,6 +321,18 @@ class_av = {
                 $('#btn-filtro2').html("Seleccione");
                 $("#ul-filtro").html("");
                 class_av.setTabla(class_av.var.articulosJSON);
+            });
+            
+        $(".li-filtro-anio").off('click').on('click', function(){
+                if($('#btn-filtro-anio').html() !== $(this).html()){
+                    $('#btn-filtro-anio').html($(this).html());
+                    $('#remove').hide();
+                    $('#btn-filtro').html("Filtrar por :");
+                    $('#btn-filtro2').html("Seleccione");
+                    $("#ul-filtro").html("");
+                    loading.start();
+                    class_av.initClient(this.id);
+                }
             });
         }
 };
