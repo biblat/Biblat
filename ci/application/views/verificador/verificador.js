@@ -10,6 +10,9 @@ revisa_extrae = [];
 class_ver = {
     cons:{
         get_oai: '/api_metametrics/get_oai?oai=<oai>&years=<years>',
+		get_doi: '/api_metametrics/get_doi_validate?doi=',
+        get_url_validate: '/api_metametrics/get_url_validate?url=',
+        get_contents_validate: '/api_metametrics/get_contents_validate?url=',
         get_issn: '/metametrics/get_data_by_issn?issn=<issn>',
         idiomas: {
                 'es_ES' : 'Español',
@@ -2212,7 +2215,7 @@ class_ver = {
                     //var url = resp.resource.primary.URL;
                     var url = resp.values[0].data.value;
                     $.when(
-                        class_utils.getResource('/metametrics/get_url_validate?url='+url, false, 30000)
+                        class_utils.getResource(class_ver.cons.get_url_validate+url, false, 30000)
                     ).then(function(resp2){
                         num = num + 1;
                         recibidos = recibidos + 1;
@@ -2463,7 +2466,7 @@ class_ver = {
         var rango = 1;
         if(num == 0){
             res = JSON.parse(JSON.stringify(licencias));
-            licencias = class_utils.unique(licencias,'setting_value');
+            licencias = class_utils.unique(licencias,'license');
             total = licencias.length;
         }
         var mensaje = "Verificando <num> de " + total + " Licencias";
@@ -2476,7 +2479,7 @@ class_ver = {
         $.each(licencias.slice(0,rango), function(i,val){
             $.when(
                 //class_utils.getResource('http://biblat.local/verificador/get_doi_validate?doi='+val.setting_value)
-                class_utils.getResource('/metametrics/get_contents_validate?url='+val)
+                class_utils.getResource(class_ver.cons.get_contents_validate+val)
             )
             .then(function(resp){
                 if(resp.resp == 'Fail'){
@@ -2484,14 +2487,14 @@ class_ver = {
                         setTimeout(function(){class_ver.valida_lic(licencias, res, total, num, true);},100);
                         return 0;
                     }
-                    $.each(class_utils.filter_prop(res, 'setting_value', val), function(i, val_url){
+                    $.each(class_utils.filter_prop(res, 'license', val), function(i, val_url){
                         val_url.resuelve = 0;
                         val_url.nombre = 'sin';
                     });
                 }else{
                     //val.resuelve = 1;
                     //val.nombre = resp.resp;
-                    $.each(class_utils.filter_prop(res, 'setting_value', val), function(i, val_url){
+                    $.each(class_utils.filter_prop(res, 'license', val), function(i, val_url){
                         val_url.resuelve = 1;
                         val_url.nombre = resp.resp;
                     });
@@ -2563,20 +2566,24 @@ class_ver = {
             rango = enlaces.length;
         }
         var recibidos = 0;
-        var url = $('#'+class_ver.var.id_oai).val();
+        var url = 'Error';
         
         $.each(enlaces.slice(0,rango), function(i,val){
-            
-            if('submission_id' in val){
-                url = url.replace('oai', 'article/view/') + val.submission_id + '/' + val.galley_id;
-            }else if('publication_id' in val){
-                var submission_id = class_utils.find_prop(class_ver.var.salida.p, 'publication_id', val.publication_id).submission_id;
-                url = url.replace('oai', 'article/view/') + submission_id + '/' + val.galley_id;
-            }else if('article_id' in val){
-                url = url.replace('oai', 'article/view/') + val.article_id + '/' + val.galley_id;
+           if ('enlace_texto' in val){
+                if (val['enlace_texto'][0] !== undefined){
+                    if (val['enlace_texto'][0]['format'] == 'pdf'){
+                        url = val['enlace_texto'][0].url
+                    }else{
+                        if (val['enlace_texto'][1] !== undefined){
+                            if (val['enlace_texto'][1]['format'] == 'pdf'){
+                                url = val['enlace_texto'][1].url;
+                            }
+                        }
+                    }
+                }
             }
             $.when(
-                class_utils.getResource('/metametrics/get_contents_validate?url='+url)
+                class_utils.getResource(class_ver.cons.get_contents_validate+url)
             )
             .then(function(resp){
                 if(resp.resp == 'Fail'){
