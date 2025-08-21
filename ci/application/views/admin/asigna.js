@@ -48,7 +48,7 @@ class_asi = {
                             '</thead>' +
                             '<tbody id="body_revistas"><body></tbody></table>',
 //        tr: '<tr><td><revista></td><td><pais></td><td><base></td><td><cosecha></td><td><anio></td><td><volumen></td><td><numero></td><td><parte></td><td><articulos></td><td><conpdf></td><td><conhtml></td><td><ingreso></td><td><asignado></td><td><select_asigna></td><td><vacio></td>' +
-        tr: '<tr><td><revista></td>' +
+        tr: '<tr style="background-color:<bcolor>"><td><revista></td>' +
                         '<td><table> <tr> <td>País:</td> <td><pais></td> </tr> '+
                                     '<tr> <td>Base:</td> <td><base></td> </tr> '+
                                     '<tr> <td>Cosecha:</td><td><cosecha></td></tr>'+
@@ -501,6 +501,7 @@ class_asi = {
                                 .replace('<select_asigna>', '<span  style="display:none">'+val['asignado']+'</span>'+class_asi.var.select_asigna.replace('<options>', class_asi.var.options_asigna.replace('"'+val['asignado']+'"', '"'+val['asignado']+'" selected')).replace('<id>', id))
                                 .replace('<vacio>', val['asignado'])
                                 .replace('<asignado_pc>', val['fecha_asignado_pc'])
+								.replace('<bcolor>', ( (parseInt(val['repetido']) > 0)?'lightcoral':'' ))
                                 .replaceAll('null', '');
                 
                 
