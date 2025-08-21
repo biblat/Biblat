@@ -229,8 +229,9 @@ class Datos extends REST_Controller {
                         article."anioRevista",
                         max(g.estatus) palabras_clave,
                         count(g.palabrasclaveia) analizados,
-						count(case when ((url->0->>\'y\' like \'%PDF%\') or (url->1->>\'y\' like \'%PDF%\')) then 1 end) conpdf,
+                        count(case when ((url->0->>\'y\' like \'%PDF%\') or (url->1->>\'y\' like \'%PDF%\')) then 1 end) conpdf,
                         count(case when ((url->0->>\'y\' like \'%HTML%\') or (url->1->>\'y\' like \'%HTML%\')) then 1 end) conhtml,
+                        repetidos.repetido,
                         CASE
                             WHEN (article."descripcionBibliografica" ->> \'a\'::text) IS NULL THEN \'s/v\'::text
                             WHEN btrim(article."descripcionBibliografica" ->> \'a\'::text) = \'\'::text THEN \'s/v\'::text
@@ -249,6 +250,56 @@ class Datos extends REST_Controller {
                         END AS parte, count(1) articulos
                         FROM article
                         LEFT JOIN genera_pc g on article.sistema = g.sistema
+                        
+                        LEFT JOIN LATERAL (
+                           SELECT count(1) AS repetido
+                           FROM article a2
+                           WHERE slug(a2.revista) = slug(article.revista)
+                             AND (
+                                 CASE
+                                     WHEN (a2."descripcionBibliografica" ->> \'a\') IS NULL 
+                                          OR btrim(a2."descripcionBibliografica" ->> \'a\') = \'\' THEN \'s/v\'
+                                     ELSE replace(replace(upper(a2."descripcionBibliografica" ->> \'a\'), \'V\', \'\'), \'"\', \'\')
+                                 END
+                             ) = (
+                                 CASE
+                                     WHEN (article."descripcionBibliografica" ->> \'a\') IS NULL 
+                                          OR btrim(article."descripcionBibliografica" ->> \'a\') = \'\' THEN \'s/v\'
+                                     ELSE replace(replace(upper(article."descripcionBibliografica" ->> \'a\'), \'V\', \'\'), \'"\', \'\')
+                                 END
+                             )
+                             AND (
+                                 CASE
+                                     WHEN (a2."descripcionBibliografica" ->> \'b\') IS NULL 
+                                          OR btrim(a2."descripcionBibliografica" ->> \'b\') = \'\' THEN \'\'
+                                     ELSE replace(replace(upper(a2."descripcionBibliografica" ->> \'b\'), \'N\', \'\'), \'"\', \'\')
+                                 END
+                             ) = (
+                                 CASE
+                                     WHEN (article."descripcionBibliografica" ->> \'b\') IS NULL 
+                                          OR btrim(article."descripcionBibliografica" ->> \'b\') = \'\' THEN \'\'
+                                     ELSE replace(replace(upper(article."descripcionBibliografica" ->> \'b\'), \'N\', \'\'), \'"\', \'\')
+                                 END
+                             )
+                             AND (
+                                 CASE
+                                     WHEN (a2."descripcionBibliografica" ->> \'e\') IS NULL 
+                                          OR btrim(a2."descripcionBibliografica" ->> \'e\') = \'\' THEN \'\'
+                                     ELSE replace(upper(a2."descripcionBibliografica" ->> \'e\'), \'"\', \'\')
+                                 END
+                             ) = (
+                                 CASE
+                                     WHEN (article."descripcionBibliografica" ->> \'e\') IS NULL 
+                                          OR btrim(article."descripcionBibliografica" ->> \'e\') = \'\' THEN \'\'
+                                     ELSE replace(upper(article."descripcionBibliografica" ->> \'e\'), \'"\', \'\')
+                                 END
+                             )
+                             AND lower(a2.articulo) = lower(article.articulo)
+                             AND a2."anioRevista" = article."anioRevista"
+                             AND a2.sistema <> article.sistema
+                        ) repetidos ON true
+
+
                         WHERE article."anioRevista" IS NOT NULL and article.sistema ~ \'^(CLA|PER)99.*\' 
 						
                         GROUP BY (slug(article.revista)), article."anioRevista", cosecha, (
@@ -267,8 +318,9 @@ class Datos extends REST_Controller {
                             WHEN btrim(article."descripcionBibliografica" ->> \'d\'::text) = \'\'::text THEN \'\'::text
                             WHEN upper(article."descripcionBibliografica" ->> \'d\'::text) ~ \'P.*-\'::text THEN \'\'::text
                             ELSE replace(replace(article."descripcionBibliografica" ->> \'d\'::text, \'"\'::text, \'\'::text), \' \'::text, \'\'::text)
-                        END)
-                    ORDER BY (slug(article.revista)), article."anioRevista", (
+                        END),
+                        repetidos.repetido
+                    ORDER BY  repetidos.repetido desc, (slug(article.revista)), article."anioRevista", (
                           CASE
                               WHEN (article."descripcionBibliografica" ->> \'a\'::text) IS NULL THEN \'s/v\'::text
                               WHEN btrim(article."descripcionBibliografica" ->> \'a\'::text) = \'\'::text THEN \'s/v\'::text
