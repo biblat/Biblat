@@ -48,6 +48,7 @@ class_av = {
                                     '<th rowspan="1" style="width:200px">CLASE</th>' +
                                     '<th rowspan="1" style="width:200px">PERIÓDICA</th>' +
                                     '<th rowspan="1" style="width:200px">Hrs totales</th>' +
+									'<th rowspan="1" style="width:200px">Días trabajados</th>' +
                                     '<th rowspan="1" style="width:200px">Hrs trabajadas</th>' +
                                     '<th rowspan="1" style="width:200px">% Hrs de trabajo</th>' +
                                     '<th rowspan="1" style="width:200px">Tiempo mínimo</th>' +
@@ -68,6 +69,7 @@ class_av = {
                             '<tbody id="body_produccion"><body></tbody></table>',
         tr_prod: '<tr><td><usuario></td><td><cla></td><td><per></td>' +
                     '<td><hr_to></td>' +
+					'<td><dias></td>' +
                     '<td><hr_tr></td>' +
                     '<td><hr_p></td>' +
                     '<td><t_min></td>' +
@@ -378,6 +380,7 @@ class_av = {
             var obj = {};
             obj.name = val;
             var filtro = class_utils.filter_prop(class_av.var.tproduccion, 'usuario', val);
+            var dias = class_utils.unique_obj(filtro,'fecha').map(fechas => fechas.fecha);
             articulos[val] = [];
             maximo[val] = [];
             minimo[val] = [];
@@ -410,6 +413,7 @@ class_av = {
             obj.promedio = obj.totalSeconds / articulos[val];
             obj.promMinutes = Math.floor((obj.promedio % 3600) / 60);
             obj.promSeconds = Math.floor(obj.promedio % 60);
+			obj.dias = dias.length;
             
             usuarios2.push(obj);
         });
@@ -435,6 +439,7 @@ class_av = {
                 
                 var tr = class_av.var.tr_prod.replace('<usuario>', val['nombre'])
                                 .replace('<cla>', val['clase'])
+								.replace('<dias>', us.dias || 0)
                                 .replace('<per>', val['periodica'])
                                 .replace('<hr_to>', (categorias.length * 8) + 'h' )
                                 .replace('<hr_tr>', (us.hours+'').padStart(2, '0') + 'h ' + (us.minutes+'').padStart(2, '0') + 'm ' + (us.seconds+'').padStart(2, '0') + 's' )
@@ -458,7 +463,7 @@ class_av = {
                                 extend: 'csvHtml5',
                                 text: 'Exportar CSV',
                                 exportOptions: {
-                                    columns: [0,1,2,3,4,5,6,7,8]
+                                    columns: [0,1,2,3,4,5,6,7,8,9]
                                 }
                             }
                         ],
