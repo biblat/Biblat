@@ -289,10 +289,33 @@ class Buscar extends CI_Controller{
 					"148.204.63"
                 ];
 
+		// Lista de IPs permitidas
+		$pass_ips = [
+			"148.204.63.19"
+		];
+
+		$blocked = false;
+
 		foreach ($denied_ips as $prefix) {
 			if (strpos($ip, $prefix) === 0) { // Si la IP empieza con un prefijo denegado
-				redirect('main');
+				// Verificamos si está en las excepciones
+				$is_exception = false;
+				foreach ($pass_ips as $pass) {
+					if (strpos($ip, $pass) === 0) {
+						$is_exception = true;
+						break;
+					}
+				}
+
+				if (!$is_exception) {
+					$blocked = true;
+					break;
+				}
 			}
+		}
+
+		if ($blocked) {
+			redirect('main');
 		}
 		
 		$articulosResultado = articulosResultado($query, $queryCount, $paginationURL, $perPage, $countCompleto=TRUE);
