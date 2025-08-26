@@ -2733,6 +2733,11 @@ class_ver = {
                 class_ver.setBitacora(2);
                 loading.end();
                 return 0;
+			}else if(Array.isArray(resp.res)){
+                $('#error').html('<b>El sitio cuenta con más de una revista, estas son las URLs OAI que puede revisar:</b><br><br>' + resp.res.join("<br>"));
+                $('#error').show();
+                loading.end();
+                return 0;
             }else{
                 class_ver.var.plugin = 'Si';
                 if(resp.resp == 'noRecordsMatch'){
@@ -2919,6 +2924,7 @@ class_ver = {
                 }
             }
         }).fail(function(){
+            $('#error').html('<center><b>Ocurrió un error al intentar obtener su información</b></center>');
             $('#error').show();
             class_ver.var.plugin = 'No';
             class_ver.setBitacora(2);
