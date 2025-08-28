@@ -231,7 +231,8 @@ class Datos extends REST_Controller {
                         count(g.palabrasclaveia) analizados,
                         count(case when ((url->0->>\'y\' like \'%PDF%\') or (url->1->>\'y\' like \'%PDF%\')) then 1 end) conpdf,
                         count(case when ((url->0->>\'y\' like \'%HTML%\') or (url->1->>\'y\' like \'%HTML%\')) then 1 end) conhtml,
-                        repetidos.repetido,
+                        MAX(repetidos.repetido) AS repetidos,
+                        string_agg(DISTINCT repetidos.titulos_repetidos, \' || \') AS titulos,
                         CASE
                             WHEN (article."descripcionBibliografica" ->> \'a\'::text) IS NULL THEN \'s/v\'::text
                             WHEN btrim(article."descripcionBibliografica" ->> \'a\'::text) = \'\'::text THEN \'s/v\'::text
@@ -252,9 +253,13 @@ class Datos extends REST_Controller {
                         LEFT JOIN genera_pc g on article.sistema = g.sistema
                         
                         LEFT JOIN LATERAL (
-                           SELECT count(1) AS repetido
-                           FROM article a2
-                           WHERE slug(a2.revista) = slug(article.revista)
+                        SELECT 
+                           COUNT(1) AS repetido,
+                           string_agg(a2.articulo, \' || \') AS titulos_repetidos
+                        FROM article a2
+                        WHERE slug(a2.revista) = slug(article.revista)
+                          AND slug(a2.articulo) = slug(article.articulo)
+                          AND a2."anioRevista" = article."anioRevista"
                              AND (
                                  CASE
                                      WHEN (a2."descripcionBibliografica" ->> \'a\') IS NULL 
@@ -272,7 +277,7 @@ class Datos extends REST_Controller {
                                  CASE
                                      WHEN (a2."descripcionBibliografica" ->> \'b\') IS NULL 
                                           OR btrim(a2."descripcionBibliografica" ->> \'b\') = \'\' THEN \'s/n\'
-                                     ELSE lower(replace(regexp_replace(article."descripcionBibliografica" ->> \'b\'::text, \'^N\'::text, \'\', \'\'::text), \'"\'::text, \'\'::text))
+                                     ELSE lower(replace(regexp_replace(a2."descripcionBibliografica" ->> \'b\'::text, \'^N\'::text, \'\', \'\'::text), \'"\'::text, \'\'::text))
                                  END
                              ) = (
                                  CASE
@@ -294,10 +299,8 @@ class Datos extends REST_Controller {
                                      ELSE replace(upper(article."descripcionBibliografica" ->> \'e\'), \'"\', \'\')
                                  END
                              )
-                             AND lower(a2.articulo) = lower(article.articulo)
-                             AND a2."anioRevista" = article."anioRevista"
-                             AND a2.sistema <> article.sistema
-                        ) repetidos ON true
+                            AND a2.sistema <> article.sistema
+                       ) repetidos ON true
 
 
                         WHERE article."anioRevista" IS NOT NULL and article.sistema ~ \'^(CLA|PER)99.*\' 

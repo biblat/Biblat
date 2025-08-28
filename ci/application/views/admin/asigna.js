@@ -44,6 +44,7 @@ class_asi = {
                                     '<th rowspan="1" style="padding:15px">Asignado PC</th>' +
                                     '<th rowspan="1" style="padding:15px">Asignar PC a:</th>' +
                                     '<th style="padding:15px">Analista PC</th>' +
+									'<th style="padding:15px">Repetidos</th>' +
                                 '</tr>'+
                             '</thead>' +
                             '<tbody id="body_revistas"><body></tbody></table>',
@@ -63,7 +64,7 @@ class_asi = {
 //                        '<td><numero></td>'+
 //                        '<td><parte></td>'+
                         '<td><articulos></td><td><conpdf></td><td><conhtml></td><td><ingreso></td><td><asignado></td><td><select_asigna></td><td><vacio></td>' +
-            '<td><asignado_pc></td><td><select_asigna_pc></td><td><vacio_pc></td>',
+            '<td><asignado_pc></td><td><select_asigna_pc></td><td><vacio_pc></td><td><repetidos></td>',
         option: '<li><a class="<class>" id="<option_id>"><option></a></li>'
             
     },
@@ -501,7 +502,8 @@ class_asi = {
                                 .replace('<select_asigna>', '<span  style="display:none">'+val['asignado']+'</span>'+class_asi.var.select_asigna.replace('<options>', class_asi.var.options_asigna.replace('"'+val['asignado']+'"', '"'+val['asignado']+'" selected')).replace('<id>', id))
                                 .replace('<vacio>', val['asignado'])
                                 .replace('<asignado_pc>', val['fecha_asignado_pc'])
-								.replace('<bcolor>', ( (parseInt(val['repetido']) > 0)?'lightcoral':'' ))
+								.replace('<repetidos>', (val['titulos'] !== null)?val['titulos'].replaceAll(' || ', '<br>'):'')
+                                .replace('<bcolor>', ( (parseInt(val['repetidos']) > 0)?'lightcoral':'' ))
                                 .replaceAll('null', '');
                 
                 
@@ -582,7 +584,9 @@ class_asi = {
                                 searchable: true,
 //                                targets: [12,15]
                                 targets: [9,12]
-                            }
+                            },
+							{ className: 'none',
+                                targets: [13] } 
                         ],
                         //Reajusta el ancho de las columnas
                         drawCallback: function( settings ) {
