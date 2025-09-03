@@ -207,7 +207,7 @@ class_ver = {
             });
         }*/
 		
-		if(class_ver.var.postular){
+		/*if(class_ver.var.postular){
             $.confirm({
                 columnClass: 'xlarge',
                 title: '<span style="color:#DF6521">Aviso sobre los criterios de selección</span>',
@@ -225,7 +225,7 @@ class_ver = {
                     }
                 }
             });
-        }
+        }*/
 		
         if( !class_ver.var.simulador && !class_ver.var.postular){
             class_ver.var.id_oai = 'url_oai_sel';
