@@ -1981,7 +1981,7 @@ class Frecuencias extends CI_Controller {
 	public function insertIP(){
 		$ip = $this->get_ip();
 		$this->load->database();
-		$query="Insert into ip_blacklist values(NOW()::timestamp::date, '" . $ip . "')";
+		$query="Insert into ip_blacklist values(NOW()::timestamp::date, '" . $ip . "', 'frecuencias')";
 		$this->db->query($query);
 	}
 	
