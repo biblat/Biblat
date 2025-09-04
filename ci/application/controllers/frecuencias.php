@@ -21,6 +21,57 @@ class Frecuencias extends CI_Controller {
 	public function __construct()
 	{
 		parent::__construct();
+		
+		$this->insertIP();
+                
+		$ip = $this->get_ip(); // Obtener la IP del visitante
+
+		// Lista de prefijos de IP denegadas
+		$denied_ips = [
+			"157.55.39",
+			"20.15.133",
+			"207.46.13",
+			"40.77.167",
+			"52.167.144",
+			"47.82",
+			"66.249",
+			"192.178.6",
+			"14.63.199",
+			"216.244.91",
+			"172.214.134",
+			"89.117.55",
+			"148.204.63"
+		];
+
+		// Lista de IPs permitidas
+		$pass_ips = [
+			"148.204.63.19"
+		];
+
+		$blocked = false;
+
+		foreach ($denied_ips as $prefix) {
+			if (strpos($ip, $prefix) === 0) { // Si la IP empieza con un prefijo denegado
+				// Verificamos si está en las excepciones
+				$is_exception = false;
+				foreach ($pass_ips as $pass) {
+					if (strpos($ip, $pass) === 0) {
+						$is_exception = true;
+						break;
+					}
+				}
+
+				if (!$is_exception) {
+					$blocked = true;
+					break;
+				}
+			}
+		}
+
+		if ($blocked) {
+			redirect('main');
+		}
+		
 		$this->output->enable_profiler($this->config->item('enable_profiler'));
 		$this->load->database();
 		$query = "SELECT id_disciplina, disciplina, slug FROM \"mvDisciplina\"";
@@ -1925,6 +1976,39 @@ class Frecuencias extends CI_Controller {
 			$result = "\"{$row['articulo']}\", \"{$row['revista']}\", \"{$row['paisRevista']}\", \"{$row['issn']}\", \"{$row['idioma']}\", \"{$row['anioRevista']}\", \"{$row['volumen']}\", \"{$row['numero']}\", \"{$row['periodo']}\", \"{$row['paginacion']}\", \"{$row['url']}\", \"{$row['tipoDocumento']}\", \"{$row['enfoqueDocumento']}\", \"{$autores}\", \"{$instituciones}\", \"{$disciplinas}\", \"{$palabrasClave}\"\n";
  			echo $result;
  		endforeach;
+	}
+	
+	public function insertIP(){
+		$ip = $this->get_ip();
+		$this->load->database();
+		$query="Insert into ip_blacklist values(NOW()::timestamp::date, '" . $ip . "')";
+		$this->db->query($query);
+	}
+	
+	private function get_ip(){
+		$realip = '';
+		if ($_SERVER) {  
+				   if ( $_SERVER["HTTP_X_FORWARDED_FOR"] ) {  
+						   $realip = $_SERVER["HTTP_X_FORWARDED_FOR"];  
+				   } elseif ( $_SERVER["HTTP_CLIENT_IP"] ) {  
+						   $realip = $_SERVER["HTTP_CLIENT_IP"];  
+				   } elseif ($_SERVER["REMOTE_ADDR"]){
+						   $realip = $_SERVER["REMOTE_ADDR"];  
+				   } else{
+						   $realip = 'UNKNOWN';
+				   }
+				} else {  
+						if ( getenv( 'HTTP_X_FORWARDED_FOR' ) ) {  
+						   $realip = getenv( 'HTTP_X_FORWARDED_FOR' );  
+						} elseif ( getenv( 'HTTP_CLIENT_IP' ) ) {  
+						   $realip = getenv( 'HTTP_CLIENT_IP' );  
+						} elseif (getenv( 'REMOTE_ADDR' )){  
+						   $realip = getenv( 'REMOTE_ADDR' );  
+						} else{
+						   $realip = 'UNKNOWN';
+						}
+				}
+				return $realip;
 	}
 
 }
