@@ -56,7 +56,7 @@ class Frecuencias extends CI_Controller {
 
 	public function autor(){
 		
-		$this->insertIP();
+		$this->insertIP('frecuencias autor');
                 
 		$ip = $this->get_ip(); // Obtener la IP del visitante
 
@@ -105,6 +105,7 @@ class Frecuencias extends CI_Controller {
 		}
 
 		if ($blocked) {
+			$this->insertIP('bloqueo frecuencias autor');
 			redirect('main');
 		}
 		
@@ -1982,10 +1983,10 @@ class Frecuencias extends CI_Controller {
  		endforeach;
 	}
 	
-	public function insertIP(){
+	public function insertIP($pagina){
 		$ip = $this->get_ip();
 		$this->load->database();
-		$query="Insert into ip_blacklist values(NOW()::timestamp::date, '" . $ip . "', 'frecuencias')";
+		$query="Insert into ip_blacklist values(NOW()::timestamp::date, '" . $ip . "', '" . $pagina . "')";
 		$this->db->query($query);
 	}
 	
