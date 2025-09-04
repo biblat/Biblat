@@ -95,6 +95,7 @@ class Revista extends CI_Controller{
 			"148.204.63",
 			"45.78",
 			"216.152",
+			"20.171.207"
 		];
 
 		// Lista de IPs permitidas
