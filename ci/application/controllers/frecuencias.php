@@ -77,7 +77,11 @@ class Frecuencias extends CI_Controller {
 			"148.204.63",
 			"45.78",
 			"216.152",
-			"20.171.207"
+			"20.171.207",
+			"23.231",
+			"216.152",
+			"108.187",
+			"192.238"
 		];
 
 		// Lista de IPs permitidas
