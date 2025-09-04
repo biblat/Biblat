@@ -22,6 +22,40 @@ class Frecuencias extends CI_Controller {
 	{
 		parent::__construct();
 		
+		$this->output->enable_profiler($this->config->item('enable_profiler'));
+		$this->load->database();
+		$query = "SELECT id_disciplina, disciplina, slug FROM \"mvDisciplina\"";
+		$queryResult = $this->db->query($query);
+		$disciplina = array();
+		foreach ($queryResult->result_array() as $row):
+			$disciplina['disciplina'] = $row['disciplina'];
+			$disciplina['id_disciplina'] = $row['id_disciplina'];
+			$disciplinas[$row['slug']] = $disciplina;
+		endforeach;
+		$this->disciplinas = $disciplinas;
+		$data['disciplinas'] = $this->disciplinas;
+		$this->db->close();
+
+		$this->template->set_partial('biblat_js', 'javascript/biblat', array(), TRUE, FALSE);
+		$this->template->set_partial('submenu', 'layouts/submenu');
+		$this->template->set_partial('search', 'layouts/search');
+		$this->template->set_breadcrumb(_('Inicio'), site_url('/'));
+		$this->template->set_breadcrumb(_('Bibliometría'));
+		$this->template->set('class_method', $this->router->fetch_class().$this->router->fetch_method());
+	}
+
+	public function index()
+	{
+		$data = array();
+		$data['page_title'] = _('Frecuencias');
+		$this->template->set_partial('view_js', 'frecuencias/header_index',$data['header'], TRUE);
+		$this->template->title(_('Frecuencias'));
+		$this->template->set_meta('description', _('Frecuencias'));
+		$this->template->build('frecuencias/index', $data);
+	}
+
+	public function autor(){
+		
 		$this->insertIP();
                 
 		$ip = $this->get_ip(); // Obtener la IP del visitante
@@ -74,39 +108,7 @@ class Frecuencias extends CI_Controller {
 			redirect('main');
 		}
 		
-		$this->output->enable_profiler($this->config->item('enable_profiler'));
-		$this->load->database();
-		$query = "SELECT id_disciplina, disciplina, slug FROM \"mvDisciplina\"";
-		$queryResult = $this->db->query($query);
-		$disciplina = array();
-		foreach ($queryResult->result_array() as $row):
-			$disciplina['disciplina'] = $row['disciplina'];
-			$disciplina['id_disciplina'] = $row['id_disciplina'];
-			$disciplinas[$row['slug']] = $disciplina;
-		endforeach;
-		$this->disciplinas = $disciplinas;
-		$data['disciplinas'] = $this->disciplinas;
-		$this->db->close();
-
-		$this->template->set_partial('biblat_js', 'javascript/biblat', array(), TRUE, FALSE);
-		$this->template->set_partial('submenu', 'layouts/submenu');
-		$this->template->set_partial('search', 'layouts/search');
-		$this->template->set_breadcrumb(_('Inicio'), site_url('/'));
-		$this->template->set_breadcrumb(_('Bibliometría'));
-		$this->template->set('class_method', $this->router->fetch_class().$this->router->fetch_method());
-	}
-
-	public function index()
-	{
-		$data = array();
-		$data['page_title'] = _('Frecuencias');
-		$this->template->set_partial('view_js', 'frecuencias/header_index',$data['header'], TRUE);
-		$this->template->title(_('Frecuencias'));
-		$this->template->set_meta('description', _('Frecuencias'));
-		$this->template->build('frecuencias/index', $data);
-	}
-
-	public function autor(){
+		
 		$args = $this->uri->ruri_to_assoc();
 		$args['defaultOrder'] = "documentos";
 		$args['orderDir'] = "DESC";
