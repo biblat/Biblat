@@ -293,7 +293,8 @@ class Buscar extends CI_Controller{
 					"23.231",
 					"216.152",
 					"108.187",
-					"192.238"
+					"192.238",
+					"34.174"
                 ];
 
 		// Lista de IPs permitidas
