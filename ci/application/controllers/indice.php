@@ -2,6 +2,9 @@
 class Indice extends CI_Controller{
 	public function __construct(){
 		parent::__construct();
+		
+		$this->reviewIP("índice");
+		
 		$this->output->enable_profiler($this->config->item('enable_profiler'));
 		$this->template->set_partial('biblat_js', 'javascript/biblat', array(), TRUE, FALSE);
 		$this->template->set_partial('submenu', 'layouts/submenu');
@@ -126,5 +129,77 @@ class Indice extends CI_Controller{
 		$this->template->set_meta('description', $data['pais']['page_title']);
 		$this->template->set_breadcrumb(_('País'));
 		$this->template->build('indice/pais', $data['pais']);
+	}
+	
+	public function insertIP($pagina){
+		$ip = $this->get_ip();
+		$this->load->database();
+		$query="Insert into ip_blacklist values(NOW()::timestamp::date, '" . $ip . "', '" . $pagina . "')";
+		$this->db->query($query);
+	}
+	
+	private function get_ip(){
+		$realip = '';
+		if ($_SERVER) {  
+				   if ( $_SERVER["HTTP_X_FORWARDED_FOR"] ) {  
+						   $realip = $_SERVER["HTTP_X_FORWARDED_FOR"];  
+				   } elseif ( $_SERVER["HTTP_CLIENT_IP"] ) {  
+						   $realip = $_SERVER["HTTP_CLIENT_IP"];  
+				   } elseif ($_SERVER["REMOTE_ADDR"]){
+						   $realip = $_SERVER["REMOTE_ADDR"];  
+				   } else{
+						   $realip = 'UNKNOWN';
+				   }
+				} else {  
+						if ( getenv( 'HTTP_X_FORWARDED_FOR' ) ) {  
+						   $realip = getenv( 'HTTP_X_FORWARDED_FOR' );  
+						} elseif ( getenv( 'HTTP_CLIENT_IP' ) ) {  
+						   $realip = getenv( 'HTTP_CLIENT_IP' );  
+						} elseif (getenv( 'REMOTE_ADDR' )){  
+						   $realip = getenv( 'REMOTE_ADDR' );  
+						} else{
+						   $realip = 'UNKNOWN';
+						}
+				}
+				return $realip;
+	}
+		
+	public function reviewIP($pagina){
+		$this->insertIP($pagina);
+			
+		$ip = $this->get_ip(); // Obtener la IP del visitante
+
+		// Lista de prefijos de IP denegadas
+		$denied_ips = unserialize(IPsBlock);
+
+		// Lista de IPs permitidas
+		$pass_ips = [
+			"148.204.63.19"
+		];
+
+		$blocked = false;
+
+		foreach ($denied_ips as $prefix) {
+			if (strpos($ip, $prefix) === 0) { // Si la IP empieza con un prefijo denegado
+				// Verificamos si está en las excepciones
+				$is_exception = false;
+				foreach ($pass_ips as $pass) {
+					if (strpos($ip, $pass) === 0) {
+						$is_exception = true;
+						break;
+					}
+				}
+
+				if (!$is_exception) {
+					$blocked = true;
+					break;
+				}
+			}
+		}
+
+		if ($blocked) {
+			$this->insertIP('bloqueo ' . $pagina);
+			redirect('main');
+		}
 	}
 }
