@@ -42,7 +42,7 @@ class_ver = {
             //Orcid
             'orcid' : /^(https?:\/\/orcid.org\/|http:\/\/orcid.org\/)[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9]([0-9]|X)/,
             //Mayúsculas seguidas
-            'doblemayus' : /([A-Z][A-Z]|[A-Z]\.[A-Z])/,
+            'doblemayus' : /\(([A-Z](?:\.?[A-Z])+)\)/,
             //Licesncias
             'licencia' : /^https?:\/\/creativecommons\.org\/licenses/,
             //Palabras completas en título
