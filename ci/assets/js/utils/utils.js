@@ -1031,7 +1031,7 @@ class_utils= {
     },
     filter_len: function(obj,prop,len){
         return obj.filter(function(obj2){
-            return obj2[prop].length > len;
+            return obj2[prop] != null && obj2[prop].length > len;
         });
     },
     filterdiff_prop: function(obj,prop,val){
