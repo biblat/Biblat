@@ -158,7 +158,14 @@ class_admin = {
                         $.each(revistas, function(i, val){
                                 if(i>0){
                                     //if(val[14] == '1'){
-                                        class_admin.var.revistasJSON.push(JSON.parse(JSON.stringify(Object.assign({}, val))));
+                                        var obj = Object.assign({}, val);
+                                        for (let key in obj) {
+                                            if (typeof obj[key] === "string") {
+                                              obj[key] = obj[key].trim();
+                                            }
+                                        }
+                                        class_admin.var.revistasJSON.push(JSON.parse(JSON.stringify(obj)));
+                                        //class_admin.var.revistasJSON.push(JSON.parse(JSON.stringify(Object.assign({}, val))));
                                     //}
                                 }
                         });
