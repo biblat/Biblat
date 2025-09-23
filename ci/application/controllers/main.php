@@ -721,8 +721,6 @@ class Main extends CI_Controller{
 		}
         
         public function reviewIP($pagina){
-            $this->insertIP($pagina);
-                
 			$ip = $this->get_ip(); // Obtener la IP del visitante
 
 			// Lista de prefijos de IP denegadas
@@ -754,8 +752,10 @@ class Main extends CI_Controller{
 			}
 
 			if ($blocked) {
-				$this->insertIP('bloqueo ' . $pagina);
+			//$this->insertIP('bloqueo ' . $pagina);
 				redirect('main');
+			}else{
+				$this->insertIP($pagina);
 			}
         }
 	

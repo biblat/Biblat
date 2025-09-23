@@ -56,7 +56,7 @@ class Frecuencias extends CI_Controller {
 
 	public function autor(){
 		
-		$this->insertIP('frecuencias autor');
+		//$this->insertIP('frecuencias autor');
                 
 		$ip = $this->get_ip(); // Obtener la IP del visitante
 
@@ -89,8 +89,10 @@ class Frecuencias extends CI_Controller {
 		}
 
 		if ($blocked) {
-			$this->insertIP('bloqueo frecuencias autor');
+			//$this->insertIP('bloqueo frecuencias autor');
 			redirect('main');
+		}else{
+			$this->insertIP('frecuencias autor');
 		}
 		
 		
