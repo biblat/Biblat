@@ -74,7 +74,7 @@ class Revista extends CI_Controller{
 
 	public function articulo($revista='', $articulo='', $mail=''){
 		
-		$this->insertIP('revista articulo');
+		//$this->insertIP('revista articulo');
                 
 		$ip = $this->get_ip(); // Obtener la IP del visitante
 
@@ -107,8 +107,10 @@ class Revista extends CI_Controller{
 		}
 
 		if ($blocked) {
-			$this->insertIP('bloqueo revista articulo');
+			//$this->insertIP('bloqueo revista articulo');
 			redirect('main');
+		}else{
+			$this->insertIP('revista articulo');
 		}
 		
 		$uriVar = $this->uri->ruri_to_assoc();
