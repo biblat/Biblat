@@ -728,7 +728,8 @@ class Main extends CI_Controller{
 
 			// Lista de IPs permitidas
 			$pass_ips = [
-				"148.204.63.19"
+				"148.204.63.19",
+				"148.204.63.195"
 			];
 
 			$blocked = false;
