@@ -265,7 +265,6 @@ class Buscar extends CI_Controller{
 		if (strpos($query, 'generalSlug') !== false) {
 			$patron = "/'.*?%.{0,3}%.*?'/";
 			if (preg_match($patron, $query)) {
-				$this->insertIP();
 				redirect('main');
 			}
         }
@@ -302,6 +301,8 @@ class Buscar extends CI_Controller{
 
 		if ($blocked) {
 			redirect('main');
+		}else{
+			$this->insertIP();
 		}
 		
 		$articulosResultado = articulosResultado($query, $queryCount, $paginationURL, $perPage, $countCompleto=TRUE);
