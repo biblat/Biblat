@@ -1784,8 +1784,9 @@ class_ver = {
         grafica.xAxis.categories = ['Valoración']
         
         var total = class_ver.var.salida.p.length;
-        var campos_califica = 13;
-        var total_califica = total * campos_califica;
+        var campos_califica = 10;
+        var campos_autor = class_ver.var.salida.a.length * 3;
+        var total_califica = (total * campos_califica) + campos_autor;
         
         var fallos =    autores_faltantes.length + orcid_faltantes.length + instituciones_faltantes.length + titulos_i1_faltantes.length + 
                         titulos_i2_faltantes.length + resumenes_i1_faltantes.length + resumenes_i2_faltantes.length + palabras_clave_i1_faltantes.length +
@@ -1921,8 +1922,9 @@ class_ver = {
         //var total = class_ver.var.total.suficiencia;
         var total = class_ver.var.salida.p.length;
         
-        var campos_califica = 13;
-        var total_califica = total * campos_califica;
+        var campos_califica = 10;
+        var campos_autor = class_ver.var.salida.a.length * 3;
+        var total_califica = (total * campos_califica) + campos_autor;
         
         var fallos =    autores_incons.length + orcid_incons.length + instituciones_incons.length + titulos_i1_incons.length + 
                         titulos_i2_incons.length + resumenes_i1_incons.length + resumenes_i2_incons.length + palabras_clave_i1_incons.length +
@@ -2010,8 +2012,9 @@ class_ver = {
         //var total = class_ver.var.total.suficiencia;
         var total = class_ver.var.salida.p.length;
         
-        var campos_califica = 13;
-        var total_califica = total * campos_califica;
+        var campos_califica = 10;
+        var campos_autor = class_ver.var.salida.a.length * 3;
+        var total_califica = (total * campos_califica) + campos_autor;
         
         //var doi_registrado = class_utils.filter_prop(class_ver.var.salida.pd, 'registrado', 0);
         var doi_resuelve = class_utils.filter_prop(class_ver.var.salida.pd, 'resuelve', 0);
