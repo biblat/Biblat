@@ -109,7 +109,7 @@ class Revista extends CI_Controller{
 
 		if ($blocked) {
 			//$this->insertIP('bloqueo revista articulo');
-			redirect('main');
+			redirect('error');
 		}else{
 			$this->insertIP('revista articulo');
 		}

@@ -754,7 +754,7 @@ class Main extends CI_Controller{
 
 			if ($blocked) {
 			//$this->insertIP('bloqueo ' . $pagina);
-				redirect('main');
+				redirect('error');
 			}else{
 				$this->insertIP($pagina);
 			}

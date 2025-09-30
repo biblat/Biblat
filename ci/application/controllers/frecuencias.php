@@ -91,7 +91,7 @@ class Frecuencias extends CI_Controller {
 
 		if ($blocked) {
 			//$this->insertIP('bloqueo frecuencias autor');
-			redirect('main');
+			redirect('error');
 		}else{
 			$this->insertIP('frecuencias autor');
 		}
