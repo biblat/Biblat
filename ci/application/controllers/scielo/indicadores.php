@@ -1432,8 +1432,6 @@ class Indicadores extends CI_Controller {
 	}
 	
 	public function reviewIP($pagina){
-		$this->insertIP($pagina);
-			
 		$ip = $this->get_ip(); // Obtener la IP del visitante
 
 		// Lista de prefijos de IP denegadas
@@ -1465,8 +1463,10 @@ class Indicadores extends CI_Controller {
 		}
 
 		if ($blocked) {
-			$this->insertIP('bloqueo ' . $pagina);
-			redirect('main');
+			#$this->insertIP('bloqueo ' . $pagina);
+			redirect('error');
+		}else{
+			$this->insertIP($pagina);
 		}
 	}
 }
