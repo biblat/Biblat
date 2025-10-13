@@ -364,8 +364,14 @@ class_admin = {
         }else{
             issue = class_utils.filter_prop(issue, 'num', num);
         }
+		
+        var issue_tmp = [];
         if (especial){
-            issue = class_utils.filter_prop(issue, 'especial', 'especial');
+            issue_tmp = class_utils.filter_prop(issue, 'especial', 'especial');
+            if (issue_tmp.length == 0)
+                issue = class_utils.filter_prop(issue, 'especial', 'suplemento');
+            else
+                issue = issue_tmp;
         }else{
             issue = class_utils.filter_prop(issue, 'especial', undefined);
         }
@@ -383,7 +389,7 @@ class_admin = {
         var arr_id_pubs = [];
         //id's de las publicaciones
         $.each(publicaciones_vigentes, function(i,val){
-            if(issue[0].num == val.numero.num && issue[0].vol == val.numero.vol){
+            if(issue[0].num == val.numero.num && issue[0].vol == val.numero.vol && issue[0].especial == val.numero.especial){
 
                 //Revisión si es contenido indizable
                 var indizable = val.titulo;
@@ -487,7 +493,13 @@ class_admin = {
                 doc.volumen = (class_admin.cons.er.letra.test(vol.trim()))?'s/v':'V' + vol.trim();
             }
             doc.numero = (class_admin.cons.er.letra.test(num.trim()))?'s/n':'N' + num.trim();
-            doc.parte = ( num.toUpperCase().indexOf('ESPECIAL') !== -1)?'especial':'';
+            doc.parte = '';
+            if(especial){
+                if (val.numero.especial.toUpperCase().indexOf('ESPECIAL') !== -1)
+                    doc.parte = 'especial';
+                if (val.numero.especial.toUpperCase().indexOf('SUPLEMENTO') !== -1)
+                    doc.parte = 'supl';
+            }
             doc.mes = '';
             if(val.numero.mes !== undefined){
                 if(val.numero.mes !== 'null' && val.numero.mes !== null){
