@@ -1051,7 +1051,7 @@ class Datos extends REST_Controller {
                                     
                                     select distinct sistema, id, nombre, nivel, max(fecha) fecha, 2 num from catalogador 
                                     where id=1 
-                                    and c.nombre in ('OJS', 'SciELO', 'EDITOR')
+                                    and nombre in ('OJS', 'SciELO', 'EDITOR')
                                     and
                                     sistema not in (select sistema from article where estatus in ('B','R','A'))
                                     and sistema in (select sistema from catalogador where id=2 and nombre not in ('OJS', 'SciELO', 'EDITOR')  and extract(month from fecha) in (".$mes.") and extract(year from fecha) = ".$anio.")
