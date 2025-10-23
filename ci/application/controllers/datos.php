@@ -1000,7 +1000,7 @@ class Datos extends REST_Controller {
                                                         and 
                                                         c.id=2
                                                         and
-                                                        c.nombre <> 'OJS' and c.nombre <> 'SciELO'
+                                                        c.nombre <> 'OJS' and c.nombre <> 'SciELO' and c.nombre <> 'EDITOR'
                                                 )
                                                 or
                                                 (
@@ -1022,7 +1022,7 @@ class Datos extends REST_Controller {
                                     select distinct c.sistema, id, nombre, nivel, max(fecha) fecha, 2 num from catalogador c 
                                     inner join article a on a.sistema = c.sistema
                                     where
-                                    c.nombre not in ('OJS', 'SciELO', 'EDITOR')
+                                    c.nombre in ('OJS', 'SciELO', 'EDITOR')
                                     and
                                         (
                                                 (
@@ -1051,10 +1051,10 @@ class Datos extends REST_Controller {
                                     
                                     select distinct sistema, id, nombre, nivel, max(fecha) fecha, 2 num from catalogador 
                                     where id=1 
-                                    c.nombre in ('OJS', 'SciELO', 'EDITOR')
+                                    and c.nombre in ('OJS', 'SciELO', 'EDITOR')
                                     and
                                     sistema not in (select sistema from article where estatus in ('B','R','A'))
-                                    and sistema in (select sistema from catalogador where id=2 and nombre not in ('OJS', 'SciELO')  and extract(month from fecha) in (".$mes.") and extract(year from fecha) = ".$anio.")
+                                    and sistema in (select sistema from catalogador where id=2 and nombre not in ('OJS', 'SciELO', 'EDITOR')  and extract(month from fecha) in (".$mes.") and extract(year from fecha) = ".$anio.")
                                     group by 1,2,3,4,6
                                     order by num
                             )
