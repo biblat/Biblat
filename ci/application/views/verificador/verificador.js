@@ -2926,8 +2926,13 @@ class_ver = {
                     }
                 }
             }
-        }).fail(function(){
-            $('#error').html('<center><b>Ocurrió un error al intentar obtener su información</b></center>');
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            if (textStatus === 'timeout') {
+                $('#error').html('<center><b>La solicitud tardó demasiado</b></center>');
+            } else {
+                $('#error').html('<center><b>Ocurrió un error al intentar obtener su información</b></center>');
+            }
+
             $('#error').show();
             class_ver.var.plugin = 'No';
             class_ver.setBitacora(2);
