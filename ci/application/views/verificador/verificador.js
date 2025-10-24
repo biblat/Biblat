@@ -2927,7 +2927,9 @@ class_ver = {
                 }
             }
         }).fail(function(jqXHR, textStatus, errorThrown) {
-            if (textStatus === 'timeout') {
+            if (jqXHR.status === 504) {
+                $('#error').html('<center><b>La solicitud hacia el sitio de la revista está tardando demasiado</b></center>');
+            } else if (textStatus === 'timeout') {
                 $('#error').html('<center><b>La solicitud tardó demasiado</b></center>');
             } else {
                 $('#error').html('<center><b>Ocurrió un error al intentar obtener su información</b></center>');
