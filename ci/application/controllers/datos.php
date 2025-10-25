@@ -1374,4 +1374,34 @@ class Datos extends REST_Controller {
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);
         }
+		
+		public function urloai_review_get(){
+            $data = array();
+            $this->load->database();
+            
+            $url = $_GET['url'];
+            if (isset($_GET['anio'])){
+                $anio = $_GET['anio'];
+            }else{
+                $anio = 'sin';
+            }
+            
+            if ($anio == 'sin'){
+                $query = "
+                     select metadatos, hash
+                     from metametrics 
+                     where url = '".$url."'
+                     and anio is null
+                 ";
+            }else{
+                $query = "
+                            select metadatos, hash
+                            from metametrics 
+                            where url = '".$url."'
+                            and anio = '".$anio."'
+                        ";
+            }
+            $query = $this->db->query($query);
+            $this->response($query->result_array(), 200);  
+        }
 }
