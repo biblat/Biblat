@@ -2735,6 +2735,13 @@ class_ver = {
             if(resp0[0][0] !== undefined){
                 var hash1 = resp0[0][0].hash;
                 var hash2 = resp00[0].resp;
+				
+				if(hash1 == 'Generando'){
+                    $('#error').html('<center><b>Se está generando la valoración, intente nuevamente en unos minutos ...</b></center>');
+                    $('#error').show();
+                    loading.end();
+                    return 0;
+                }
                 
                 if(hash1 == hash2){
                     class_ver.var.data = JSON.parse(resp0[0][0].metadatos);
@@ -2764,6 +2771,11 @@ class_ver = {
                 return 0;
 			}else if(Array.isArray(resp.res)){
                 $('#error').html('<b>El sitio cuenta con más de una revista, estas son las URLs OAI que puede revisar:</b><br><br>' + resp.res.join("<br>"));
+                $('#error').show();
+                loading.end();
+                return 0;
+            }else if(resp.resp == 'Generando'){
+                $('#error').html('<center><b>Se está generando la valoración, intente nuevamente en unos minutos ...</b></center>');
                 $('#error').show();
                 loading.end();
                 return 0;
@@ -2954,7 +2966,7 @@ class_ver = {
             }
         }).fail(function(jqXHR, textStatus, errorThrown) {
             if (jqXHR.status === 504) {
-                $('#error').html('<center><b>La solicitud hacia el sitio de la revista está tardando demasiado</b></center>');
+                $('#error').html('<center><b>La solicitud hacia el sitio de la revista está tardando demasiado<br>La valoración se sigue generando, intente en unos minutos ...</b></center>');
             } else if (textStatus === 'timeout') {
                 $('#error').html('<center><b>La solicitud tardó demasiado</b></center>');
             } else {

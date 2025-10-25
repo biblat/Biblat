@@ -1391,7 +1391,7 @@ class Datos extends REST_Controller {
                      select metadatos, hash
                      from metametrics 
                      where url = '".$url."'
-                     and anio is null
+                     and anio = ''
                  ";
             }else{
                 $query = "
