@@ -2965,7 +2965,7 @@ class_ver = {
                 }
             }
         }).fail(function(jqXHR, textStatus, errorThrown) {
-            if (jqXHR.status === 504) {
+            if (jqXHR.status === 504 || jqXHR.status === 200) {
                 $('#error').html('<center><b>La solicitud hacia el sitio de la revista está tardando demasiado<br>La valoración se sigue generando, intente en unos minutos ...</b></center>');
             } else if (textStatus === 'timeout') {
                 $('#error').html('<center><b>La solicitud tardó demasiado</b></center>');
