@@ -2774,7 +2774,7 @@ class_ver = {
                 $('#error').show();
                 loading.end();
                 return 0;
-            }else if(resp.resp == 'Generando'){
+            }else if(resp.res == 'Generando'){
                 $('#error').html('<center><b>Se está generando la valoración, intente nuevamente en unos minutos ...</b></center>');
                 $('#error').show();
                 loading.end();
