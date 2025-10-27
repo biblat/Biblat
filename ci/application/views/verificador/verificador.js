@@ -2720,37 +2720,31 @@ class_ver = {
             return 0;
         }
 		
-		var url_review = class_ver.cons.get_review + $('#'+class_ver.var.id_oai).val();
+		var date_review = class_ver.cons.get_content + $('#'+class_ver.var.id_oai).val();
+        
         if(anio !== null){
-            url_review += '&anio=' + anio;
+            date_review += '&anio=' + anio;
         }
-        const hoy = new Date();
-        const fecha = hoy.toISOString().split('T')[0];
-        var date_review = class_ver.cons.get_content + $('#'+class_ver.var.id_oai).val()+'&from='+fecha;
 		
 		$.when(
-            class_utils.getResource(url_review),
+            //class_utils.getResource(url_review),
             class_utils.getResource(date_review)
-        ).then(function(resp0, resp00){
-            if(resp0[0][0] !== undefined){
-                var hash1 = resp0[0][0].hash;
-                var hash2 = resp00[0].resp;
-				
-				if(hash1 == 'Generando'){
-                    $('#error').html('<center><b>Se está generando la valoración, intente nuevamente en unos minutos ...</b></center>');
+        ).then(function(resp0){
+			if(resp0.resp == 'Generando'){
+                $('#error').html('<center><b>La valoración se sigue generando, intente nuevamente en unos minutos por favor ...</b></center>');
                     $('#error').show();
                     loading.end();
+					class_ver.var.plugin = 'Sí';
+					class_ver.setBitacora(2);
                     return 0;
-                }
-                
-                if(hash1 == hash2){
-                    class_ver.var.data = JSON.parse(resp0[0][0].metadatos);
-                    class_ver.var.plugin = 'Si';
-                    class_ver.analisis();
-                    return 0;
-                }
             }
-		
+            if(resp0.resp !== 'SinRegistro' && resp0.resp !== 'Nuevos'){
+                class_ver.var.data = JSON.parse(resp0.resp);
+                class_ver.var.plugin = 'Sí';
+				class_ver.setBitacora(2);
+                class_ver.analisis();
+                return 0;
+            }
         $.when(
             class_utils.getResource(url)
         )
@@ -2777,6 +2771,8 @@ class_ver = {
             }else if(resp.res == 'Generando'){
                 $('#error').html('<center><b>Se está generando la valoración, intente nuevamente en unos minutos ...</b></center>');
                 $('#error').show();
+				class_ver.var.plugin = 'Sí';
+				class_ver.setBitacora(2);
                 loading.end();
                 return 0;
             }else{
