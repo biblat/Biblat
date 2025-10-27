@@ -2768,7 +2768,7 @@ class_ver = {
                 $('#error').show();
                 loading.end();
                 return 0;
-            }else if(resp.res == 'Generando'){
+            }else if(resp.resp == 'Generando' || resp.resp == 'SinRegistro'){
                 $('#error').html('<center><b>Se está generando la valoración, intente nuevamente en unos minutos ...</b></center>');
                 $('#error').show();
 				class_ver.var.plugin = 'Sí';
