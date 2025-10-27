@@ -998,7 +998,7 @@ class Datos extends REST_Controller {
                                                 (
                                                         a.estatus in ('C')
                                                         and 
-                                                        c.id=2
+                                                        c.id=(select max(id) from catalogador where sistema = a.sistema)
                                                         and
                                                         c.nombre <> 'OJS' and c.nombre <> 'SciELO' and c.nombre <> 'EDITOR'
                                                 )
@@ -1028,7 +1028,7 @@ class Datos extends REST_Controller {
                                                 (
                                                         a.estatus in ('C')
                                                         and 
-                                                        c.id=2
+                                                        c.id=(select max(id) from catalogador where sistema = a.sistema)
                                                         and
                                                         c.nombre <> 'OJS' and c.nombre <> 'SciELO' and c.nombre <> 'EDITOR'
                                                 )
@@ -1054,7 +1054,7 @@ class Datos extends REST_Controller {
                                     and nombre in ('OJS', 'SciELO', 'EDITOR')
                                     and
                                     sistema not in (select sistema from article where estatus in ('B','R','A'))
-                                    and sistema in (select sistema from catalogador where id=2 and nombre not in ('OJS', 'SciELO', 'EDITOR')  and extract(month from fecha) in (".$mes.") and extract(year from fecha) = ".$anio.")
+                                    and sistema in (select sistema from catalogador c where id=(select max(id) from catalogador where sistema = c.sistema) and nombre not in ('OJS', 'SciELO', 'EDITOR')  and extract(month from fecha) in (".$mes.") and extract(year from fecha) = ".$anio.")
                                     group by 1,2,3,4,6
                                     order by num
                             )
