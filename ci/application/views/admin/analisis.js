@@ -5176,6 +5176,22 @@ class_av = {
                 }
             });
             $("#ul-filtro").html(lis);
+			
+			if(id_filtro1 == 'mes'){
+                const ul = document.getElementById('ul-filtro');
+                const items = Array.from(ul.querySelectorAll(':scope > li'));
+
+                items.sort((a, b) => {
+                  const ida = Number(a.firstElementChild.id); // <a id="..">
+                  const idb = Number(b.firstElementChild.id);
+                  return ida - idb; // usa idb - ida para descendente
+                });
+
+                const frag = document.createDocumentFragment();
+                items.forEach(li => frag.appendChild(li));
+                ul.appendChild(frag);
+            }
+			
             $('#btn-filtro2').html("Seleccione");
             $(".li-filtro2").off('click').on('click', function(){
                 $('#btn-filtro2').html($(this).html());
