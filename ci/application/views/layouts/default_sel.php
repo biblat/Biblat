@@ -54,7 +54,16 @@
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
           gtag('config', 'UA-33940112-1');
-        </script>{/literal}{/if}
+        </script>
+		<!-- Google tag (gtag.js) -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-YJW0KFXEBJ"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-YJW0KFXEBJ');
+        </script>
+		{/literal}{/if}
         {if $class_method == "mainindex"}{literal}<script type="application/ld+json">
         {
           "@context": "http://schema.org",
