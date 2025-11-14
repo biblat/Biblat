@@ -31,6 +31,7 @@ class_nr = {
                                     '<th><anio3></th>' +
                                     '<th><anio4></th>' +
                                     '<th><anio5></th>' +
+									'<th>Valoración<br>Metametrics</th>' +
                                 '</tr>'+
                             '</thead>' +
                             '<tbody id="body_nucleo"><body></tbody></table>',
@@ -40,13 +41,16 @@ class_nr = {
             '<td style="min-width: 20px; max-width: 20px"><anio2></td>' + 
             '<td style="min-width: 20px; max-width: 20px"><anio3></td>' +
             '<td style="min-width: 20px; max-width: 20px"><anio4></td>' +
-            '<td style="min-width: 20px; max-width: 20px"><anio5></td></tr>',
+            '<td style="min-width: 20px; max-width: 20px"><anio5></td>'+
+            '<td style="min-width: 20px; max-width: 20px"><meta></td>'+
+            '</tr>',
         anio: new Date().getFullYear(),
         paises: [],
         pscielo: '',
         pie1_data: [],
         pie2_data: [],
         tree_disc: [],
+		metametrics: [],
         li: '<li><a class="li-filtro2" id="<id>"><val></a></li>',
         graficaRed:'<iframe allowFullScreen src="https://ouestware.gitlab.io/retina/beta/#/embed/?url=https%3A%2F%2Fgist.githubusercontent.com%2FPatyGV16%2F55de084c2a538915e9d3a383ee07d45e%2Fraw%2F36a9943652ffde41493e6ca71cdd85592eb58974%2FRedInstituciones.gexf&sa[]=c&sa[]=h&sa[]=b&sa[]=m&sa[]=ei&ca[]=i-s&ca[]=o-s&ca[]=d-s&ca[]=wi-s&ca[]=wo-s&ca[]=wd-s&ca[]=ec-s&ec=o" width="100%" height="500px"></iframe>'
     },
@@ -113,19 +117,55 @@ class_nr = {
         });
         */
        loading.start();
-       $.when( class_utils.getResource('/tableros/get_nucleo') ).then(function(res){
-           class_nr.var.values = res;
-           class_nr.setTabla(class_nr.var.values);
-           class_nr.set_chart_column();
-           class_nr.set_chart_pie1();
-           class_nr.set_chart_pie2();
-           //class_nr.set_chart_column2();
-           class_nr.chart_treemap();
-           class_nr.setTexto();
-           $('#div-filtro').show();
-           class_nr.filtro();
-           loading.end();
-       });
+       var object = {
+                private_key: env.P_K,
+                client_email: b(env.C_E),
+                scopes: class_nr.cons.SCOPES,
+            };
+        gapi.load("client", async function(){
+                    gapi.auth.setToken(await GetAccessTokenFromServiceAccount.do(object));
+                    gapi.client.init({
+                        discoveryDocs: class_nr.cons.DISCOVERY_DOCS,
+                    }).then(function () {
+                        //Lectura de hoja de cálculo, se requiere el ID y la hoja de la que leerá
+                        gapi.client.sheets.spreadsheets.values.get({
+                            spreadsheetId: b(env.sId),
+                            range: "Última Valoración",
+                        }).then(function(res) {
+                            values = res.result.values;
+                            $.each(res.result.values, function(i, val){
+                               var obj = {};
+                               if(val[5] !== "SIN"){
+                                    obj.revista = class_utils.slug(val[5]);
+                                    obj.val = parseFloat(val[4].replace(',','.'));
+                                    var v_busca = class_utils.find_prop(class_nr.var.metametrics, 'revista', obj.revista);
+                                    if(v_busca !== undefined){
+                                        if(obj.val > v_busca.val)
+                                            v_busca.val = obj.val;
+                                    }else{
+                                        class_nr.var.metametrics.push(obj);
+                                    }
+                               }
+                            });
+                            
+                            $.when( class_utils.getResource('/tableros/get_nucleo') ).then(function(res){
+                                class_nr.var.values = res;
+                                class_nr.setTabla(class_nr.var.values);
+                                class_nr.set_chart_column();
+                                class_nr.set_chart_pie1();
+                                class_nr.set_chart_pie2();
+                                //class_nr.set_chart_column2();
+                                class_nr.chart_treemap();
+                                class_nr.setTexto();
+                                $('#div-filtro').show();
+                                class_nr.filtro();
+                                loading.end();
+                            });
+                            
+                            
+                        });
+                    });
+        });
     },
     filtro: function(){
         $(".li-filtro").off('click').on('click', function(){
@@ -206,6 +246,13 @@ class_nr = {
     setTabla: function(data){
         var tbody = '';
         $.each(data, function(i, val){
+			var val_meta = class_utils.find_prop(class_nr.var.metametrics, 'revista', val['slug']);
+            if(val_meta == undefined){
+                val_meta = 'S/V';
+            }else{
+                val_meta = val_meta.val;
+            }
+			
             var tr = class_nr.var.tr.replace('<col>', val['coleccion'])
                             .replace('<base>', val['base'])
                             .replace('<issn>', val['issn'])
@@ -216,7 +263,8 @@ class_nr = {
                             .replace('<anio2>', val['anio2'])
                             .replace('<anio3>', val['anio3'])
                             .replace('<anio4>', val['anio4'])
-                            .replace('<anio5>', val['anio5']);
+                            .replace('<anio5>', val['anio5'])
+                            .replace('<meta>', val_meta);
             tbody += tr;
         });
         var tabla = class_nr.var.tabla
@@ -249,6 +297,7 @@ class_nr = {
                         }
                     }; 
         class_utils.setTabla('tbl_nucleo', op);
+		$('#foot').show();
         
     },
     chart_treemap: function(){

@@ -63,6 +63,11 @@
         <div id="div_tabla" style="display:block">
         </div>
     </div>
+	<div class="col-xs-12" id='foot' style="display:none">
+        <p>
+            <span style="font-weight:1000; font-size:20px">*</span>&nbsp;S/V - Sin Valoración con Metametrics.<br>
+        </p>
+    </div>
 </div>
 
 <div class="row"><br><br></div>
