@@ -1,4 +1,6 @@
 <table class="table table-striped">
+	<tr><td><cite>Frías Cienfuegos, L. (13 de noviembre de 2025). <a href="https://www.gaceta.unam.mx/a-la-vanguardia-en-base-de-datos-de-ciencias-sociales-y-humanidades/" target="_blank">El repositorio CLASE cumple medio siglo. A la vanguardia en base de datos de ciencias sociales y humanidades.</a> Gaceta UNAM, (5608), 20.</cite></td></tr>
+
 	<tr><td><cite>Beigel, F., Sánchez Pereyra, A., Alonso-Gamboa, J. O., Salatino, M., Gallardo, O., Ferreira Gonçalves, A., Carrillo Romero, O., Flores Chávez, M. A., Durán Muñoz, E., & Arguello Mendoza, M. G. T. (2023). <a href="{base_url('archivos/pdf/Oliva2.pdf')}" target="_blank">OLIVA-2: las revistas iberoamericanas indexadas en Biblat y Latindex: fuentes fundamentales para conocer la producción científica global.</a> E-Ciencias De La Información, 14(1).</cite></td></tr>
 	
         <tr><td><cite>Flores Chávez, M. A. (2023). <a href="{base_url('archivos/pdf/PrototipoMetaMetrics.pdf')}" target="_blank">MetaMetrics: prototipo de visualización de la calidad de los metadatos en revistas científicas latinoamericanas publicadas en Open Journal System.</a> Biblioteca Universitaria, 26(1), 12-23.</cite></td></tr>
