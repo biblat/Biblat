@@ -44,7 +44,7 @@ class_ver = {
             //Orcid
             'orcid' : /^(https?:\/\/orcid.org\/|http:\/\/orcid.org\/)[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9]([0-9]|X)/,
             //Mayúsculas seguidas
-            'doblemayus' : /\(([A-Z](?:\.?[A-Z])+)\)/,
+            'doblemayus' : /^(?!.*\b[A-Z]{2,}\b(?![^()]*\)))(?!^\([^()]*\)$)[\s\S]*$/,
             //Licesncias
             'licencia' : /^https?:\/\/creativecommons\.org\/licenses/,
             //Palabras completas en título
@@ -1391,9 +1391,9 @@ class_ver = {
         //Esta parte es para tomar los ids de publicaciones con instituciones faltantes
         instituciones_faltantes = class_utils.filter_prop_arr(arr_pubs, "id", autores_pub_id_sv);
 
-        var consis_instituciones = class_utils.filter_prop_noter(instituciones_valor, 'aff', class_ver.cons.er.doblemayus);
+        var consis_instituciones = class_utils.filter_prop_er(instituciones_valor, 'aff', class_ver.cons.er.doblemayus);
         //instituciones que complan con esta expresión regular (inconsistentes)
-        var inconsis_instituciones = class_utils.filter_prop_er(instituciones_valor, 'aff', class_ver.cons.er.doblemayus);
+        var inconsis_instituciones = class_utils.filter_prop_noter(instituciones_valor, 'aff', class_ver.cons.er.doblemayus);
 
         arr_pubs_b = class_utils.filter_prop_arr(arr_pubs, "id", autores_pub_id);
         //autores_pub_id = class_ver.get_autores_pub_id2(consis_instituciones);
