@@ -1,4 +1,22 @@
 <div class="panel-group">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h5 class="panel-title">
+				<a href="{base_url('archivos/pdf/50_CLASE_2.pdf')}" target="_blank">
+                                    <span class="fa fa-file-powerpoint-o"></span> Sánchez Pereyra, Antonio (2025, noviembre). <b>Estrategias para ampliar la difusión, alcance y uso de los datos generados por la base de datos CLASE</b>. 50 aniversario de la base de datos CLASE. Dirección General de Bibliotecas y Servicios Digitales de Información(DGBSDI).
+				</a>
+			</h5>
+		</div>
+	</div>
+        <div class="panel panel-default">
+		<div class="panel-heading">
+			<h5 class="panel-title">
+				<a href="{base_url('archivos/pdf/50_CLASE_3.pdf')}" target="_blank">
+                                    <span class="fa fa-file-powerpoint-o"></span> Manuel Alejandro Flores Chávez (2025, noviembre). <b>CLASE hoy: nuevas metodologías de trabajo y nuevos servicios de valor agregado</b>. 50 aniversario de la base de datos CLASE. Dirección General de Bibliotecas y Servicios Digitales de Información(DGBSDI).
+				</a>
+			</h5>
+		</div>
+	</div>
         <div class="panel panel-default">
 		<div class="panel-heading">
 			<h5 class="panel-title">
