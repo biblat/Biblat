@@ -109,7 +109,7 @@
 	    </div>
 	</div>
 </div>
-<div class="panel-group">
+<!--div class="panel-group">
 	<div class="panel panel-default">
 	    <div class="panel-heading">
 	      <h5 class="panel-title">
@@ -129,8 +129,8 @@
 	      </h5>
 	    </div>
 	</div>
-</div>
-<div class="panel-group">
+</div-->
+<!--div class="panel-group">
 	<div class="panel panel-default">
 	    <div class="panel-heading">
 	      <h5 class="panel-title">
@@ -151,8 +151,8 @@
 	      </h5>
 	    </div>
 	</div>
-</div>
-<div class="panel-group">
+</div-->
+<!--div class="panel-group">
 	<div class="panel panel-default">
 	    <div class="panel-heading">
 	      <h5 class="panel-title">
@@ -172,7 +172,7 @@
 	      </h5>
 	    </div>
 	</div>
-</div>
+</div-->
 <div class="panel-group">
 	<div class="panel panel-default">
 	    <div class="panel-heading">
