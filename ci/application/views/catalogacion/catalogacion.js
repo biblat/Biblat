@@ -1,6 +1,6 @@
 class_cat = {
     cons:{
-        send_pdf: 'http://127.0.0.1:5000/send_indizacion',
+        send_pdf: '/api_metametrics/send_indizacion',
     },
     ready: function(){
         class_cat.control();
