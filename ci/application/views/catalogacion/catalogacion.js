@@ -11,7 +11,8 @@ class_cat = {
             $('#div_resultado_orig').html("");
             $('#div_resultado_esp').html("");
             $('#div_resultado_ent').html("");
-            $('#div_resultado_biblat').html("");
+            $('#div_resultado_bib_exact').html("");
+			$('#div_resultado_bib_aprox').html("");
             $('#resultados').hide();
             
             event.preventDefault();  // Prevenir el comportamiento por defecto del formulario
@@ -34,8 +35,13 @@ class_cat = {
                             $('#div_resultado_esp').html(obj.español_palabras);
                             $('#div_resultado_ent').html(obj.español_entidades);
                             //$('#div_resultado_biblat').html('equipo reutilizable, cooperativas, efectos ambientales, efectos sociales, gestión de residuos, inclución social, economía circular, justicia ambiental, calidad de vida');
-                            $('#div_resultado_biblat').html(obj.biblat);
-                            
+                            $('#div_resultado_bib_exact').html(obj.biblat_exactas);
+                            var biblat_aprox= '';
+                            $.each(obj.biblat_sugerencias, function(i,val){
+                                biblat_aprox += ('<b>' +  val.palabra + ': </b>'+val.aproximaciones+'<br>');
+                            });
+                            $('#div_resultado_bib_aprox').html(biblat_aprox);
+                            //$('#div_resultado_bib_ent').html(obj.español_entidades);
                         },
                         error: function(xhr, status, error) {
                             $('#div_resultado_orig').html('Error al procesar el archivo');
