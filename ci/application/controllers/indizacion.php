@@ -19,10 +19,10 @@ class Indizacion extends CI_Controller {
     
     public function index(){
         $data = array();
-        $data['page_title'] = _('Indización');
+        $data['page_title'] = _('BibLex IA - Asistente de indización');
         $this->template->set_layout('default_sel');
-        $this->template->title(_('Indización'));
-        $this->template->set_meta('description', _('Indización'));
+        $this->template->title(_('BibLex IA - Asistente de indización'));
+        $this->template->set_meta('description', _('BibLex IA - Asistente de indización'));
         $this->template->set_partial('main_js', 'catalogacion/catalogacion.js', array(), TRUE, FALSE);
         $this->template->build('catalogacion/catalogacion', $data);
     }
