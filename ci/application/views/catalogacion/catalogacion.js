@@ -6,6 +6,10 @@ class_cat = {
         class_cat.control();
     },
     control: function(){
+		$("#usos-sugeridos").on("click",function(event){
+            $("#usos-sugeridos-div").show();
+        });
+		
         $("#formPDF").on("submit",function(event) {
             loading.start();
             $('#div_resultado_orig').html("");
