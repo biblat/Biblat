@@ -8,7 +8,7 @@
 </style>
 <div class="row">
     <div class="col-md-12">
-        Este módulo de indización incorpora un sistema de procesamiento empleando inteligencia artificial generativa para identificar conceptos clave más representativos del contenido de un artículo (no por frecuencia)​. El sistema genera una propuesta preliminar de términos candidatos. Posteriormente, se ejecuta un proceso de correspondencia semántica con el vocabulario controlado histórico de Biblat, con el propósito de normalizar la selección y garantizar la coherencia terminológica dentro del catálogo.
+        Este módulo de indización incorpora un sistema de procesamiento empleando inteligencia artificial generativa para extraer conceptos clave más representativos del contenido de un artículo (no por frecuencia)​. El sistema genera una propuesta preliminar de términos candidatos. Posteriormente, se ejecuta un proceso de correspondencia semántica con el vocabulario controlado histórico de Biblat, con el propósito de normalizar la selección y garantizar la coherencia terminológica dentro del catálogo.
         <br>Para iniciar el proceso, ingrese el texto del artículo en el espacio habilitado o cargue el archivo correspondiente en formato PDF.
     </div>
     
