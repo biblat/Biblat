@@ -6,18 +6,18 @@ class_cat = {
         class_cat.control();
     },
     control: function(){
-		$("#usos-sugeridos").on("click",function(event){
+        $("#usos-sugeridos").on("click",function(event){
             $("#usos-sugeridos-div").show();
         });
-		
         $("#formPDF").on("submit",function(event) {
             loading.start();
             $('#div_resultado_orig').html("");
             $('#div_resultado_esp').html("");
             $('#div_resultado_ent').html("");
             $('#div_resultado_bib_exact').html("");
-			$('#div_resultado_bib_aprox').html("");
+            $('#div_resultado_bib_aprox').html("");
             $('#resultados').hide();
+            $('#res_error').hide();
             
             event.preventDefault();  // Prevenir el comportamiento por defecto del formulario
             
@@ -35,20 +35,29 @@ class_cat = {
                             loading.end();
                             $('#resultados').show();
                             var obj=JSON.parse(response.resp);
-                            $('#div_resultado_orig').html(obj.idioma_original);
-                            $('#div_resultado_esp').html(obj.español_palabras);
-                            $('#div_resultado_ent').html(obj.español_entidades);
-                            //$('#div_resultado_biblat').html('equipo reutilizable, cooperativas, efectos ambientales, efectos sociales, gestión de residuos, inclución social, economía circular, justicia ambiental, calidad de vida');
-                            $('#div_resultado_bib_exact').html(obj.biblat_exactas);
-                            var biblat_aprox= '';
-                            $.each(obj.biblat_sugerencias, function(i,val){
-                                biblat_aprox += ('<b>' +  val.palabra + ': </b>'+val.aproximaciones+'<br>');
-                            });
-                            $('#div_resultado_bib_aprox').html(biblat_aprox);
-                            //$('#div_resultado_bib_ent').html(obj.español_entidades);
+                            
+                            if("error" in obj){
+                                $('#resultados').hide();
+                                $('#res_error').show();
+                                $('#res_error').html(obj.error);
+                            }else{
+                            
+                                $('#div_resultado_orig').html(obj.idioma_original);
+                                $('#div_resultado_esp').html(obj.español_palabras);
+                                $('#div_resultado_ent').html(obj.español_entidades);
+                                //$('#div_resultado_biblat').html('equipo reutilizable, cooperativas, efectos ambientales, efectos sociales, gestión de residuos, inclución social, economía circular, justicia ambiental, calidad de vida');
+                                $('#div_resultado_bib_exact').html(obj.biblat_exactas);
+                                var biblat_aprox= '';
+                                $.each(obj.biblat_sugerencias, function(i,val){
+                                    biblat_aprox += ('<b>' +  val.palabra + ': </b>'+val.aproximaciones+'<br>');
+                                });
+                                $('#div_resultado_bib_aprox').html(biblat_aprox);
+                                //$('#div_resultado_bib_ent').html(obj.español_entidades);
+                            }
                         },
                         error: function(xhr, status, error) {
-                            $('#div_resultado_orig').html('Error al procesar el archivo');
+                            $('#res_error').show();
+                            $('#res_error').html('Error al procesar el archivo');
                         }
                     });
              

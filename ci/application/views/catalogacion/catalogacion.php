@@ -93,4 +93,8 @@
     </div>
 </div>
 
+<div class="row" id="res_error" style="display:none">
+    
+</div>
+
 <div class="row"><br></div>
