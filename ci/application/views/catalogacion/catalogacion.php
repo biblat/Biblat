@@ -93,7 +93,7 @@
     </div>
 </div>
 
-<div class="row" id="res_error" style="display:none">
+<div class="row" id="res_error" style="display:none;margin-left:100px;">
     
 </div>
 
