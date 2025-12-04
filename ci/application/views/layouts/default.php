@@ -107,7 +107,7 @@
                                 <a href="http://dgb.unam.mx" title="{_('Dirección General de Bibliotecas')}" target="_blank"><!--span class="bl-dgb fa-5x"></span--><span><img style="width:100px;position:absolute;top:10px;right:100px " src="{base_url('img/logo_dgbsdi.svg')}"></span></a>
                                 <a href="http://www.unam.mx" title="{_('Universidad Nacional Autónoma de México')}" target="_blank"><span class="bl-unam fa-5x"></span></a>
                             </div>
-                            <div class="col-md-12 navbar-main">
+                            <div class="col-md-12 navbar-main" style="font-size: 12px;">
                                 <nav class="navbar navbar-default" role="navigation">
                                     <div class="container-fluid">
                                         <div class="navbar-header hidden-md hidden-lg">
@@ -210,6 +210,9 @@
                                                         <li><a href="{site_url('preevaluacion/simulador')}">{_('Simulador de preevaluacion editorial')}</a></li>
                                                         <li><a href="{site_url('postular-revista/metametrics')}">{_('Iniciar proceso de evaluación')}</a></li>
                                                     </ul>
+                                                </li>
+												<li>
+                                                    <a href="{site_url('indizacion')}">{_('BibLex IA')}</a>
                                                 </li>
                                                 <!--<li><a href="#">{_('Políticas de acceso')}</a></li>-->
                                                 <li class="dropdown">
