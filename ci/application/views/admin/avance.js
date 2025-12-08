@@ -76,7 +76,7 @@ class_av = {
                     '<td><t_max></td>' +
                     '<td><t_prom></td> </tr>',
 		tr_prod_analista: '<tr><td><usuario></td><td><cla></td><td><per></td><td><total></td> </tr>',
-        barra_avance:   '<div id="<id>" class="progress-bar progress-bar-warning progress-bar-striped avance-mes" role="progressbar" aria-valuenow="<avance>" aria-valuemin="0" aria-valuemax="100" style="width: <avance>%">' +
+        barra_avance:   '<div id="<id>" class="progress-bar progress-bar-warning progress-bar-striped avance-mes" role="progressbar" aria-valuenow="8.33" aria-valuemin="0" aria-valuemax="100" style="width: 8.33%">' +
                         '<span style="color:black;font-size:11px"><b><mes></b></span><br>' +
                         '<span style="color:black;font-size:11px"><b><avance>%</b></span>' +
                         '</div>',
@@ -264,27 +264,35 @@ class_av = {
         $.each(class_av.var.avance_por_mes, function(i, val){
             var pre_total = avance_total;
             var tmp = class_av.var.barra_avance;
+
             avance_total += parseFloat(val.total);
-            
-            if(avance_total > total_departamento){
-                val.total = total_departamento - pre_total;
+
+            var total_mes_visual = val.total;
+
+            if (avance_total > total_departamento) {
+                total_mes_visual = Math.max(0, total_departamento - pre_total);
                 $('#conseguida').show();
-                setTimeout(function(){
-                    $(".esperado").after('<div class="firework"></div>');
-                },1000);
-                setTimeout(function(){
-                    $(".esperado").after('<div class="firework2"></div>');
-                },2000);
-                setTimeout(function(){
-                    $(".esperado").after('<div class="firework3"></div>');
-                },3000);
+
+                setTimeout(()=>$(".esperado").after('<div class="firework"></div>'),1000);
+                setTimeout(()=>$(".esperado").after('<div class="firework2"></div>'),2000);
+                setTimeout(()=>$(".esperado").after('<div class="firework3"></div>'),3000);
             }
-            
+
             if(i%2 !== 0){
-               tmp = tmp.replaceAll('progress-bar-striped', '');
+                tmp = tmp.replaceAll('progress-bar-striped', '');
             }
+
             tmp = tmp.replace('<id>', val.mes);
-            bar_progress += tmp.replaceAll('<avance>', ( val.total/total_departamento*100 ).toFixed(2)).replaceAll('<mes>', class_utils.cons.meses[val.mes]);
+            
+            if (total_mes_visual == 0){
+                bar_progress += tmp
+                    .replaceAll('<avance>%', '').replaceAll('<avance>', '')
+                    .replaceAll('<mes>', class_utils.cons.meses[val.mes]);
+            }else{
+                bar_progress += tmp
+                    .replaceAll('<avance>', ( total_mes_visual / total_departamento * 100 ).toFixed(2))
+                    .replaceAll('<mes>', class_utils.cons.meses[val.mes]);
+            }
         });
         $('#avance_total').html(avance_total.toLocaleString().replaceAll('.', ','));
         $('.progress').html(bar_progress);
