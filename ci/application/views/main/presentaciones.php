@@ -2,6 +2,15 @@
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<h5 class="panel-title">
+				<a href="{base_url('archivos/pdf/50_ANIV_CLASE_PPT_DIC2025.pdf')}" target="_blank">
+                                    <span class="fa fa-file-pdf-o"></span><b> 50 Aniversario de la base de datos CLASE Citas Latinoamericanas en Ciencias Sociales y Humanidades 1975 - 2025</b>
+				</a>
+			</h5>
+		</div>
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h5 class="panel-title">
 				<a href="{base_url('archivos/pdf/50_CLASE_2.pdf')}" target="_blank">
                                     <span class="fa fa-file-pdf-o"></span> Sánchez Pereyra, Antonio (2025, noviembre). <b>Estrategias para ampliar la difusión, alcance y uso de los datos generados por la base de datos CLASE</b>. 50 aniversario de la base de datos CLASE. Dirección General de Bibliotecas y Servicios Digitales de Información(DGBSDI).
 				</a>
