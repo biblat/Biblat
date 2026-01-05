@@ -3,7 +3,7 @@
 		<div class="panel-heading">
 			<h5 class="panel-title">
 				<a href="{base_url('archivos/pdf/50_ANIV_CLASE_PPT_DIC2025.pdf')}" target="_blank">
-                                    <span class="fa fa-file-pdf-o"></span><b> 50 Aniversario de la base de datos CLASE Citas Latinoamericanas en Ciencias Sociales y Humanidades 1975 - 2025</b>
+                                    <span class="fa fa-file-pdf-o"></span> Reyna Espinosa, Felipe Rafael (2025, noviembre). <b>50 Aniversario de la base de datos CLASE Citas Latinoamericanas en Ciencias Sociales y Humanidades 1975 - 2025</b>
 				</a>
 			</h5>
 		</div>
