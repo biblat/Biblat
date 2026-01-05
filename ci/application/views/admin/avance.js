@@ -15,6 +15,7 @@ class_av = {
         revista: {},
         registros:{},
 		anio: null,
+		meta_departamento: {},
         tabla: '<table id="tbl_analistas" class="display responsive nowrap" style="width:100%;font-size:11px">' +
                             '<thead>' +
                                 '<tr>' +
@@ -121,12 +122,29 @@ class_av = {
     ready: function(){
         loading.start();
         class_av.initClient();
+		var anio = (new Date(Date.now())).getFullYear();
+        class_av.var.anio = anio;
+        class_av.var.meta_departamento = {
+            '2024': 30000,
+            '2025': 30958,
+            '2026': 32506
+        };
+        var meta = class_av.var.meta_departamento[anio] ?? 0;
+        var textoMeta = meta
+          ? meta.toLocaleString("es-MX") + ' Registros'
+          : "No definida";
+
+        $('#meta_departamento').html(
+          '<b>Meta del departamento:</b> ' + textoMeta
+        );
     },
     control_admin: function(){
 		$('#btn-anio').off('click').on('click', function(){
             loading.start();
             var anio = (new Date(Date.now())).getFullYear()-1;
             class_av.var.anio = anio;
+			$('#meta_departamento').html('<b>Meta del departamento:</b> '+ class_av.var.meta_departamento[class_av.var.anio].toLocaleString("es-MX") +' Registros');
+			
             $.when(class_utils.getResource('/datos/avance/'+anio),
                 class_utils.getResource('/datos/avance_total/'+anio),
                 class_utils.getResource('/datos/avancepc/'+anio)
@@ -184,6 +202,8 @@ class_av = {
             loading.start();
             var anio = (new Date(Date.now())).getFullYear()-1;
             class_av.var.anio = anio;
+			$('#meta_departamento').html('<b>Meta del departamento:</b> '+ class_av.var.meta_departamento[class_av.var.anio].toLocaleString("es-MX") +' Registros');
+			
             $.when(class_utils.getResource('/datos/avance/'+anio),
                 class_utils.getResource('/datos/avance_total/'+anio),
                 class_utils.getResource('/datos/avancepc/'+anio)
