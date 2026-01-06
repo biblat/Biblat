@@ -87,7 +87,7 @@
         <div class="btn-group" role="group">
         <!-- Split button -->
         <div class="btn-group">
-            <button type="button" class="btn btn-warning" id="btn-filtro-anio" style="width:160px;border-radius:5px">2025</button>
+            <button type="button" class="btn btn-warning" id="btn-filtro-anio" style="width:160px;border-radius:5px">2026</button>
             <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-radius:5px">
             <span class="caret"></span>
             <span class="sr-only">Toggle Dropdown</span>
