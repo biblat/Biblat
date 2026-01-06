@@ -142,7 +142,7 @@ class_av = {
             "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
           ]
     },
-    initClient: function(anio='2025') {
+    initClient: function(anio='2026') {
         $.when(class_utils.getResource('/datos/solicitudes/'+anio),
         ) 
         .then(function(resp_articulos){
