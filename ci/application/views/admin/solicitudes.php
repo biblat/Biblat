@@ -93,6 +93,7 @@
             <span class="sr-only">Toggle Dropdown</span>
             </button>
             <ul class="dropdown-menu" style="border-radius:5px">
+				<li><a class="li-filtro-anio" id="2026">2026</a></li>
                 <li><a class="li-filtro-anio" id="2025">2025</a></li>
                 <li><a class="li-filtro-anio" id="2024">2024</a></li>
                 <li><a class="li-filtro-anio" id="2023">2023</a></li>
