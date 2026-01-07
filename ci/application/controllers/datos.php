@@ -369,10 +369,6 @@ class Datos extends REST_Controller {
                             c.nombre in ('OJS', 'SciELO')
                             and
                             estatus in ('A', 'R')
-							and
-                            "
-                            .$txtAnio.
-                            "
                         )
                         or
                         (
