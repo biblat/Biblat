@@ -1,6 +1,6 @@
 class_cat = {
     cons:{
-        send_pdf: '/api_metametrics/send_indizacion',
+        send_pdf:  "<?= site_url('indizacion/send_indizacion') ?>",
     },
     ready: function(){
         class_cat.control();
@@ -31,6 +31,7 @@ class_cat = {
                         data: formData,
                         contentType: false,  // No enviar cabeceras de tipo
                         processData: false,  // No procesar los datos
+						dataType: "json",
                         success: function(response) {
                             loading.end();
                             $('#resultados').show();
