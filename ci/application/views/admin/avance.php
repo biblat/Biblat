@@ -208,10 +208,41 @@
                     };
 </script>
 
-    <div class="row"><br></div>
-    <center><button type="button" class="btn btn-warning" id="btn-anio" style="width:160px;border-radius:5px">Ver año anterior</button></center>
+    <!--<div class="row"><br></div>-->
+    <!--<center><button type="button" class="btn btn-warning" id="btn-anio" style="width:160px;border-radius:5px">Ver año anterior</button></center>-->
+    
+<div class="row"><br></div>
+
+<div class="row">
+<div class="col-xs-12" id="div-anio" style="">
+    <center>
+        <div class="btn-group" role="group">
+        <!-- Split button -->
+        <div class="btn-group">
+            <button type="button" class="btn btn-warning" id="btn-filtro-anio" style="width:160px;border-radius:5px">2026</button>
+            <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-radius:5px">
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu" style="border-radius:5px">
+                <li><a class="li-filtro-anio" id="2026">2026</a></li>
+                <li><a class="li-filtro-anio" id="2025">2025</a></li>
+                <li><a class="li-filtro-anio" id="2024">2024</a></li>
+                <li><a class="li-filtro-anio" id="2023">2023</a></li>
+                <li><a class="li-filtro-anio" id="2022">2022</a></li>
+                <li><a class="li-filtro-anio" id="2021">2021</a></li>
+                <li><a class="li-filtro-anio" id="2020">2020</a></li>
+                <li><a class="li-filtro-anio" id="2019">2019</a></li>
+            </ul>
+        </div>
+        </div>
+    </center>
+</div>
+</div>
 
 <div class="row"><br></div>
+<div class="row"><br></div>
+
 <center><div class="row" id="meta_departamento"></div></center>
 <div class="row"><br></div>
 <div class="row"><br></div>

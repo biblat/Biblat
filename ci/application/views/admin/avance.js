@@ -139,6 +139,55 @@ class_av = {
         );
     },
     control_admin: function(){
+		$(".li-filtro-anio").off('click').on('click', function(){
+                if($('#btn-filtro-anio').html() !== $(this).html()){
+                    $('#btn-filtro-anio').html($(this).html());
+                    $('#remove').hide();
+                    $('#btn-filtro').html("Filtrar por :");
+                    $('#btn-filtro2').html("Seleccione");
+                    $("#ul-filtro").html("");
+                    loading.start();
+                    var anio =this.id;
+                    class_av.var.anio = anio;
+                    var meta = class_av.var.meta_departamento[anio] ?? 0;
+                    var textoMeta = meta
+                      ? meta.toLocaleString("es-MX") + ' Registros'
+                      : "No definida";
+
+                    $('#meta_departamento').html(
+                      '<b>Meta del departamento:</b> ' + textoMeta
+                    );
+                    
+                    $.when(class_utils.getResource('/datos/avance/'+anio),
+                        class_utils.getResource('/datos/avance_total/'+anio),
+                        class_utils.getResource('/datos/avancepc/'+anio)
+                    ) 
+                    .then(function(resp_analistas, resp_total, resp_avancepc){
+                        class_av.var.analistasJSON = resp_analistas[0];
+                        class_av.var.avance_por_mes = resp_total[0];
+                        class_av.var.avance_pc = resp_avancepc[0];
+                        class_av.setTabla(class_av.var.analistasJSON);
+                        if(cons.rol.val == 'Administrador' || cons.pal_cla.val == '1'){
+                            class_av.setTablaPC(class_av.var.avance_pc);
+                        }
+                        if(cons.rol.val == 'Administrador'){
+                            $('.avance-mes').show();
+                            $('.avance-mes, #avance-actual').css('cursor', 'pointer');
+                            class_av.control_admin();
+                        }else{
+                            $('.avance-mes').show();
+                            $('.avance-mes, #avance-actual').css('cursor', 'pointer');
+                            class_av.control_analista();
+                        }
+                        loading.end();
+                        $('#btn-anio').html('Ver año actual');
+                        $('#btn-anio').off('click').on('click', function(){
+                           window.location.reload(); 
+                        });
+                    });
+                }
+            });
+			
 		$('#btn-anio').off('click').on('click', function(){
             loading.start();
             var anio = (new Date(Date.now())).getFullYear()-1;
@@ -258,7 +307,7 @@ class_av = {
     },
     setTabla: function(data){
         var tbody = '';
-        var total_departamento = 30958;
+        var total_departamento = class_av.var.meta_departamento[class_av.var.anio] ?? 999999999999; //class_av.var.meta_departamento[class_av.var.anio]; //30958;
         var total_meta = 0;
         $.each(data, function(i, val){
             if( val['nombre'] !== 'EDITOR' || cons.rol.val == 'Administrador'){
@@ -296,6 +345,9 @@ class_av = {
                 setTimeout(()=>$(".esperado").after('<div class="firework"></div>'),1000);
                 setTimeout(()=>$(".esperado").after('<div class="firework2"></div>'),2000);
                 setTimeout(()=>$(".esperado").after('<div class="firework3"></div>'),3000);
+            }else{
+                $('#conseguida').hide();
+                 $(".firework, .firework2, .firework3").remove();
             }
 
             if(i%2 !== 0){
