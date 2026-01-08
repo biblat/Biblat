@@ -1,4 +1,6 @@
 <table class="table table-striped">
+	<tr><td><cite>Garrido Villegas, P., Durán Muñoz, E. & Flores Chávez, M. A. (2025). <a href="https://www.ibersid.eu/ojs/index.php/scire/article/view/5084" target="_blank">BibLex. Aplicación práctica de IA y PLN para la asignación de palabras clave en registros de Biblat.</a> Scire: representación y organización del conocimiento, 31(1/2).</cite></td></tr>
+
 	<tr><td><cite>Frías Cienfuegos, L. (13 de noviembre de 2025). <a href="https://www.gaceta.unam.mx/a-la-vanguardia-en-base-de-datos-de-ciencias-sociales-y-humanidades/" target="_blank">El repositorio CLASE cumple medio siglo. A la vanguardia en base de datos de ciencias sociales y humanidades.</a> Gaceta UNAM, (5608), 20.</cite></td></tr>
 
 	<tr><td><cite>Beigel, F., Sánchez Pereyra, A., Alonso-Gamboa, J. O., Salatino, M., Gallardo, O., Ferreira Gonçalves, A., Carrillo Romero, O., Flores Chávez, M. A., Durán Muñoz, E., & Arguello Mendoza, M. G. T. (2023). <a href="{base_url('archivos/pdf/Oliva2.pdf')}" target="_blank">OLIVA-2: las revistas iberoamericanas indexadas en Biblat y Latindex: fuentes fundamentales para conocer la producción científica global.</a> E-Ciencias De La Información, 14(1).</cite></td></tr>
