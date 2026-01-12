@@ -366,13 +366,13 @@ class Datos extends REST_Controller {
                         on a.sistema = c.sistema
                         where 
                         (
-                            c.nombre in ('OJS', 'SciELO')
+                            c.nombre in ('OJS', 'SciELO', 'EDITOR')
                             and
                             estatus in ('A', 'R')
                         )
                         or
                         (
-                            c.nombre <> 'OJS' and c.nombre <> 'SciELO'
+                            c.nombre <> 'OJS' and c.nombre <> 'SciELO' and c.nombre <> 'EDITOR'
                             and
                             estatus in ('C', 'B')
                             and
@@ -465,7 +465,7 @@ class Datos extends REST_Controller {
 							and 
 							c.id=2
 							and
-							c.nombre <> 'OJS' and c.nombre <> 'SciELO'
+							c.nombre <> 'OJS' and c.nombre <> 'SciELO' and c.nombre <> 'EDITOR'
 							and
                             "
                             .$txtAnio.
@@ -479,7 +479,7 @@ class Datos extends REST_Controller {
 							and
 							c.id = 1
 							and
-							c.nombre <> 'OJS' and c.nombre <> 'SciELO'
+							c.nombre <> 'OJS' and c.nombre <> 'SciELO' and c.nombre <> 'EDITOR'
                             and
                             "
                             .$txtAnio.
