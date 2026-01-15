@@ -359,7 +359,7 @@ class Datos extends REST_Controller {
                     with registros as (
                         select 
                         distinct a.sistema,
-                        asignado, estatus, nombre
+                        case when asignado is null then nombre else asignado end asignado, estatus, nombre
                         from article a
                         inner join
                         catalogador c
@@ -380,12 +380,26 @@ class Datos extends REST_Controller {
                             .$txtAnio.
                             "
                         )
+                        or
+                        (
+                            estatus is null
+                            and
+                            c.nombre is not null
+                            and
+                            c.id = 1
+                            and
+                            c.nombre <> 'OJS' and c.nombre <> 'SciELO' and c.nombre <> 'EDITOR'
+                            and
+                            "
+                            .$txtAnio.
+                            "
+                        )
                     )
                     select 
                         r.asignado analista, max(r.nombre) nombre,
                         (select count(1) from registros where asignado = r.asignado) total,
                         (select count(1) from registros where asignado = r.asignado and estatus ='R') revision,
-                        (select count(1) from registros where asignado = r.asignado and estatus ='C') completados,
+                        (select count(1) from registros where asignado = r.asignado and estatus ='C') + (select count(1) from registros where asignado = r.asignado and estatus is null)completados,
                         (select count(1) from registros where asignado = r.asignado and estatus ='B') borrados
                     from registros r
                     group by r.asignado
