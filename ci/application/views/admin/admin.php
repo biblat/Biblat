@@ -19,6 +19,14 @@
                 </center>
             </a>
         </div>
+		<div class="col-xs-4">
+            <a href="<?=site_url("adminb/importaZIP");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
+                <br><br>
+                <center>
+                    <i class="fa fa-file-zip-o" style="font-size:100px"></i><br><br><span style="font-weight: bold">Importar PDF desde ZIP</span>
+                </center>
+            </a>
+        </div>
         <div class="col-xs-4">
             <a href="<?=site_url("adminb/asigna");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
                 <br><br>
