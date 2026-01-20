@@ -260,6 +260,23 @@ class Adminb extends CI_Controller {
         }
     }
 	
+	public function importaZIP(){
+        if($this->session->userdata('usuario') && $this->session->userdata('rol') == 'Administrador'){
+            $this->template->set_breadcrumb(_('Menú Administrador'), site_url('adminb'));
+            $this->template->set_breadcrumb(_('Importar desde ZIP'));
+            $data = array();
+            $data['page_title'] = _('Importar desde ZIP');
+            $this->template->set_layout('default_sel');
+            $this->template->title(_('Importar desde ZIP'));
+            $data['page_subtitle'] = $this->session->userdata('nombre');
+            $this->template->set_meta('description', _('Importar desde ZIP'));
+            $this->template->set_partial('main_js', 'admin/admin.js', array(), TRUE, FALSE);
+            $this->template->build('admin/importar_pdf', $data);
+        }else{
+            redirect('main');
+        }
+    }
+	
 	public function solicitudes(){
         if($this->session->userdata('usuario')){
             $this->template->set_breadcrumb(_('Menú '.$this->session->userdata('rol')), site_url('adminb'));
