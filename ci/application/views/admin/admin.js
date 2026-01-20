@@ -5,6 +5,7 @@ class_admin = {
         option_oai: '<option value="<url>"><revista></option>',
         get_oai: '/api_metametrics/get_oai?oai=<oai>&years=<years>',
 		send_xml: '/api_metametrics/send_xml?oai=<oai>&years=<years>',
+		send_zip: '/api_metametrics/send_zip',
         //td_num: '<a href="#" id="<anio>__<num>" class="thumbnail" style="color:#fff; background-color: #f0ad4e; border-color: #eea236; width:100px; text-align:center"><num></a>',
         td_num: '<button type="button" class="btn btn-warning nums" id="<anio>__<num>"><num></button>',
         idiomas: {
