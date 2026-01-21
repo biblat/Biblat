@@ -379,7 +379,7 @@ class_admin = {
                                     processData: false,  // No procesar los datos
                                     success: function(response) {
                                         loading.end();
-                                        $('#mensajeFin').html('<b>'+response+'</b>');
+                                        $('#mensajeFin').html('<b>Se ingresaron '+response.ok+" PDF's correctamente</b>");
                                     },
                                     error: function(xhr, status, error) {
                                         $('#mensajeFin').html('Error al procesar el archivo');
