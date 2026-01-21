@@ -72,7 +72,8 @@ class_asi = {
                                     }
                                 }
                             });
-                            
+							
+                            options_rev.sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base', numeric: true }));
                             options_anio = options_anio.join(' ');
                             options_rev = options_rev.join(' ');
                             
