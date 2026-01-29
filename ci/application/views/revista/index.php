@@ -70,6 +70,10 @@
                     </div>
                     {/if}
                 </div>
+				<div class="col-xs-12 col-md-12 badge-wrap"><br><br></div>
+                <div class="col-xs-12 col-md-12 badge-wrap">
+                    <div class="sdg-wheel" data-wheel-height="120" data-model="aurora-sdg-multi" data-text="{$resultado.resumen}"></div>
+                </div>
                 </div>
           </td>
           <td class="nowrap text-right">
@@ -84,3 +88,4 @@
       {$links}
     </div>
 {/if}
+<script src="{base_url('assets/js/widget-aurora.js')}" type="text/javascript"></script>
