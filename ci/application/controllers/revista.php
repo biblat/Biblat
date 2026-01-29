@@ -46,7 +46,7 @@ class Revista extends CI_Controller{
 
 		/*Paginación y resultados*/
 		$paginationURL = site_url("/revista/{$revistaSlug}");
-		$perPage = 20;
+		$perPage = 10;
 		$articulosResultado = articulosResultado($query, $queryCount, $paginationURL, $perPage);
 		/*Resultados de la página*/
 		$data['main']['links'] = $articulosResultado['links'];
