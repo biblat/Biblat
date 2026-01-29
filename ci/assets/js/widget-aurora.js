@@ -149,6 +149,31 @@
         if (!model) {
           model = 'aurora-sdg-multi';
         }
+        
+        var loading = document.createElement('div');
+        loading.className = 'sdg-loading';
+        loading.style.display = 'flex';
+        loading.style.alignItems = 'center';
+        loading.style.justifyContent = 'center';
+        loading.style.gap = '10px';
+        loading.style.marginTop = '6px';
+
+        var icon_load = document.createElement('i');
+        icon_load.className = 'fa fa-circle-o-notch fa-pulse';
+        icon_load.style.color = '#c83e20';
+        icon_load.style.fontSize = '50px'; // ajusta tamaño
+
+        var text_load = document.createElement('span');
+        text_load.textContent = 'Generando clasificación SDG';
+        text_load.style.fontWeight = '600';
+        text_load.style.minWidth = '300px';   // o lo que te convenga
+        text_load.style.textAlign = 'left';
+        text_load.style.lineHeight = '1.1';
+
+        loading.appendChild(icon_load);
+        loading.appendChild(text_load);
+        div.appendChild(loading);
+        
         var canvas = document.createElement('canvas')
         console.log(height)
         div.style.maxWidth = height + 'px'
@@ -163,6 +188,7 @@
         div.id = 'sdg-wheel-div-' + i
         legendDiv.style.opacity = '0'
         div.appendChild(legendDiv)
+        
         div.onmouseenter = function () {$(this).children("div")[0].style.opacity = 1}
         div.onmouseleave = function () {$(this).children("div")[0].style.opacity = 0}
         let url = 'https://aurora-sdg.labs.vu.nl/classifier/classify/' + model;
@@ -177,6 +203,10 @@
             return response.json();
           })
           .then((data) => {
+              
+            // Quita loading cuando ya se creó el chart (y la leyenda se generará enseguida)
+            loading.remove();
+            
             let predictionResponse = data;
 
             let predictions = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
