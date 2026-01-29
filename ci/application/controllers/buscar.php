@@ -79,6 +79,7 @@ class Buscar extends CI_Controller{
 						 url->>0 AS url,
 						 \"autoresJSON\",
 						 \"institucionesJSON\",
+						resumen,
 			 regexp_replace(regexp_replace(doi,'[^a-z0-9]*$',''),'^[^a-z0-9]*','') doi";
 				 $queryFrom="FROM \"mvSearch_all\" s
 						 WHERE  sistema in (".$response.")";
