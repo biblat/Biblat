@@ -261,7 +261,7 @@ class Buscar extends CI_Controller{
 			$paginationURL = site_url(preg_replace('%[/]+%', '/',"buscar/{$filtro}/{$disciplina['slug']}/{$slug}"));
 			$data['main']['paginationURL'] = $paginationURL;
 		endif;
-		$perPage = 20;
+		$perPage = 10;
 		
 		if (strpos($query, 'generalSlug') !== false) {
 			$patron = "/'.*?%.{0,3}%.*?'/";
