@@ -7,6 +7,12 @@
 ></script>
 <script type="application/javascript" src="https://cdn.scite.ai/badge/scite-badge-latest.min.js"
 ></script>
+
+<style>
+.badge-wrap { text-align: center; }          /* centra el bloque .sdg-wheel */
+.badge-wrap .sdg-wheel { display: inline-block; text-align: left; } 
+</style>
+
 <!--script type='text/javascript' src='https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js'
         integrity="sha384-kQwM9aWQ+qWNNJ9liZrb3bFFYTCQq0gAv2Con2NYBby0to4SKT13fcBCCT21ZSC5"
         crossorigin="anonymous"
