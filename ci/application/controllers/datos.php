@@ -546,7 +546,7 @@ class Datos extends REST_Controller {
                         (
                             estatus in (\'A\', \'R\')
                             and 
-                            c.nombre in (\'OJS\', \'SciELO\')
+                            c.nombre in (\'OJS\', \'SciELO\', \'EDITOR\')
                         )
                         or
                         (
@@ -556,7 +556,7 @@ class Datos extends REST_Controller {
                             "estatusPC" in (\'A\', \'C\')
                             )
                             and
-                            c.nombre <> \'OJS\' and c.nombre <> \'SciELO\'
+                            c.nombre <> \'OJS\' and c.nombre <> \'SciELO\' and c.nombre <> \'EDITOR\'
                             and
                             extract(year from c.fecha) = extract(year from CURRENT_DATE)
                         )
