@@ -116,6 +116,9 @@ class_ver = {
                 /^editorial./,
                 /^expediente\s*\(/,
                 /^tesis/,
+				/el país que quieren los dueños/,
+                /democracia y capitalismo periférico/,
+                /argentina en disputa/
             ],
             'contenido_indizable' : [
                 /^reseña$/,
