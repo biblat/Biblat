@@ -18,6 +18,46 @@ class Revista extends CI_Controller{
 			);
 
 	public function index($revistaSlug){
+		
+		$ip = $this->get_ip(); // Obtener la IP del visitante
+
+		// Lista de prefijos de IP denegadas
+		$denied_ips = unserialize(IPsBlock);
+
+		// Lista de IPs permitidas
+		$pass_ips = [
+			"148.204.63.19",
+			"148.204.63.195"
+		];
+
+		$blocked = false;
+
+		foreach ($denied_ips as $prefix) {
+			if (strpos($ip, $prefix) === 0) { // Si la IP empieza con un prefijo denegado
+				// Verificamos si está en las excepciones
+				$is_exception = false;
+				foreach ($pass_ips as $pass) {
+					if (strpos($ip, $pass) === 0) {
+						$is_exception = true;
+						break;
+					}
+				}
+
+				if (!$is_exception) {
+					$blocked = true;
+					break;
+				}
+			}
+		}
+
+		if ($blocked) {
+			redirect('error');
+		}else{
+			$this->insertIP();
+		}
+		
+		
+		
 		$data = array();
 		/*Obteniendo articulos de la revista*/
 		$queryFields="SELECT
