@@ -778,16 +778,15 @@ class Revista extends CI_Controller{
 	}
 	
 	public function reviewIP($pagina){
-            $this->insertIP($pagina);
-                
-			$ip = $this->get_ip(); // Obtener la IP del visitante
+            $ip = $this->get_ip(); // Obtener la IP del visitante
 
 			// Lista de prefijos de IP denegadas
 			$denied_ips = unserialize(IPsBlock);
 
 			// Lista de IPs permitidas
 			$pass_ips = [
-				"148.204.63.19"
+				"148.204.63.19",
+				"148.204.63.195"
 			];
 
 			$blocked = false;
@@ -811,8 +810,9 @@ class Revista extends CI_Controller{
 			}
 
 			if ($blocked) {
-				$this->insertIP('bloqueo ' . $pagina);
-				redirect('main');
+				redirect('error');
+			}else{
+				$this->insertIP();
 			}
     }
 }
