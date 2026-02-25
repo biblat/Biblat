@@ -4575,18 +4575,20 @@ class_av = {
         
         $.each(campos, function(i, val){
             var texto = $(val.e).val();
-            if( texto == undefined || texto == null ){
-                error = val.c;
-                return false;
-            }else{
-                if(typeof(texto) !== 'object'){
-                    texto = texto.trim();
-                    if(texto == ''){
-                        error = val.c;
-                        return false;
-                    }
-                }
-            }
+			if( (class_av.var.documentoJSON[0].fechaAsignado !== null && val.e == '#url1')){
+				if( texto == undefined || texto == null ){
+					error = val.c;
+					return false;
+				}else{
+					if(typeof(texto) !== 'object'){
+						texto = texto.trim();
+						if(texto == ''){
+							error = val.c;
+							return false;
+						}
+					}
+				}
+			}
         });
 		
 		if( $('#tipo_documento').val() == 'Errata' ){
