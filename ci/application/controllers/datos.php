@@ -763,6 +763,7 @@ class Datos extends REST_Controller {
                             
                             "notaGeneral",
                             "sistemaErrata",
+							"fechaAsignado",
                             (Select a2.articulo from article a2 where a2.sistema = a1."sistemaErrata") original,
                             (Select a2."notaGeneral" from article a2 where a2.sistema = a1."sistemaErrata") nota_original,
                             
