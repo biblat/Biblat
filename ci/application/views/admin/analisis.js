@@ -5253,37 +5253,16 @@ class_av = {
                     class_av.var.keywords += class_av.cons.option_badge.replace('<valor>', val.valor).replace('<opcion>', val.valor).replace('<num>', val.num);
                 });
 				
-				if(resp_pdf !== undefined){
-					if( resp_pdf.disciplinas !== undefined){
-						if( resp_pdf.disciplinas[0] !== undefined && $('#disciplina1').val() == '' ){
-							$('#disciplina1').val(resp_pdf.disciplinas[0]);
-							$('#disciplina1').change();
-						}
-						if( resp_pdf.disciplinas[1] !== undefined && $('#disciplina2').val() == ''){
-							$('#disciplina2').val(resp_pdf.disciplinas[1]);
-							$('#disciplina2').change();
-						}
-						if( resp_pdf.disciplinas[2] !== undefined && $('#disciplina3').val() == ''){
-							$('#disciplina3').val(resp_pdf.disciplinas[2]);
-							$('#disciplina3').change();
-						}
-					}
-
-					if( resp_pdf.idioma !== undefined ){
-						$('#idioma').val(resp_pdf.idioma);
-						$('#idioma').change();
-					}
-
-                var palabras_doc = [];
+				var palabras_doc = [];
                 var agrega = [];
                 var revisa_palabras = [];
-
-                if (class_av.var.documentoJSON[0].palabraClave !== undefined && class_av.var.documentoJSON[0].palabraClave !== null && class_av.var.documentoJSON[0].palabraClave !== ''){
+                
+                if ( (class_av.var.documentoJSON[0].palabraClave !== undefined && class_av.var.documentoJSON[0].palabraClave !== null && class_av.var.documentoJSON[0].palabraClave !== '') && class_av.var.documentoJSON[0].fechaAsignado == null){
                     palabras_doc = JSON.parse(class_av.var.documentoJSON[0].palabraClave);
                     palabras_doc = [...new Set(palabras_doc)];
                     revisa_palabras = JSON.parse(class_av.var.documentoJSON[0].palabraClave);
                     revisa_palabras = [...new Set(revisa_palabras)];
-                    $('#div_palabras_clave_texto').show();
+                    //$('#div_palabras_clave_texto').show();
                     $('#div_palabras_clave_autor').show();
                     var html = '';
                     $.each(palabras_doc, function(i, val){
@@ -5315,8 +5294,63 @@ class_av = {
                         }
                     });
                     $('#palabras_clave_autores').html(html);
+                    palabras_doc = palabras_doc.concat(agrega);
+                }else{
+                    $('#div_palabras_clave_autor').hide();
+                    $('#palabras_clave_autores').html('');
+                }
+				
+				if(resp_pdf !== undefined){
+					if( resp_pdf.disciplinas !== undefined){
+						if( resp_pdf.disciplinas[0] !== undefined && $('#disciplina1').val() == '' ){
+							$('#disciplina1').val(resp_pdf.disciplinas[0]);
+							$('#disciplina1').change();
+						}
+						if( resp_pdf.disciplinas[1] !== undefined && $('#disciplina2').val() == ''){
+							$('#disciplina2').val(resp_pdf.disciplinas[1]);
+							$('#disciplina2').change();
+						}
+						if( resp_pdf.disciplinas[2] !== undefined && $('#disciplina3').val() == ''){
+							$('#disciplina3').val(resp_pdf.disciplinas[2]);
+							$('#disciplina3').change();
+						}
+					}
+
+					if( resp_pdf.idioma !== undefined ){
+						$('#idioma').val(resp_pdf.idioma);
+						$('#idioma').change();
+					}
+				
+				/*
+                var palabras_doc = [];
+                var agrega = [];
+                var revisa_palabras = [];
+
+                if (class_av.var.documentoJSON[0].palabraClave !== undefined && class_av.var.documentoJSON[0].palabraClave !== null && class_av.var.documentoJSON[0].palabraClave !== ''){
+                    palabras_doc = JSON.parse(class_av.var.documentoJSON[0].palabraClave);
+                    palabras_doc = [...new Set(palabras_doc)];
+                    revisa_palabras = JSON.parse(class_av.var.documentoJSON[0].palabraClave);
+                    revisa_palabras = [...new Set(revisa_palabras)];
+                    $('#div_palabras_clave_texto').show();
+                    $('#div_palabras_clave_autor').show();
+                    var html = '';
+                    $.each(palabras_doc, function(i, val){
+                        var busca = class_utils.find_prop(class_av.var.palabras_clave0,'valor',val);
+                        //busca si existe en las palabras para cambiar o si ya es una de las adecuadas
+                        var adecuada = class_utils.find_prop(resp_sustituye,'palabra',val);
+                        var adecuada_bloqueada = class_utils.find_prop(resp_sustituye,'palabra_adecuada',val);
+                        var cons_palabra_clave = class_av.cons.palabra_clave;
+                        
+                        if(busca !== undefined){
+                            html += cons_palabra_clave.replaceAll('<palabra>', val).replaceAll('<num>', busca.num).replaceAll('<palabra-slug>', 'a-'+class_utils.slug(val));
+                        }else{
+                            html += cons_palabra_clave.replaceAll('<palabra>', val).replaceAll('<num>', '0').replaceAll('<palabra-slug>', 'a-'+class_utils.slug(val));
+                        }
+                    });
+                    $('#palabras_clave_autores').html(html);
                 }
                 palabras_doc = palabras_doc.concat(agrega);
+				*/
 
                 $('#div_palabras_clave').show();
                 var palabras_pdf=[];
