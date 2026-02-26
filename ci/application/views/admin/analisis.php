@@ -466,17 +466,17 @@
                             </div>
                         </div>
                         
-						<div class="row" id="div_palabras" style="display:none">
-                            <br>
-                            <div class="col-xs-12">
-                                <span><b>Palabras clave:</b></span><br>
-                            </div>
-                        </div>
-                        <div class="row" id="div_palabras_clave_autor" style="display:none">
+						<div class="row" id="div_palabras_clave_autor" style="display:none">
                             <br>
                             <div class="col-xs-12">
                                 <span><b>Palabras clave guardadas:</b></span><br>
                                 <span id="palabras_clave_autores"></span>
+                            </div>
+                        </div>
+						<div class="row" id="div_palabras" style="display:none">
+                            <br>
+                            <div class="col-xs-12">
+                                <span><b>Palabras clave:</b></span><br>
                             </div>
                         </div>
                         <div class="row" id="div_palabras_clave" style="display:none">
