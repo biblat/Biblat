@@ -4466,6 +4466,7 @@ class_av = {
             obj['ciudadEditora'] = (datosRevista.length !== 1)?null:datosRevista[0][7];
             obj['institucionEditora'] = (datosRevista.length !== 1)?null:datosRevista[0][8];
             obj['base'] = (datosRevista.length !== 1)?null:datosRevista[0][1];
+			obj['disciplinaRevista'] = (datosRevista.length !== 1)?null:datosRevista[0][2];
             
             var anio = revista_sel.split('#')[1].trim();
             obj['anioRevista'] = anio;
