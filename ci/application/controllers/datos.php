@@ -695,6 +695,11 @@ class Datos extends REST_Controller {
                             else
                                     null
                             end "Resumen portugués",
+							case when resumen->>\'o\' is not null then
+                                    resumen->>\'o\'
+                            else
+                                    null
+                            end "Resumen otro",
 
                             case when disciplinas->>0 is not null then
                                     disciplinas->>0

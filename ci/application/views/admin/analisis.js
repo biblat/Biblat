@@ -897,6 +897,11 @@ class_av = {
                         $('#url2').val(class_av.var.documentoJSON[0].url2);
                         $("#tipourl1").val(class_av.var.documentoJSON[0].tipourl1);
                         $("#tipourl2").val(class_av.var.documentoJSON[0].tipourl2);
+						
+						$('#resumen_esp').val(class_av.var.documentoJSON[0]['Resumen español']);
+                        $('#resumen_ing').val(class_av.var.documentoJSON[0]['Resumen inglés']);
+                        $('#resumen_por').val(class_av.var.documentoJSON[0]['Resumen portugués']);
+                        $('#resumen_otro').val(class_av.var.documentoJSON[0]['Resumen otro']);
 
                         class_av.control_aa(class_av.var.documentoJSON[0].estatusPC, class_av.var.documentoJSON[0].fechaAsignado);
 
@@ -3191,9 +3196,9 @@ class_av = {
                 arrArt.push({a: titulo3, y: idioma3});
             }
             
-            var arrResumenes = [];
+            var arrResumenes = {};
             var idiomaResumen = null;
-            if(cons.rol.val == 'Editor'){
+            if(cons.rol.val == 'Editor' || cons.rol.val == 'Analista'){
                 var resumen_esp = $('#resumen_esp').val();
                 var resumen_ing = $('#resumen_ing').val();
                 var resumen_por = $('#resumen_por').val();
@@ -3203,11 +3208,11 @@ class_av = {
                 resumen_por = class_av.limpia(resumen_por);
                 resumen_otro = class_av.limpia(resumen_otro);
                 if(resumen_esp){
-                    arrResumenes.push({a: resumen_esp});
+                    objResumenes['a'] = resumen_esp;
                     idiomaResumen = 'Español';
                 }
                 if(resumen_ing){
-                    arrResumenes.push({i: resumen_ing});
+                    objResumenes['i'] = resumen_ing;
                     if(idiomaResumen == null){
                         idiomaResumen = 'Inglés';
                     }else{
@@ -3215,7 +3220,7 @@ class_av = {
                     }
                 }
                 if(resumen_por){
-                    arrResumenes.push({p: resumen_por});
+                    objResumenes['p'] = resumen_por;
                     if(idiomaResumen == null){
                         idiomaResumen = 'Portugués';
                     }else{
@@ -3223,14 +3228,14 @@ class_av = {
                     }
                 }
                 if(resumen_otro){
-                    arrResumenes.push({o: resumen_otro});
+                    objResumenes['o'] = resumen_otro;
                     if(idiomaResumen == null){
                         idiomaResumen = 'Otro';
                     }else{
                         idiomaResumen = idiomaResumen + ', otro';
                     }
                 }
-                if(arrResumenes.length > 0){
+                if (Object.keys(objResumenes).length > 0) {
                     obj['resumen'] = JSON.stringify(arrResumenes);
                     obj['idiomaResumen'] = idiomaResumen;
                 }else{
