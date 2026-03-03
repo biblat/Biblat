@@ -3196,7 +3196,7 @@ class_av = {
                 arrArt.push({a: titulo3, y: idioma3});
             }
             
-            var arrResumenes = {};
+            var objResumenes = {};
             var idiomaResumen = null;
             if(cons.rol.val == 'Editor' || cons.rol.val == 'Analista'){
                 var resumen_esp = $('#resumen_esp').val();
