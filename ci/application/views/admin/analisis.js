@@ -4589,7 +4589,7 @@ class_av = {
         
         $.each(campos, function(i, val){
             var texto = $(val.e).val();
-			if( (class_av.var.documentoJSON[0].fechaAsignado !== null && val.e == '#url1')){
+			if( class_av.var.documentoJSON[0].fechaAsignado !== null || ( class_av.var.documentoJSON[0].fechaAsignado == null && val.e !== '#url1' && val.e !== '#tipourl1') ){
 				if( texto == undefined || texto == null ){
 					error = val.c;
 					return false;
