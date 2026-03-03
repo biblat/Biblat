@@ -3236,7 +3236,7 @@ class_av = {
                     }
                 }
                 if (Object.keys(objResumenes).length > 0) {
-                    obj['resumen'] = JSON.stringify(arrResumenes);
+                    obj['resumen'] = JSON.stringify(objResumenes);
                     obj['idiomaResumen'] = idiomaResumen;
                 }else{
                     obj['resumen'] = null;
