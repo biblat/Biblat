@@ -4593,7 +4593,12 @@ class_av = {
 				if( texto == undefined || texto == null ){
 					error = val.c;
 					return false;
-				}else{
+				}else if(Array.isArray(texto)){
+                    if(texto.length == 0){
+                        error = val.c;
+                        return false;
+                    }
+                }else{
 					if(typeof(texto) !== 'object'){
 						texto = texto.trim();
 						if(texto == ''){
