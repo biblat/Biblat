@@ -4568,6 +4568,7 @@ class_av = {
                 obj2['anioRevista'] = obj['anioRevista'];
                 obj2['base'] = obj['base'];
                 obj2['fechaIngreso'] = obj['fechaIngreso'];
+				obj2['disciplinaRevista'] = obj['disciplinaRevista'];
                 
                 var p_ini = $('#de_na-'+num).val().trim();
                 var p_fin = $('#a_na-'+num).val().trim();
