@@ -4218,6 +4218,16 @@ class_av = {
                                     ids.push('#'+this.id);
                                 });
                                 $('#palabras_clave_n').html(html);
+								
+								if(class_av.var.count_palabras_clave == 10){
+                                    class_av.mensaje('El número máximo de palabras clave son 10');
+                                }else{
+                                    $('#n-'+class_utils.slug(name)).removeClass('badge-secondary');
+                                    $('#n-'+class_utils.slug(name)).addClass('badge-warning');
+                                    $('#n-'+class_utils.slug(name)).css('background-color', '#ff8000');
+                                    class_av.var.count_palabras_clave ++;
+                                }
+								
                                 $('.esp.palabra_clave').off('click').on('click', function(){
                                     if( $(this).hasClass('badge-secondary') ){
                                         if(class_av.var.count_palabras_clave == 10){
