@@ -21,7 +21,8 @@ class_av = {
                                 '<tr>' +
                                     '<th rowspan="1">Analista</th>' +
                                     '<th rowspan="1">En revisión</th>' +
-                                    '<th rowspan="1">Completados</th>' +
+                                    '<th rowspan="1">Completados (Cosecha)</th>' +
+                                    '<th rowspan="1">Completados (Manual)</th>' +
                                     '<th rowspan="1">Borrados</th>' +
                                     '<th rowspan="1">Total</th>' +
                                     '<th rowspan="1">% Avance</th>' +
@@ -40,7 +41,7 @@ class_av = {
                                 '</tr>'+
                             '</thead>' +
                             '<tbody id="body_revistas"><body></tbody></table>',
-        tr: '<tr><td><usuario></td><td><rev></td><td><comp></td><td><borr></td><td><total></td><td><av></td><td><meta></td></tr>',
+        tr: '<tr><td><usuario></td><td><rev></td><td><comp></td><td><comp_m></td><td><borr></td><td><total></td><td><av></td><td><meta></td></tr>',
 		trPC: '<tr><td><usuario></td><td><rev></td><td><comp></td><td><total></td><td><av></td></tr>',
         tabla_prod: '<table id="tbl_produccion" class="display responsive nowrap" style="width:50%;font-size:11px">' +
                             '<thead>' +
@@ -359,14 +360,15 @@ class_av = {
         var total_meta = 0;
         $.each(data, function(i, val){
             if( val['nombre'] !== 'EDITOR' || cons.rol.val == 'Administrador'){
-                var num = parseInt(val['revision']) + parseInt(val['completados']) + parseInt(val['borrados']);
-                var num2 = parseInt(val['completados']);
+                var num = parseInt(val['revision']) + parseInt(val['completados']) + parseInt(val['completados_manual']) + parseInt(val['borrados']);
+                var num2 = parseInt(val['completados']) + parseInt(val['completados_manual']);
                 var avance =  (num - parseInt(val['revision'])) / parseInt(val['total']);
                 var meta = num2 / total_departamento;
                 total_meta += num2;
                 var tr = class_av.var.tr.replace('<usuario>', val['analista'])
                                 .replace('<rev>', val['revision'])
                                 .replace('<comp>', val['completados'])
+								.replace('<comp_m>', val['completados_manual'])
                                 .replace('<borr>', val['borrados'])
                                 .replace('<total>', val['total'])
                                 .replace('<av>', ( avance * 100 ).toFixed(2) + ' %' )
@@ -434,7 +436,7 @@ class_av = {
                                     //Sustituye el valor de la celda por esto agregando un div para que se mantenga dentro del tamaño definido
                                     return '<div style="width: 100%; text-align: left; white-space: normal;">' + data + '</div>';
                                 },
-                                targets: [0,1,2,3,4,5,6]
+                                targets: [0,1,2,3,4,5,6,7]
                             }
                         ],
                         //Reajusta el ancho de las columnas
