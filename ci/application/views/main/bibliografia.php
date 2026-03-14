@@ -1,4 +1,6 @@
 <table class="table table-striped">
+	<tr><td><cite>Zetter Leal, J. (16 de febrero de 2026). <a href="https://www.gaceta.unam.mx/la-ia-transforma-servicios-bibliotecarios-y-acceso-al-conocimiento/" target="_blank">La IA transforma servicios bibliotecarios y acceso al conocimiento.</a> Gaceta UNAM.</cite></td></tr>
+	
 	<tr><td><cite>Garrido Villegas, P., Durán Muñoz, E. & Flores Chávez, M. A. (2025). <a href="https://www.ibersid.eu/ojs/index.php/scire/article/view/5084" target="_blank">BibLex. Aplicación práctica de IA y PLN para la asignación de palabras clave en registros de Biblat.</a> Scire: representación y organización del conocimiento, 31(1/2).</cite></td></tr>
 
 	<tr><td><cite>Frías Cienfuegos, L. (13 de noviembre de 2025). <a href="https://www.gaceta.unam.mx/a-la-vanguardia-en-base-de-datos-de-ciencias-sociales-y-humanidades/" target="_blank">El repositorio CLASE cumple medio siglo. A la vanguardia en base de datos de ciencias sociales y humanidades.</a> Gaceta UNAM, (5608), 20.</cite></td></tr>
