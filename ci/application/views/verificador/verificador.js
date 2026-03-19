@@ -99,6 +99,7 @@ class_ver = {
                 /^content$/,
                 /^directorio$/,
                 /^directory$/,
+				/^revista\s*cuestiones\s*económicas$/,
             ],
             'titulo_parcial' : [
                 /in\s*memóriam/,
@@ -118,7 +119,8 @@ class_ver = {
                 /^tesis/,
 				/el país que quieren los dueños/,
                 /democracia y capitalismo periférico/,
-                /argentina en disputa/
+                /argentina en disputa/,
+				/revista completa/
             ],
             'contenido_indizable' : [
                 /^reseña$/,
