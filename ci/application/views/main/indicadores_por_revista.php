@@ -46,7 +46,7 @@
                                     </div>
 				    <div class="form-group">
   					<label for="comment">{_('Código HTML')}</label>
-					<textarea class="form-control codehtml" rows="10" readonly style="resize: none; height: 50px"><div style="width:200px"><a href="{site_url('indicadores/indice-coautoria/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><img src="{site_url('indicadores/indice-coautoria/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug/preview.png')}"></a></div></textarea>
+					<textarea class="form-control codehtml" rows="10" readonly style="resize: none; height: 50px"><div style="width:200px"><a href="{site_url('indicadores/indice-coautoria/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><img style="width:200px" src="{site_url('indicadores/indice-coautoria/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug/preview.png')}"></a></div></textarea>
 				    </div>
                                     <button class="btn copy-code">
                                     <div id="code">Copiar código</div>
@@ -104,7 +104,7 @@
                                     </div>
 				    <div class="form-group">
   					<label for="comment">{_('Código HTML')}</label>
-					<textarea class="form-control codehtml" rows="10" readonly style="resize: none; height: 50px"><div style="width:200px"><a href="{site_url('indicadores/frecuencias-institucion-documento/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><img src="{site_url('indicadores/frecuencias-institucion-documento/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug/preview.png')}"></a></div></textarea>
+					<textarea class="form-control codehtml" rows="10" readonly style="resize: none; height: 50px"><div style="width:200px"><a href="{site_url('indicadores/frecuencias-institucion-documento/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><img style="width:200px" src="{site_url('indicadores/frecuencias-institucion-documento/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug/preview.png')}"></a></div></textarea>
 				    </div>
                                     <button class="btn copy-code">
                                     <div id="code">Copiar código</div>
@@ -120,7 +120,7 @@
                                     </div>
 				    <div class="form-group">
   					<label for="comment">{_('Código HTML')}</label>
-					<textarea class="form-control codehtml" rows="10" readonly style="resize: none; height: 50px"><div style="width:200px"><a href="{site_url('indicadores/frecuencias-institucion-documentoh/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><img src="{site_url('indicadores/frecuencias-institucion-documentoh/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug/preview.png')}"></a></div></textarea>
+					<textarea class="form-control codehtml" rows="10" readonly style="resize: none; height: 50px"><div style="width:200px"><a href="{site_url('indicadores/frecuencias-institucion-documentoh/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><img style="width:200px" src="{site_url('indicadores/frecuencias-institucion-documentoh/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug/preview.png')}"></a></div></textarea>
 				    </div>
                                     <button class="btn copy-code">
                                     <div id="code">Copiar código</div>
@@ -136,7 +136,7 @@
                                     </div>
 				    <div class="form-group">
   					<label for="comment">{_('Código HTML')}</label>
-					<textarea class="form-control codehtml" rows="10" readonly style="resize: none; height: 50px"><div style="width:200px"><a href="{site_url('indicadores/coautoria-pais/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><img src="{site_url('indicadores/coautoria-pais/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug/preview.png')}"></a></div></textarea>
+					<textarea class="form-control codehtml" rows="10" readonly style="resize: none; height: 50px"><div style="width:200px"><a href="{site_url('indicadores/coautoria-pais/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><img style="width:200px" src="{site_url('indicadores/coautoria-pais/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug/preview.png')}"></a></div></textarea>
 				    </div>
                                     <button class="btn copy-code">
                                     <div id="code">Copiar código</div>
@@ -152,7 +152,7 @@
                                     </div>
 				    <div class="form-group">
   					<label for="comment">{_('Código HTML')}</label>
-					<textarea class="form-control codehtml" rows="10" readonly style="resize: none; height: 50px"><div style="width:200px"><a href="{site_url('indicadores/productividad-exogena/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><img src="{site_url('indicadores/productividad-exogena/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug/preview.png')}"></a></div></textarea>
+					<textarea class="form-control codehtml" rows="10" readonly style="resize: none; height: 50px"><div style="width:200px"><a href="{site_url('indicadores/productividad-exogena/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><img style="width:200px" src="{site_url('indicadores/productividad-exogena/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug/preview.png')}"></a></div></textarea>
 				    </div>
                                     <button class="btn copy-code">
                                     <div id="code">Copiar código</div>
@@ -168,7 +168,7 @@
                                     </div>
 				    <div class="form-group">
   					<label for="comment">{_('Código HTML')}</label>
-					<textarea class="form-control codehtml" rows="10" readonly style="resize: none; height: 50px"><div style="width:200px"><a href="{site_url('indicadores/productividad-exogenah/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><img src="{site_url('indicadores/productividad-exogenah/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug/preview.png')}"></a></div></textarea>
+					<textarea class="form-control codehtml" rows="10" readonly style="resize: none; height: 50px"><div style="width:200px"><a href="{site_url('indicadores/productividad-exogenah/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><img style="width:200px" src="{site_url('indicadores/productividad-exogenah/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug/preview.png')}"></a></div></textarea>
 				    </div>
                                     <button class="btn copy-code">
                                     <div id="code">Copiar código</div>
@@ -184,7 +184,7 @@
                                     </div>
 				    <div class="form-group">
   					<label for="comment">{_('Código HTML')}</label>
-					<textarea class="form-control codehtml" rows="10" readonly style="resize: none; height: 50px"><div style="width:200px"><a href="{site_url('indicadores/indice-concentracion/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><img src="{site_url('indicadores/indice-concentracion/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug/preview.png')}"></a></div></textarea>
+					<textarea class="form-control codehtml" rows="10" readonly style="resize: none; height: 50px"><div style="width:200px"><a href="{site_url('indicadores/indice-concentracion/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug')}"><img style="width:200px" src="{site_url('indicadores/indice-concentracion/disciplina/$revista.disciplinaSlug/revista/$revista.revistaSlug/preview.png')}"></a></div></textarea>
 				    </div>
                                     <button class="btn copy-code">
                                     <div id="code">Copiar código</div>
