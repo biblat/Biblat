@@ -4621,6 +4621,18 @@ class_av = {
 			}
         });
 		
+		if( $('#titulo2').val() !== '' ){
+            if( $('#idioma2').val() == null ){
+                error = 'Idioma de título traducido'
+            }
+        }
+        
+        if( $('#titulo3').val() !== '' ){
+            if( $('#idioma3').val() == null ){
+                error = 'Idioma de título traducido'
+            }
+        }
+		
 		if( $('#tipo_documento').val() == 'Errata' ){
             if( $('#sistema_original').text() == '' ){
                 error = 'Información de documento original'
@@ -4640,8 +4652,9 @@ class_av = {
             
             var campos = [
                             {e:'#idiomaDocumento', c:'Idioma(s) del documento'},
-                            {e:'#tipo_documento', c:'Tipo de documento'},
                             {e:'#titulo', c:'Título'},
+                            {e:'#idioma', c:'Idioma de título'},
+                            {e:'#tipo_documento', c:'Tipo de documento'},
                             {e:'#disciplina1', c:'Disciplina'},
                             {e:'#url1', c:'URL del artículo'},
                             {e:'#tipourl1', c:'Formato del artículo (Tipo URL)'},
