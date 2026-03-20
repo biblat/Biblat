@@ -23,8 +23,9 @@ class_av = {
                                     '<th rowspan="1">En revisión</th>' +
                                     '<th rowspan="1">Completados (Cosecha)</th>' +
                                     '<th rowspan="1">Completados (Manual)</th>' +
-                                    '<th rowspan="1">Borrados</th>' +
                                     '<th rowspan="1">Total</th>' +
+                                    '<th rowspan="1">Asignados</th>' +
+                                    '<th rowspan="1">Borrados</th>' +
                                     '<th rowspan="1">% Avance</th>' +
                                     '<th rowspan="1">% Meta departamento</th>' +
                                 '</tr>'+
@@ -41,7 +42,7 @@ class_av = {
                                 '</tr>'+
                             '</thead>' +
                             '<tbody id="body_revistas"><body></tbody></table>',
-        tr: '<tr><td><usuario></td><td><rev></td><td><comp></td><td><comp_m></td><td><borr></td><td><total></td><td><av></td><td><meta></td></tr>',
+        tr: '<tr><td><usuario></td><td><rev></td><td><comp></td><td><comp_m></td><td><total></td><td><asigna></td><td><borr></td><td><av></td><td><meta></td></tr>',
 		trPC: '<tr><td><usuario></td><td><rev></td><td><comp></td><td><total></td><td><av></td></tr>',
         tabla_prod: '<table id="tbl_produccion" class="display responsive nowrap" style="width:50%;font-size:11px">' +
                             '<thead>' +
@@ -369,8 +370,9 @@ class_av = {
                                 .replace('<rev>', val['revision'])
                                 .replace('<comp>', val['completados'])
 								.replace('<comp_m>', val['completados_manual'])
+                                .replace('<total>', num2)
+                                .replace('<asigna>', val['total'])
                                 .replace('<borr>', val['borrados'])
-                                .replace('<total>', val['total'])
                                 .replace('<av>', ( avance * 100 ).toFixed(2) + ' %' )
                                 .replace('<meta>', ( meta * 100 ).toFixed(2) + ' %' );
                 tbody += tr;
@@ -436,7 +438,7 @@ class_av = {
                                     //Sustituye el valor de la celda por esto agregando un div para que se mantenga dentro del tamaño definido
                                     return '<div style="width: 100%; text-align: left; white-space: normal;">' + data + '</div>';
                                 },
-                                targets: [0,1,2,3,4,5,6,7]
+                                targets: [0,1,2,3,4,5,6,7,8]
                             }
                         ],
                         //Reajusta el ancho de las columnas
