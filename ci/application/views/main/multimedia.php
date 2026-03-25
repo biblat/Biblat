@@ -2,15 +2,38 @@
 	<div class="panel panel-default">
 	    <div class="panel-heading">
 	      <h5 class="panel-title">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-4">
+                           <iframe width="300px" src="https://drive.google.com/file/d/1HhklDFJaalSuRM7RZhJYNWEMLcGIiqiU/preview" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                            <div>&nbsp;</div>
+                        </div>
+           
+                        <div class="col-xs-12 col-sm-6 col-md-8">
+                            <a href="https://drive.google.com/file/d/1HhklDFJaalSuRM7RZhJYNWEMLcGIiqiU/preview" target="_blank" class="video">
+                                <i class="fa fa-file-video-o" style="font-size: 20px;"></i>
+                                Guía de uso<br><br>
+                                "BibLex IA"
+                            </a>    
+                        </div>
+                    </div>
+	      </h5>
+	    </div>
+	</div>
+</div>
+<div class="panel-group">
+	<div class="panel panel-default">
+	    <div class="panel-heading">
+	      <h5 class="panel-title">
                     <div class="row" id="indicadores">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe width="250px" src="https://www.youtube.com/embed/CDUYZBNzrwo?si=grVsqhBqbJby1YbK" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                            <iframe width="300px" src="https://www.youtube.com/embed/CDUYZBNzrwo?si=grVsqhBqbJby1YbK" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                             <div>&nbsp;</div>
                         </div>
            
                         <div class="col-xs-12 col-sm-6 col-md-8">
                             <a href="https://www.youtube.com/embed/CDUYZBNzrwo?si=grVsqhBqbJby1YbK" target="_blank">
-                                <span class="fa fa-youtube-square"></span> "50 aniversario de la base de datos CLASE. Citas Latinoamericanas en Ciencias Sociales y Humanidades"<br>
+                                <span class="fa fa-youtube-square"></span> Conferencia: <br>
+                                <br>"50 aniversario de la base de datos CLASE. Citas Latinoamericanas en Ciencias Sociales y Humanidades"<br>
                                 11 noviembre 2025
                             </a>
                         </div>
@@ -25,14 +48,14 @@
 	      <h5 class="panel-title">
                     <div class="row" id="indicadores">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe width="250px" src="https://www.youtube.com/embed/2uhEejH1bp0?si=Bd7y7YHnbbdoUwha" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                            <iframe width="300px" src="https://www.youtube.com/embed/2uhEejH1bp0?si=Bd7y7YHnbbdoUwha" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                             <div>&nbsp;</div>
                         </div>
            
                         <div class="col-xs-12 col-sm-6 col-md-8">
                             <a href="https://www.youtube.com/embed/2uhEejH1bp0?si=Bd7y7YHnbbdoUwha" target="_blank">
                                 <span class="fa fa-youtube-square"></span> Videoconferencia: <br>
-                                "BibLex: aplicación práctica de IA y PLN para la asignación de palabras clave en registros de Biblat"<br>
+                                <br>"BibLex: aplicación práctica de IA y PLN para la asignación de palabras clave en registros de Biblat"<br>
                                 9 octubre 2024
                             </a>
                         </div>
@@ -47,14 +70,14 @@
 	      <h5 class="panel-title">
                     <div class="row" id="indicadores">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe width="250px" src="https://www.youtube.com/embed/fDV58hyz-G0" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                            <iframe width="300px" src="https://www.youtube.com/embed/fDV58hyz-G0" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
                             <div>&nbsp;</div>
                         </div>
            
                         <div class="col-xs-12 col-sm-6 col-md-8">
                             <a href="https://www.youtube.com/embed/fDV58hyz-G0" target="_blank">
                                 <span class="fa fa-youtube-square"></span> Conferenica Virtual: <br>
-                                "Evaluación de metadatos en revistas científicas con MetaMetrics"<br>
+                                <br>"Evaluación de metadatos en revistas científicas con MetaMetrics"<br>
                                 4 Mayo 2023
                             </a>
                         </div>
@@ -69,14 +92,14 @@
 	      <h5 class="panel-title">
                     <div class="row" id="indicadores">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe width="250px" src="https://www.youtube.com/embed/oNO4H2UvEpA" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                            <iframe width="300px" src="https://www.youtube.com/embed/oNO4H2UvEpA" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
                             <div>&nbsp;</div>
                         </div>
            
                         <div class="col-xs-12 col-sm-6 col-md-8">
                             <a href="https://www.youtube.com/watch?v=oNO4H2UvEpA" target="_blank">
                                 <span class="fa fa-youtube-square"></span> Ponencia en Mesa Redonda Minería: <br>
-                                "Metametrics: Evaluador en línea de la metadata en revistas OJS"<br>
+                                <br>"Metametrics: Evaluador en línea de la metadata en revistas OJS"<br>
                                 44 FIL Palacio de Minería México<br>
                                 27 febrero 2023
                             </a>
@@ -92,7 +115,7 @@
 	      <h5 class="panel-title">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe src="https://anchor.fm/paideia-studio/embed/episodes/Episodio-8---BIBLAT--CLASE--PERIDICA-e1rafmt/a-a8uatkq" width="250px" frameborder="0" scrolling="no"></iframe>
+                            <iframe src="https://anchor.fm/paideia-studio/embed/episodes/Episodio-8---BIBLAT--CLASE--PERIDICA-e1rafmt/a-a8uatkq" width="300px" frameborder="0" scrolling="no"></iframe>
                             <div>&nbsp;</div>
                         </div>
            
@@ -100,7 +123,7 @@
                             <a href="https://paideiastudio.net/episodio-8-biblat-clase-periodica/" target="_blank">
                                 <span class="fa fa-play-circle"></span> 
                                 Pódcast<br>
-                                Episodio 8 – BIBLAT, CLASE, PERIÓDICA<br>
+                                <br>Episodio 8 – BIBLAT, CLASE, PERIÓDICA<br>
                                 25 noviembre 2022
                             </a>    
                         </div>
@@ -115,7 +138,7 @@
 	      <h5 class="panel-title">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe width="250" src="https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2FbibliotecasUNAM%2Fvideos%2F511498906683279%2F&show_text=false&width=560&t=0" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" allowFullScreen="true"></iframe>
+                            <iframe width="300px" src="https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2FbibliotecasUNAM%2Fvideos%2F511498906683279%2F&show_text=false&width=560&t=0" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" allowFullScreen="true"></iframe>
                             <div>&nbsp;</div>
                         </div>
            
@@ -129,14 +152,14 @@
 	      </h5>
 	    </div>
 	</div>
-</div-->
-<!--div class="panel-group">
+</div>
+<div class="panel-group">
 	<div class="panel panel-default">
 	    <div class="panel-heading">
 	      <h5 class="panel-title">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe width="250" src="https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2Fgrupocompas.ec%2Fvideos%2F145590217690121%2F&show_text=false&width=560&t=0" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" allowFullScreen="true"></iframe>
+                            <iframe width="300px" src="https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2Fgrupocompas.ec%2Fvideos%2F145590217690121%2F&show_text=false&width=560&t=0" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" allowFullScreen="true"></iframe>
                             <div>&nbsp;</div>
                         </div>
            
@@ -151,14 +174,14 @@
 	      </h5>
 	    </div>
 	</div>
-</div-->
-<!--div class="panel-group">
+</div>
+<div class="panel-group">
 	<div class="panel panel-default">
 	    <div class="panel-heading">
 	      <h5 class="panel-title">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe width="250" src="https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2Fgrupocompas.ec%2Fvideos%2F1277441226026280%2F&show_text=false&width=560&t=0" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" allowFullScreen="true"></iframe>
+                            <iframe width="300px" src="https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2Fgrupocompas.ec%2Fvideos%2F1277441226026280%2F&show_text=false&width=560&t=0" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" allowFullScreen="true"></iframe>
                             <div>&nbsp;</div>
                         </div>
            
@@ -179,7 +202,7 @@
 	      <h5 class="panel-title">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe width="250" src="https://www.youtube.com/embed/WgsELl6Pj7A" allowfullscreen></iframe>
+                            <iframe width="300px" src="https://www.youtube.com/embed/WgsELl6Pj7A" allowfullscreen></iframe>
                             <div>&nbsp;</div>
                         </div>
            
@@ -204,7 +227,7 @@
 	      <h5 class="panel-title">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe width="250" src="https://www.youtube.com/embed/h571rion4vI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            <iframe width="300px" src="https://www.youtube.com/embed/h571rion4vI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                             <div>&nbsp;</div>
                         </div>
            
@@ -224,13 +247,14 @@
 	      <h5 class="panel-title">
                     <div class="row" id="indicadores">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe width="250" src="https://www.youtube.com/embed/3DPbtSX668s" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            <iframe width="300px" src="https://www.youtube.com/embed/3DPbtSX668s" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                             <div>&nbsp;</div>
                         </div>
            
                         <div class="col-xs-12 col-sm-6 col-md-8">
                             <a href="https://www.youtube.com/watch?v=3DPbtSX668s" target="_blank">
-                                <span class="fa fa-youtube-square"></span> Ponencia en Mesa Redonda "El futuro de las revistas de Ciencias Sociales" 75 Aniversario de la Revista Mexicana de Sociología IIS-UNAM, 12 nov. 2014
+                                <span class="fa fa-youtube-square"></span> Ponencia en Mesa Redonda
+                                <br><br>"El futuro de las revistas de Ciencias Sociales" 75 Aniversario de la Revista Mexicana de Sociología IIS-UNAM, 12 nov. 2014
                             </a>
                         </div>
                     </div>
