@@ -245,6 +245,16 @@ class Frecuencias extends CI_Controller {
 		$this->db->where('expires_at <', date('Y-m-d H:i:s'))
 				 ->delete('blocked_networks');
 	}
+	
+	protected function cleanOldRequestLogs()
+	{
+			$this->load->database();
+
+			$limitDate = date('Y-m-d H:i:s', time() - (2 * 24 * 60 * 60));
+
+			$this->db->where('created_at <', $limitDate)
+							 ->delete('request_log');
+	}
 
 	public function checkTrafficAndBlock()
 	{
@@ -271,6 +281,7 @@ class Frecuencias extends CI_Controller {
 		}
 
 		$this->cleanExpiredBlocks();
+		$this->cleanOldRequestLogs();
 
 		$existingBlock = $this->isBlocked($ip, $prefix24, $prefix16);
 		if ($existingBlock) {
@@ -281,61 +292,80 @@ class Frecuencias extends CI_Controller {
 		// Registrar primero la petición
 		$this->insertRequestLog($ip, $prefix24, $prefix16);
 
-		// Ventanas rápidas
-		$hitsIp1m        = $this->countRecentByIp($ip, 1);
-		$hitsIp10m       = $this->countRecentByIp($ip, 10);
+		/// Ventanas
+		$hitsIp1m   = $this->countRecentByIp($ip, 1);
+		$hitsIp10m  = $this->countRecentByIp($ip, 10);
+		$hitsIp1d   = $this->countRecentByIp($ip, 1440);
 
-		$hits24_1m       = $this->countRecentByPrefix24($prefix24, 1);
-		$hits24_10m      = $this->countRecentByPrefix24($prefix24, 10);
+		$hits24_1m  = $this->countRecentByPrefix24($prefix24, 1);
+		$hits24_10m = $this->countRecentByPrefix24($prefix24, 10);
+		$hits24_1d  = $this->countRecentByPrefix24($prefix24, 1440);
 
-		$hits16_10m      = $this->countRecentByPrefix16($prefix16, 10);
-		$distinct24_10m  = $this->countDistinctRecentPrefix24ByPrefix16($prefix16, 10);
+		$hits16_10m = $this->countRecentByPrefix16($prefix16, 10);
+		$hits16_1d  = $this->countRecentByPrefix16($prefix16, 1440);
+
+		// Un año = 365 días
+		$blockOneYearMinutes = 525600;
 
 		// Umbrales
-		$limitIp1m          = 6;
-		$limitIp10m         = 12;
+		$limitIp1m    = 6;
+		$limitIp10m   = 20;
+		$limitIp1d    = 200;
 
-		$limit24_1m         = 5;
-		$limit24_10m        = 10;
+		$limit24_1m   = 6;
+		$limit24_10m  = 20;
+		$limit24_1d   = 300;
 
-		$limit16_10m        = 20;
-		$limitDistinct24_10m = 3;
+		$limit16_10m  = 20;
+		$limit16_1d   = 400;
 
-		// 1) Bloqueo rápido por IP
+		// 1) Bloqueo por IP
 		if ($hitsIp1m >= $limitIp1m) {
-			$this->addTemporaryBlock('ip', $ip, 60, 'Exceso de peticiones por IP en 1 min');
+			$this->addTemporaryBlock('ip', $ip, $blockOneYearMinutes, 'Exceso de peticiones por IP en 1 min');
 			redirect('error');
 			return;
 		}
 
 		if ($hitsIp10m >= $limitIp10m) {
-			$this->addTemporaryBlock('ip', $ip, 120, 'Exceso de peticiones por IP en 10 min');
+			$this->addTemporaryBlock('ip', $ip, $blockOneYearMinutes, 'Exceso de peticiones por IP en 10 min');
 			redirect('error');
 			return;
 		}
 
-		// 2) Bloqueo rápido por /24
+		if ($hitsIp1d >= $limitIp1d) {
+			$this->addTemporaryBlock('ip', $ip, $blockOneYearMinutes, 'Exceso de peticiones por IP en 1 día');
+			redirect('error');
+			return;
+		}
+
+		// 2) Bloqueo por /24
 		if ($prefix24 && $hits24_1m >= $limit24_1m) {
-			$this->addTemporaryBlock('prefix24', $prefix24, 30, 'Exceso de peticiones por /24 en 1 min');
+			$this->addTemporaryBlock('prefix24', $prefix24, $blockOneYearMinutes, 'Exceso de peticiones por /24 en 1 min');
 			redirect('error');
 			return;
 		}
 
 		if ($prefix24 && $hits24_10m >= $limit24_10m) {
-			$this->addTemporaryBlock('prefix24', $prefix24, 180, 'Exceso de peticiones por /24 en 10 min');
+			$this->addTemporaryBlock('prefix24', $prefix24, $blockOneYearMinutes, 'Exceso de peticiones por /24 en 10 min');
 			redirect('error');
 			return;
 		}
 
-		// 3) Escalación a /16 cuando varios /24 distintos aparecen juntos
-		// En prefijos "especiales" no bloquear /16 tan agresivamente
-		if (
-			$prefix16 &&
-			//!$this->isSpecialPrefix16($prefix16) &&
-			$hits16_10m >= $limit16_10m &&
-			$distinct24_10m >= $limitDistinct24_10m
-		) {
-			$this->addTemporaryBlock('prefix16', $prefix16, 360, 'Exceso de peticiones por /16 en 10 min');
+		if ($prefix24 && $hits24_1d >= $limit24_1d) {
+			$this->addTemporaryBlock('prefix24', $prefix24, $blockOneYearMinutes, 'Exceso de peticiones por /24 en 1 día');
+			redirect('error');
+			return;
+		}
+
+		// 3) Bloqueo por /16
+		if ($prefix16 && $hits16_10m >= $limit16_10m) {
+			$this->addTemporaryBlock('prefix16', $prefix16, $blockOneYearMinutes, 'Exceso de peticiones por /16 en 10 min');
+			redirect('error');
+			return;
+		}
+
+		if ($prefix16 && $hits16_1d >= $limit16_1d) {
+			$this->addTemporaryBlock('prefix16', $prefix16, $blockOneYearMinutes, 'Exceso de peticiones por /16 en 1 día');
 			redirect('error');
 			return;
 		}
