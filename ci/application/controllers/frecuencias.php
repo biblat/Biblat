@@ -22,45 +22,7 @@ class Frecuencias extends CI_Controller {
 	{
 		parent::__construct();
 		
-		//$this->insertIP('frecuencias autor');
-                
-		$ip = $this->get_ip(); // Obtener la IP del visitante
-
-		// Lista de prefijos de IP denegadas
-		$denied_ips = unserialize(IPsBlock);
-
-		// Lista de IPs permitidas
-		$pass_ips = [
-			"148.204.63.19",
-			"148.204.63.195"
-		];
-
-		$blocked = false;
-
-		foreach ($denied_ips as $prefix) {
-			if (strpos($ip, $prefix) === 0) { // Si la IP empieza con un prefijo denegado
-				// Verificamos si está en las excepciones
-				$is_exception = false;
-				foreach ($pass_ips as $pass) {
-					if (strpos($ip, $pass) === 0) {
-						$is_exception = true;
-						break;
-					}
-				}
-
-				if (!$is_exception) {
-					$blocked = true;
-					break;
-				}
-			}
-		}
-
-		if ($blocked) {
-			//$this->insertIP('bloqueo frecuencias autor');
-			redirect('error');
-		}else{
-			$this->insertIP('frecuencias autor');
-		}
+		$this->checkTrafficAndBlock();
 		
 		$this->output->enable_profiler($this->config->item('enable_profiler'));
 		$this->load->database();
@@ -83,6 +45,222 @@ class Frecuencias extends CI_Controller {
 		$this->template->set_breadcrumb(_('Bibliometría'));
 		$this->template->set('class_method', $this->router->fetch_class().$this->router->fetch_method());
 	}
+	
+	protected function getPrefixes($ip)
+        {
+            $prefix24 = null;
+            $prefix16 = null;
+
+            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                $parts = explode('.', $ip);
+
+                $prefix24 = $parts[0] . '.' . $parts[1] . '.' . $parts[2] . '.';
+                $prefix16 = $parts[0] . '.' . $parts[1] . '.';
+            }
+
+            return [
+                'prefix24' => $prefix24,
+                'prefix16' => $prefix16,
+            ];
+        }
+        
+        protected function insertRequestLog($ip, $prefix24, $prefix16)
+        {
+			$this->load->database();
+            $this->db->insert('request_log', [
+                'ip'         => $ip,
+                'prefix24'   => $prefix24,
+                'prefix16'   => $prefix16,
+                'created_at' => date('Y-m-d H:i:s'),
+            ]);
+        }
+        
+        protected function countRecentByIp($ip, $minutes = 10)
+        {
+			$this->load->database();
+            $since = date('Y-m-d H:i:s', time() - ($minutes * 60));
+
+            return (int)$this->db
+                ->where('ip', $ip)
+                ->where('created_at >=', $since)
+                ->count_all_results('request_log');
+        }
+
+        protected function countRecentByPrefix24($prefix24, $minutes = 10)
+        {
+			$this->load->database();
+            if (!$prefix24) {
+                return 0;
+            }
+
+            $since = date('Y-m-d H:i:s', time() - ($minutes * 60));
+
+            return (int)$this->db
+                ->where('prefix24', $prefix24)
+                ->where('created_at >=', $since)
+                ->count_all_results('request_log');
+        }
+
+        protected function countRecentByPrefix16($prefix16, $minutes = 10)
+        {
+			$this->load->database();
+            if (!$prefix16) {
+                return 0;
+            }
+
+            $since = date('Y-m-d H:i:s', time() - ($minutes * 60));
+
+            return (int)$this->db
+                ->where('prefix16', $prefix16)
+                ->where('created_at >=', $since)
+                ->count_all_results('request_log');
+        }
+        
+        protected function addTemporaryBlock($type, $value, $minutes, $reason = '')
+        {
+			$this->load->database();
+            $now = date('Y-m-d H:i:s');
+            $expires = date('Y-m-d H:i:s', time() + ($minutes * 60));
+
+            $existing = $this->db
+                ->where('block_type', $type)
+                ->where('block_value', $value)
+                ->where('expires_at >=', $now)
+                ->get('blocked_networks')
+                ->row();
+
+            if ($existing) {
+                $this->db
+                    ->where('id', $existing->id)
+                    ->update('blocked_networks', [
+                        'expires_at' => $expires,
+                        'reason'     => $reason ?: $existing->reason,
+                    ]);
+                return;
+            }
+
+            $this->db->insert('blocked_networks', [
+                'block_type'  => $type,
+                'block_value' => $value,
+                'reason'      => $reason,
+                'expires_at'  => $expires,
+                'created_at'  => $now,
+            ]);
+        }
+        
+        protected function isBlocked($ip, $prefix24, $prefix16)
+		{
+			$this->load->database();
+
+			$now = date('Y-m-d H:i:s');
+
+			$sql = "SELECT * FROM blocked_networks WHERE (";
+			$params = array();
+
+			$sql .= "(block_type = ? AND block_value = ?)";
+			$params[] = 'ip';
+			$params[] = $ip;
+
+			if ($prefix24) {
+				$sql .= " OR (block_type = ? AND block_value = ?)";
+				$params[] = 'prefix24';
+				$params[] = $prefix24;
+			}
+
+			if ($prefix16) {
+				$sql .= " OR (block_type = ? AND block_value = ?)";
+				$params[] = 'prefix16';
+				$params[] = $prefix16;
+			}
+
+			$sql .= ") AND expires_at >= ? LIMIT 1";
+			$params[] = $now;
+
+			$query = $this->db->query($sql, $params);
+
+			if (!$query) {
+				echo $this->db->_error_message();
+				return false;
+			}
+
+			if ($query->num_rows() > 0) {
+				return $query->row();
+			}
+			return false;
+		}
+        
+        protected function cleanExpiredBlocks()
+        {
+			$this->load->database();
+            $this->db->where('expires_at <', date('Y-m-d H:i:s'))
+                     ->delete('blocked_networks');
+        }
+        
+        public function checkTrafficAndBlock()
+        {
+            $ip = $this->get_ip();
+
+            $pass_ips = [
+                '148.204.63.19',
+                '148.204.63.195',
+            ];
+
+            if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+                redirect('error');
+                return;
+            }
+
+            if (in_array($ip, $pass_ips, true)) {
+                $prefixes = $this->getPrefixes($ip);
+                $this->insertRequestLog($ip, $prefixes['prefix24'], $prefixes['prefix16']);
+                return;
+            }
+
+            $prefixes = $this->getPrefixes($ip);
+            $prefix24 = $prefixes['prefix24'];
+            $prefix16 = $prefixes['prefix16'];
+
+            $this->cleanExpiredBlocks();
+			
+            $existingBlock = $this->isBlocked($ip, $prefix24, $prefix16);
+            if ($existingBlock) {
+                redirect('error');
+                return;
+            }
+			
+            $this->insertRequestLog($ip, $prefix24, $prefix16);
+
+            // Umbrales ejemplo
+            $hitsIp10m     = $this->countRecentByIp($ip, 10);
+            $hits24_10m    = $this->countRecentByPrefix24($prefix24, 10);
+            $hits16_10m    = $this->countRecentByPrefix16($prefix16, 10);
+
+            // Ajusta estos valores a tu tráfico real
+            $limitIp10m    = 10;
+            $limit24_10m   = 20;
+            $limit16_10m   = 20;
+
+            if ($hitsIp10m >= $limitIp10m) {
+                $this->addTemporaryBlock('ip', $ip, 60, 'Exceso de peticiones por IP en 10 min');
+                redirect('error');
+                return;
+            }
+
+            if ($prefix24 && $hits24_10m >= $limit24_10m) {
+                $this->addTemporaryBlock('prefix24', $prefix24, 180, 'Exceso de peticiones por /24 en 10 min');
+                redirect('error');
+                return;
+            }
+
+            if ($prefix16 && $hits16_10m >= $limit16_10m) {
+                $this->addTemporaryBlock('prefix16', $prefix16, 360, 'Exceso de peticiones por /16 en 10 min');
+                redirect('error');
+                return;
+            }
+
+            // Si llegó aquí, pasa
+            $this->insertIP('frecuencias autor');
+        }
 
 	public function index()
 	{
