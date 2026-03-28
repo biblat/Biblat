@@ -247,8 +247,7 @@ class Frecuencias extends CI_Controller {
 			FROM pg_stat_activity
 			WHERE datname = current_database()
 			  AND pid <> pg_backend_pid()
-			  AND usename = current_user
-			  AND state IN ('active', 'idle in transaction')
+			  AND state IN ('active', 'idle')
 		";
 
 		$query = $this->db->query($sql);
