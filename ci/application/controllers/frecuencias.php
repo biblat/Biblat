@@ -237,6 +237,29 @@ class Frecuencias extends CI_Controller {
 
 		return false;
 	}
+	
+	protected function countActivePostgresConnections()
+	{
+		$this->load->database();
+
+		$sql = "
+			SELECT COUNT(*) AS total
+			FROM pg_stat_activity
+			WHERE datname = current_database()
+			  AND pid <> pg_backend_pid()
+			  AND usename = current_user
+			  AND state IN ('active', 'idle in transaction')
+		";
+
+		$query = $this->db->query($sql);
+
+		if (!$query || $query->num_rows() === 0) {
+			return 0;
+		}
+
+		$row = $query->row();
+		return (int)$row->total;
+	}
 
 	protected function cleanExpiredBlocks()
 	{
@@ -277,6 +300,13 @@ class Frecuencias extends CI_Controller {
 		if (in_array($ip, $pass_ips, true)) {
 			$this->insertRequestLog($ip, $prefix24, $prefix16);
 			$this->insertIP('frecuencias autor');
+			return;
+		}
+		
+		// Verificación de conexiones activas a PostgreSQL
+		$activePgConnections = $this->countActivePostgresConnections();
+		if ($activePgConnections >= 50) {
+			redirect('error');
 			return;
 		}
 
