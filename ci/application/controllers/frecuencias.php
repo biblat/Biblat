@@ -343,10 +343,10 @@ class Frecuencias extends CI_Controller {
 
 		$limit24_1m   = 6;
 		$limit24_10m  = 20;
-		$limit24_1d   = 300;
+		$limit24_1d   = 200;
 
 		$limit16_10m  = 20;
-		$limit16_1d   = 400;
+		$limit16_1d   = 300;
 
 		// 1) Bloqueo por IP
 		if ($hitsIp1m >= $limitIp1m) {
