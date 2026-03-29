@@ -302,9 +302,6 @@ class Frecuencias extends CI_Controller {
 			return;
 		}
 		
-		// Registrar primero la petición
-		$this->insertRequestLog($ip, $prefix24, $prefix16);
-		
 		// Verificación de conexiones activas a PostgreSQL
 		$activePgConnections = $this->countActivePostgresConnections();
 		if ($activePgConnections >= 50) {
@@ -314,7 +311,10 @@ class Frecuencias extends CI_Controller {
 
 		$this->cleanExpiredBlocks();
 		$this->cleanOldRequestLogs();
-
+		
+		// Registrar primero la petición
+		$this->insertRequestLog($ip, $prefix24, $prefix16);
+		
 		$existingBlock = $this->isBlocked($ip, $prefix24, $prefix16);
 		if ($existingBlock) {
 			redirect('error');
