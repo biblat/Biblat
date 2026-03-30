@@ -1153,12 +1153,12 @@ class Revista extends CI_Controller{
             echo json_encode($result);
         }
 		
-	public function insertIP(){
-            $ip = $this->get_ip();
-            $this->load->database();
-            $query="Insert into ip_blacklist values(NOW()::timestamp::date, '" . $ip . "')";
-            $this->db->query($query);
-        }
+	public function insertIP($pagina){
+		$ip = $this->get_ip();
+		$this->load->database();
+		$query="Insert into ip_blacklist values(NOW()::timestamp::date, '" . $ip . "', '" . $pagina . "')";
+		$this->db->query($query);
+	}
         
         private function get_ip(){
 			$realip = '';
