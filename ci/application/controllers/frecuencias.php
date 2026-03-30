@@ -24,6 +24,18 @@ class Frecuencias extends CI_Controller {
 		
 		$this->checkTrafficAndBlock();
 		
+		$check = $this->validateRequest('revistas_index', [
+            'require_fetch_headers' => true,
+            'allow_same_site'       => false,
+            'allow_none'            => false, // false = bloquea URL escrita/favoritos
+            'require_user_nav'      => true,
+        ]);
+
+        if (!$check['ok']) {
+			redirect('error');
+			return;
+		}
+		
 		$this->output->enable_profiler($this->config->item('enable_profiler'));
 		$this->load->database();
 		$query = "SELECT id_disciplina, disciplina, slug FROM \"mvDisciplina\"";
@@ -45,6 +57,102 @@ class Frecuencias extends CI_Controller {
 		$this->template->set_breadcrumb(_('Bibliometría'));
 		$this->template->set('class_method', $this->router->fetch_class().$this->router->fetch_method());
 	}
+	
+	    public function validateRequest(string $key, array $options = []): array
+    {
+        $defaults = [
+            'require_fetch_headers' => true,
+            'allow_same_site'       => false,
+            'allow_none'            => false,
+            'require_user_nav'      => true,
+        ];
+
+        $options = array_merge($defaults, $options);
+
+        $fetchCheck = $this->validateFetchMetadata($options);
+        if (!$fetchCheck['ok']) {
+            return $fetchCheck;
+        }
+
+        return [
+            'ok'     => true,
+            'reason' => 'allowed',
+        ];
+    }
+
+
+    /**
+     * Valida headers Fetch Metadata.
+     */
+    protected function validateFetchMetadata(array $options): array
+    {
+        $site = $_SERVER['HTTP_SEC_FETCH_SITE'] ?? '';
+        $mode = $_SERVER['HTTP_SEC_FETCH_MODE'] ?? '';
+        $user = $_SERVER['HTTP_SEC_FETCH_USER'] ?? '';
+        $dest = $_SERVER['HTTP_SEC_FETCH_DEST'] ?? '';
+
+        // Si el navegador no manda estos headers y tú quieres modo estricto, bloquea.
+        if ($options['require_fetch_headers']) {
+            if ($site === '' || $mode === '') {
+                return [
+                    'ok'     => false,
+                    'reason' => 'missing_fetch_metadata',
+                    'meta'   => compact('site', 'mode', 'user', 'dest'),
+                ];
+            }
+        }
+
+        // Debe parecer navegación de documento HTML.
+        if ($mode !== 'navigate') {
+            return [
+                'ok'     => false,
+                'reason' => 'invalid_fetch_mode',
+                'meta'   => compact('site', 'mode', 'user', 'dest'),
+            ];
+        }
+
+        if ($dest !== '' && $dest !== 'document') {
+            return [
+                'ok'     => false,
+                'reason' => 'invalid_fetch_dest',
+                'meta'   => compact('site', 'mode', 'user', 'dest'),
+            ];
+        }
+
+        // Permitimos solo same-origin, opcionalmente same-site o none.
+        $allowedSites = ['same-origin'];
+
+        if ($options['allow_same_site']) {
+            $allowedSites[] = 'same-site';
+        }
+
+        if ($options['allow_none']) {
+            $allowedSites[] = 'none';
+        }
+
+        if (!in_array($site, $allowedSites, true)) {
+            return [
+                'ok'     => false,
+                'reason' => 'invalid_fetch_site',
+                'meta'   => compact('site', 'mode', 'user', 'dest'),
+            ];
+        }
+
+        // Si quieres que además venga explícitamente de interacción del usuario
+        if ($options['require_user_nav'] && $user !== '?1') {
+            return [
+                'ok'     => false,
+                'reason' => 'missing_user_navigation',
+                'meta'   => compact('site', 'mode', 'user', 'dest'),
+            ];
+        }
+
+        return [
+            'ok'     => true,
+            'reason' => 'fetch_metadata_valid',
+            'meta'   => compact('site', 'mode', 'user', 'dest'),
+        ];
+    }
 	
 	protected function getPrefixes($ip)
 	{
