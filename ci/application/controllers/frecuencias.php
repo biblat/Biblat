@@ -109,9 +109,9 @@ class Frecuencias extends CI_Controller {
                 ];
             }
         }
-
-        // Debe parecer navegación de documento HTML.
-        if ($mode !== 'navigate') {
+		
+		// Debe parecer navegación de documento HTML.
+        if ($mode !== 'navigate' && !($mode == 'cors' && $dest == 'empty')) {
             return [
                 'ok'     => false,
                 'reason' => 'invalid_fetch_mode',
@@ -119,7 +119,7 @@ class Frecuencias extends CI_Controller {
             ];
         }
 
-        if ($dest !== '' && $dest !== 'document') {
+        if ($dest !== '' && $dest !== 'document' && !($mode == 'cors' && $dest == 'empty')) {
             return [
                 'ok'     => false,
                 'reason' => 'invalid_fetch_dest',
@@ -147,7 +147,7 @@ class Frecuencias extends CI_Controller {
         }
 
         // Si quieres que además venga explícitamente de interacción del usuario
-        if ($options['require_user_nav'] && $user !== '?1') {
+        if ($options['require_user_nav'] && $user !== '?1' && !($mode == 'cors' && $dest == 'empty')) {
             return [
                 'ok'     => false,
                 'reason' => 'missing_user_navigation',
