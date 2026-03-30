@@ -275,13 +275,6 @@ class Revista extends CI_Controller{
 			$this->insertIP('frecuencias autor');
 			return;
 		}
-		
-		// Verificación de conexiones activas a PostgreSQL
-		$activePgConnections = $this->countActivePostgresConnections();
-		if ($activePgConnections >= 50) {
-			redirect('error');
-			return;
-		}
 
 		$this->cleanExpiredBlocks();
 		$this->cleanOldRequestLogs();
