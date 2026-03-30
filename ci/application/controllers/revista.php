@@ -4,6 +4,26 @@ class Revista extends CI_Controller{
 	public function __construct(){
 		parent::__construct();
 		
+		$site = $_SERVER['HTTP_SEC_FETCH_SITE'] ?? '';
+        $mode = $_SERVER['HTTP_SEC_FETCH_MODE'] ?? '';
+        $user = $_SERVER['HTTP_SEC_FETCH_USER'] ?? '';
+        $dest = $_SERVER['HTTP_SEC_FETCH_DEST'] ?? '';
+		
+		$check = $this->validateRequest('revistas_index', [
+            'require_fetch_headers' => true,
+            'allow_same_site'       => false,
+            'allow_none'            => false, // false = bloquea URL escrita/favoritos
+            'require_user_nav'      => true,
+        ]);
+
+        if (!$check['ok']) {
+			$this->insertIP('Error revista ' . $site . ' ' . $mode . ' ' . $user . ' ' . $dest);
+			redirect('error');
+			return;
+		}else{
+			$this->insertIP('Valida revista ' . $site . ' ' . $mode . ' ' . $user . ' ' . $dest);
+		}
+		
 		$this->checkTrafficAndBlock();
 		
 		$this->output->enable_profiler($this->config->item('enable_profiler'));
