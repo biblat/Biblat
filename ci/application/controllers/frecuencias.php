@@ -22,7 +22,10 @@ class Frecuencias extends CI_Controller {
 	{
 		parent::__construct();
 		
-		$this->checkTrafficAndBlock();
+		$site = $_SERVER['HTTP_SEC_FETCH_SITE'] ?? '';
+        $mode = $_SERVER['HTTP_SEC_FETCH_MODE'] ?? '';
+        $user = $_SERVER['HTTP_SEC_FETCH_USER'] ?? '';
+        $dest = $_SERVER['HTTP_SEC_FETCH_DEST'] ?? '';
 		
 		$check = $this->validateRequest('revistas_index', [
             'require_fetch_headers' => true,
@@ -32,9 +35,14 @@ class Frecuencias extends CI_Controller {
         ]);
 
         if (!$check['ok']) {
+			$this->insertIP('Error frecuencia ' . $site . ' ' . $mode . ' ' . $user . ' ' . $dest);
 			redirect('error');
 			return;
+		}else{
+			$this->insertIP('Valida frecuencia ' . $site . ' ' . $mode . ' ' . $user . ' ' . $dest);
 		}
+		
+		$this->checkTrafficAndBlock();
 		
 		$this->output->enable_profiler($this->config->item('enable_profiler'));
 		$this->load->database();
