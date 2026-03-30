@@ -30,7 +30,7 @@ class Frecuencias extends CI_Controller {
 		$check = $this->validateRequest('revistas_index', [
             'require_fetch_headers' => true,
             'allow_same_site'       => false,
-            'allow_none'            => false, // false = bloquea URL escrita/favoritos
+            'allow_none'            => true, // false = bloquea URL escrita/favoritos
             'require_user_nav'      => true,
         ]);
 
@@ -71,7 +71,7 @@ class Frecuencias extends CI_Controller {
         $defaults = [
             'require_fetch_headers' => true,
             'allow_same_site'       => false,
-            'allow_none'            => false,
+            'allow_none'            => true,
             'require_user_nav'      => true,
         ];
 
