@@ -35,11 +35,9 @@ class Frecuencias extends CI_Controller {
         ]);
 
         if (!$check['ok']) {
-			$this->insertIP('Error frecuencia ' . $site . ' ' . $mode . ' ' . $user . ' ' . $dest);
+			//$this->insertIP('Error frecuencia ' . $site . ' ' . $mode . ' ' . $user . ' ' . $dest);
 			redirect('error');
 			return;
-		}else{
-			$this->insertIP('Valida frecuencia ' . $site . ' ' . $mode . ' ' . $user . ' ' . $dest);
 		}
 		
 		$this->checkTrafficAndBlock();
