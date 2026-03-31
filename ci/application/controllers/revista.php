@@ -17,11 +17,9 @@ class Revista extends CI_Controller{
         ]);
 
         if (!$check['ok']) {
-			$this->insertIP('Error revista ' . $site . ' ' . $mode . ' ' . $user . ' ' . $dest);
+			//$this->insertIP('Error revista ' . $site . ' ' . $mode . ' ' . $user . ' ' . $dest);
 			redirect('error');
 			return;
-		}else{
-			$this->insertIP('Valida revista ' . $site . ' ' . $mode . ' ' . $user . ' ' . $dest);
 		}
 		
 		$this->checkTrafficAndBlock();
