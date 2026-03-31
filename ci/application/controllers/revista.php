@@ -418,16 +418,16 @@ class Revista extends CI_Controller{
 		$blockOneYearMinutes = 525600;
 
 		// Umbrales
-		$limitIp1m    = 6;
-		$limitIp10m   = 20;
+		$limitIp1m    = 10;
+		$limitIp10m   = 30;
 		$limitIp1d    = 200;
 
-		$limit24_1m   = 6;
-		$limit24_10m  = 20;
-		$limit24_1d   = 200;
+		$limit24_1m   = 10;
+		$limit24_10m  = 50;
+		$limit24_1d   = 300;
 
-		$limit16_10m  = 20;
-		$limit16_1d   = 300;
+		$limit16_10m  = 50;
+		$limit16_1d   = 400;
 
 		// 1) Bloqueo por IP
 		if ($hitsIp1m >= $limitIp1m) {
