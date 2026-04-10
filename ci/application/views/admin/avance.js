@@ -500,20 +500,44 @@ class_av = {
         
     },
     setTablaProd: function(data){
+        function ordenarGrupo(tokens) {
+            const especiales = ['EDITOR', 'OJS', 'SCIELO'];
+
+            return tokens.sort((a, b) => {
+                const aEsp = especiales.indexOf(a);
+                const bEsp = especiales.indexOf(b);
+
+                const aEsEspecial = aEsp !== -1;
+                const bEsEspecial = bEsp !== -1;
+
+                // ambos especiales -> respetar el orden definido en "especiales"
+                if (aEsEspecial && bEsEspecial) {
+                    return aEsp - bEsp;
+                }
+
+                // uno especial y otro no -> el especial siempre va después
+                if (aEsEspecial) return 1;
+                if (bEsEspecial) return -1;
+
+                // si ninguno es especial -> orden normal
+                return a.localeCompare(b);
+            });
+        }
+
         function normalizarGrupo(nombre) {
-            return nombre
+            const tokens = nombre
                 .split(',')
                 .map(x => x.trim().toUpperCase())
-                .filter(Boolean)
-                .sort((a, b) => a.localeCompare(b))
-                .join(', ');
+                .filter(Boolean);
+
+            return ordenarGrupo(tokens).join(', ');
         }
 
         function normalizarUsuario(nombre) {
             return nombre
                 .split(',')
                 .map(x => x.trim().toUpperCase())
-                .filter(x => x && x !== 'OJS' && x !== 'SCIELO')
+                .filter(x => x && x !== 'OJS' && x !== 'SCIELO' && x !== 'EDITOR')
                 .sort((a, b) => a.localeCompare(b))
                 .join(', ');
         }
