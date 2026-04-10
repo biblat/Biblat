@@ -1008,14 +1008,6 @@ class Datos extends REST_Controller {
                                                         and
                                                         c.nombre <> 'OJS' and c.nombre <> 'SciELO' and c.nombre <> 'EDITOR'
                                                 )
-                                                or
-                                                (
-                                                        a.estatus is null
-                                                        and
-                                                        c.nombre is not null
-                                                        and
-                                                        c.id = 1
-                                                )
                                         )
                                     and
                                     extract(month from c.fecha) in (".$mes.") 
@@ -1037,14 +1029,6 @@ class Datos extends REST_Controller {
                                                         c.id=(select max(id) from catalogador where sistema = a.sistema)
                                                         and
                                                         c.nombre <> 'OJS' and c.nombre <> 'SciELO' and c.nombre <> 'EDITOR'
-                                                )
-                                                or
-                                                (
-                                                        a.estatus is null
-                                                        and
-                                                        c.nombre is not null
-                                                        and
-                                                        c.id = 1
                                                 )
                                         )
                                     and
