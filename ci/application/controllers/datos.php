@@ -369,6 +369,10 @@ class Datos extends REST_Controller {
                             c.nombre in ('OJS', 'SciELO', 'EDITOR')
                             and
                             estatus in ('A', 'R')
+							and
+                            "
+                            .$txtAnio.
+                            "
                         )
                         or
                         (
@@ -467,45 +471,26 @@ class Datos extends REST_Controller {
             }
             
             $query = "
-                    with registros as (
-                        select 
-                        extract(Month from c.fecha) mes, estatus
-                        from article a
-                        inner join
-                        catalogador c
-                        on a.sistema = c.sistema
-                        where 
-                        (
-                            estatus in ('C')
-							and 
-							c.id=2
-							and
-							c.nombre <> 'OJS' and c.nombre <> 'SciELO' and c.nombre <> 'EDITOR'
-							and
-                            "
+                    with primer_registro as (
+                        select
+                            c.sistema,
+                            min(c.fecha) as primera_fecha
+                        from catalogador c
+                        where "
                             .$txtAnio.
                             "
-                        )
-						or
-						(
-							estatus is null
-							and
-							c.nombre is not null
-							and
-							c.id = 1
-							and
-							c.nombre <> 'OJS' and c.nombre <> 'SciELO' and c.nombre <> 'EDITOR'
-                            and
-                            "
-                            .$txtAnio.
-                            "
-						)
+                          and c.nombre not in ('OJS', 'SciELO', 'EDITOR')
+                        group by c.sistema
                     )
-                    select 
-                        r.mes, count(1) total
-                    from registros r
-                    group by r.mes
-                    order by r.mes
+                    select
+                        extract(month from p.primera_fecha) as mes,
+                        count(*) as total
+                    from article a
+                    inner join primer_registro p
+                        on a.sistema = p.sistema
+                    where a.estatus = 'C'
+                    group by extract(month from p.primera_fecha)
+                    order by mes
                 ";
             
             $query = $this->db->query($query);
