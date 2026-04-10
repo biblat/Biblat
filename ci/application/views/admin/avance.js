@@ -500,6 +500,46 @@ class_av = {
         
     },
     setTablaProd: function(data){
+        function normalizarGrupo(nombre) {
+            return nombre
+                .split(',')
+                .map(x => x.trim().toUpperCase())
+                .filter(Boolean)
+                .sort((a, b) => a.localeCompare(b))
+                .join(', ');
+        }
+
+        function normalizarUsuario(nombre) {
+            return nombre
+                .split(',')
+                .map(x => x.trim().toUpperCase())
+                .filter(x => x && x !== 'OJS' && x !== 'SCIELO')
+                .sort((a, b) => a.localeCompare(b))
+                .join(', ');
+        }
+
+        function fusionarData(data) {
+            const grupos = data.reduce((acc, item) => {
+                const key = normalizarGrupo(item.nombre);
+
+                if (!acc[key]) {
+                    acc[key] = {
+                        ...item,
+                        nombre: key,
+                        clase: Number(item.clase) || 0,
+                        periodica: Number(item.periodica) || 0
+                    };
+                } else {
+                    acc[key].clase += Number(item.clase) || 0;
+                    acc[key].periodica += Number(item.periodica) || 0;
+                }
+
+                return acc;
+            }, {});
+
+            return Object.values(grupos);
+        }
+
         var tbody = '';
         var categorias = class_utils.unique_obj(class_av.var.tproduccion,'fecha').map(fechas => fechas.fecha);
         var usuarios = class_utils.unique_obj(class_av.var.tproduccion,'usuario').map(usuario => usuario.usuario);
@@ -507,17 +547,17 @@ class_av = {
         var articulos = {};
         var maximo = {};
         var minimo = {};
-        
+
         $.each(usuarios, function(i, val){
             var obj = {};
             obj.name = val;
+            obj.key = normalizarUsuario(val);
+
             var filtro = class_utils.filter_prop(class_av.var.tproduccion, 'usuario', val);
             var dias = class_utils.unique_obj(filtro,'fecha').map(fechas => fechas.fecha);
-            articulos[val] = [];
-            maximo[val] = [];
-            minimo[val] = [];
-            
+
             articulos[val] = filtro.length;
+
             if(filtro.length > 0){
                 maximo[val] = filtro.reduce((max, obj) => Math.max(max, obj.tiempo), -Infinity);
                 minimo[val] = filtro.reduce((min, obj) => Math.min(min, obj.tiempo), Infinity);
@@ -525,15 +565,15 @@ class_av = {
                 maximo[val] = 0;
                 minimo[val] = 0;
             }
-            
-            obj.totalSeconds = (filtro
-                                .map(res => res.tiempo)
-                                .filter(tiempo => !isNaN(tiempo))
-                                .map(tiempo => Number(tiempo) / 1000 )
-                                .reduce((total, tiempo) => parseFloat((total + tiempo).toFixed(2)), null));
-            
-            obj.maxSeconds = Number(maximo[val])/1000;
-            obj.minSeconds = Number(minimo[val])/1000;
+
+            obj.totalSeconds = filtro
+                .map(res => res.tiempo)
+                .filter(tiempo => !isNaN(tiempo))
+                .map(tiempo => Number(tiempo) / 1000)
+                .reduce((total, tiempo) => parseFloat((total + tiempo).toFixed(2)), 0);
+
+            obj.maxSeconds = Number(maximo[val]) / 1000;
+            obj.minSeconds = Number(minimo[val]) / 1000;
             obj.hours = Math.floor(obj.totalSeconds / 3600);
             obj.minutes = Math.floor((obj.totalSeconds % 3600) / 60);
             obj.seconds = Math.floor(obj.totalSeconds % 60);
@@ -541,102 +581,56 @@ class_av = {
             obj.secondsMax = Math.floor(obj.maxSeconds % 60);
             obj.minutesMin = Math.floor((obj.minSeconds % 3600) / 60);
             obj.secondsMin = Math.floor(obj.minSeconds % 60);
-            
-            obj.promedio = obj.totalSeconds / articulos[val];
+
+            obj.promedio = articulos[val] > 0 ? obj.totalSeconds / articulos[val] : 0;
             obj.promMinutes = Math.floor((obj.promedio % 3600) / 60);
             obj.promSeconds = Math.floor(obj.promedio % 60);
-			obj.dias = dias.length;
-            
+            obj.dias = dias.length;
+
             usuarios2.push(obj);
         });
-        
+
+        // fusiona filas equivalentes
+        data = fusionarData(data);
+
         $.each(data, function(i, val){
-                var nombre = val['nombre'].replace(',', '').replace('OJS', '').replace('SciELO', '').replace(' ', '');
-                var us = class_utils.find_prop(usuarios2, 'name', nombre);
-                if(us == undefined){
-                    us = {};
-                    us.hours = '00';
-                    us.minutes = '00';
-                    us.seconds = '00';
-                    us.porcentaje = 'N/A';
-                    us.minutesMin = '00';
-                    us.secondsMin = '00';
-                    us.minutesMax = '00';
-                    us.secondsMax = '00';
-                    us.promMinutes = '00';
-                    us.promSeconds = '00';
-                }
-                
-                us.porcentaje = (us.totalSeconds/(categorias.length * 8 * 60 * 60) * 100).toFixed(2) + '%';
-                
-                var tr = class_av.var.tr_prod.replace('<usuario>', val['nombre'])
-                                .replace('<cla>', val['clase'])
-								.replace('<dias>', us.dias || 0)
-                                .replace('<per>', val['periodica'])
-                                .replace('<hr_to>', (categorias.length * 8) + 'h' )
-                                .replace('<hr_tr>', (us.hours+'').padStart(2, '0') + 'h ' + (us.minutes+'').padStart(2, '0') + 'm ' + (us.seconds+'').padStart(2, '0') + 's' )
-                                .replace('<hr_p>', (us.porcentaje+'').replace('NaN','00').padStart(6, '0') )
-                                .replace('<t_min>', (us.minutesMin+'').padStart(2, '0') + 'm ' + (us.secondsMin+'').padStart(2, '0') + 's'  )
-                                .replace('<t_max>', (us.minutesMax+'').padStart(2, '0') + 'm ' + (us.secondsMax+'').padStart(2, '0') + 's'  )
-                                .replace('<t_prom>', (us.promMinutes+'').padStart(2, '0') + 'm ' + (us.promSeconds+'').padStart(2, '0') + 's'  )
-                                ;
-                tbody += tr;
+            var nombreKey = normalizarUsuario(val['nombre']);
+            var us = class_utils.find_prop(usuarios2, 'key', nombreKey);
+
+            if(us == undefined){
+                us = {
+                    hours: '00',
+                    minutes: '00',
+                    seconds: '00',
+                    porcentaje: 'N/A',
+                    minutesMin: '00',
+                    secondsMin: '00',
+                    minutesMax: '00',
+                    secondsMax: '00',
+                    promMinutes: '00',
+                    promSeconds: '00',
+                    dias: 0,
+                    totalSeconds: 0
+                };
+            }
+
+            us.porcentaje = (us.totalSeconds / (categorias.length * 8 * 60 * 60) * 100).toFixed(2) + '%';
+
+            var tr = class_av.var.tr_prod.replace('<usuario>', val['nombre'])
+                .replace('<cla>', val['clase'])
+                .replace('<dias>', us.dias || 0)
+                .replace('<per>', val['periodica'])
+                .replace('<hr_to>', (categorias.length * 8) + 'h')
+                .replace('<hr_tr>', (us.hours+'').padStart(2, '0') + 'h ' + (us.minutes+'').padStart(2, '0') + 'm ' + (us.seconds+'').padStart(2, '0') + 's')
+                .replace('<hr_p>', (us.porcentaje+'').replace('NaN','00').padStart(6, '0'))
+                .replace('<t_min>', (us.minutesMin+'').padStart(2, '0') + 'm ' + (us.secondsMin+'').padStart(2, '0') + 's')
+                .replace('<t_max>', (us.minutesMax+'').padStart(2, '0') + 'm ' + (us.secondsMax+'').padStart(2, '0') + 's')
+                .replace('<t_prom>', (us.promMinutes+'').padStart(2, '0') + 'm ' + (us.promSeconds+'').padStart(2, '0') + 's');
+
+            tbody += tr;
         });
-                
-        var tabla = class_av.var.tabla_prod
-                .replace('<body>', tbody);
-        
-        $('#div_tabla').html(tabla);
-        
-        var op = {
-                        dom: 'Bfrtip',
-                        buttons: [
-                            {
-                                extend: 'csvHtml5',
-                                text: 'Exportar CSV',
-                                exportOptions: {
-                                    columns: [0,1,2,3,4,5,6,7,8,9]
-                                }
-                            }
-                        ],
-                        order: [[ 0, 'asc' ]],
-                        bLengthChange: false,
-                        paging: false,
-                        pagingType: 'input',
-                        autoWidth: true,
-                        columnDefs: [
-                            {
-                                render: function (data, type, full, meta) {
-                                    //Sustituye el valor de la celda por esto agregando un div para que se mantenga dentro del tamaño definido
-                                    return '<div style="width: 100%; text-align: left; white-space: normal;">' + data + '</div>';
-                                },
-                                targets: [0,1,2]
-                            }
-                        ],
-                        //Reajusta el ancho de las columnas
-                        drawCallback: function( settings ) {
-                            $(this).DataTable().columns.adjust();
-                        }
-                    }; 
-        class_utils.setTabla('tbl_produccion', op);
-        
-    },
-	setTablaProdAnalista: function(data){
-        var tbody = '';
-        
-        $.each(data, function(i, val){
-			if (val['nombre'].indexOf('EDITOR') < 0){
-                var tr = class_av.var.tr_prod_analista.replace('<usuario>', val['nombre'])
-                                .replace('<cla>', val['clase'])
-                                .replace('<per>', val['periodica'])
-                                .replace('<total>', val['total'] );
-                tbody += tr;
-			}
-        });
-                
-        var tabla = class_av.var.tabla_prod_analista
-                .replace('<body>', tbody);
-        
+
+        var tabla = class_av.var.tabla_prod.replace('<body>', tbody);
         $('#div_tabla').html(tabla);
         
         var op = {
