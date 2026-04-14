@@ -31,7 +31,7 @@ class Frecuencias extends CI_Controller {
             'require_fetch_headers' => true,
             'allow_same_site'       => false,
             'allow_none'            => false, // false = bloquea URL escrita/favoritos
-            'require_user_nav'      => true,
+            'require_user_nav'      => false,
         ]);
 
         if (!$check['ok']) {
