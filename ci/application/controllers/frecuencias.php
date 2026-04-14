@@ -444,15 +444,15 @@ class Frecuencias extends CI_Controller {
 		$blockOneYearMinutes = 525600;
 
 		// Umbrales
-		$limitIp1m    = 10;
-		$limitIp10m   = 30;
+		$limitIp1m    = 30;
+		$limitIp10m   = 150;
 		$limitIp1d    = 200;
 
-		$limit24_1m   = 10;
-		$limit24_10m  = 50;
+		$limit24_1m   = 30;
+		$limit24_10m  = 200;
 		$limit24_1d   = 300;
 
-		$limit16_10m  = 50;
+		$limit16_10m  = 300;
 		$limit16_1d   = 400;
 
 		// 1) Bloqueo por IP
