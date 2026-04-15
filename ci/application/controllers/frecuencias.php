@@ -96,6 +96,7 @@ class Frecuencias extends CI_Controller {
         $mode = $_SERVER['HTTP_SEC_FETCH_MODE'] ?? '';
         $user = $_SERVER['HTTP_SEC_FETCH_USER'] ?? '';
         $dest = $_SERVER['HTTP_SEC_FETCH_DEST'] ?? '';
+		$isMobile = $_SERVER['HTTP_SEC_CH_UA_MOBILE'] ?? '';
 
         // Si el navegador no manda estos headers y tú quieres modo estricto, bloquea.
         if ($options['require_fetch_headers']) {
@@ -135,6 +136,10 @@ class Frecuencias extends CI_Controller {
         if ($options['allow_none']) {
             $allowedSites[] = 'none';
         }
+		
+		if ($isMobile == '?1'){
+			$allowedSites[] = 'cross-site';
+		}
 
         if (!in_array($site, $allowedSites, true)) {
             return [
@@ -145,6 +150,7 @@ class Frecuencias extends CI_Controller {
         }
 
         // Si quieres que además venga explícitamente de interacción del usuario
+		if ($isMobile != '?1'){
         if ($options['require_user_nav'] && $user !== '?1' && !($mode == 'cors' && $dest == 'empty')) {
             return [
                 'ok'     => false,
@@ -152,6 +158,7 @@ class Frecuencias extends CI_Controller {
                 'meta'   => compact('site', 'mode', 'user', 'dest'),
             ];
         }
+		}
 
         return [
             'ok'     => true,
