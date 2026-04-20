@@ -120,7 +120,8 @@ class_ver = {
 				/el país que quieren los dueños/,
                 /democracia y capitalismo periférico/,
                 /argentina en disputa/,
-				/revista completa/
+				/revista completa/,
+				/relación entre aceptación tecnológica y el diseño neuropedagógico/
             ],
             'contenido_indizable' : [
                 /^reseña$/,
