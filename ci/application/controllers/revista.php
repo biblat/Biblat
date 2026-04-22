@@ -71,6 +71,10 @@ class Revista extends CI_Controller{
         $user = $_SERVER['HTTP_SEC_FETCH_USER'] ?? '';
         $dest = $_SERVER['HTTP_SEC_FETCH_DEST'] ?? '';
 		$isMobile = $_SERVER['HTTP_SEC_CH_UA_MOBILE'] ?? '';
+		
+		#$referer = $_SERVER['HTTP_REFERER'] ?? '';
+		#$ua      = $_SERVER['HTTP_USER_AGENT'] ?? '';
+		#$this->insertIP('Error frecuencia s:' . $site . ' m:' . $mode . ' u:' . $user . ' d:' . $dest . ' mb:' . $isMobile . ' r:' . $referer . ' ua:' . $ua);
 
         // Si el navegador no manda estos headers y tú quieres modo estricto, bloquea.
         if ($options['require_fetch_headers']) {
@@ -111,7 +115,7 @@ class Revista extends CI_Controller{
             $allowedSites[] = 'none';
         }
 		
-		if ($isMobile == '?1'){
+		if ($isMobile == '?1' || ($mode == 'navigate' && $user == '?1' && $dest == 'document') ){
 			$allowedSites[] = 'cross-site';
 		}
 
