@@ -152,6 +152,14 @@ class Frecuencias extends CI_Controller {
                 'meta'   => compact('site', 'mode', 'user', 'dest'),
             ];
         }
+		
+		if ($site == 'same-origin'){
+			return [
+				'ok'     => true,
+				'reason' => 'fetch_metadata_valid',
+				'meta'   => compact('site', 'mode', 'user', 'dest'),
+			];
+		}
 
         // Si quieres que además venga explícitamente de interacción del usuario
 		if ($isMobile != '?1'){
