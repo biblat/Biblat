@@ -72,9 +72,9 @@ class Revista extends CI_Controller{
         $dest = $_SERVER['HTTP_SEC_FETCH_DEST'] ?? '';
 		$isMobile = $_SERVER['HTTP_SEC_CH_UA_MOBILE'] ?? '';
 		
-		#$referer = $_SERVER['HTTP_REFERER'] ?? '';
-		#$ua      = $_SERVER['HTTP_USER_AGENT'] ?? '';
-		#$this->insertIP('Error frecuencia s:' . $site . ' m:' . $mode . ' u:' . $user . ' d:' . $dest . ' mb:' . $isMobile . ' r:' . $referer . ' ua:' . $ua);
+		$referer = $_SERVER['HTTP_REFERER'] ?? '';
+		$ua      = $_SERVER['HTTP_USER_AGENT'] ?? '';
+		$this->insertIP('Error frecuencia s:' . $site . ' m:' . $mode . ' u:' . $user . ' d:' . $dest . ' mb:' . $isMobile . ' r:' . $referer . ' ua:' . $ua);
 
         // Si el navegador no manda estos headers y tú quieres modo estricto, bloquea.
         if ($options['require_fetch_headers']) {
@@ -126,6 +126,14 @@ class Revista extends CI_Controller{
                 'meta'   => compact('site', 'mode', 'user', 'dest'),
             ];
         }
+		
+		if ($site == 'same-origin'){
+			return [
+				'ok'     => true,
+				'reason' => 'fetch_metadata_valid',
+				'meta'   => compact('site', 'mode', 'user', 'dest'),
+			];
+		}
 
         // Si quieres que además venga explícitamente de interacción del usuario
 		if ($isMobile != '?1'){
