@@ -2,6 +2,15 @@
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<h5 class="panel-title">
+				<a href="{base_url('archivos/ppt/Revistas científicas mexicanas en red_ el aporte de la UNAM al acceso, evaluación y preservación digital.ppsx')}" target="_blank">
+                                    <span class="fa fa-file-powerpoint-o"></span> Sánchez Islas, Liliana Andrea y Rivera Pulido, Flor Janet (16 de abril de 2026). <b>Revistas científicas mexicanas en red: el aporte de la UNAM al acceso, evaluación y preservación digital</b>. 1er Coloquio de Revistas Mexicanas. Siglos XX y XXI. Universidad Nacional Autónoma de México, Instituto de Investigaciones Bibliográficas.
+				</a>
+			</h5>
+		</div>
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h5 class="panel-title">
 				<a href="{base_url('archivos/pdf/50_ANIV_CLASE_PPT_DIC2025.pdf')}" target="_blank">
                                     <span class="fa fa-file-pdf-o"></span> Reyna Espinosa, Felipe Rafael (2025, noviembre). <b>50 Aniversario de la base de datos CLASE Citas Latinoamericanas en Ciencias Sociales y Humanidades 1975 - 2025</b>
 				</a>
