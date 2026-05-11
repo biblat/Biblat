@@ -222,7 +222,7 @@ class Datos extends REST_Controller {
                             ELSE \'OJS\'
                         END AS cosecha,
                         max(asignado) as asignado, max("fechaIngreso") as fecha, max("fechaAsignado") as fecha_asignado,
-                        max(substr("fechaIngreso",1,4)) as anio, max(substr("fechaIngreso",6,2)) as mes, 
+                        max(extract( year from "fechaIngreso" )) as anio, max(extract( month from "fechaIngreso" )) as mes, 
                         max(article.estatus) as estatus,
                         max("asignadoPC") as asignado_pc, max("fechaAsignadoPC") as fecha_asignado_pc, max("estatusPC") as estatus_pc,
                         slug(article.revista) AS "revistaSlug",
@@ -546,10 +546,13 @@ class Datos extends REST_Controller {
                             and
                             extract(year from c.fecha) = extract(year from CURRENT_DATE)
                         )
+						or
+                        (
+                            estatus in (\'D\', \'R\')
+                        )
                         )
                         and c.id = (select max(id) from catalogador where sistema = a.sistema)
                         and ( asignado = \''.$usuario.'\' or "asignadoPC" = \''.$usuario.'\' )
-                        and a.sistema ~ \'^(PER|CLA)99\'
                         order by 1
                     ';
             
@@ -1167,10 +1170,11 @@ class Datos extends REST_Controller {
 
                         union
                         
-                        select sistema, max(nombre) usuario, max(fecha) fecha, sum(300000) tiempo
-                        from catalogador where extract(month from fecha) = ".$mes." and extract(year from fecha) = ".$anio." and id=1
-                        and nombre not in ('SciELO','OJS','EDITOR') and sistema ~ '^(CLA|PER)01.*' 
-                        group by sistema, nombre
+                        select c.sistema, max(c.nombre) usuario, max(c.fecha) fecha, sum(300000) tiempo
+                        from catalogador c inner join article a on c.sistema=a.sistema
+                        where extract(month from c.fecha) = ".$mes." and extract(year from c.fecha) = ".$anio." and c.id=1
+                        and c.nombre not in ('SciELO','OJS','EDITOR') and c.sistema ~ '^(CLA|PER)01.*' and a.estatus is null
+                        group by c.sistema, nombre
                         
                         order by 3,2,4
                     ";
