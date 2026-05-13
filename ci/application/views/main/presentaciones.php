@@ -2,7 +2,7 @@
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<h5 class="panel-title">
-				<a href="{base_url('archivos/ppt/ODS-Biblat-Aurora - Jornadas LVII 7-may-2026.ppsx')}" target="_blank">
+				<a href="{base_url('archivos/ppt/ODS-Biblat-Aurora - Jornadas LVII 7-may-2026.pptx')}" target="_blank">
                                     <span class="fa fa-file-powerpoint-o"></span> Zetter Patiño, Julio y Zetter Leal, Julio (6-8 de mayo de 2026). <b>De la indización a la inteligencia científica: sistemas bibliográficos, ODS e interoperabilidad semántica en entornos abiertos</b>. LVII Jornadas Mexicanas de Biblioteconomía. Universidad Autónoma de Coahuila.
 				</a>
 			</h5>
