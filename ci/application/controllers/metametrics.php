@@ -570,6 +570,11 @@ class Metametrics extends CI_Controller {
         @$dom->loadHTML($curl);
         $divs = $dom->getElementsByTagName('p');
         $divsa = $dom->getElementsByTagName('a');
+        $dds = $dom->getElementsByTagName('dd');
+        $xpath = new DOMXPath($dom);
+
+        $nodes = $xpath->query('//li[@data-key="resource-link"]/a');
+        
         $titulo = '';
         $pais = '';
         $url = '';
@@ -633,6 +638,25 @@ class Metametrics extends CI_Controller {
         $publisher = str_replace('Publisher:', '', $publisher);
         $publisher = trim($publisher);
         $publisher = trim($publisher, ".");
+        
+               foreach ($dds as $dd) {
+            if ($dd->hasAttribute('data-key') && $dd->getAttribute('data-key') === 'title-proper') {
+                $titulo = trim($dd->nodeValue);
+                continue;
+            }
+            if ($dd->hasAttribute('data-key') && $dd->getAttribute('data-key') === 'issuing-bodies') {
+                $publisher = trim($dd->nodeValue);
+                continue;
+            }
+            if ($dd->hasAttribute('data-key') && $dd->getAttribute('data-key') === 'country') {
+                $pais = trim($dd->nodeValue);
+                continue;
+            }
+        }
+        
+        if ($nodes->length > 0) {
+            $url = trim($nodes->item(0)->getAttribute('href'));
+        }
         
         $response = '{ ';
         $response .= '"titulo": "' . $titulo . '"';
