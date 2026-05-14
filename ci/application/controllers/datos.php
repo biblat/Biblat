@@ -364,6 +364,9 @@ class Datos extends REST_Controller {
                         inner join
                         catalogador c
                         on a.sistema = c.sistema
+						left join
+                        bitacora b
+                        on a.sistema = b.sistema and b.movimiento='Para corrección'
                         where 
                         (
                             c.nombre in ('OJS', 'SciELO', 'EDITOR')
@@ -383,6 +386,8 @@ class Datos extends REST_Controller {
                             "
                             .$txtAnio.
                             "
+							and
+                            b.movimiento is null
                         )
                         or
                         (
