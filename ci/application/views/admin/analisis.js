@@ -4674,8 +4674,6 @@ class_av = {
                             {e:'#idioma', c:'Idioma de título'},
                             {e:'#tipo_documento', c:'Tipo de documento'},
                             {e:'#disciplina1', c:'Disciplina'},
-                            {e:'#url1', c:'URL del artículo'},
-                            {e:'#tipourl1', c:'Formato del artículo (Tipo URL)'},
                         ];
             
             var revisa = class_av.revisa(campos);
