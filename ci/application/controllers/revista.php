@@ -74,7 +74,7 @@ class Revista extends CI_Controller{
 		
 		$referer = $_SERVER['HTTP_REFERER'] ?? '';
 		$ua      = $_SERVER['HTTP_USER_AGENT'] ?? '';
-		$this->insertIP('Error frecuencia s:' . $site . ' m:' . $mode . ' u:' . $user . ' d:' . $dest . ' mb:' . $isMobile . ' r:' . $referer . ' ua:' . $ua);
+		#$this->insertIP('Error frecuencia s:' . $site . ' m:' . $mode . ' u:' . $user . ' d:' . $dest . ' mb:' . $isMobile . ' r:' . $referer . ' ua:' . $ua);
 
         /**if ($site === 'none' || $site === ''){
 			$this->insertIP('Error frecuencia s:' . $site . ' m:' . $mode . ' u:' . $user . ' d:' . $dest . ' mb:' . $isMobile . ' r:' . $referer . ' ua:' . $ua);
