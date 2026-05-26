@@ -46,6 +46,27 @@ class Indicadores extends CI_Controller {
 	public function __construct()
 	{
 		parent::__construct();
+		
+		$site = $_SERVER['HTTP_SEC_FETCH_SITE'] ?? '';
+        $mode = $_SERVER['HTTP_SEC_FETCH_MODE'] ?? '';
+        $user = $_SERVER['HTTP_SEC_FETCH_USER'] ?? '';
+        $dest = $_SERVER['HTTP_SEC_FETCH_DEST'] ?? '';
+		
+		$check = $this->validateRequest('revistas_index', [
+            'require_fetch_headers' => true,
+            'allow_same_site'       => false,
+            'allow_none'            => true, // false = bloquea URL escrita/favoritos
+            'require_user_nav'      => true,
+        ]);
+
+        if (!$check['ok']) {
+			//$this->insertIP('Error frecuencia ' . $site . ' ' . $mode . ' ' . $user . ' ' . $dest);
+			redirect('error');
+			return;
+		}
+		
+		$this->checkTrafficAndBlock();
+		
 		$this->load->driver('minify');
 		/*Variables globles*/
 		$data = array();
@@ -228,6 +249,481 @@ class Indicadores extends CI_Controller {
 		$this->template->set('class_method', $this->router->fetch_class().$this->router->fetch_method());
 		$this->template->set('disciplinas', $this->disciplinas);
 		$this->template->set('indicadores', $this->indicadores);
+	}
+	
+		    public function validateRequest(string $key, array $options = []): array
+    {
+        $defaults = [
+            'require_fetch_headers' => true,
+            'allow_same_site'       => false,
+            'allow_none'            => false,
+            'require_user_nav'      => true,
+        ];
+
+        $options = array_merge($defaults, $options);
+
+        $fetchCheck = $this->validateFetchMetadata($options);
+        if (!$fetchCheck['ok']) {
+            return $fetchCheck;
+        }
+
+        return [
+            'ok'     => true,
+            'reason' => 'allowed',
+        ];
+    }
+
+
+    /**
+     * Valida headers Fetch Metadata.
+     */
+    protected function validateFetchMetadata(array $options): array
+    {
+        $site = $_SERVER['HTTP_SEC_FETCH_SITE'] ?? '';
+        $mode = $_SERVER['HTTP_SEC_FETCH_MODE'] ?? '';
+        $user = $_SERVER['HTTP_SEC_FETCH_USER'] ?? '';
+        $dest = $_SERVER['HTTP_SEC_FETCH_DEST'] ?? '';
+		$isMobile = $_SERVER['HTTP_SEC_CH_UA_MOBILE'] ?? '';
+		
+		#$referer = $_SERVER['HTTP_REFERER'] ?? '';
+		#$ua      = $_SERVER['HTTP_USER_AGENT'] ?? '';
+		#$this->insertIP('Error frecuencia s:' . $site . ' m:' . $mode . ' u:' . $user . ' d:' . $dest . ' mb:' . $isMobile . ' r:' . $referer . ' ua:' . $ua);
+		
+		/**if ($site === 'none' || $site === ''){
+			$this->insertIP('Error frecuencia s:' . $site . ' m:' . $mode . ' u:' . $user . ' d:' . $dest . ' mb:' . $isMobile . ' r:' . $referer . ' ua:' . $ua);
+			return [
+                    'ok'     => false,
+                    'reason' => 'missing_fetch_metadata',
+                    'meta'   => compact('site', 'mode', 'user', 'dest'),
+                ];
+		}else{
+			$this->insertIP('Error frecuencia s:' . $site . ' m:' . $mode . ' u:' . $user . ' d:' . $dest . ' mb:' . $isMobile . ' r:' . $referer . ' ua:' . $ua);
+		}**/
+		
+        // Si el navegador no manda estos headers y tú quieres modo estricto, bloquea.
+        if ($options['require_fetch_headers']) {
+            if ($site === '' || $mode === '') {
+                return [
+                    'ok'     => false,
+                    'reason' => 'missing_fetch_metadata',
+                    'meta'   => compact('site', 'mode', 'user', 'dest'),
+                ];
+            }
+        }
+		
+		// Debe parecer navegación de documento HTML.
+        if ($mode !== 'navigate' && !($mode == 'cors' && $dest == 'empty')) {
+            return [
+                'ok'     => false,
+                'reason' => 'invalid_fetch_mode',
+                'meta'   => compact('site', 'mode', 'user', 'dest'),
+            ];
+        }
+
+        if ($dest !== '' && $dest !== 'document' && !($mode == 'cors' && $dest == 'empty')) {
+            return [
+                'ok'     => false,
+                'reason' => 'invalid_fetch_dest',
+                'meta'   => compact('site', 'mode', 'user', 'dest'),
+            ];
+        }
+
+        // Permitimos solo same-origin, opcionalmente same-site o none.
+        $allowedSites = ['same-origin'];
+
+        if ($options['allow_same_site']) {
+            $allowedSites[] = 'same-site';
+        }
+
+        if ($options['allow_none']) {
+            $allowedSites[] = 'none';
+        }
+		
+		if ($isMobile == '?1' || ($mode == 'navigate' && $user == '?1' && $dest == 'document') ){
+			$allowedSites[] = 'cross-site';
+		}
+
+        if (!in_array($site, $allowedSites, true)) {
+            return [
+                'ok'     => false,
+                'reason' => 'invalid_fetch_site',
+                'meta'   => compact('site', 'mode', 'user', 'dest'),
+            ];
+        }
+		
+		if ($site == 'same-origin'){
+			return [
+				'ok'     => true,
+				'reason' => 'fetch_metadata_valid',
+				'meta'   => compact('site', 'mode', 'user', 'dest'),
+			];
+		}
+
+        // Si quieres que además venga explícitamente de interacción del usuario
+		if ($isMobile != '?1'){
+        if ($options['require_user_nav'] && $user !== '?1' && !($mode == 'cors' && $dest == 'empty')) {
+            return [
+                'ok'     => false,
+                'reason' => 'missing_user_navigation',
+                'meta'   => compact('site', 'mode', 'user', 'dest'),
+            ];
+        }
+		}
+
+        return [
+            'ok'     => true,
+            'reason' => 'fetch_metadata_valid',
+            'meta'   => compact('site', 'mode', 'user', 'dest'),
+        ];
+    }
+	
+	protected function getPrefixes($ip)
+	{
+		$prefix24 = null;
+		$prefix16 = null;
+
+		if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+			$parts = explode('.', $ip);
+
+			$prefix24 = $parts[0] . '.' . $parts[1] . '.' . $parts[2] . '.';
+			$prefix16 = $parts[0] . '.' . $parts[1] . '.';
+		}
+
+		return array(
+			'prefix24' => $prefix24,
+			'prefix16' => $prefix16,
+		);
+	}
+
+	protected function insertRequestLog($ip, $prefix24, $prefix16)
+	{
+		$this->load->database();
+
+		$this->db->insert('request_log', array(
+			'ip'         => $ip,
+			'prefix24'   => $prefix24,
+			'prefix16'   => $prefix16,
+			'created_at' => date('Y-m-d H:i:s'),
+		));
+	}
+
+	protected function countRecentByIp($ip, $minutes)
+	{
+		$this->load->database();
+
+		$since = date('Y-m-d H:i:s', time() - ($minutes * 60));
+
+		return (int)$this->db
+			->where('ip', $ip)
+			->where('created_at >=', $since)
+			->count_all_results('request_log');
+	}
+
+	protected function countRecentByPrefix24($prefix24, $minutes)
+	{
+		$this->load->database();
+
+		if (!$prefix24) {
+			return 0;
+		}
+
+		$since = date('Y-m-d H:i:s', time() - ($minutes * 60));
+
+		return (int)$this->db
+			->where('prefix24', $prefix24)
+			->where('created_at >=', $since)
+			->count_all_results('request_log');
+	}
+
+	protected function countRecentByPrefix16($prefix16, $minutes)
+	{
+		$this->load->database();
+
+		if (!$prefix16) {
+			return 0;
+		}
+
+		$since = date('Y-m-d H:i:s', time() - ($minutes * 60));
+
+		return (int)$this->db
+			->where('prefix16', $prefix16)
+			->where('created_at >=', $since)
+			->count_all_results('request_log');
+	}
+
+	protected function countDistinctRecentPrefix24ByPrefix16($prefix16, $minutes)
+	{
+		$this->load->database();
+
+		if (!$prefix16) {
+			return 0;
+		}
+
+		$since = date('Y-m-d H:i:s', time() - ($minutes * 60));
+
+		$sql = "
+			SELECT COUNT(DISTINCT prefix24) AS total
+			FROM request_log
+			WHERE prefix16 = ?
+			  AND created_at >= ?
+		";
+
+		$query = $this->db->query($sql, array($prefix16, $since));
+
+		if (!$query || $query->num_rows() === 0) {
+			return 0;
+		}
+
+		$row = $query->row();
+		return (int)$row->total;
+	}
+
+	protected function isSpecialPrefix16($prefix16)
+	{
+		// Prefijos que conviene tratar con más cuidado
+		// porque pueden ser bots/cdn/infraestructura
+		$special = array(
+			'17.22.',
+			'17.241.',
+			'17.246.',
+			'66.249.',
+			'220.181.',
+			'87.250.',
+			'5.255.',
+		);
+
+		return in_array($prefix16, $special, true);
+	}
+
+	protected function addTemporaryBlock($type, $value, $minutes, $reason)
+	{
+		$this->load->database();
+
+		$now = date('Y-m-d H:i:s');
+		$expires = date('Y-m-d H:i:s', time() + ($minutes * 60));
+
+		$existing = $this->db
+			->where('block_type', $type)
+			->where('block_value', $value)
+			->where('expires_at >=', $now)
+			->get('blocked_networks')
+			->row();
+
+		if ($existing) {
+			$this->db
+				->where('id', $existing->id)
+				->update('blocked_networks', array(
+					'expires_at' => $expires,
+					'reason'     => $reason ? $reason : $existing->reason,
+				));
+			return;
+		}
+
+		$this->db->insert('blocked_networks', array(
+			'block_type'  => $type,
+			'block_value' => $value,
+			'reason'      => $reason,
+			'expires_at'  => $expires,
+			'created_at'  => $now,
+		));
+	}
+
+	protected function isBlocked($ip, $prefix24, $prefix16)
+	{
+		$this->load->database();
+
+		$now = date('Y-m-d H:i:s');
+
+		$sql = "SELECT * FROM blocked_networks WHERE (";
+		$params = array();
+
+		$sql .= "(block_type = ? AND block_value = ?)";
+		$params[] = 'ip';
+		$params[] = $ip;
+
+		if ($prefix24) {
+			$sql .= " OR (block_type = ? AND block_value = ?)";
+			$params[] = 'prefix24';
+			$params[] = $prefix24;
+		}
+
+		if ($prefix16) {
+			$sql .= " OR (block_type = ? AND block_value = ?)";
+			$params[] = 'prefix16';
+			$params[] = $prefix16;
+		}
+
+		$sql .= ") AND expires_at >= ? LIMIT 1";
+		$params[] = $now;
+
+		$query = $this->db->query($sql, $params);
+
+		if (!$query) {
+			return false;
+		}
+
+		if ($query->num_rows() > 0) {
+			return $query->row();
+		}
+
+		return false;
+	}
+	
+	protected function countActivePostgresConnections()
+	{
+		$this->load->database();
+
+		$sql = "
+			SELECT COUNT(*) AS total
+			FROM pg_stat_activity
+			WHERE datname = current_database()
+			  AND pid <> pg_backend_pid()
+			  AND state IN ('active', 'idle')
+		";
+
+		$query = $this->db->query($sql);
+
+		if (!$query || $query->num_rows() === 0) {
+			return 0;
+		}
+
+		$row = $query->row();
+		return (int)$row->total;
+	}
+
+	protected function cleanExpiredBlocks()
+	{
+		$this->load->database();
+
+		$this->db->where('expires_at <', date('Y-m-d H:i:s'))
+				 ->delete('blocked_networks');
+	}
+	
+	protected function cleanOldRequestLogs()
+	{
+			$this->load->database();
+
+			$limitDate = date('Y-m-d H:i:s', time() - (2 * 24 * 60 * 60));
+
+			$this->db->where('created_at <', $limitDate)
+							 ->delete('request_log');
+	}
+
+	public function checkTrafficAndBlock()
+	{
+		$ip = trim($this->get_ip());
+
+		$pass_ips = array(
+			'148.204.63.19',
+			'148.204.63.195',
+		);
+
+		if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+			redirect('error');
+			return;
+		}
+
+		$prefixes = $this->getPrefixes($ip);
+		$prefix24 = $prefixes['prefix24'];
+		$prefix16 = $prefixes['prefix16'];
+
+		if (in_array($ip, $pass_ips, true)) {
+			$this->insertRequestLog($ip, $prefix24, $prefix16);
+			$this->insertIP('frecuencias autor');
+			return;
+		}
+
+		$this->cleanExpiredBlocks();
+		$this->cleanOldRequestLogs();
+		
+		// Registrar primero la petición
+		$this->insertRequestLog($ip, $prefix24, $prefix16);
+		
+		$existingBlock = $this->isBlocked($ip, $prefix24, $prefix16);
+		if ($existingBlock) {
+			redirect('error');
+			return;
+		}
+
+		/// Ventanas
+		$hitsIp1m   = $this->countRecentByIp($ip, 1);
+		$hitsIp10m  = $this->countRecentByIp($ip, 10);
+		$hitsIp1d   = $this->countRecentByIp($ip, 1440);
+
+		$hits24_1m  = $this->countRecentByPrefix24($prefix24, 1);
+		$hits24_10m = $this->countRecentByPrefix24($prefix24, 10);
+		$hits24_1d  = $this->countRecentByPrefix24($prefix24, 1440);
+
+		$hits16_10m = $this->countRecentByPrefix16($prefix16, 10);
+		$hits16_1d  = $this->countRecentByPrefix16($prefix16, 1440);
+
+		// Un año = 365 días
+		$blockOneYearMinutes = 525600;
+
+		// Umbrales
+		$limitIp1m    = 30;
+		$limitIp10m   = 150;
+		$limitIp1d    = 200;
+
+		$limit24_1m   = 30;
+		$limit24_10m  = 200;
+		$limit24_1d   = 300;
+
+		$limit16_10m  = 300;
+		$limit16_1d   = 400;
+
+		// 1) Bloqueo por IP
+		if ($hitsIp1m >= $limitIp1m) {
+			$this->addTemporaryBlock('ip', $ip, $blockOneYearMinutes, 'Exceso de peticiones por IP en 1 min');
+			redirect('error');
+			return;
+		}
+
+		if ($hitsIp10m >= $limitIp10m) {
+			$this->addTemporaryBlock('ip', $ip, $blockOneYearMinutes, 'Exceso de peticiones por IP en 10 min');
+			redirect('error');
+			return;
+		}
+
+		if ($hitsIp1d >= $limitIp1d) {
+			$this->addTemporaryBlock('ip', $ip, $blockOneYearMinutes, 'Exceso de peticiones por IP en 1 día');
+			redirect('error');
+			return;
+		}
+
+		// 2) Bloqueo por /24
+		if ($prefix24 && $hits24_1m >= $limit24_1m) {
+			$this->addTemporaryBlock('prefix24', $prefix24, $blockOneYearMinutes, 'Exceso de peticiones por /24 en 1 min');
+			redirect('error');
+			return;
+		}
+
+		if ($prefix24 && $hits24_10m >= $limit24_10m) {
+			$this->addTemporaryBlock('prefix24', $prefix24, $blockOneYearMinutes, 'Exceso de peticiones por /24 en 10 min');
+			redirect('error');
+			return;
+		}
+
+		if ($prefix24 && $hits24_1d >= $limit24_1d) {
+			$this->addTemporaryBlock('prefix24', $prefix24, $blockOneYearMinutes, 'Exceso de peticiones por /24 en 1 día');
+			redirect('error');
+			return;
+		}
+
+		// 3) Bloqueo por /16
+		if ($prefix16 && $hits16_10m >= $limit16_10m) {
+			$this->addTemporaryBlock('prefix16', $prefix16, $blockOneYearMinutes, 'Exceso de peticiones por /16 en 10 min');
+			redirect('error');
+			return;
+		}
+
+		if ($prefix16 && $hits16_1d >= $limit16_1d) {
+			$this->addTemporaryBlock('prefix16', $prefix16, $blockOneYearMinutes, 'Exceso de peticiones por /16 en 1 día');
+			redirect('error');
+			return;
+		}
+
+		$this->insertIP('indicadores');
 	}
 
 	public function index($indicador="")

@@ -101,7 +101,18 @@ class Frecuencias extends CI_Controller {
 		#$referer = $_SERVER['HTTP_REFERER'] ?? '';
 		#$ua      = $_SERVER['HTTP_USER_AGENT'] ?? '';
 		#$this->insertIP('Error frecuencia s:' . $site . ' m:' . $mode . ' u:' . $user . ' d:' . $dest . ' mb:' . $isMobile . ' r:' . $referer . ' ua:' . $ua);
-
+		
+		/**if ($site === 'none' || $site === ''){
+			$this->insertIP('Error frecuencia s:' . $site . ' m:' . $mode . ' u:' . $user . ' d:' . $dest . ' mb:' . $isMobile . ' r:' . $referer . ' ua:' . $ua);
+			return [
+                    'ok'     => false,
+                    'reason' => 'missing_fetch_metadata',
+                    'meta'   => compact('site', 'mode', 'user', 'dest'),
+                ];
+		}else{
+			$this->insertIP('Error frecuencia s:' . $site . ' m:' . $mode . ' u:' . $user . ' d:' . $dest . ' mb:' . $isMobile . ' r:' . $referer . ' ua:' . $ua);
+		}**/
+		
         // Si el navegador no manda estos headers y tú quieres modo estricto, bloquea.
         if ($options['require_fetch_headers']) {
             if ($site === '' || $mode === '') {
