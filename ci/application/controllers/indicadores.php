@@ -235,6 +235,18 @@ class Indicadores extends CI_Controller {
 		$this->template->set('indicadores', $this->indicadores);
 	}
 
+	private $challenge_pass_ips = [
+            "127.0.0.1",
+            "::1",
+            "148.204.63.19",
+            "148.204.63.195"
+        ];
+		
+	private $challenge_pass_prefixes = [
+            // Ejemplo: permitir una red institucional completa
+            "132.248."
+        ];
+
 	public function index($indicador="")
 	{
 		$data = array();
