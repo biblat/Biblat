@@ -47,7 +47,11 @@ class Indicadores extends CI_Controller {
 	{
 		parent::__construct();
 		
-		$site = $_SERVER['HTTP_SEC_FETCH_SITE'] ?? '';
+		$this->load->library('session');
+
+		$this->require_human_challenge();
+		
+		/*$site = $_SERVER['HTTP_SEC_FETCH_SITE'] ?? '';
         $mode = $_SERVER['HTTP_SEC_FETCH_MODE'] ?? '';
         $user = $_SERVER['HTTP_SEC_FETCH_USER'] ?? '';
         $dest = $_SERVER['HTTP_SEC_FETCH_DEST'] ?? '';
@@ -63,7 +67,7 @@ class Indicadores extends CI_Controller {
 			//$this->insertIP('Error frecuencia ' . $site . ' ' . $mode . ' ' . $user . ' ' . $dest);
 			redirect('error');
 			return;
-		}
+		}*/
 		
 		$this->checkTrafficAndBlock();
 		
@@ -251,7 +255,19 @@ class Indicadores extends CI_Controller {
 		$this->template->set('indicadores', $this->indicadores);
 	}
 	
-		    public function validateRequest(string $key, array $options = []): array
+	private $challenge_pass_ips = [
+            "127.0.0.1",
+            "::1",
+            "148.204.63.19",
+            "148.204.63.195"
+        ];
+		
+	private $challenge_pass_prefixes = [
+            // Ejemplo: permitir una red institucional completa
+            "132.248."
+        ];
+			
+			public function validateRequest(string $key, array $options = []): array
     {
         $defaults = [
             'require_fetch_headers' => true,
@@ -2226,6 +2242,91 @@ class Indicadores extends CI_Controller {
 		header('Content-Type: application/json');
 		echo json_encode($data, true);
 	}
+	
+	private function get_ip(){
+			$realip = '';
+			if ($_SERVER) {  
+			   if ( $_SERVER["HTTP_X_FORWARDED_FOR"] ) {  
+				   $realip = $_SERVER["HTTP_X_FORWARDED_FOR"];  
+			   } elseif ( $_SERVER["HTTP_CLIENT_IP"] ) {  
+				   $realip = $_SERVER["HTTP_CLIENT_IP"];  
+			   } elseif ($_SERVER["REMOTE_ADDR"]){
+				   $realip = $_SERVER["REMOTE_ADDR"];  
+			   } else{
+				   $realip = 'UNKNOWN';
+			   }
+			} else {  
+				if ( getenv( 'HTTP_X_FORWARDED_FOR' ) ) {  
+				   $realip = getenv( 'HTTP_X_FORWARDED_FOR' );  
+				} elseif ( getenv( 'HTTP_CLIENT_IP' ) ) {  
+				   $realip = getenv( 'HTTP_CLIENT_IP' );  
+				} elseif (getenv( 'REMOTE_ADDR' )){  
+				   $realip = getenv( 'REMOTE_ADDR' );  
+				} else{
+				   $realip = 'UNKNOWN';
+				}
+			}
+			return $realip;
+		}
+		
+		private function require_human_challenge() {
+            $method = strtoupper($this->input->server('REQUEST_METHOD'));
+
+            if ($method !== 'GET') {
+                return;
+            }
+
+            if ($this->input->is_ajax_request()) {
+                return;
+            }
+            
+            $ip = $this->get_ip();
+
+            // Excepción por IP
+            if ($this->is_challenge_exception_ip($ip)) {
+                return;
+            }
+
+            $verified_until = (int) $this->session->userdata('human_verified_until');
+
+            if ($verified_until >= time()) {
+                return;
+            }
+
+            $uri = '/' . ltrim($this->uri->uri_string(), '/');
+
+            if (!empty($_SERVER['QUERY_STRING'])) {
+                $uri .= '?' . $_SERVER['QUERY_STRING'];
+            }
+
+            redirect('challenge?return=' . rawurlencode($uri));
+        }
+        
+        private function is_challenge_exception_ip($ip) {
+            if (empty($ip) || $ip === 'UNKNOWN') {
+                return FALSE;
+            }
+
+            // Si viene algo como "1.2.3.4, 5.6.7.8", toma la primera IP
+            $parts = explode(',', $ip);
+            $ip = trim($parts[0]);
+
+            // Coincidencia exacta
+            foreach ($this->challenge_pass_ips as $pass_ip) {
+                if ($ip === $pass_ip) {
+                    return TRUE;
+                }
+            }
+
+            // Coincidencia por prefijo
+            foreach ($this->challenge_pass_prefixes as $prefix) {
+                if (strpos($ip, $prefix) === 0) {
+                    return TRUE;
+                }
+            }
+
+            return FALSE;
+        }
         
 }
 /* End of file indicadores.php */
