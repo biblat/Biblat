@@ -44,6 +44,7 @@ class_ver = {
             //Orcid
             'orcid' : /^(https?:\/\/orcid.org\/|http:\/\/orcid.org\/)[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9]([0-9]|X)/,
             //Mayúsculas seguidas
+            //'doblemayus' : /([A-Z][A-Z]|[A-Z]\.[A-Z])/,
             'doblemayus' : /^(?!.*\b[A-Z]{2,}\b(?![^()]*\)))(?!^\([^()]*\)$)[\s\S]*$/,
             //Licesncias
             'licencia' : /^https?:\/\/creativecommons\.org\/licenses/,
@@ -99,7 +100,7 @@ class_ver = {
                 /^content$/,
                 /^directorio$/,
                 /^directory$/,
-				/^revista\s*cuestiones\s*económicas$/,
+                /^revista\s*cuestiones\s*económicas$/,
             ],
             'titulo_parcial' : [
                 /in\s*memóriam/,
@@ -117,11 +118,11 @@ class_ver = {
                 /^editorial./,
                 /^expediente\s*\(/,
                 /^tesis/,
-				/el país que quieren los dueños/,
+                /el país que quieren los dueños/,
                 /democracia y capitalismo periférico/,
                 /argentina en disputa/,
-				/revista completa/,
-				/relación entre aceptación tecnológica y el diseño neuropedagógico/
+                /revista completa/,
+                /relación entre aceptación tecnológica y el diseño neuropedagógico/
             ],
             'contenido_indizable' : [
                 /^reseña$/,
@@ -144,8 +145,34 @@ class_ver = {
                             '<tbody id="<id_body>"><body></tbody></table>',
         tr_faltantes: '<tr><td><anio></td><td><vol></td><td><num></td><td width="50px"><pag></td><td><a href="<enlace>" target="_blank"><tit></a></td><td><falta></td><td><consis></td><td><precis></td></tr>',
         option_oai: '<option value="<url>"><revista></option>',
-        DISCOVERY_DOCS: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
+        DISCOVERY_DOCS: [
+            "https://sheets.googleapis.com/$discovery/rest?version=v4",
+            "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"
+        ],
         SCOPES: ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'],
+        incidencias_sheet: 'Incidencias',
+        incidencias_headers: [
+            'ID Revista',
+            'ISSN-impreso',
+            'ISSN-electrónico',
+            'Título',
+            'Periodo evaluado',
+            'Fascículos',
+            'Puntuación',
+            'URL Evaluación',
+            'Campo',
+            'Incidencia',
+            'Código de incidencia',
+            'Tipología de la incidencia',
+            'Origen de la incidencia',
+            'Descripción incidencia',
+            'Dimensión afectada',
+            'Artículos totales',
+            'Artículos con incidencia',
+            '% incidencia',
+            'Observaciones',
+            'Fecha de recolección'
+        ],
         chbx_seccion:   '<div class="input-group" >' +
                             '<span class="input-group-addon">' +
                                 '<input type="checkbox" class="seccion checkbox" name="section[]" id="sel-<id_seccion>" value="<id_seccion>" checked style="accent-color: #f0ad4e">' +
@@ -186,7 +213,8 @@ class_ver = {
         control:[],
         reevaluar: false,
         row_reevaluar: 0,
-        numeros: 3
+        numeros: 3,
+        incidencias_guardadas: false
     },
     salida: function(msj){
       class_ver.var.salida += msj+'\n';
@@ -194,8 +222,8 @@ class_ver = {
     ready:function(){
         class_ver.var.simulador = ((window.location.href).indexOf('simulador') !== -1)?true:false;
         class_ver.var.postular = ((window.location.href).indexOf('postular') !== -1)?true:false;
-		
-		/*if(class_ver.var.postular){
+        
+        /*if(class_ver.var.postular){
             $.confirm({
                 columnClass: 'xlarge',
                 title: '<span style="color:#DF6521">Aviso sobre el proceso de postulación</span>',
@@ -214,8 +242,9 @@ class_ver = {
                 }
             });
         }*/
-		
-		/*if(class_ver.var.postular){
+        
+        
+        /*if(class_ver.var.postular){
             $.confirm({
                 columnClass: 'xlarge',
                 title: '<span style="color:#DF6521">Aviso sobre los criterios de selección</span>',
@@ -234,7 +263,7 @@ class_ver = {
                 }
             });
         }*/
-		
+        
         if( !class_ver.var.simulador && !class_ver.var.postular){
             class_ver.var.id_oai = 'url_oai_sel';
             //$('#'+class_ver.var.id_oai).show();
@@ -428,6 +457,670 @@ class_ver = {
         });
         
     },
+
+    fecha_recoleccion_incidencias: function(){
+        var fecha = new Date();
+        return String(fecha.getDate()).padStart(2,'0') + '-' + String((fecha.getMonth()+1)).padStart(2,'0') + '-' + fecha.getFullYear();
+    },
+    rango_incidencias: function(celdas){
+        var hoja = class_ver.cons.incidencias_sheet.replace(/'/g, "''");
+        return "'" + hoja + "'!" + celdas;
+    },
+    valor_limpio: function(valor){
+        if(valor === undefined || valor === null){
+            return '';
+        }
+        return String(valor).trim();
+    },
+    arr_global: function(nombre){
+        if(typeof window !== 'undefined' && Array.isArray(window[nombre])){
+            return window[nombre];
+        }
+        return [];
+    },
+    arreglo_seguro: function(arr){
+        return Array.isArray(arr)?arr:[];
+    },
+    filtra_prop_valor: function(arr, prop, valor){
+        arr = class_ver.arreglo_seguro(arr);
+        return arr.filter(function(obj){
+            return obj && String(obj[prop]) === String(valor);
+        });
+    },
+    filtra_resuelve: function(arr, valor){
+        return class_ver.filtra_prop_valor(arr, 'resuelve', valor);
+    },
+    filtra_registrado: function(arr, valor){
+        return class_ver.filtra_prop_valor(arr, 'registrado', valor);
+    },
+    valor_propiedad: function(obj, prop){
+        if(!obj || obj[prop] === undefined || obj[prop] === null){
+            return '';
+        }
+        return String(obj[prop]).trim();
+    },
+    filtra_longitud_menor_igual: function(arr, prop, max){
+        arr = class_ver.arreglo_seguro(arr);
+        return arr.filter(function(obj){
+            var valor = class_ver.valor_propiedad(obj, prop);
+            return valor !== '' && valor.length <= max;
+        });
+    },
+    filtra_longitud_menor: function(arr, prop, min){
+        arr = class_ver.arreglo_seguro(arr);
+        return arr.filter(function(obj){
+            var valor = class_ver.valor_propiedad(obj, prop);
+            return valor !== '' && valor.length < min;
+        });
+    },
+    filtra_todo_mayusculas: function(arr, prop){
+        arr = class_ver.arreglo_seguro(arr);
+        return arr.filter(function(obj){
+            var valor = class_ver.valor_propiedad(obj, prop);
+            return valor.length > 1 && !class_ver.cons.er.mayus.test(valor);
+        });
+    },
+    filtra_regex: function(arr, prop, er){
+        arr = class_ver.arreglo_seguro(arr);
+        return arr.filter(function(obj){
+            var valor = class_ver.valor_propiedad(obj, prop);
+            er.lastIndex = 0;
+            return valor !== '' && er.test(valor);
+        });
+    },
+    filtra_no_regex: function(arr, prop, er){
+        arr = class_ver.arreglo_seguro(arr);
+        return arr.filter(function(obj){
+            var valor = class_ver.valor_propiedad(obj, prop);
+            er.lastIndex = 0;
+            return valor !== '' && !er.test(valor);
+        });
+    },
+    filtra_ocurrencias_menor: function(arr, prop, minimo){
+        arr = class_ver.arreglo_seguro(arr);
+        return arr.filter(function(obj){
+            var valor = class_ver.valor_propiedad(obj, prop);
+            if(valor === ''){
+                return false;
+            }
+            var partes = valor.split(',').map(function(v){return v.trim();}).filter(function(v){return v !== '';});
+            return partes.length > 0 && partes.length < minimo;
+        });
+    },
+    filtra_doi_mas_de_una_ocurrencia: function(arr){
+        arr = class_ver.arreglo_seguro(arr);
+        return arr.filter(function(obj){
+            var valor = class_ver.valor_propiedad(obj, 'doi');
+            if(valor === ''){
+                return false;
+            }
+            var partes = valor.split(/[;,\s]+/).filter(function(v){
+                return /^10\..*\/.*/.test(v.trim());
+            });
+            return partes.length > 1;
+        });
+    },
+    obtener_id_articulo_incidencia: function(articulo, indice){
+        if(!articulo){
+            return 'sin-id-' + indice;
+        }
+        if(articulo.id !== undefined && articulo.id !== null && String(articulo.id).trim() !== ''){
+            return String(articulo.id).trim();
+        }
+        if(articulo.pub_id !== undefined && articulo.pub_id !== null && String(articulo.pub_id).trim() !== ''){
+            return String(articulo.pub_id).trim();
+        }
+        var numero = articulo.numero || {};
+        var titulo = class_ver.obtener_titulo_articulo(articulo);
+        var clave = [
+            class_ver.valor_limpio(numero.year),
+            class_ver.valor_limpio(numero.vol),
+            class_ver.valor_limpio(numero.num),
+            class_ver.valor_limpio(articulo.pags),
+            titulo
+        ].join('|');
+        if(clave.replace(/\|/g, '').trim() !== ''){
+            return clave;
+        }
+        return 'sin-id-' + indice;
+    },
+    obtener_articulos_unicos: function(arr){
+        arr = class_ver.arreglo_seguro(arr);
+        var ids = [];
+        var articulos = [];
+        $.each(arr, function(i, val){
+            if(!val){
+                return true;
+            }
+            var id = class_ver.obtener_id_articulo_incidencia(val, i);
+            if(ids.indexOf(id) === -1){
+                ids.push(id);
+                articulos.push(val);
+            }
+        });
+        return articulos;
+    },
+    contar_articulos_unicos: function(arr){
+        return class_ver.obtener_articulos_unicos(arr).length;
+    },
+    obtener_periodo_evaluado: function(){
+        var numeros = (class_ver.var.salida && Array.isArray(class_ver.var.salida.iss))?class_ver.var.salida.iss:[];
+        var anios = [];
+        $.each(numeros, function(i, num){
+            var anio = class_ver.valor_limpio(num.year);
+            if(anio !== '' && anio !== '0' && anios.indexOf(anio) === -1){
+                anios.push(anio);
+            }
+        });
+        if(anios.length > 0){
+            return anios.join(' | ');
+        }
+        if(class_ver.var.id_anio !== undefined && class_ver.var.id_anio !== null && String(class_ver.var.id_anio) !== '0'){
+            return String(class_ver.var.id_anio);
+        }
+        return 'No especificado';
+    },
+    obtener_fasciculos_evaluados: function(){
+        var numeros = (class_ver.var.salida && Array.isArray(class_ver.var.salida.iss))?class_ver.var.salida.iss:[];
+        var salida = [];
+        var claves = [];
+        $.each(numeros, function(i, num){
+            var partes = [];
+            var vol = class_ver.valor_limpio(num.vol);
+            var numero = class_ver.valor_limpio(num.num);
+            if(vol !== '' && vol !== '0'){
+                partes.push('Vol. ' + vol);
+            }
+            if(numero !== '' && numero !== '0'){
+                partes.push('Núm. ' + numero);
+            }
+            if(partes.length > 0){
+                var texto = partes.join(' ');
+                if(claves.indexOf(texto) === -1){
+                    claves.push(texto);
+                    salida.push(texto);
+                }
+            }
+        });
+        return salida.join(' | ');
+    },
+    obtener_issn_impreso_reporte: function(){
+        if(class_ver.var.issni && class_ver.var.issni !== 'No especificado'){
+            return class_ver.var.issni;
+        }
+        return '';
+    },
+    obtener_issn_electronico_reporte: function(){
+        if(class_ver.var.issne && class_ver.var.issne !== 'No especificado'){
+            return class_ver.var.issne;
+        }
+        return '';
+    },
+    obtener_carpeta_pdf_drive: function(){
+        /*
+         * Configura el ID de la carpeta de Drive en env.PDF_FOLDER_ID.
+         * Si mantienes los valores codificados como en env.sId, guarda aquí el valor con a('ID_DE_LA_CARPETA').
+         * También se acepta env.PDF_DRIVE_FOLDER_ID por compatibilidad.
+         */
+        if(typeof env !== 'undefined'){
+            if(env.PDF_FOLDER_ID !== undefined && env.PDF_FOLDER_ID !== null && String(env.PDF_FOLDER_ID).trim() !== ''){
+                return b(env.PDF_FOLDER_ID);
+            }
+            if(env.PDF_DRIVE_FOLDER_ID !== undefined && env.PDF_DRIVE_FOLDER_ID !== null && String(env.PDF_DRIVE_FOLDER_ID).trim() !== ''){
+                return b(env.PDF_DRIVE_FOLDER_ID);
+            }
+        }
+        return '';
+    },
+    nombre_pdf_evaluacion: function(){
+        var titulo = (class_ver.var.salida && class_ver.var.salida.revista)?class_ver.var.salida.revista:'evaluacion';
+        titulo = String(titulo).replace(/[\\/:*?"<>|]+/g, '_').replace(/\s+/g, ' ').trim();
+        if(titulo === ''){
+            titulo = 'evaluacion';
+        }
+        var fecha = new Date();
+        var yyyy = fecha.getFullYear();
+        var mm = String(fecha.getMonth()+1).padStart(2, '0');
+        var dd = String(fecha.getDate()).padStart(2, '0');
+        return 'Evaluacion ' + titulo + ' ' + yyyy + '-' + mm + '-' + dd + '.pdf';
+    },
+    preparar_cliente_google: function(callback, errorCallback){
+        var object = {
+            private_key: env.P_K,
+            client_email: b(env.C_E),
+            scopes: class_ver.cons.SCOPES,
+        };
+        gapi.load("client", async function(){
+            try{
+                gapi.auth.setToken(await GetAccessTokenFromServiceAccount.do(object));
+                gapi.client.init({
+                    discoveryDocs: class_ver.cons.DISCOVERY_DOCS,
+                }).then(function(){
+                    if(typeof callback === 'function'){
+                        callback();
+                    }
+                }).catch(function(error){
+                    if(typeof errorCallback === 'function'){
+                        errorCallback(error);
+                    }else{
+                        console.error('Error al inicializar Google API', error);
+                    }
+                });
+            }catch(error){
+                if(typeof errorCallback === 'function'){
+                    errorCallback(error);
+                }else{
+                    console.error('Error al autenticar Google API', error);
+                }
+            }
+        });
+    },
+    subir_pdf_drive: function(blob, nombre_archivo, callback, errorCallback){
+        var folderId = class_ver.obtener_carpeta_pdf_drive();
+        if(folderId === ''){
+            if(typeof errorCallback === 'function'){
+                errorCallback('No se configuró env.PDF_FOLDER_ID con el ID de la carpeta de Drive.');
+            }
+            return;
+        }
+        var metadata = {
+            name: nombre_archivo,
+            mimeType: 'application/pdf',
+            parents: [folderId]
+        };
+        var boundary = '-------314159265358979323846';
+        var delimiter = "\r\n--" + boundary + "\r\n";
+        var close_delim = "\r\n--" + boundary + "--";
+        var reader = new FileReader();
+        reader.onload = function(e){
+            var base64Data = String(e.target.result).split(',')[1];
+            var multipartRequestBody =
+                delimiter +
+                'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+                JSON.stringify(metadata) +
+                delimiter +
+                'Content-Type: application/pdf\r\n' +
+                'Content-Transfer-Encoding: base64\r\n\r\n' +
+                base64Data +
+                close_delim;
+
+            gapi.client.request({
+                path: '/upload/drive/v3/files',
+                method: 'POST',
+                params: {
+                    uploadType: 'multipart',
+                    fields: 'id,name,webViewLink,webContentLink'
+                },
+                headers: {
+                    'Content-Type': 'multipart/related; boundary="' + boundary + '"'
+                },
+                body: multipartRequestBody
+            }).then(function(response){
+                var archivo = response.result || {};
+                var url = archivo.webViewLink || archivo.webContentLink || '';
+                class_ver.var.url_evaluacion_pdf = url;
+                if(typeof callback === 'function'){
+                    callback(url, archivo);
+                }
+            }).catch(function(error){
+                if(typeof errorCallback === 'function'){
+                    errorCallback(error);
+                }else{
+                    console.error('Error al subir PDF a Drive', error);
+                }
+            });
+        };
+        reader.onerror = function(error){
+            if(typeof errorCallback === 'function'){
+                errorCallback(error);
+            }
+        };
+        reader.readAsDataURL(blob);
+    },
+    guardar_pdf_e_incidencias: function(){
+        if(class_ver.var.incidencias_guardadas || class_ver.var.pdf_e_incidencias_en_proceso){
+            return;
+        }
+        if(class_ver.obtener_carpeta_pdf_drive() === ''){
+            console.warn('No se configuró carpeta de Drive para PDF. Se guardará la incidencia con la URL OAI.');
+            class_ver.guardar_incidencias();
+            return;
+        }
+        class_ver.var.pdf_e_incidencias_en_proceso = true;
+        class_ver.preparar_cliente_google(function(){
+            class_ver.getPDF({
+                modo: 'drive',
+                callback: function(url){
+                    class_ver.var.url_evaluacion_pdf = url;
+                    class_ver.var.pdf_e_incidencias_en_proceso = false;
+                    class_ver.guardar_incidencias();
+                },
+                error: function(error){
+                    console.error('No se pudo generar o subir el PDF a Drive. Se guardará la incidencia con la URL OAI.', error);
+                    class_ver.var.pdf_e_incidencias_en_proceso = false;
+                    class_ver.guardar_incidencias();
+                }
+            });
+        }, function(error){
+            console.error('No se pudo inicializar Google API para subir PDF. Se guardará la incidencia con la URL OAI.', error);
+            class_ver.var.pdf_e_incidencias_en_proceso = false;
+            class_ver.guardar_incidencias();
+        });
+    },
+    obtener_url_evaluacion: function(){
+        if(class_ver.var.url_evaluacion_pdf !== undefined && class_ver.var.url_evaluacion_pdf !== null && String(class_ver.var.url_evaluacion_pdf).trim() !== ''){
+            return class_ver.var.url_evaluacion_pdf;
+        }
+        return $('#'+class_ver.var.id_oai).val();
+    },
+    obtener_titulo_articulo: function(articulo){
+        if(!articulo){
+            return '<< No se encontró título >>';
+        }
+        if(Array.isArray(articulo.titulo)){
+            for(var i=0; i<articulo.titulo.length; i++){
+                if(articulo.titulo[i] && articulo.titulo[i].title !== undefined && articulo.titulo[i].title !== null && String(articulo.titulo[i].title).trim() !== ''){
+                    return String(articulo.titulo[i].title).trim();
+                }
+            }
+        }
+        if(articulo.titulo_idioma !== undefined && articulo.titulo_idioma !== null && String(articulo.titulo_idioma).trim() !== ''){
+            return String(articulo.titulo_idioma).trim();
+        }
+        if(articulo.title !== undefined && articulo.title !== null && String(articulo.title).trim() !== ''){
+            return String(articulo.title).trim();
+        }
+        return '<< No se encontró título >>';
+    },
+    obtener_enlace_articulo: function(articulo){
+        if(!articulo || !Array.isArray(articulo.enlace_texto)){
+            return '';
+        }
+        var html = class_utils.find_prop(articulo.enlace_texto, 'format', 'html');
+        if(html !== undefined && html.url !== undefined){
+            return html.url;
+        }
+        var pdf = class_utils.find_prop(articulo.enlace_texto, 'format', 'pdf');
+        if(pdf !== undefined && pdf.url !== undefined){
+            return pdf.url;
+        }
+        return '';
+    },
+    agregar_incidencia: function(filas, base, def){
+        var total = base.articulos_totales;
+        var con_incidencia = class_ver.contar_articulos_unicos(def.datos);
+        if(con_incidencia === 0){
+            return;
+        }
+        var porcentaje = (total === 0)?0:parseFloat(((con_incidencia * 100) / total).toFixed(2));
+
+        /*
+         * Se genera una fila agrupada por campo, dimensión e incidencia.
+         * No se genera una fila por artículo. El número de artículos afectados
+         * queda registrado en la columna "Artículos con incidencia".
+         */
+        filas.push([
+            base.id_revista,
+            base.issn_impreso,
+            base.issn_electronico,
+            base.titulo,
+            base.periodo,
+            base.fasciculos,
+            base.puntuacion,
+            base.url_evaluacion,
+            def.campo,
+            def.incidencia,
+            def.codigo,
+            def.tipologia,
+            def.origen,
+            def.descripcion,
+            def.dimension,
+            total,
+            con_incidencia,
+            porcentaje,
+            '',
+            base.fecha
+        ]);
+    },
+    origen_por_dimension: function(dimension, descripcion){
+        descripcion = class_ver.valor_limpio(descripcion).toLowerCase();
+        if(dimension === 'Suficiencia'){
+            return 'OAI-PMH / OJS: metadato ausente o no recuperado';
+        }
+        if(descripcion.indexOf('url') !== -1 || descripcion.indexOf('crossref') !== -1 || descripcion.indexOf('orcid') !== -1 && dimension === 'Precisión'){
+            return 'Técnico: validación externa o resolución de URL';
+        }
+        if(dimension === 'Precisión'){
+            return 'Técnico: problema de validación del dato';
+        }
+        return 'Manual: error de captura o normalización del dato';
+    },
+    def_incidencia: function(campo, dimension, incidencia, tipologia, descripcion, codigo, datos, origen){
+        return {
+            campo: campo,
+            dimension: dimension,
+            incidencia: incidencia,
+            tipologia: '',
+            descripcion: descripcion,
+            codigo: '',
+            datos: datos,
+            origen: origen || class_ver.origen_por_dimension(dimension, descripcion)
+        };
+    },
+    obtener_definiciones_incidencias: function(){
+        var titulos_i1 = class_ver.arr_global('titulos_idioma1_arr');
+        var titulos_i2 = class_ver.arr_global('titulos_idioma2_arr');
+        var resumenes_i1 = class_ver.arr_global('comp_resumenes_idioma1');
+        var resumenes_i2 = class_ver.arr_global('comp_resumenes_idioma2');
+        var palabras_i1 = class_ver.arr_global('palabras_clave_idioma1_arr');
+        var palabras_i2 = class_ver.arr_global('palabras_clave_idioma2_arr');
+        var autores = class_ver.arr_global('autores_nombre_id');
+        var instituciones = class_ver.arr_global('instituciones_valor');
+        var publicaciones_doi = class_ver.var.salida && class_ver.var.salida.pd ? class_ver.var.salida.pd : [];
+        var orcid_validado = class_ver.var.salida && class_ver.var.salida.orcid ? class_ver.var.salida.orcid : [];
+        var licencias_validadas = class_ver.var.salida && class_ver.var.salida.val_lic ? class_ver.var.salida.val_lic : [];
+        var enlaces_validados = class_ver.var.salida && class_ver.var.salida.val_enl ? class_ver.var.salida.val_enl : [];
+
+        return [
+            class_ver.def_incidencia('DOI', 'Suficiencia', 'Valor vacío', 'Valor ausente', 'DOI ausente', 'DOI-SUF-01', class_ver.arr_global('doi_faltantes')),
+            class_ver.def_incidencia('DOI', 'Suficiencia', 'Más de 1 ocurrencia', 'Valor no coincide con los parámetros del campo', 'Excede el número de ocurrencias permitidas o recomendadas', 'DOI-SUF-02', class_ver.filtra_doi_mas_de_una_ocurrencia(publicaciones_doi)),
+            class_ver.def_incidencia('DOI', 'Precisión', 'Formato incorrecto', 'Valor no coincide con los parámetros del campo', 'DOI con problemas de estructura: se esperaba inicio con 10. y existencia de una diagonal', 'DOI-PRE-01', class_ver.arr_global('doi_incons')),
+            class_ver.def_incidencia('DOI', 'Precisión', 'No registrado en Crossref', 'Valor no coincide con la información del documento', 'URL del registro no válida', 'DOI-PRE-02', class_ver.filtra_registrado(publicaciones_doi, 0)),
+            class_ver.def_incidencia('DOI', 'Precisión', 'Enlace roto', 'Valor no coincide con la información del documento', 'URL del registro no válida', 'DOI-PRE-03', class_ver.filtra_resuelve(publicaciones_doi, 0)),
+
+            class_ver.def_incidencia('Título del documento', 'Suficiencia', 'Valor vacío', 'Valor ausente', 'Título ausente', 'TIT-SUF-01', class_ver.arr_global('titulos_i1_faltantes')),
+            class_ver.def_incidencia('Título del documento', 'Consistencia', 'Uso de mayúsculas en todo el texto', 'Valor no coincide con los parámetros del campo', 'Uso de mayúsculas en todo el texto', 'TIT-CON-01', class_ver.filtra_todo_mayusculas(titulos_i1, 'titulo_idioma')),
+            class_ver.def_incidencia('Título del documento', 'Consistencia', 'Longitud no válida (≤ 1 carácter)', 'Valor incompleto', 'Longitud no válida (≤ 1 carácter)', 'TIT-CON-02', class_ver.filtra_longitud_menor_igual(titulos_i1, 'titulo_idioma', 1)),
+            class_ver.def_incidencia('Título del documento', 'Precisión', 'Contiene caracteres basura o código', 'Registro incorrecto', 'Problemas varios', 'TIT-PRE-01', []),
+            class_ver.def_incidencia('Título del documento', 'Consistencia', 'No considerada técnicamente en MetaMetrics', 'Valor no coincide con los parámetros del campo', 'Múltiples idiomas en un mismo campo', 'TIT-CON-03', []),
+
+            class_ver.def_incidencia('Título traducido', 'Suficiencia', 'Valor vacío', 'Valor ausente', 'Título traducido ausente', 'TTR-SUF-01', class_ver.arr_global('titulos_i2_faltantes')),
+            class_ver.def_incidencia('Título traducido', 'Consistencia', 'Uso de mayúsculas en todo el texto', 'Valor no coincide con los parámetros del campo', 'Uso de mayúsculas en todo el texto', 'TTR-CON-01', class_ver.filtra_todo_mayusculas(titulos_i2, 'titulo_idioma')),
+            class_ver.def_incidencia('Título traducido', 'Consistencia', 'Longitud no válida (≤ 1 carácter)', 'Valor incompleto', 'Longitud no válida (≤ 1 carácter)', 'TTR-CON-02', class_ver.filtra_longitud_menor_igual(titulos_i2, 'titulo_idioma', 1)),
+
+            class_ver.def_incidencia('Autor', 'Suficiencia', 'Valor vacío', 'Valor ausente', 'Autor ausente', 'AUT-SUF-01', class_ver.arr_global('autores_faltantes')),
+            class_ver.def_incidencia('Autor', 'Consistencia', 'Longitud no válida (≤ 1 carácter)', 'Valor incompleto', 'Longitud no válida (≤ 1 carácter)', 'AUT-CON-01', class_ver.filtra_longitud_menor_igual(autores, 'name', 1)),
+            class_ver.def_incidencia('Autor', 'Consistencia', 'Uso de mayúsculas en todo el texto', 'Valor no coincide con los parámetros del campo', 'Uso de mayúsculas en todo el texto', 'AUT-CON-02', class_ver.filtra_todo_mayusculas(autores, 'name')),
+            class_ver.def_incidencia('Autor', 'Consistencia', 'Uso de iniciales o abreviaturas', 'Valor incompleto', 'Uso de iniciales o abreviaturas', 'AUT-CON-03', class_ver.filtra_regex(autores, 'name', class_ver.cons.er.inicial)),
+            class_ver.def_incidencia('Autor', 'Consistencia', 'Uso de títulos profesionales o cargos laborales', 'Registro incorrecto', 'Problemas varios', 'AUT-CON-04', []),
+            class_ver.def_incidencia('Autor', 'Consistencia', 'Caracteres basura o espacios en blanco', 'Registro incorrecto', 'Problemas varios', 'AUT-CON-05', class_ver.filtra_regex(autores, 'name', class_ver.cons.er.char)),
+
+            class_ver.def_incidencia('ORCID', 'Suficiencia', 'Valor vacío', 'Valor ausente', 'ORCID ausente', 'ORC-SUF-01', class_ver.arr_global('orcid_faltantes')),
+            class_ver.def_incidencia('ORCID', 'Consistencia', 'Estructura no válida', 'Valor no coincide con los parámetros del campo', 'ORCID con problemas de estructura: se esperaba 9999-9999-9999-9999 o 9999-9999-9999-999X', 'ORC-CON-01', class_ver.arr_global('orcid_incons')),
+            class_ver.def_incidencia('ORCID', 'Precisión', 'No registrado en ORCID', 'Valor no coincide con la información del documento', 'URL del registro no válida', 'ORC-PRE-01', class_ver.filtra_resuelve(orcid_validado, 0)),
+            class_ver.def_incidencia('ORCID', 'Precisión', 'Enlace roto', 'Valor no coincide con la información del documento', 'URL del registro no válida', 'ORC-PRE-02', []),
+
+            class_ver.def_incidencia('Afiliación del autor', 'Suficiencia', 'Valor vacío', 'Valor ausente', 'Afiliación del autor ausente', 'AFI-SUF-01', class_ver.arr_global('instituciones_faltantes')),
+            class_ver.def_incidencia('Afiliación del autor', 'Consistencia', 'Uso de iniciales o abreviaturas', 'Valor incompleto', 'Uso de iniciales o abreviaturas', 'AFI-CON-01', class_ver.arr_global('instituciones_incons')),
+            class_ver.def_incidencia('Afiliación del autor', 'Precisión', 'No incluye país', 'Valor no coincide con la información del documento', 'Imprecisión', 'AFI-PRE-01', []),
+
+            class_ver.def_incidencia('Resumen', 'Suficiencia', 'Valor vacío', 'Valor ausente', 'Resumen ausente', 'RES-SUF-01', class_ver.arr_global('resumenes_i1_faltantes')),
+            class_ver.def_incidencia('Resumen', 'Consistencia', 'Uso de mayúsculas en todo el texto', 'Valor no coincide con los parámetros del campo', 'Uso de mayúsculas en todo el texto', 'RES-CON-01', class_ver.filtra_todo_mayusculas(resumenes_i1, 'resumen_idioma')),
+            class_ver.def_incidencia('Resumen', 'Consistencia', 'Longitud no válida (< 100 caracteres)', 'Valor incompleto', 'Longitud no válida (≤ 100 caracteres)', 'RES-CON-02', class_ver.filtra_longitud_menor(resumenes_i1, 'resumen_idioma', 100)),
+
+            class_ver.def_incidencia('Resumen traducido', 'Suficiencia', 'Valor vacío', 'Valor ausente', 'Resumen traducido ausente', 'RTR-SUF-01', class_ver.arr_global('resumenes_i2_faltantes')),
+            class_ver.def_incidencia('Resumen traducido', 'Consistencia', 'Uso de mayúsculas en todo el texto', 'Valor no coincide con los parámetros del campo', 'Uso de mayúsculas en todo el texto', 'RTR-CON-01', class_ver.filtra_todo_mayusculas(resumenes_i2, 'resumen_idioma')),
+            class_ver.def_incidencia('Resumen traducido', 'Consistencia', 'Longitud no válida (< 100 caracteres)', 'Valor incompleto', 'Longitud no válida (≤ 100 caracteres)', 'RTR-CON-02', class_ver.filtra_longitud_menor(resumenes_i2, 'resumen_idioma', 100)),
+
+            class_ver.def_incidencia('Palabras clave', 'Suficiencia', 'Valor vacío', 'Valor ausente', 'Palabras clave ausentes', 'PCL-SUF-01', class_ver.arr_global('palabras_clave_i1_faltantes')),
+            class_ver.def_incidencia('Palabras clave', 'Consistencia', 'Uso de mayúsculas en todo el texto', 'Valor no coincide con los parámetros del campo', 'Uso de mayúsculas en todo el texto', 'PCL-CON-01', class_ver.filtra_todo_mayusculas(palabras_i1, 'palabra_clave_idioma')),
+            class_ver.def_incidencia('Palabras clave', 'Consistencia', 'Menos de 3 ocurrencias', 'Valor incompleto', 'Número de palabras clave posiblemente insuficientes', 'PCL-CON-02', class_ver.filtra_ocurrencias_menor(palabras_i1, 'palabra_clave_idioma', 3)),
+            class_ver.def_incidencia('Palabras clave', 'Consistencia', 'Longitud no válida (≤ 1 carácter)', 'Valor incompleto', 'Longitud no válida (≤ 1 carácter)', 'PCL-CON-03', class_ver.filtra_longitud_menor_igual(palabras_i1, 'palabra_clave_idioma', 1)),
+            class_ver.def_incidencia('Palabras clave', 'Precisión', 'Codificación del idioma incorrecta en el sitio', 'Valor no coincide con los parámetros del campo', 'Uso de atributos del idioma erróneos', 'PCL-PRE-01', []),
+
+            class_ver.def_incidencia('Palabras clave traducidas', 'Suficiencia', 'Valor vacío', 'Valor ausente', 'Palabras clave traducidas ausentes', 'PCT-SUF-01', class_ver.arr_global('palabras_clave_i2_faltantes')),
+            class_ver.def_incidencia('Palabras clave traducidas', 'Consistencia', 'Uso de mayúsculas en todo el texto', 'Valor no coincide con los parámetros del campo', 'Uso de mayúsculas en todo el texto', 'PCT-CON-01', class_ver.filtra_todo_mayusculas(palabras_i2, 'palabra_clave_idioma')),
+            class_ver.def_incidencia('Palabras clave traducidas', 'Consistencia', 'Menos de 3 ocurrencias', 'Valor incompleto', 'Número de palabras clave traducidas posiblemente insuficientes', 'PCT-CON-02', class_ver.filtra_ocurrencias_menor(palabras_i2, 'palabra_clave_idioma', 3)),
+            class_ver.def_incidencia('Palabras clave traducidas', 'Consistencia', 'Longitud no válida (≤ 1 carácter)', 'Valor incompleto', 'Longitud no válida (≤ 1 carácter)', 'PCT-CON-03', class_ver.filtra_longitud_menor_igual(palabras_i2, 'palabra_clave_idioma', 1)),
+            class_ver.def_incidencia('Palabras clave traducidas', 'Precisión', 'Codificación del idioma incorrecta en el sitio', 'Valor no coincide con los parámetros del campo', 'Uso de atributos del idioma erróneos', 'PCT-PRE-01', []),
+
+            class_ver.def_incidencia('Licencia', 'Suficiencia', 'Valor vacío', 'Valor ausente', 'Mención de licencia ausentes', 'LIC-SUF-01', class_ver.arr_global('licencias_faltantes')),
+            class_ver.def_incidencia('Licencia', 'Consistencia', 'No inicia con dominio CC', 'Valor no coincide con los parámetros del campo', 'Licencia de tipo diferente a Creative Commons', 'LIC-CON-01', class_ver.arr_global('licencias_incons')),
+            class_ver.def_incidencia('Licencia', 'Precisión', 'Enlace roto', 'Valor no coincide con los parámetros del campo', 'URL del registro no válida', 'LIC-PRE-01', class_ver.filtra_resuelve(licencias_validadas, 0)),
+
+            class_ver.def_incidencia('Enlace texto completo', 'Suficiencia', 'Valor vacío', 'Valor ausente', 'Enlace al texto completo ausente', 'ENL-SUF-01', class_ver.arr_global('enlaces_faltantes')),
+            class_ver.def_incidencia('Enlace texto completo', 'Consistencia', 'No inicia con http:// o https://', 'Valor no coincide con los parámetros del campo', 'URL con problemas de estructura: se esperaba inicio con http:// o https://', 'ENL-CON-01', class_ver.arr_global('enlaces_incons')),
+            class_ver.def_incidencia('Enlace texto completo', 'Precisión', 'Enlace roto', 'Valor no coincide con los parámetros del campo', 'URL del registro no válida', 'ENL-PRE-01', class_ver.filtra_resuelve(enlaces_validados, 0)),
+
+            class_ver.def_incidencia('Referencias', 'Suficiencia', 'Valor vacío', 'Valor ausente', 'Referencias ausentes', 'REF-SUF-01', class_ver.arr_global('citas_faltantes'))
+        ];
+    },
+    obtener_filas_incidencias: function(id_revista_consecutivo){
+        var filas = [];
+        var total = (class_ver.var.salida && Array.isArray(class_ver.var.salida.p))?class_ver.var.salida.p.length:0;
+        var base = {
+            id_revista: id_revista_consecutivo,
+            issn_impreso: class_ver.obtener_issn_impreso_reporte(),
+            issn_electronico: class_ver.obtener_issn_electronico_reporte(),
+            titulo: class_ver.var.revista_ojs || '',
+            periodo: class_ver.obtener_periodo_evaluado(),
+            fasciculos: class_ver.obtener_fasciculos_evaluados(),
+            puntuacion: class_ver.var.pp || class_ver.var.cp || class_ver.var.sp || '',
+            url_evaluacion: class_ver.obtener_url_evaluacion(),
+            articulos_totales: total,
+            fecha: class_ver.fecha_recoleccion_incidencias()
+        };
+
+        $.each(class_ver.obtener_definiciones_incidencias(), function(i, def){
+            class_ver.agregar_incidencia(filas, base, def);
+        });
+        return filas;
+    },
+    asegurar_hoja_incidencias: function(callback){
+        var spreadsheetId = b(env.sIdMM);
+        var hoja = class_ver.cons.incidencias_sheet;
+        gapi.client.sheets.spreadsheets.get({
+            spreadsheetId: spreadsheetId
+        }).then(function(response){
+            var sheets = response.result.sheets || [];
+            var existe = sheets.some(function(sheet){
+                return sheet.properties && sheet.properties.title === hoja;
+            });
+            var continuar = function(){
+                gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: spreadsheetId,
+                    range: class_ver.rango_incidencias('A1:T1')
+                }).then(function(resp){
+                    if(!resp.result.values || resp.result.values.length === 0){
+                        gapi.client.sheets.spreadsheets.values.update({
+                            spreadsheetId: spreadsheetId,
+                            range: class_ver.rango_incidencias('A1:T1'),
+                            valueInputOption: 'RAW',
+                            resource: {values: [class_ver.cons.incidencias_headers]}
+                        }).then(function(){
+                            callback();
+                        });
+                    }else{
+                        callback();
+                    }
+                }).catch(function(){
+                    gapi.client.sheets.spreadsheets.values.update({
+                        spreadsheetId: spreadsheetId,
+                        range: class_ver.rango_incidencias('A1:T1'),
+                        valueInputOption: 'RAW',
+                        resource: {values: [class_ver.cons.incidencias_headers]}
+                    }).then(function(){
+                        callback();
+                    });
+                });
+            };
+            if(existe){
+                continuar();
+            }else{
+                gapi.client.sheets.spreadsheets.batchUpdate({
+                    spreadsheetId: spreadsheetId,
+                    resource: {
+                        requests: [{
+                            addSheet: {
+                                properties: {title: hoja}
+                            }
+                        }]
+                    }
+                }).then(function(){
+                    continuar();
+                });
+            }
+        });
+    },
+    obtener_siguiente_id_revista_incidencias: function(callback){
+        gapi.client.sheets.spreadsheets.values.get({
+            spreadsheetId: b(env.sIdMM),
+            range: class_ver.rango_incidencias('A2:A')
+        }).then(function(resp){
+            var valores = resp.result.values || [];
+            var max = 0;
+            $.each(valores, function(i, fila){
+                if(fila && fila[0] !== undefined){
+                    var n = parseInt(fila[0], 10);
+                    if(!isNaN(n) && n > max){
+                        max = n;
+                    }
+                }
+            });
+            callback(max + 1);
+        }).catch(function(){
+            callback(1);
+        });
+    },
+    guardar_incidencias: function(){
+        if(class_ver.var.incidencias_guardadas){
+            return;
+        }
+
+        var object = {
+            private_key: env.P_K,
+            client_email: b(env.C_E),
+            scopes: class_ver.cons.SCOPES,
+        };
+        gapi.load("client", async function(){
+            gapi.auth.setToken(await GetAccessTokenFromServiceAccount.do(object));
+            gapi.client.init({
+                discoveryDocs: class_ver.cons.DISCOVERY_DOCS,
+            }).then(function(){
+                class_ver.asegurar_hoja_incidencias(function(){
+                    class_ver.obtener_siguiente_id_revista_incidencias(function(id_revista){
+                        var filas = class_ver.obtener_filas_incidencias(id_revista);
+                        if(filas.length === 0){
+                            return;
+                        }
+                        class_ver.var.incidencias_guardadas = true;
+                        gapi.client.sheets.spreadsheets.values.append({
+                            spreadsheetId: b(env.sIdMM),
+                            range: class_ver.rango_incidencias('A:T'),
+                            resource: {values: filas},
+                            valueInputOption: 'RAW',
+                            insertDataOption: 'INSERT_ROWS'
+                        }).then(function(){
+                            console.log('Incidencias guardadas:', filas.length);
+                        }).catch(function(error){
+                            class_ver.var.incidencias_guardadas = false;
+                            console.error('Error al guardar incidencias', error);
+                        });
+                    });
+                });
+            });
+        });
+    },
     enviar_reev: function(){
         var body = {
                 values: [[class_ver.var.sp, class_ver.var.cp, class_ver.var.pp]]
@@ -450,6 +1143,9 @@ class_ver = {
         }); 
     },
     html_reset: function(){
+        class_ver.var.url_evaluacion_pdf = '';
+        class_ver.var.pdf_e_incidencias_en_proceso = false;
+        class_ver.var.incidencias_guardadas = false;
         $('#container').html('');
         $('#autores').html('');
         $('#container2').html('');
@@ -484,6 +1180,7 @@ class_ver = {
         $("#txt_val_final").hide();
         $('#estatus').html('');
         $('#btn_verificar').show();
+        class_ver.var.incidencias_guardadas = false;
     },
     control:function(){
         $('#btn_verificar').off('click').on('click',function(){
@@ -2113,8 +2810,8 @@ class_ver = {
             $('#txt_val_final').html(txt80 + txtReevaluar);
             class_ver.enviar_reev();
         });
-		
-		$('#btn_pdf').show();
+        
+        $('#btn_pdf').show();
         $('#btn_pdf').off('click').on('click', function(){
             class_ver.getPDF();
         });
@@ -2185,7 +2882,8 @@ class_ver = {
             $.when(
                 //class_utils.getResource('http://biblat.local/verificador/get_doi_validate?doi='+val.setting_value)
                 //class_utils.getResource('https://doi.org/'+val.setting_value)
-                class_utils.getResource('/metametrics/get_doi_validate?doi='+val.doi)
+                //class_utils.getResource('/metametrics/get_doi_validate?doi='+val.doi)
+                class_utils.getResource(class_ver.cons.get_doi+val.doi)
             )
             .then(function(resp){
                 var respuesta = resp.responseCode;
@@ -2226,6 +2924,7 @@ class_ver = {
                     //var url = resp.resource.primary.URL;
                     var url = resp.values[0].data.value;
                     $.when(
+                        //class_utils.getResource('/metametrics/get_url_validate?url='+url, false, 30000)
                         class_utils.getResource(class_ver.cons.get_url_validate+url, false, 30000)
                     ).then(function(resp2){
                         num = num + 1;
@@ -2477,6 +3176,7 @@ class_ver = {
         var rango = 1;
         if(num == 0){
             res = JSON.parse(JSON.stringify(licencias));
+            //licencias = class_utils.unique(licencias,'setting_value');
             licencias = class_utils.unique(licencias,'license');
             total = licencias.length;
         }
@@ -2490,6 +3190,7 @@ class_ver = {
         $.each(licencias.slice(0,rango), function(i,val){
             $.when(
                 //class_utils.getResource('http://biblat.local/verificador/get_doi_validate?doi='+val.setting_value)
+                //class_utils.getResource('/metametrics/get_contents_validate?url='+val)
                 class_utils.getResource(class_ver.cons.get_contents_validate+val)
             )
             .then(function(resp){
@@ -2498,6 +3199,7 @@ class_ver = {
                         setTimeout(function(){class_ver.valida_lic(licencias, res, total, num, true);},100);
                         return 0;
                     }
+                    //$.each(class_utils.filter_prop(res, 'setting_value', val), function(i, val_url){
                     $.each(class_utils.filter_prop(res, 'license', val), function(i, val_url){
                         val_url.resuelve = 0;
                         val_url.nombre = 'sin';
@@ -2505,6 +3207,7 @@ class_ver = {
                 }else{
                     //val.resuelve = 1;
                     //val.nombre = resp.resp;
+                    //$.each(class_utils.filter_prop(res, 'setting_value', val), function(i, val_url){
                     $.each(class_utils.filter_prop(res, 'license', val), function(i, val_url){
                         val_url.resuelve = 1;
                         val_url.nombre = resp.resp;
@@ -2580,7 +3283,7 @@ class_ver = {
         var url = 'Error';
         
         $.each(enlaces.slice(0,rango), function(i,val){
-           if ('enlace_texto' in val){
+            if ('enlace_texto' in val){
                 if (val['enlace_texto'][0] !== undefined){
                     if (val['enlace_texto'][0]['format'] == 'pdf'){
                         url = val['enlace_texto'][0].url
@@ -2594,6 +3297,7 @@ class_ver = {
                 }
             }
             $.when(
+                //class_utils.getResource('/metametrics/get_contents_validate?url='+url)
                 class_utils.getResource(class_ver.cons.get_contents_validate+url)
             )
             .then(function(resp){
@@ -2725,36 +3429,55 @@ class_ver = {
             class_ver.analisis();
             return 0;
         }
-		
-		var date_review = class_ver.cons.get_content + $('#'+class_ver.var.id_oai).val();
+        
+        var date_review = class_ver.cons.get_content + $('#'+class_ver.var.id_oai).val();
         
         if(anio !== null){
             date_review += '&anio=' + anio;
         }
-		
-		$.when(
+        
+        $.when(
             //class_utils.getResource(url_review),
             class_utils.getResource(date_review)
         ).then(function(resp0){
-			if(resp0.resp == 'Generando'){
+            if(resp0.resp == 'Generando'){
                 $('#error').html('<center><b>La valoración se sigue generando, intente nuevamente en unos minutos por favor ...</b></center>');
                     $('#error').show();
                     loading.end();
-					class_ver.var.plugin = 'Sí';
-					class_ver.setBitacora(2);
+                    class_ver.var.plugin = 'Sí';
+                    class_ver.setBitacora(2);
                     return 0;
             }
             if(resp0.resp !== 'SinRegistro' && resp0.resp !== 'Nuevos'){
                 class_ver.var.data = JSON.parse(resp0.resp);
                 class_ver.var.plugin = 'Sí';
-				class_ver.setBitacora(2);
+                class_ver.setBitacora(2);
                 class_ver.analisis();
                 return 0;
             }
+            
+            /*if(resp0[0][0] !== undefined){
+                var hash1 = resp0[0][0].hash;
+                var hash2 = resp00[0].resp;
+                
+                if(hash1 == 'Generando'){
+                    $('#error').html('<center><b>La valoración se sigue generando, intente nuevamente en unos minutos por favor ...</b></center>');
+                    $('#error').show();
+                    loading.end();
+                    return 0;
+                }
+                
+                if(hash1 == hash2){
+                    class_ver.var.data = JSON.parse(resp0[0][0].metadatos);
+                    class_ver.var.plugin = 'Si';
+                    class_ver.analisis();
+                    return 0;
+                }
+            }*/
         $.when(
             class_utils.getResource(url)
         )
-        .then(function(resp){
+        .then(function(resp){   
             if(resp.resp == 'Fail'){
                 var url = $('#'+class_ver.var.id_oai).val();
                 if( url.indexOf('/index/oai') !== -1 ){
@@ -2769,16 +3492,16 @@ class_ver = {
                 class_ver.setBitacora(2);
                 loading.end();
                 return 0;
-			}else if(Array.isArray(resp.res)){
+            }else if(Array.isArray(resp.res)){
                 $('#error').html('<b>El sitio cuenta con más de una revista, estas son las URLs OAI que puede revisar:</b><br><br>' + resp.res.join("<br>"));
                 $('#error').show();
                 loading.end();
                 return 0;
             }else if(resp.resp == 'Generando' || resp.resp == 'SinRegistro'){
-                $('#error').html('<center><b>Se está generando la valoración, intente nuevamente en unos minutos ...</b></center>');
+                $('#error').html('<center><b>Se está generando la valoración, intente nuevamente en unos minutos por favor...</b></center>');
                 $('#error').show();
-				class_ver.var.plugin = 'Sí';
-				class_ver.setBitacora(2);
+                class_ver.var.plugin = 'Sí';
+                class_ver.setBitacora(2);
                 loading.end();
                 return 0;
             }else{
@@ -2968,7 +3691,7 @@ class_ver = {
             }
         }).fail(function(jqXHR, textStatus, errorThrown) {
             if (jqXHR.status === 504 || jqXHR.status === 200) {
-                $('#error').html('<center><b>La solicitud hacia el sitio de la revista está tardando demasiado<br>La valoración se sigue generando, intente en unos minutos ...</b></center>');
+                $('#error').html('<center><b>La solicitud hacia el sitio de la revista está tardando demasiado<br>La valoración se sigue generando, intente nuevamente en unos minutos por favor...</b></center>');
             } else if (textStatus === 'timeout') {
                 $('#error').html('<center><b>La solicitud tardó demasiado</b></center>');
             } else {
@@ -2981,8 +3704,8 @@ class_ver = {
             loading.end();
             return 0;
         });
-		
-		});
+        
+        });
     },
     resultado: function(){
                 class_ver.setBitacora();
@@ -3242,8 +3965,10 @@ class_ver = {
                 $('#div_resultado').html(tabla);
 
                 class_utils.setTabla('tbl_autores',{"order": [[ 1, "desc" ]]});
+                class_ver.guardar_pdf_e_incidencias();
     },
-	getPDF: function(){
+    getPDF: function(opciones){
+        opciones = opciones || {};
         
         function getBase64Image(url, callback) {
             fetch(url)
@@ -3569,8 +4294,27 @@ class_ver = {
             textoFin = "Para cualquier duda comuníquese al correo electrónico mafloresc@dgb.unam.mx";
             doc.text(textoFin, 50, yTabla + 60);
             
-      // ----- Finally, Save the PDF -----
-      doc.save("Evaluacion "+class_ver.var.salida.revista+".pdf");
+      // ----- Finally, Save, return or upload the PDF -----
+      var nombrePdf = class_ver.nombre_pdf_evaluacion();
+      if(opciones.modo === 'blob'){
+          if(typeof opciones.callback === 'function'){
+              opciones.callback(doc.output('blob'), nombrePdf);
+          }
+      }else if(opciones.modo === 'drive'){
+          class_ver.subir_pdf_drive(doc.output('blob'), nombrePdf, function(url, archivo){
+              if(typeof opciones.callback === 'function'){
+                  opciones.callback(url, archivo);
+              }
+          }, function(error){
+              if(typeof opciones.error === 'function'){
+                  opciones.error(error);
+              }else{
+                  console.error('Error al subir PDF a Drive', error);
+              }
+          });
+      }else{
+          doc.save(nombrePdf);
+      }
         });
     },
     htmlToArrPdf: function(htmlTabla){
@@ -3611,7 +4355,7 @@ class_ver = {
 
         return data;
     },
-	htmlToArrPdfHref: function(htmlTabla) {
+    htmlToArrPdfHref: function(htmlTabla) {
         var tempDiv = document.createElement('div');
         tempDiv.innerHTML = htmlTabla;
 
@@ -3652,6 +4396,3 @@ class_ver = {
 };
 
 $(class_ver.ready);
-
-
-
