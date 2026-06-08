@@ -45,7 +45,7 @@ class Indizacion extends CI_Controller {
         }
 
         //$python_url = 'http://127.0.0.1:5000/send_indizacion';
-        $python_url = 'http://server-biblex:9000/send_indizacion';
+        $python_url = 'http://server-biblex:9000/webhook/send_indizacion';
 
         $text = (string) $this->input->post('text', true);
 
