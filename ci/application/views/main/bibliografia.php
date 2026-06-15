@@ -77,6 +77,8 @@
 	
 	<tr><td><cite>López Ornelas, M. (2004). <a href="https://biblat.unam.mx/hevila/e-BIBLAT/Biblio/LopezOrnelas_2004.pdf" target="_blank">Diseño y validación de un instrumento para evaluar revistas académicas electrónicas en internet.</a> Tesis (Maestría). Ensenada, Baja California. Universidad Autónoma de Baja California, Instituto de Investigación y Desarrollo Educativo</cite></td></tr>
 
+	<tr><td><cite>Alonso Gamboa, J. O. (2004). <a href="https://biblat.unam.mx/hevila/e-BIBLAT/Biblio/AlonsoGamboa_2004.pdf" target="_blank">Del registro bibliográfico completo: nuevo servicio de CLASE y PERIÓDICA.</a> Ex Libris, 1(5), 5.</cite></td></tr>
+	
 	<tr><td><cite>Alonso Gamboa, J. O. (2003). <a href="https://biblat.unam.mx/hevila/e-BIBLAT/Biblio/AlonsoGamboa_2003.pdf" target="_blank">Selección de revistas latinoamericanas en bases de datos: criterios utilizados en Clase y Periódica.</a> Biblioteca Universitaria, 6(1), 9–21.</cite></td></tr>
 
 	<tr><td><cite>Aguilar Rocha, B. E. &amp; Lázaro-Chávez Mancilla, E. (2000, noviembre). <a href="https://biblat.unam.mx/hevila/e-BIBLAT/Biblio/AguilarRocha_LazaroChavez_2000.pdf" target="_blank">CLASE: fuente de información especializada. Análisis sobre el tema investigación educativa.</a> Ponencia presentada en la 8a Reunión sobre Revistas Académicas y de Investigación. Las revistas científicas latinoamericanas su difusión y acceso a través de bases de datos. México: UNAM, Dirección General de Bibliotecas.</cite></td></tr>
