@@ -370,9 +370,9 @@ class_ver = {
                     //Lectura de hoja de cálculo, se requiere el ID y la hoja de la que leerá
                     gapi.client.sheets.spreadsheets.values.get({
                         spreadsheetId: b(env.sId),
-                        range: "Bitacora",
-                    }).then(function(response) {
-                        var row = response.result.values[0][31];
+                        range: "Bitacora!AJ1",
+					}).then(function(response) {
+						var row = response.result.values[0][0];
                         $.getJSON('https://api.bigdatacloud.net/data/ip-geolocation?key='+b(env.C_K1), function(data) {
                             class_ver.envio_data(data, row);
                           })
