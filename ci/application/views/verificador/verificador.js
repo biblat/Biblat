@@ -399,6 +399,40 @@ class_ver = {
                 });
             });
     },
+	
+	porcentaje_bitacora: function(valor, total){
+        valor = parseFloat(valor || 0);
+        total = parseFloat(total || 0);
+
+        if(total <= 0){
+            return 0;
+        }
+
+        return parseFloat(((valor * 100) / total).toFixed(2));
+    },
+
+    indicadores_bitacora: function(){
+        var salida = class_ver.var.salida || {};
+
+        var total_articulos = Array.isArray(salida.p) ? salida.p.length : 0;
+
+        var total_afiliaciones = Array.isArray(salida.i) ? salida.i.length : 0;
+        var afiliaciones_con_valor = Array.isArray(salida.iv) ? salida.iv.length : 0;
+
+        var total_dois = Array.isArray(salida.pd) ? salida.pd.length : 0;
+
+        var dois_resuelven = 0;
+        if(Array.isArray(salida.pd)){
+            dois_resuelven = class_utils.filter_prop(salida.pd, 'resuelve', 1).length;
+        }
+
+        return {
+            afiliacion_suficiencia: class_ver.porcentaje_bitacora(afiliaciones_con_valor, total_afiliaciones),
+            doi_suficiencia: class_ver.porcentaje_bitacora(total_dois, total_articulos),
+            doi_resuelve_precision: class_ver.porcentaje_bitacora(dois_resuelven, total_dois)
+        };
+    },
+	
     envio_data: function(data, row){
         var secciones = '';
         $.each($('.seccion'), function(isec, valsec){
@@ -441,6 +475,19 @@ class_ver = {
         datos[27] = class_ver.var.salida.pi.length;
         //Autores
         datos[28] = class_ver.var.salida.a.length;
+		
+		// Indicadores específicos para bitácora
+        var indicadores = class_ver.indicadores_bitacora();
+
+        // % Afiliación, suficiencia
+        datos[29] = indicadores.afiliacion_suficiencia;
+
+        // % DOI, suficiencia
+        datos[30] = indicadores.doi_suficiencia;
+
+        // % DOI resuelve, precisión
+        datos[31] = indicadores.doi_resuelve_precision;
+		
         var body = {
             values: [datos]
         };
