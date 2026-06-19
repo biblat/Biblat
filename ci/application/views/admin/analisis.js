@@ -1907,39 +1907,94 @@ class_av = {
         class_av.evento_borra_institucion();
         class_av.var.cambios_institucion = true;
     },
-    borra_autor: function(id){
-        $('#div-autor-'+id).remove();
-        class_av.var.autoresJSON.splice(id-1,1);
-        $.each(class_av.var.autoresJSON, function(i, val){
-            if( parseInt(val.id) > id){
-                //El texto al final del número de la institución
-                $('#numAut-'+val.id).html(String(parseInt(val.id)-1));
-                
-                //A cada elemento dentro del div se le cambia el id por uno menor ya que hubo un borrado
-                $('#div-autor-'+val.id).find('[id*="-'+val.id+'"]').each(function() {
-                    // Haz algo con los elementos que contienen "-1" en su ID
-                    var elemento = $(this);
-                    // Cambia el ID del elemento
-                    elemento[0].id = elemento[0].id.replace('-'+val.id, '-'+String(parseInt(val.id)-1));
-                });
-                
-                $('#div-autor-'+val.id)[0].id = 'div-autor-' + String(parseInt(val.id)-1);
-                val.id = String(parseInt(val.id)-1);
+    evento_borra_autor: function(){
+        $('.borra-autor').off('click').on('click', function(){
+            var partes = this.id.split('-');
+            var borra_id = parseInt(partes[partes.length - 1], 10);
+
+            if (!isNaN(borra_id)) {
+                class_av.borra_autor(borra_id);
             }
         });
+    },
+    borra_autor: function(id){
+        id = parseInt(id, 10);
+
+        if (isNaN(id)) {
+            console.log('ID inválido:', id);
+            return false;
+        }
+
+        var indexAutor = class_av.var.autoresJSON.findIndex(function(autor){
+            return parseInt(autor.id, 10) === id;
+        });
+
+        if (indexAutor === -1) {
+            console.log('No se encontró el autor en autoresJSON:', id);
+            console.log(class_av.var.autoresJSON.map(function(a){ return a.id; }));
+            return false;
+        }
+
+        // Elimina del DOM
+        $('#div-autor-' + id).remove();
+
+        // Elimina del arreglo
+        class_av.var.autoresJSON.splice(indexAutor, 1);
+
+        // Renumera TODO para garantizar ids consecutivos
+        $.each(class_av.var.autoresJSON, function(i, val){
+            var oldId = parseInt(val.id, 10);
+            var newId = i + 1;
+
+            if (oldId !== newId) {
+                var $divAutor = $('#div-autor-' + oldId);
+
+                // Cambia IDs internos
+                $divAutor.find('[id]').each(function() {
+                    this.id = this.id.replace(
+                        new RegExp('(^|-)' + oldId + '(?=-|$)'),
+                        '$1' + newId
+                    );
+                });
+
+                // Cambia "for" de labels, si existen
+                $divAutor.find('[for]').each(function() {
+                    var oldFor = $(this).attr('for');
+
+                    $(this).attr(
+                        'for',
+                        oldFor.replace(
+                            new RegExp('(^|-)' + oldId + '(?=-|$)'),
+                            '$1' + newId
+                        )
+                    );
+                });
+
+                // Cambia el ID del contenedor
+                $divAutor.attr('id', 'div-autor-' + newId);
+
+                // Actualiza el JSON
+                val.id = String(newId);
+            } else {
+                val.id = String(newId);
+            }
+
+            // Actualiza el número visible, ya con el ID nuevo
+            $('#numAut-' + newId).html(String(newId));
+        });
+
         class_av.evento_borra_autor();
+
         class_av.var.cambios_autor = (true && !class_av.var.cambios_de_inicio);
+
+        console.log('Autores después de borrar:', class_av.var.autoresJSON.map(function(a){
+            return a.id;
+        }));
     },
     evento_borra_institucion: function(){
         $('.borra-institucion').off('click').on('click', function(){
             var borra_id = this.id.split('-')[2];
             class_av.borra_institucion(borra_id);
-        });
-    },
-    evento_borra_autor: function(){
-        $('.borra-autor').off('click').on('click', function(){
-            var borra_id = this.id.split('-')[2];
-            class_av.borra_autor(borra_id);
         });
     },
     autor_corporativo: function(inicio=false){
