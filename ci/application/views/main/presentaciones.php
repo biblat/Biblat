@@ -3,7 +3,7 @@
 		<div class="panel-heading">
 			<h5 class="panel-title">
 				<a href="{base_url('archivos/ppt/Conversatorio BIBLAT Dialnet DOAJ Latindex - LatinRev 2026.pptx')}" target="_blank">
-                                    <span class="fa fa-file-pdf-o"></span> Sánchez Pereyra, Antonio (26 de junio de 2026). <b>Los indizadores se presentan y comparan: herramientas y tecnologías para visibilizar la calidad de las revistas.</b> X Jornada LatinRev FLACSO Argentina.
+                                    <span class="fa fa-file-powerpoint-o"></span> Sánchez Pereyra, Antonio (26 de junio de 2026). <b>Los indizadores se presentan y comparan: herramientas y tecnologías para visibilizar la calidad de las revistas.</b> X Jornada LatinRev FLACSO Argentina.
 				</a>
 			</h5>
 		</div>
