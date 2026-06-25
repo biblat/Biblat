@@ -49,7 +49,9 @@ class Indicadores extends CI_Controller {
 		
 		$this->load->library('session');
 
-		$this->require_human_challenge();
+		if (!$this->termina_en_preview_png()) {
+			$this->require_human_challenge();
+		}
 		
 		$this->load->driver('minify');
 		/*Variables globles*/
@@ -234,6 +236,13 @@ class Indicadores extends CI_Controller {
 		$this->template->set('disciplinas', $this->disciplinas);
 		$this->template->set('indicadores', $this->indicadores);
 	}
+	
+	private function termina_en_preview_png()
+    {
+        $uri = trim($this->uri->uri_string(), '/');
+
+        return substr($uri, -strlen('preview.png')) === 'preview.png';
+    }
 
 	private $challenge_pass_ips = [
             "127.0.0.1",
