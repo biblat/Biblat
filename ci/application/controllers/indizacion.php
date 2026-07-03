@@ -78,7 +78,7 @@ class Indizacion extends CI_Controller {
             CURLOPT_POSTFIELDS => $post_fields,     // multipart/form-data automático
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CONNECTTIMEOUT => 10,
-            CURLOPT_TIMEOUT => 180,                 // Gemini puede tardar
+            CURLOPT_TIMEOUT => 360,                 // Gemini puede tardar
         ]);
 
         $body = curl_exec($ch);
