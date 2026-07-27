@@ -2189,7 +2189,7 @@ class_ver = {
         );
         
         //instituciones que complan con esta expresión regular (inconsistentes)
-        var inconsis_instituciones = class_utils.filter_prop_noter(instituciones_evaluables, 'aff', class_ver.cons.er.doblemayus
+        var inconsis_instituciones = class_utils.filter_prop_noter(instituciones_evaluables, 'aff', class_ver.cons.er.doblemayus);
 
         arr_pubs_b = class_utils.filter_prop_arr(arr_pubs, "id", autores_pub_id);
         //autores_pub_id = class_ver.get_autores_pub_id2(consis_instituciones);
