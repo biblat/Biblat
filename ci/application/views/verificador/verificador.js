@@ -46,6 +46,10 @@ class_ver = {
             //Mayúsculas seguidas
             //'doblemayus' : /([A-Z][A-Z]|[A-Z]\.[A-Z])/,
             'doblemayus' : /^(?!.*\b[A-Z]{2,}\b(?![^()]*\)))(?!^\([^()]*\)$)[\s\S]*$/,
+			//Afiliaciones permitidas
+            'afiliacion_permitida' : [
+                /\bFundação do ABC\b/i,
+            ],
             //Licesncias
             'licencia' : /^https?:\/\/creativecommons\.org\/licenses/,
             //Palabras completas en título
@@ -518,6 +522,24 @@ class_ver = {
             return '';
         }
         return String(valor).trim();
+    },
+	es_afiliacion_permitida: function(afiliacion){
+        if(afiliacion === undefined || afiliacion === null){
+            return false;
+        }
+
+        var valor = String(afiliacion)
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        if(valor === ''){
+            return false;
+        }
+
+        return class_ver.cons.er.afiliacion_permitida.some(function(expresion){
+            expresion.lastIndex = 0;
+            return expresion.test(valor);
+        });
     },
     arr_global: function(nombre){
         if(typeof window !== 'undefined' && Array.isArray(window[nombre])){
@@ -2141,9 +2163,33 @@ class_ver = {
         //Esta parte es para tomar los ids de publicaciones con instituciones faltantes
         instituciones_faltantes = class_utils.filter_prop_arr(arr_pubs, "id", autores_pub_id_sv);
 
-        var consis_instituciones = class_utils.filter_prop_er(instituciones_valor, 'aff', class_ver.cons.er.doblemayus);
+        /*
+            * Se separan las afiliaciones permitidas antes de aplicar
+            * las reglas generales de consistencia.
+            */
+        var instituciones_permitidas = [];
+        var instituciones_evaluables = [];
+
+        $.each(instituciones_valor, function(i, institucion){
+            if(class_ver.es_afiliacion_permitida(institucion.aff)){
+                instituciones_permitidas.push(institucion);
+            }else{
+                instituciones_evaluables.push(institucion);
+            }
+        });
+
+        var consis_instituciones = class_utils.filter_prop_er(instituciones_evaluables, 'aff', class_ver.cons.er.doblemayus);
+        
+        /*
+        * Las instituciones permitidas se consideran consistentes,
+        * aunque no hayan cumplido la expresión regular anterior.
+        */
+        consis_instituciones = consis_instituciones.concat(
+            instituciones_permitidas
+        );
+        
         //instituciones que complan con esta expresión regular (inconsistentes)
-        var inconsis_instituciones = class_utils.filter_prop_noter(instituciones_valor, 'aff', class_ver.cons.er.doblemayus);
+        var inconsis_instituciones = class_utils.filter_prop_noter(instituciones_evaluables, 'aff', class_ver.cons.er.doblemayus
 
         arr_pubs_b = class_utils.filter_prop_arr(arr_pubs, "id", autores_pub_id);
         //autores_pub_id = class_ver.get_autores_pub_id2(consis_instituciones);
