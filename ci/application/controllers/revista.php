@@ -26,7 +26,7 @@ class Revista extends CI_Controller{
 			return;
 		}*/
 		
-		$this->checkTrafficAndBlock();
+		//$this->checkTrafficAndBlock();
 		
 		$this->output->enable_profiler($this->config->item('enable_profiler'));
 	    $this->template->set_partial('biblat_js', 'javascript/biblat', array(), TRUE, FALSE);
@@ -530,7 +530,7 @@ class Revista extends CI_Controller{
 	}
 
 	public function index($revistaSlug){
-		
+		/*
 		$ip = $this->get_ip(); // Obtener la IP del visitante
 
 		// Lista de prefijos de IP denegadas
@@ -567,7 +567,7 @@ class Revista extends CI_Controller{
 		}else{
 			$this->insertIP();
 		}
-		
+		*/
 		
 		
 		$data = array();
@@ -626,7 +626,7 @@ class Revista extends CI_Controller{
 	}
 
 	public function articulo($revista='', $articulo='', $mail=''){
-		
+		/*
 		//$this->insertIP('revista articulo');
                 
 		$ip = $this->get_ip(); // Obtener la IP del visitante
@@ -665,7 +665,7 @@ class Revista extends CI_Controller{
 			redirect('error');
 		}else{
 			$this->insertIP('revista articulo');
-		}
+		}*/
 		
 		$uriVar = $this->uri->ruri_to_assoc();
 		if($mail == 'true'):

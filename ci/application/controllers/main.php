@@ -7,7 +7,7 @@ class Main extends CI_Controller{
 
 	public function __construct(){
 		parent::__construct();
-		
+		/*
 		$site = $_SERVER['HTTP_SEC_FETCH_SITE'] ?? '';
         $mode = $_SERVER['HTTP_SEC_FETCH_MODE'] ?? '';
         $user = $_SERVER['HTTP_SEC_FETCH_USER'] ?? '';
@@ -26,7 +26,7 @@ class Main extends CI_Controller{
 			return;
 		}
 		
-		$this->checkTrafficAndBlock();
+		$this->checkTrafficAndBlock();*/
 		
 		$this->output->enable_profiler($this->config->item('enable_profiler'));
 		$this->template->set_partial('biblat_js', 'javascript/biblat', array(), TRUE, FALSE);

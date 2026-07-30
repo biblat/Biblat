@@ -44,7 +44,7 @@ class Frecuencias extends CI_Controller {
 			return;
 		}*/
 		
-		$this->checkTrafficAndBlock();
+		//$this->checkTrafficAndBlock();
 		
 		$this->output->enable_profiler($this->config->item('enable_profiler'));
 		$this->load->database();
