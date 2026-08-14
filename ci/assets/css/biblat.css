@@ -774,3 +774,90 @@ table.articulo{
 }
 
 .g-recaptcha div { margin-left: auto; margin-right: auto;}
+
+/* ==========================================================
+   Correcciones para búsqueda avanzada
+   ========================================================== */
+
+#advsearch {
+    height: auto !important;
+    min-height: 90px;
+    width: 100%;
+    padding: 10px 12px;
+    box-sizing: border-box;
+}
+
+#advsearch .evo-advSearch {
+    width: 100%;
+    min-height: 70px;
+    padding: 6px;
+    box-sizing: border-box;
+}
+
+/* Sustituimos el viejo float:left */
+#advsearch .evo-editFilter {
+    float: none;
+    width: 100%;
+
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    gap: 8px;
+    padding: 6px 0;
+}
+
+/* Controles */
+#advsearch .evo-editFilter input,
+#advsearch .evo-editFilter select {
+    height: 34px;
+    margin: 0;
+    vertical-align: middle;
+}
+
+/* Input de búsqueda */
+#advsearch .evo-editFilter input[type="text"] {
+    min-width: 200px;
+    padding: 6px 10px;
+}
+
+/* Select2 */
+#advsearch .evo-editFilter .select2-container {
+    margin: 0;
+    min-width: 150px;
+}
+
+/* Botones */
+#advsearch .evo-bNew,
+#advsearch .evo-bAdd,
+#advsearch .evo-bDel,
+#advsearch .evo-bSubmit {
+    margin: 0 5px;
+    vertical-align: middle;
+}
+
+/* Filtros ya creados */
+#advsearch .evo-searchFilters {
+    clear: both;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+/* Evita que textos y botones se monten */
+#advsearch .evo-searchFilters a {
+    display: inline-block;
+    margin: 3px 6px 3px 0;
+}
+
+/* En pantallas pequeñas */
+@media (max-width: 767px) {
+
+    #advsearch .evo-editFilter {
+        align-items: stretch;
+    }
+
+    #advsearch .evo-editFilter input[type="text"],
+    #advsearch .evo-editFilter .select2-container {
+        width: 100% !important;
+    }
+}
