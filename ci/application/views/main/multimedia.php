@@ -2,9 +2,51 @@
 	<div class="panel panel-default">
 	    <div class="panel-heading">
 	      <h5 class="panel-title">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-4">
+                           <iframe height="200px" src="https://drive.google.com/file/d/1_FjWWacGx5SSTQggT7K4SdTAhMCa-IHi/preview" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                            <div>&nbsp;</div>
+                        </div>
+           
+                        <div class="col-xs-12 col-sm-6 col-md-8">
+                            <a href="https://drive.google.com/file/d/1_FjWWacGx5SSTQggT7K4SdTAhMCa-IHi/preview" target="_blank" class="video">
+                                <i class="fa fa-file-video-o" style="font-size: 20px;"></i>
+                                Búsqueda inteligente en Biblat<br><br>
+                            </a>    
+                        </div>
+                    </div>
+	      </h5>
+	    </div>
+	</div>
+</div>
+<div class="panel-group">
+	<div class="panel panel-default">
+	    <div class="panel-heading">
+	      <h5 class="panel-title">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-4">
+                           <iframe height="200px" src="https://drive.google.com/file/d/1iMk89DO2LIQ3BYOqX_pkGq1i0B1Biiyi/preview" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                            <div>&nbsp;</div>
+                        </div>
+           
+                        <div class="col-xs-12 col-sm-6 col-md-8">
+                            <a href="https://https://drive.google.com/file/d/1iMk89DO2LIQ3BYOqX_pkGq1i0B1Biiyi/preview" target="_blank" class="video">
+                                <i class="fa fa-file-video-o" style="font-size: 20px;"></i>
+                                Biblat - Búsqueda semántica<br><br>
+                            </a>    
+                        </div>
+                    </div>
+	      </h5>
+	    </div>
+	</div>
+</div>
+<div class="panel-group">
+	<div class="panel panel-default">
+	    <div class="panel-heading">
+	      <h5 class="panel-title">
                     <div class="row" id="indicadores">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe width="300px" src="https://www.youtube.com/embed/-yduR9vVCuA?si=YPi_KF01dHWGjeTj" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                            <iframe height="200px" src="https://www.youtube.com/embed/-yduR9vVCuA?si=YPi_KF01dHWGjeTj" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                             <div>&nbsp;</div>
                         </div>
            
@@ -26,7 +68,7 @@
 	      <h5 class="panel-title">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                           <iframe width="300px" src="https://drive.google.com/file/d/1HhklDFJaalSuRM7RZhJYNWEMLcGIiqiU/preview" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                           <iframe height="200px" src="https://drive.google.com/file/d/1HhklDFJaalSuRM7RZhJYNWEMLcGIiqiU/preview" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                             <div>&nbsp;</div>
                         </div>
            
@@ -48,7 +90,7 @@
 	      <h5 class="panel-title">
                     <div class="row" id="indicadores">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe width="300px" src="https://www.youtube.com/embed/CDUYZBNzrwo?si=grVsqhBqbJby1YbK" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                            <iframe height="200px" src="https://www.youtube.com/embed/CDUYZBNzrwo?si=grVsqhBqbJby1YbK" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                             <div>&nbsp;</div>
                         </div>
            
@@ -70,7 +112,7 @@
 	      <h5 class="panel-title">
                     <div class="row" id="indicadores">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe width="300px" src="https://www.youtube.com/embed/2uhEejH1bp0?si=Bd7y7YHnbbdoUwha" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                            <iframe height="200px" src="https://www.youtube.com/embed/2uhEejH1bp0?si=Bd7y7YHnbbdoUwha" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                             <div>&nbsp;</div>
                         </div>
            
@@ -92,7 +134,7 @@
 	      <h5 class="panel-title">
                     <div class="row" id="indicadores">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe width="300px" src="https://www.youtube.com/embed/fDV58hyz-G0" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                            <iframe height="200px" src="https://www.youtube.com/embed/fDV58hyz-G0" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
                             <div>&nbsp;</div>
                         </div>
            
@@ -114,7 +156,7 @@
 	      <h5 class="panel-title">
                     <div class="row" id="indicadores">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe width="300px" src="https://www.youtube.com/embed/oNO4H2UvEpA" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                            <iframe height="200px" src="https://www.youtube.com/embed/oNO4H2UvEpA" frameborder="0" scrolling="no" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
                             <div>&nbsp;</div>
                         </div>
            
@@ -137,7 +179,7 @@
 	      <h5 class="panel-title">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe src="https://anchor.fm/paideia-studio/embed/episodes/Episodio-8---BIBLAT--CLASE--PERIDICA-e1rafmt/a-a8uatkq" width="300px" frameborder="0" scrolling="no"></iframe>
+                            <iframe src="https://anchor.fm/paideia-studio/embed/episodes/Episodio-8---BIBLAT--CLASE--PERIDICA-e1rafmt/a-a8uatkq" height="200px" frameborder="0" scrolling="no"></iframe>
                             <div>&nbsp;</div>
                         </div>
            
@@ -160,7 +202,7 @@
 	      <h5 class="panel-title">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe width="300px" src="https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2FbibliotecasUNAM%2Fvideos%2F511498906683279%2F&show_text=false&width=560&t=0" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" allowFullScreen="true"></iframe>
+                            <iframe height="200px" src="https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2FbibliotecasUNAM%2Fvideos%2F511498906683279%2F&show_text=false&width=560&t=0" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" allowFullScreen="true"></iframe>
                             <div>&nbsp;</div>
                         </div>
            
@@ -181,7 +223,7 @@
 	      <h5 class="panel-title">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe width="300px" src="https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2Fgrupocompas.ec%2Fvideos%2F145590217690121%2F&show_text=false&width=560&t=0" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" allowFullScreen="true"></iframe>
+                            <iframe height="200px" src="https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2Fgrupocompas.ec%2Fvideos%2F145590217690121%2F&show_text=false&width=560&t=0" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" allowFullScreen="true"></iframe>
                             <div>&nbsp;</div>
                         </div>
            
@@ -203,7 +245,7 @@
 	      <h5 class="panel-title">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe width="300px" src="https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2Fgrupocompas.ec%2Fvideos%2F1277441226026280%2F&show_text=false&width=560&t=0" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" allowFullScreen="true"></iframe>
+                            <iframe height="200px" src="https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2Fgrupocompas.ec%2Fvideos%2F1277441226026280%2F&show_text=false&width=560&t=0" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" allowFullScreen="true"></iframe>
                             <div>&nbsp;</div>
                         </div>
            
@@ -224,7 +266,7 @@
 	      <h5 class="panel-title">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe width="300px" src="https://www.youtube.com/embed/WgsELl6Pj7A" allowfullscreen></iframe>
+                            <iframe height="200px" src="https://www.youtube.com/embed/WgsELl6Pj7A" allowfullscreen></iframe>
                             <div>&nbsp;</div>
                         </div>
            
@@ -249,7 +291,7 @@
 	      <h5 class="panel-title">
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe width="300px" src="https://www.youtube.com/embed/h571rion4vI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            <iframe height="200px" src="https://www.youtube.com/embed/h571rion4vI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                             <div>&nbsp;</div>
                         </div>
            
@@ -269,7 +311,7 @@
 	      <h5 class="panel-title">
                     <div class="row" id="indicadores">
                         <div class="col-xs-12 col-sm-6 col-md-4">
-                            <iframe width="300px" src="https://www.youtube.com/embed/3DPbtSX668s" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            <iframe height="200px" src="https://www.youtube.com/embed/3DPbtSX668s" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                             <div>&nbsp;</div>
                         </div>
            
