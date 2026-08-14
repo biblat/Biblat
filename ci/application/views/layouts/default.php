@@ -32,7 +32,8 @@
         <link rel="stylesheet" href="{base_url('assets/js/select2/select2-bootstrap.css')}" />
         <!--<link rel="stylesheet" href="{base_url('assets/js/select2_410/select2.min.css')}" />-->
 		<link rel="stylesheet" href="{base_url('assets/css/contenido.css')}" />
-        <link rel="stylesheet" href="{base_url('assets/js/datatables/datatables.min.css')}" />																	   																							  
+        <link rel="stylesheet" href="{base_url('assets/js/datatables/datatables.min.css')}" />
+		<link rel="stylesheet" href="{base_url('assets/js/advancedsearch/css/evol.advancedSearch.css')}" />
 {if $canonical}
         <link rel="canonical" href="{$canonical}" />
 {/if}
