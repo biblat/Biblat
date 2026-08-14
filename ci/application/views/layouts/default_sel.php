@@ -85,6 +85,41 @@
           "url" : "http://biblat.unam.mx/"
         }
         </script>{/literal}
+        <style>
+            #loading-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                display: flex;
+                z-index: 1000000;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.55);
+                justify-content: center;
+                align-items: center;
+            }
+
+            #loading-overlay .loading-box {
+                opacity: 0.80;
+                position: absolute;
+                width: 570px;
+                top: 50%;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 15px;
+                background: #FBFCEF;
+                border: 2px solid #114D66;
+                font-size: 28px;
+                text-align: center;
+            }
+
+            #loading-overlay img {
+                width: auto;
+                height: 70px;
+            }
+        </style>
     </head>
       <body>
         <header>
@@ -321,11 +356,11 @@
                 </div>
             </div>
         </footer>
-        <div id="loading" style="display:none;">
-            <h2 style="white-space:nowrap;">
-                <img src="{base_url('img/loading.gif')}" /><br/>{_('Espere un momento...')}
-            </h2>
-			<br>
+        <div id="loading-overlay" style="display:none;">
+            <div class="loading-box">
+                <img src="/img/loading.gif" alt="Cargando">
+                <div>Espere un momento...</div>
+            </div>
             <span id="mensaje_espera" style="font-size: 20px; z-index: 2000011"></span>
         </div>
         <script src="{base_url('assets/js/jquery.js')}"></script>
