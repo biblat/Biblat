@@ -27,30 +27,18 @@ addthis_config.data_track_addressbar = false;
 addthis_config.data_track_clickback = false;
 addthis_config.ui_language = "<?=lang_iso_code();?>";
 var loading = {
-	start: function(){
-		$.blockUI({ 
-			message: $('#loading').html(),
-			css: { 
-				color: '#000', 
-				backgroundColor:'#FBFCEF', 
-				opacity: 0.6, 
-				border: '2px solid #114D66',
-				cursor: 'wait'
-			},
-			baseZ: 1000000,
-			onBlock: function(){
-				loading.status=true;
-			},
-			onUnblock: function(){
-				loading.status=false;
-			},
-			ignoreIfBlocked: true
-		});
-	},
-	end: function(){
-		$.unblockUI();
-	},
-	status: false
+
+    start: function() {
+        $('#loading-overlay').show();
+        loading.status = true;
+    },
+
+    end: function() {
+        $('#loading-overlay').hide();
+        loading.status = false;
+    },
+
+    status: false
 };
 
 var advsearch = {
