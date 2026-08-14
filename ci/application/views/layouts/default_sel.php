@@ -32,6 +32,7 @@
         <link rel="stylesheet" href="{base_url('assets/css/contenido.css')}" />
         <link rel="stylesheet" href="{base_url('assets/js/datatables/datatables.min.css')}" />																	   																							  
         <link rel="stylesheet" href="{base_url('assets/js/confirm/jquery-confirm.min.css')}" />
+		<link rel="stylesheet" href="{base_url('assets/js/advancedsearch/css/evol.advancedSearch.css')}" />
 {if $canonical}
         <link rel="canonical" href="{$canonical}" />
 {/if}
