@@ -30,7 +30,7 @@
                         </div>
            
                         <div class="col-xs-12 col-sm-6 col-md-8">
-                            <a href="https://https://drive.google.com/file/d/1iMk89DO2LIQ3BYOqX_pkGq1i0B1Biiyi/preview" target="_blank" class="video">
+                            <a href="https://drive.google.com/file/d/1iMk89DO2LIQ3BYOqX_pkGq1i0B1Biiyi/preview" target="_blank" class="video">
                                 <i class="fa fa-file-video-o" style="font-size: 20px;"></i>
                                 Biblat - Búsqueda semántica<br><br>
                             </a>    
