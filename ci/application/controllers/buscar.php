@@ -302,12 +302,14 @@ class Buscar extends CI_Controller{
 				}
 			}
 		}
-
+		
+		/*
 		if ($blocked) {
 			redirect('error');
 		}else{
 			$this->insertIP();
-		}
+		}*/
+		$this->insertIP();
 		
 		$articulosResultado = articulosResultado($query, $queryCount, $paginationURL, $perPage, $countCompleto=TRUE);
 
