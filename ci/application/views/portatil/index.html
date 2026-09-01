@@ -1,0 +1,675 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Biblat Central portátil</title>
+<style>
+:root{--orange:#f4a33a;--orange2:#ff8000;--orange-soft:#fff7ed;--border:#e2e4e7;--bg:#eef0f2;--text:#24272b;--muted:#6d737a;--green:#267a3a;--green-soft:#eef8f0;--red:#a03131;--red-soft:#fff3f3;--gold:#9a6d08;--shadow:0 8px 26px rgba(35,39,43,.08)}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#e7e9ec 0,#f3f4f5 230px,#eef0f2 100%);color:var(--text);font-size:14px}
+.wrap{max-width:1280px;margin:18px auto;background:#fff;min-height:calc(100vh - 36px);padding:0 28px 64px;border-radius:11px;box-shadow:var(--shadow);overflow:hidden}.top{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:0 -28px 20px;padding:18px 28px 16px;border-top:5px solid var(--orange2);border-bottom:1px solid var(--border);background:linear-gradient(180deg,#fff,#fbfbfb)}
+.brand-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap}h1{font-size:23px;letter-spacing:-.2px;margin:0}.portable-tag{display:inline-flex;align-items:center;padding:3px 8px;border-radius:12px;background:var(--orange-soft);border:1px solid #ffd7ad;color:#ba6205;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.35px}.meta{color:var(--muted);font-size:12px;margin-top:4px}.spacer{flex:1}
+.btn{border:1px solid #cdd0d4;background:#fff;border-radius:6px;padding:8px 13px;cursor:pointer;transition:background .15s,border-color .15s,box-shadow .15s,transform .05s}.btn:hover{background:#f8f8f8;border-color:#b7bbc0;box-shadow:0 2px 7px #00000012}.btn:active{transform:translateY(1px)}.btn-orange{background:var(--orange);border-color:#e79427;color:#222;font-weight:600}.btn-orange:hover{background:#ee982d}.btn-dark{background:#383c41;color:#fff;border-color:#383c41;font-weight:600}.btn-dark:hover{background:#292d31}.btn-danger{background:#fff;color:var(--red);border-color:#dbbcbc}.btn-danger:hover{background:var(--red-soft);border-color:#cd8d8d}.btn-success{background:#fff;color:var(--green);border-color:#b6d5be}.btn-success:hover{background:var(--green-soft);border-color:#89bd96}.btn.is-selected{box-shadow:0 0 0 3px rgba(255,128,0,.16);font-weight:700}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0 16px;padding:12px 14px;border:1px solid var(--border);border-radius:8px;background:#fafafa}.toolbar input{min-width:300px;max-width:460px}.status-local{display:inline-flex;align-items:center;padding:5px 9px;border-radius:12px;background:#f0f1f2;color:var(--muted);font-size:12px}.status-local.changed{background:var(--orange-soft);color:#a95a09;border:1px solid #ffd7ad}
+input,select,textarea{width:100%;border:1px solid #c3c7cc;border-radius:5px;padding:8px;background:#fff;font:inherit;transition:border-color .15s,box-shadow .15s}input:focus,select:focus,textarea:focus{outline:none;border-color:#f1a44d;box-shadow:0 0 0 3px rgba(255,128,0,.10)}textarea{min-height:95px;resize:vertical}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:13px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}.field label{font-weight:700;display:block;margin-bottom:5px}.field small{display:block;color:var(--muted);margin-top:4px}.field-invalid{border-color:var(--red)!important;box-shadow:0 0 0 3px rgba(160,49,49,.10)!important}.required-mark{color:var(--red);font-weight:700}
+.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:8px;box-shadow:0 2px 9px #00000008}table{border-collapse:separate;border-spacing:0;width:100%;font-size:12px}th,td{border-bottom:1px solid #e6e7e9;padding:10px 9px;text-align:left;vertical-align:top}th{background:#f7f7f7;position:sticky;top:0;z-index:1;color:#34383d;font-size:11px}tbody tr:nth-child(even){background:#fcfcfc}tbody tr:hover{background:#fff7ed}tbody tr.local-finalized{background:#fffaf2}.article-link{color:#e87300;cursor:pointer;font-weight:600}.article-link:hover{text-decoration:underline}.badge{display:inline-block;border-radius:12px;padding:3px 8px;background:#7d8287;color:#fff;white-space:nowrap;font-size:11px}.badge.R{background:var(--gold)}.badge.C{background:var(--green)}.badge.B{background:var(--red)}.badge.pending{max-width:165px;white-space:normal;line-height:1.25;background:#fff7df;color:#755100;border:1px solid #e8ca77;font-weight:600}.status-stack{display:flex;align-items:center;gap:5px;flex-wrap:wrap}.ia-status-chip{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border:1px solid var(--orange2);border-radius:10px;background:#fff7ed;color:#b85d00;font-size:10px;font-weight:700;line-height:1.2;white-space:nowrap}.ia-status-chip .dot{width:5px;height:5px;border-radius:50%;background:var(--orange2);display:inline-block}
+.editor{display:none}.back{margin-bottom:12px}.title-box{border:1px solid #e5d6c6;border-left:4px solid var(--orange2);background:linear-gradient(90deg,#fff9f2,#fff);padding:14px 16px;margin-bottom:14px;border-radius:7px}.title-box span{color:#555}.title-box b{display:block;margin-top:5px;font-size:16px}.section{border:1px solid var(--border);border-radius:8px;margin:14px 0;background:#fff;box-shadow:0 2px 10px #00000007;overflow:hidden}.section>h2{font-size:15px;margin:0;padding:12px 14px 12px 16px;background:#fafafa;border-bottom:1px solid var(--border);border-left:3px solid var(--orange2)}.section-body{padding:15px 16px}.ai-suggestion{margin-top:6px;padding:5px 8px;border-left:3px solid var(--orange2);background:var(--orange-soft);color:#8a520e;font-size:11px;border-radius:3px}.ai-evidence{margin-top:6px;padding:7px 9px;background:#fafafa;border:1px solid #e6e6e6;border-radius:5px;color:#555;font-size:11px;line-height:1.4}.ai-evidence b{display:block;margin-bottom:3px;color:#444}.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:14px}.row-card{border:1px solid #e5e7e9;border-radius:7px;padding:12px;margin:10px 0;background:#fcfcfc}.row-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}.row-head strong{font-size:13px}.corp-note{padding:9px 11px;background:#fff6e8;border-left:4px solid var(--orange2);margin-bottom:10px;border-radius:4px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}.chip{border:1px solid var(--orange2);background:#fff;border-radius:16px;padding:6px 10px;cursor:pointer;transition:background .12s,box-shadow .12s}.chip:hover{background:#fff5ea}.chip.selected{background:var(--orange2);color:#111;box-shadow:0 2px 6px #ff800026}.chip .n{margin-left:7px;background:#eee;border-radius:10px;padding:1px 6px;font-size:11px}.chip.selected .n{background:#ffd6a8}.sug-group{display:inline-flex;flex-direction:column;gap:5px;border:1px solid #e8e8e8;border-radius:7px;padding:8px;background:#fdfdfd;max-width:360px}.sug-options{display:flex;flex-wrap:wrap;gap:5px}.small{font-size:12px;color:var(--muted)}.selected-box{padding:11px;border:1px dashed #c7c9cc;border-radius:7px;margin:11px 0;background:#fdfdfd}.add-line{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;margin-top:8px;align-items:start}.add-line input{grid-column:1;grid-row:1;min-width:0}.add-line>.btn{grid-column:2;grid-row:1}.search-options{grid-column:1;grid-row:2;border:1px solid #ccc;max-height:180px;overflow:auto;display:none;background:#fff;position:static;z-index:auto;min-width:0;width:100%;box-shadow:0 4px 12px #00000012;border-radius:5px;margin-top:-2px}.search-option,.search-new-option{padding:7px 9px}.search-option{cursor:pointer}.search-option:hover{background:#fff2e5}.search-new-option{background:#fff7ed;border-bottom:1px solid #f1d1ad;color:#8a520e;cursor:pointer}.search-new-option:hover{background:#ffedd8}.search-new-option b{color:#b85d00}.relative{position:relative}.combo{position:relative;display:flex}.combo>input{padding-right:37px}.combo-toggle{position:absolute;right:1px;top:1px;bottom:1px;width:34px;border:0;border-left:1px solid #ddd;background:#fafafa;border-radius:0 4px 4px 0;cursor:pointer;color:#666}.combo-toggle:hover{background:#f1f1f1}.combo.catalog-loading input:disabled{cursor:wait;background:#f3f4f5;color:#767b81}.combo.catalog-loading .combo-toggle:disabled{cursor:wait;opacity:.5;background:#f1f1f1;color:#999}.combo.catalog-loading .combo-menu{display:none!important}.combo-menu{position:absolute;left:0;right:0;top:calc(100% + 3px);z-index:50;display:none;max-height:220px;overflow:auto;background:#fff;border:1px solid #c8ccd0;border-radius:5px;box-shadow:0 7px 20px #0002}.combo-menu.open{display:block}.combo-option{display:flex;justify-content:space-between;gap:10px;padding:7px 9px;cursor:pointer}.combo-option:hover,.combo-option.active{background:#fff2e5}.combo-option .count{color:var(--muted);font-size:11px}.catalog-source{min-height:20px;margin-top:8px;font-size:11px;color:var(--muted)}.catalog-source.online{color:#2c6f87}.catalog-source.local{color:var(--green)}.catalog-source.manual{color:#8a6200}.catalog-source.loading{color:#7b5a00}.relative{position:relative}.links{margin-top:8px}.links a{margin-right:14px;color:#df7100;text-decoration:none}.links a:hover{text-decoration:underline}
+.notice{border-left:4px solid var(--orange2);padding:10px 12px;background:#fff8ee;margin:10px 0;border-radius:4px}.notice.error{border-color:var(--red);background:#fff1f1}#notice{position:fixed;top:18px;right:18px;z-index:9999;max-width:430px;min-width:280px;margin:0;box-shadow:0 8px 28px rgba(0,0,0,.18);animation:noticeIn .16s ease-out}@keyframes noticeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}.save-feedback{display:inline-flex;align-items:center;min-height:28px;padding:3px 8px;border-radius:12px;color:var(--green);font-size:12px;font-weight:700}.save-feedback.dirty{color:#8a6200;background:#fff8df}.save-feedback.error{color:var(--red);background:var(--red-soft)}.lock-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;margin:0 0 14px;border:1px solid #e3cc85;border-left:4px solid #d59a00;border-radius:7px;background:#fff9e7;color:#665016}.lock-banner.no{border-color:#ddb5b5;border-left-color:var(--red);background:var(--red-soft);color:#773434}.lock-banner strong{display:block;margin-bottom:2px}.lock-banner .small{color:inherit;opacity:.86}input:disabled,select:disabled,textarea:disabled{background:#f3f4f5;color:#767b81;cursor:not-allowed}.btn:disabled{opacity:.48;cursor:not-allowed;box-shadow:none;transform:none}.finalization-section .section-body{padding:18px}.finalization-help{margin:0 0 12px}.pending-status{display:flex;flex-direction:column;align-items:center;gap:3px;margin:12px auto 0;padding:10px 14px;max-width:500px;border-radius:7px;background:#f7f7f7;color:var(--muted);text-align:center}.pending-status.active{background:var(--green-soft);border:1px solid #bddbc4;color:#285e35}.pending-status.active.no{background:var(--red-soft);border-color:#e0b9b9;color:#833333}.pending-status strong{font-size:13px}.pending-status span{font-size:11px}.hidden{display:none!important}.footer-actions{position:sticky;bottom:0;background:#fffffff5;border-top:1px solid var(--border);padding:11px 2px;margin-top:22px;display:flex;justify-content:space-between;align-items:center;gap:10px;box-shadow:0 -4px 12px #00000008}.muted{color:var(--muted)}
+@media(max-width:800px){body{background:#fff}.grid2,.grid3{grid-template-columns:1fr}.wrap{margin:0;padding:0 14px 30px;border-radius:0;box-shadow:none}.top{margin:0 -14px 16px;padding:14px;border-radius:0}.toolbar input{min-width:0;max-width:none}.footer-actions{position:static;align-items:stretch;flex-direction:column}.table-wrap{border-radius:5px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div><div class="brand-line"><h1>Biblat Central portátil</h1><span class="portable-tag">Modo portátil</span></div><div class="meta" id="meta"></div></div>
+    <div class="spacer"></div>
+    <button class="btn btn-dark" id="btnZip">Generar ZIP para importar</button>
+  </div>
+  <div id="notice" class="notice hidden"></div>
+
+  <section id="listView">
+    <div class="toolbar">
+      <label for="buscar"><b>Buscar:</b></label><input id="buscar" placeholder="Revista, título, ISSN o sistema">
+      <span class="status-local" id="localStatus">Sin cambios locales</span>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Revista</th><th>ISSN</th><th>Número</th><th>Artículo</th><th>URL 1</th><th>URL 2</th><th>Fecha asignado</th><th>Estatus</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table></div>
+    <div class="small" id="count" style="margin-top:8px"></div>
+  </section>
+
+  <section id="editorView" class="editor">
+    <button class="btn back" id="btnBack">← Regresar al listado</button>
+    <div class="title-box"><span id="revistaTitle"></span><b id="articuloTitle"></b><div class="links" id="links"></div></div>
+    <div id="lockedBanner" class="lock-banner hidden"><div><strong id="lockedTitle">Registro finalizado en este paquete</strong><div class="small" id="lockedText">La edición está bloqueada hasta reabrir el análisis.</div></div><button class="btn" id="reopenAnalysis">Reabrir análisis</button></div>
+
+    <div class="section finalization-section"><h2>Finalización</h2><div class="section-body">
+      <div class="notice finalization-help"><b>La finalización se guardará en este paquete.</b> El estado se actualizará en Biblat Central al importar el ZIP.</div>
+      <div class="actions" style="justify-content:center">
+        <button class="btn btn-danger" id="markNo">No indizable</button>
+        <button class="btn btn-success" id="markComplete">Análisis completo</button>
+        <button class="btn btn-success" id="markPC">Análisis de palabras clave completo</button>
+        <button class="btn hidden" id="reopenAnalysis2">Reabrir análisis</button>
+      </div>
+      <div class="pending-status" id="pendingStatus">Sin finalización pendiente</div>
+    </div></div>
+    
+    <div class="section" id="articleSection"><h2>Artículo</h2><div class="section-body">
+      <div class="grid2">
+        <div class="field"><label>Idioma(s) del documento <span class="required-mark">*</span></label><select id="idiomaDocumento" multiple size="4"></select></div>
+        <div class="field"><label>Tipo de documento <span class="required-mark">*</span></label><select id="tipo_documento"></select><small>Errata no está disponible en la versión portátil.</small></div>
+        <div class="field"><label>Título <span class="required-mark">*</span></label><input id="titulo"></div><div class="field"><label>Idioma del título <span class="required-mark">*</span></label><select id="idioma"></select></div>
+        <div class="field"><label>Título traducido</label><input id="titulo2"></div><div class="field"><label>Idioma</label><select id="idioma2"></select></div>
+        <div class="field"><label>Título traducido</label><input id="titulo3"></div><div class="field"><label>Idioma</label><select id="idioma3"></select></div>
+      </div>
+      <h3>Clasificación temática</h3><div class="grid3" id="clasificacion"></div>
+      <h3>Enlaces</h3><div class="grid2">
+        <div class="field"><label>URL 1</label><input id="url1"></div><div class="field"><label>Tipo URL 1</label><select id="tipourl1"><option value="html">HTML</option><option value="pdf">PDF</option></select></div>
+        <div class="field"><label>URL 2</label><input id="url2"></div><div class="field"><label>Tipo URL 2</label><select id="tipourl2"><option value="html">HTML</option><option value="pdf">PDF</option></select></div>
+      </div>
+      <div class="actions"><span class="save-feedback" id="saveArticleStatus"></span><button class="btn btn-orange" id="saveArticle">Guardar artículo localmente</button></div>
+    </div></div>
+
+    <div class="section" id="keywordsSection"><h2>Palabras clave</h2><div class="section-body">
+      <div id="iaEs"></div><div class="selected-box"><b>Palabras clave seleccionadas</b><div id="selEs" class="chips" style="margin-top:8px"></div>
+        <div class="add-line relative"><input id="newEs" autocomplete="off" placeholder="Agregar palabra clave"><button class="btn" id="addEs">Agregar</button><div id="optsEs" class="search-options"></div></div>
+      </div>
+      <hr><div id="iaEn"></div><div class="selected-box"><b>Keywords seleccionadas</b><div id="selEn" class="chips" style="margin-top:8px"></div>
+        <div class="add-line relative"><input id="newEn" autocomplete="off" placeholder="Agregar keyword"><button class="btn" id="addEn">Agregar</button><div id="optsEn" class="search-options"></div></div>
+      </div>
+      <div class="actions"><span class="save-feedback" id="saveKeywordsStatus"></span><button class="btn btn-orange" id="saveKeywords">Guardar palabras clave localmente</button></div>
+    </div></div>
+
+    <div class="section" id="institucionesSection"><h2>Instituciones</h2><div class="section-body">
+      <label><input type="checkbox" id="corporativo" style="width:auto"> <b>Es autor corporativo</b></label>
+      <div id="corpNote" class="corp-note hidden">Al marcar autor corporativo, los autores personales se conservarán en el paquete original pero la importación aplicará la lógica corporativa.</div>
+      <div id="catalogoInstitucionalInfo" class="muted" style="margin:8px 0 12px"></div>
+      <div id="institucionesRows"></div><button class="btn" id="addInstitucion">+ Agregar institución</button>
+      <div class="actions"><span class="save-feedback" id="saveInstitucionesStatus"></span><button class="btn btn-orange" id="saveInstituciones">Guardar instituciones localmente</button></div>
+    </div></div>
+
+    <div class="section" id="autoresSection"><h2>Autores</h2><div class="section-body"><div id="autoresRows"></div><button class="btn" id="addAutor">+ Agregar autor</button>
+      <div class="actions"><span class="save-feedback" id="saveAutoresStatus"></span><button class="btn btn-orange" id="saveAutores">Guardar autores localmente</button></div>
+    </div></div>
+
+  </section>
+
+  <div class="footer-actions"><span class="muted" id="footerState">Los cambios se guardan en este navegador.</span><button class="btn btn-dark" id="btnZip2">Generar ZIP para importar</button></div>
+</div>
+<script src="data/paquete.js"></script>
+<script>
+(function(){
+'use strict';
+const P=window.BIBLAT_PAQUETE||{}; const M=P.metadata||{}; const C=P.catalogos||{}; const A=P.articulos||{};
+const FEATURES=Object.freeze({
+  mostrar_indicador_ia: true
+});
+// La versión en línea corta la sesión tras 20 minutos de inactividad.
+// En portátil no recargamos la página: hacemos un corte de bitácora "Recarga"
+// y pausamos el cronómetro hasta que el analista vuelva a interactuar.
+const PORTABLE_IDLE_MS=20*60*1000;
+let current=null, work={}, catalogCache={}; let selectedEs=[],selectedEn=[];
+let activityState={system:null,lastTick:0,accumulated:0,paused:true,timer:null,lastSignal:0};
+const idiomas=['Español','Portugués','Inglés','Francés','Italiano','Alemán','Ruso','Otro'];
+const ONLINE_CATALOG_BASE=String(M.catalog_api_base||'http://biblat.unam.mx/es').replace(/\/+$/,'');
+function asObject(v){if(!v||typeof v!=='object')return {};if(Array.isArray(v)){const o={};Object.keys(v).forEach(k=>{o[k]=v[k]});return o}return v}
+function normalizeCatalogContainers(){C.ciudades_por_pais=asObject(C.ciudades_por_pais);C.instituciones_por_pais=asObject(C.instituciones_por_pais);C.instituciones_por_pais['0']=asObject(C.instituciones_por_pais['0']);C.instituciones_por_pais['1']=asObject(C.instituciones_por_pais['1']);C.dependencias_por_institucion=asObject(C.dependencias_por_institucion);C.dependencias_por_institucion['0']=asObject(C.dependencias_por_institucion['0']);C.dependencias_por_institucion['1']=asObject(C.dependencias_por_institucion['1']);C.ciudades_por_institucion=asObject(C.ciudades_por_institucion)}
+normalizeCatalogContainers();
+const $=id=>document.getElementById(id); const clone=o=>JSON.parse(JSON.stringify(o));
+function parseJSON(v,def){if(v==null||v==='')return def; if(typeof v!=='string')return v; try{return JSON.parse(v)}catch(e){return def}}
+function esc(s){return String(s==null?'':s).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]))}
+function norm(s){return String(s||'').trim().toLowerCase()}
+function unique(arr){const seen=new Set();return arr.filter(x=>{let k=norm(x);if(!k||seen.has(k))return false;seen.add(k);return true})}
+function showNotice(text,error){$('notice').textContent=text;$('notice').className='notice'+(error?' error':'');setTimeout(()=>$('notice').classList.add('hidden'),5000)}
+function statusLabel(a){const pc=a.estatusPC; if(pc==='A')return 'Sin movimiento PC'; if(pc==='R')return 'En revisión PC'; if(pc==='C')return 'Completado PC'; return ({A:'Sin movimiento',R:'En revisión',C:'Completado',B:'No indizable',D:'Corrección'}[a.estatus]||'')}
+function statusClass(a){return a.estatusPC||a.estatus||''}
+function aiArray(v){const x=parseJSON(v,[]);return Array.isArray(x)?x:[]}
+function aiObject(v){const x=parseJSON(v,{});return x&&typeof x==='object'&&!Array.isArray(x)?x:{}}
+function hasAIKeywords(g){
+  if(!g)return false;
+  return aiArray(g.biblat_exactas).length>0 || aiArray(g.biblat_sugerencias).length>0 ||
+         aiArray(g.biblat_exactas_en).length>0 || aiArray(g.biblat_sugerencias_en).length>0;
+}
+function hasAIDisciplines(g){
+  if(!g)return false;
+  const d=aiObject(g.disciplinas);
+  return [1,2,3].some(i=>String(d['disciplina'+i]||'').trim()!=='' || String(d['subdisciplina'+i]||'').trim()!=='');
+}
+function hasAIWork(sistema){
+  const base=getOriginal(sistema);
+  const g=base&&base.genera_pc;
+  return hasAIKeywords(g) && hasAIDisciplines(g);
+}
+function aiStatusChip(sistema){
+  if(!FEATURES.mostrar_indicador_ia || !hasAIWork(sistema))return '';
+  return '<span class=\"ia-status-chip\" title=\"Registro con palabras clave y clasificación temática generadas por IA\"><span class=\"dot\"></span>IA</span>';
+}
+function isExportableOriginal(a){a=a||{};const est=String(a.estatus==null?'':a.estatus),pc=String(a.estatusPC==null?'':a.estatusPC);const normalActivo=!['C','B'].includes(est);const pcActivo=['A','R'].includes(pc);return normalActivo||pcActivo}
+function initSelect(el,values,blank=true){el.innerHTML=(blank?'<option value=""></option>':'')+values.map(v=>'<option value="'+esc(v)+'">'+esc(v)+'</option>').join('')}
+function setVal(id,v){$(id).value=v==null?'':v} function getVal(id){return $(id).value.trim()}
+function getOriginal(s){return A[s]||{}}
+function currentBlock(s){const base=getOriginal(s); const w=work[s]||{}; return {listado:base.listado||{},documento:Object.assign(clone(base.documento||{}),clone(w.documento||{})),autores:w.autores?clone(w.autores):clone(base.autores||[]),instituciones:w.instituciones?clone(w.instituciones):clone(base.instituciones||[]),corporativo:w.hasOwnProperty('corporativo')?w.corporativo:((base.instituciones||[]).some(x=>String(x.corporativo)==='1')?1:0),finalizacion:w.finalizacion||null,genera_pc:base.genera_pc||null}}
+
+/* IndexedDB */
+function dbOpen(){return new Promise((res,rej)=>{const r=indexedDB.open('biblat_portatil',1);r.onupgradeneeded=e=>{const db=e.target.result;if(!db.objectStoreNames.contains('work'))db.createObjectStore('work')};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+async function loadWork(){try{const db=await dbOpen();work=await new Promise((res,rej)=>{const t=db.transaction('work','readonly').objectStore('work').get(M.package_id);t.onsuccess=()=>res(t.result||{});t.onerror=()=>rej(t.error)});db.close()}catch(e){work={};showNotice('No se pudo abrir el almacenamiento local. Los cambios sólo vivirán mientras la página permanezca abierta.',true)}updateLocalStatus()}
+async function saveWork(){try{const db=await dbOpen();await new Promise((res,rej)=>{const t=db.transaction('work','readwrite').objectStore('work').put(work,M.package_id);t.onsuccess=()=>res();t.onerror=()=>rej(t.error)});db.close();updateLocalStatus();$('footerState').textContent='Cambios guardados localmente: '+new Date().toLocaleTimeString();return true}catch(e){showNotice('No se pudo guardar localmente: '+e.message,true);return false}}
+async function loadCatalogCache(){try{const db=await dbOpen();catalogCache=await new Promise((res,rej)=>{const t=db.transaction('work','readonly').objectStore('work').get('catalog_cache_v1:'+ONLINE_CATALOG_BASE);t.onsuccess=()=>res(t.result||{});t.onerror=()=>rej(t.error)});db.close();mergeCatalogCache()}catch(e){catalogCache={}}}
+async function saveCatalogCache(){try{const db=await dbOpen();await new Promise((res,rej)=>{const t=db.transaction('work','readwrite').objectStore('work').put(catalogCache,'catalog_cache_v1:'+ONLINE_CATALOG_BASE);t.onsuccess=()=>res();t.onerror=()=>rej(t.error)});db.close()}catch(e){console.warn('No se pudo guardar caché de catálogos',e)}}
+function cacheBranch(name,corp){if(!catalogCache[name])catalogCache[name]={};if(corp!=null){if(!catalogCache[name][corp])catalogCache[name][corp]={};return catalogCache[name][corp]}return catalogCache[name]}
+function mergeCatalogCache(){normalizeCatalogContainers();const cp=asObject(catalogCache.ciudades_por_pais);Object.keys(cp).forEach(k=>{if(!C.ciudades_por_pais[k]||!C.ciudades_por_pais[k].length)C.ciudades_por_pais[k]=cp[k]});['0','1'].forEach(c=>{const ip=asObject(catalogCache.instituciones_por_pais&&catalogCache.instituciones_por_pais[c]);Object.keys(ip).forEach(k=>{if(!C.instituciones_por_pais[c][k]||!C.instituciones_por_pais[c][k].length)C.instituciones_por_pais[c][k]=ip[k]});const dp=asObject(catalogCache.dependencias_por_institucion&&catalogCache.dependencias_por_institucion[c]);Object.keys(dp).forEach(k=>{if(!C.dependencias_por_institucion[c][k]||!C.dependencias_por_institucion[c][k].length)C.dependencias_por_institucion[c][k]=dp[k]})});const ci=asObject(catalogCache.ciudades_por_institucion);Object.keys(ci).forEach(k=>{if(!C.ciudades_por_institucion[k]||!C.ciudades_por_institucion[k].length)C.ciudades_por_institucion[k]=ci[k]})}
+function updateLocalStatus(){const n=Object.keys(work).length;const el=$('localStatus');el.textContent=n? n+' artículo(s) con cambios locales':'Sin cambios locales';el.classList.toggle('changed',n>0)}
+const saveFeedbackIds={article:'saveArticleStatus',keywords:'saveKeywordsStatus',instituciones:'saveInstitucionesStatus',autores:'saveAutoresStatus'};
+function setSaveFeedback(section,text,state){const id=saveFeedbackIds[section],el=id&&$(id);if(!el)return;el.textContent=text||'';el.className='save-feedback'+(state?' '+state:'')}
+function markSaved(section,label){const t=new Date().toLocaleTimeString();setSaveFeedback(section,'✓ '+label+' · '+t,'');showNotice('✓ '+label+' guardado localmente.')}
+function markDirty(section){if(!current||currentBlock(current).finalizacion)return;setSaveFeedback(section,'Cambios pendientes de guardar','dirty')}
+function resetSaveFeedback(){Object.keys(saveFeedbackIds).forEach(k=>setSaveFeedback(k,'',''))}
+function dirtySectionForElement(el){const sec=el&&el.closest&&el.closest('.section');if(!sec)return null;return ({articleSection:'article',keywordsSection:'keywords',institucionesSection:'instituciones',autoresSection:'autores'})[sec.id]||null}
+
+/*
+ * Antes de finalizar, las secciones modificadas deben haberse guardado
+ * explícitamente con sus respectivos botones "Guardar ... localmente".
+ * La clase .dirty ya es la fuente visual que usa la interfaz para indicar
+ * "Cambios pendientes de guardar"; reutilizamos ese mismo estado.
+ */
+const completionSectionLabels={
+  article:'Artículo',
+  keywords:'Palabras clave',
+  instituciones:'Instituciones',
+  autores:'Autores'
+};
+
+function unsavedSectionsForCompletion(kind){
+  const sections=(kind==='CPC')
+    ? ['keywords']
+    : ['article','keywords','instituciones','autores'];
+
+  return sections.filter(section=>{
+    const id=saveFeedbackIds[section];
+    const el=id&&$(id);
+    if(!el||!el.classList.contains('dirty'))return false;
+
+    /*
+     * Si el registro es corporativo, Autores no participa en el guardado
+     * final del análisis y no debe impedir su finalización.
+     */
+    if(section==='autores'&&$('corporativo')&&$('corporativo').checked){
+      return false;
+    }
+
+    /*
+     * Una sección que no aplica al flujo actual tampoco bloquea.
+     */
+    if(section==='keywords'&&$('keywordsSection')&&$('keywordsSection').classList.contains('hidden')){
+      return false;
+    }
+    if(section==='instituciones'&&$('institucionesSection')&&$('institucionesSection').classList.contains('hidden')){
+      return false;
+    }
+    if(section==='autores'&&$('autoresSection')&&$('autoresSection').classList.contains('hidden')){
+      return false;
+    }
+
+    return true;
+  });
+}
+
+function warnUnsavedBeforeCompletion(kind){
+  if(kind!=='C'&&kind!=='CPC')return true;
+
+  const pending=unsavedSectionsForCompletion(kind);
+  if(!pending.length)return true;
+
+  const labels=pending.map(x=>completionSectionLabels[x]||x);
+  const plural=labels.length>1;
+  const message=
+    'No se puede finalizar el registro porque '+(plural?'hay cambios':'hay cambios')+
+    ' que todavía no se han guardado localmente.\n\n'+
+    'Sección'+(plural?'es':'')+': '+labels.join(', ')+'.\n\n'+
+    'Guarde '+(plural?'esas secciones':'esa sección')+
+    ' y después vuelva a presionar el botón de completado.';
+
+  alert(message);
+  showNotice('Hay cambios sin guardar en: '+labels.join(', ')+'.',true);
+
+  const first=pending[0];
+  const sectionId={
+    article:'articleSection',
+    keywords:'keywordsSection',
+    instituciones:'institucionesSection',
+    autores:'autoresSection'
+  }[first];
+  const sectionEl=sectionId&&$(sectionId);
+  if(sectionEl&&typeof sectionEl.scrollIntoView==='function'){
+    sectionEl.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  return false;
+}
+
+/* ================================================================
+ * Bitácora portátil
+ * Replica la idea de class_av.set_bitacora(): el tiempo de cada
+ * movimiento es el transcurrido desde el movimiento anterior.
+ * Si pasan 20 minutos sin actividad, se registra un movimiento
+ * "Recarga" y se pausa el reloj. Ese movimiento ya es excluido por
+ * los reportes de tiempo de producción de Biblat.
+ * ================================================================ */
+function localDateISO(ts){const d=new Date(ts||Date.now());return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function activityClearTimer(){if(activityState.timer){clearTimeout(activityState.timer);activityState.timer=null}}
+function activityScheduleIdle(){activityClearTimer();if(!activityState.system||activityState.paused)return;activityState.timer=setTimeout(()=>activityIdleCut(),PORTABLE_IDLE_MS)}
+function activityStart(s){activityClearTimer();const now=Date.now();activityState={system:s,lastTick:now,accumulated:0,paused:false,timer:null,lastSignal:now};activityScheduleIdle()}
+function activityStop(){activityClearTimer();activityState={system:null,lastTick:0,accumulated:0,paused:true,timer:null,lastSignal:0}}
+function activityPushRaw(movimiento,tiempo,at){if(!current||activityState.system!==current)return;const w=ensureWork();if(!Array.isArray(w.bitacora))w.bitacora=[];const now=at||Date.now();w.bitacora.push({movimiento:String(movimiento||''),tiempo:Math.max(0,Math.round(Number(tiempo)||0)),fecha:localDateISO(now),registrado_en:new Date(now).toISOString()})}
+async function activityIdleCut(){if(!current||activityState.system!==current||activityState.paused)return;const now=Date.now();const gap=Math.max(0,now-activityState.lastTick);activityState.accumulated+=Math.min(gap,PORTABLE_IDLE_MS);activityState.lastTick=now;activityState.paused=true;activityClearTimer();const elapsed=Math.max(0,Math.round(activityState.accumulated));activityState.accumulated=0;if(elapsed>0){activityPushRaw('Recarga',elapsed,now);await saveWork()}}
+function activityTouch(force){if(!current||activityState.system!==current)return;const now=Date.now();if(!force&&now-activityState.lastSignal<1000)return;activityState.lastSignal=now;if(activityState.paused){activityState.paused=false;activityState.lastTick=now;activityScheduleIdle();return}const gap=Math.max(0,now-activityState.lastTick);if(gap>=PORTABLE_IDLE_MS){activityState.accumulated+=PORTABLE_IDLE_MS;const elapsed=Math.max(0,Math.round(activityState.accumulated));activityState.accumulated=0;activityPushRaw('Recarga',elapsed,now);saveWork();activityState.lastTick=now}else{activityState.accumulated+=gap;activityState.lastTick=now}activityScheduleIdle()}
+function activityPause(){if(!current||activityState.system!==current||activityState.paused)return;const now=Date.now();activityState.accumulated+=Math.max(0,now-activityState.lastTick);activityState.lastTick=now;activityState.paused=true;activityClearTimer()}
+function activityResume(){if(!current||activityState.system!==current||!activityState.paused)return;const now=Date.now();activityState.paused=false;activityState.lastTick=now;activityState.lastSignal=now;activityScheduleIdle()}
+function recordMovement(movimiento){if(!current||activityState.system!==current)return;activityTouch(true);const elapsed=Math.max(0,Math.round(activityState.accumulated));activityState.accumulated=0;activityState.lastTick=Date.now();activityPushRaw(movimiento,elapsed,activityState.lastTick);activityScheduleIdle()}
+function installActivityTracking(){['mousemove','mousedown','keydown','touchstart','scroll'].forEach(ev=>document.addEventListener(ev,()=>activityTouch(false),{passive:true}));document.addEventListener('visibilitychange',()=>{if(document.hidden)activityPause();else activityResume()});window.addEventListener('beforeunload',activityPause)}
+
+function localFinalLabel(v){return ({B:'No indizable · pendiente de importar',C:'Completado · pendiente de importar',CPC:'PC completado · pendiente de importar'}[v]||'')}
+function renderList(){const q=norm($('buscar').value);const allRows=Object.keys(A).map(k=>A[k].listado||{});const exportables=allRows.filter(isExportableOriginal);const rows=exportables.filter(a=>!q||[a.sistema,a.revista,a.issn,a.numero,a.articulo].some(v=>norm(v).includes(q)));$('tbody').innerHTML=rows.map(a=>{const f=work[a.sistema]&&work[a.sistema].finalizacion;const status=f?'<span class="badge pending">'+esc(localFinalLabel(f))+'</span>':'<span class="badge '+esc(statusClass(a))+'">'+esc(statusLabel(a))+'</span>';const ia=aiStatusChip(a.sistema);return '<tr class="'+(f?'local-finalized':'')+'"><td>'+esc(a.revista)+'</td><td>'+esc(a.issn)+'</td><td>'+esc(a.numero)+'</td><td><span class="article-link" data-s="'+esc(a.sistema)+'">'+esc(a.articulo||'SIN TÍTULO')+'</span></td><td>'+(a.url1?'<a target="_blank" href="'+esc(a.url1)+'">Ver artículo</a>':'')+'</td><td>'+(a.url2?'<a target="_blank" href="'+esc(a.url2)+'">Ver artículo</a>':'')+'</td><td>'+esc(a.fechaAsignadoPC||a.fechaAsignado||'')+'</td><td><div class="status-stack">'+status+ia+'</div></td></tr>'}).join('');$('count').textContent='Mostrando '+rows.length+' de '+exportables.length+' registros';document.querySelectorAll('.article-link').forEach(x=>x.onclick=()=>openArticle(x.dataset.s))}
+
+function applyMode(b){const revisionPC=['A','R'].includes(String((b.listado||{}).estatusPC||''));const finalized=!!b.finalizacion;const articleSection=$('articleSection');articleSection.querySelectorAll('input,select,textarea').forEach(x=>x.disabled=revisionPC);$('saveArticle').classList.toggle('hidden',revisionPC);$('keywordsSection').classList.toggle('hidden',String(M.pal_cla||'0')!=='1');const normalPanels=!revisionPC;$('autoresSection').classList.toggle('hidden',!normalPanels||!!b.corporativo);$('institucionesSection').classList.toggle('hidden',!normalPanels);$('markPC').classList.toggle('hidden',!revisionPC);const editor=String(M.rol||'')==='Editor';$('markNo').classList.toggle('hidden',revisionPC||editor);$('markComplete').classList.toggle('hidden',revisionPC);
+ const allowIds=new Set(['btnBack','btnZip2','reopenAnalysis','reopenAnalysis2']);$('editorView').querySelectorAll('input,select,textarea,button').forEach(el=>{if(allowIds.has(el.id))return;if(finalized)el.disabled=true;else if(!revisionPC||!articleSection.contains(el))el.disabled=false});
+ $('lockedBanner').classList.toggle('hidden',!finalized);$('lockedBanner').classList.toggle('no',b.finalizacion==='B');$('reopenAnalysis2').classList.toggle('hidden',!finalized);if(finalized){const labels={B:'No indizable',C:'Análisis completo',CPC:'Análisis de palabras clave completo'};$('lockedTitle').textContent=(labels[b.finalizacion]||'Registro finalizado')+' en este paquete';$('lockedText').textContent='La edición está bloqueada. El estado se aplicará a Biblat Central al importar el ZIP.';$('markNo').classList.add('hidden');$('markComplete').classList.add('hidden');$('markPC').classList.add('hidden')}else{$('reopenAnalysis2').classList.add('hidden')}}
+function openArticle(s){const original=getOriginal(s);if(!isExportableOriginal(original.listado||{})){showNotice('Este artículo ya estaba finalizado antes de crear el paquete y no puede editarse en modo portátil.',true);return}current=s;activityStart(s);resetSaveFeedback();const b=currentBlock(s),d=b.documento,l=b.listado;$('listView').style.display='none';$('editorView').style.display='block';$('revistaTitle').textContent=l.revista||'';$('articuloTitle').textContent=d.articulo||l.articulo||'';$('links').innerHTML=(d.url1?'<a target="_blank" href="'+esc(d.url1)+'">Abrir URL 1</a>':'')+(d.url2?'<a target="_blank" href="'+esc(d.url2)+'">Abrir URL 2</a>':'');
+ setVal('titulo',d.articulo); setVal('idioma',firstIdioma(d.idioma)); setVal('titulo2',d.titulo2);setVal('idioma2',d.idioma2);setVal('titulo3',d.titulo3);setVal('idioma3',d.idioma3);setVal('tipo_documento',d.tipo_documento);setVal('url1',d.url1);setVal('url2',d.url2);setVal('tipourl1',d.tipourl1||'html');setVal('tipourl2',d.tipourl2||'html');
+ const langs=String(d.idioma||'').split(',').map(x=>x.trim());Array.from($('idiomaDocumento').options).forEach(o=>o.selected=langs.includes(o.value));
+ renderClassification(d,b.genera_pc); selectedEs=unique(parseJSON(d.palabraClave,[])||[]);selectedEn=unique(parseJSON(d.keyword,[])||[]);renderKeywords(b.genera_pc);renderInstituciones(b.instituciones,b.corporativo);renderAutores(b.autores,b.instituciones,b.corporativo);renderPending(b.finalizacion);applyMode(b);window.scrollTo(0,0)}
+function firstIdioma(v){return String(v||'').split(',')[0].trim()}
+function evidenceText(v){if(v==null)return '';if(typeof v==='string')return v.trim();if(typeof v==='object'){if(v.razon!=null)return String(v.razon).trim();if(v.evidencia!=null)return String(v.evidencia).trim()}return ''}
+function renderClassification(d,g){const gd=(g&&parseJSON(g.disciplinas,{}))||{};const ge=(g&&parseJSON(g.evidencias,{}))||{};let html='';for(let i=1;i<=3;i++){const aiD=String(gd['disciplina'+i]||'').trim(),aiS=String(gd['subdisciplina'+i]||'').trim(),evD=evidenceText(ge['disciplina'+i]),evS=evidenceText(ge['subdisciplina'+i]);html+='<div class="row-card"><div class="field"><label>Disciplina '+i+(i===1?' <span class=\"required-mark\">*</span>':'')+'</label><select id="disc'+i+'"></select>'+(aiD?'<div class="ai-suggestion"><b>Sugerencia IA:</b> '+esc(aiD)+'</div>':'')+(evD?'<div class="ai-evidence"><b>Sustento de la disciplina</b>'+esc(evD)+'</div>':'')+'</div><div class="field" style="margin-top:8px"><label>Subdisciplina '+i+'</label><select id="sub'+i+'"></select>'+(aiS?'<div class="ai-suggestion"><b>Sugerencia IA:</b> '+esc(aiS)+'</div>':'')+(evS?'<div class="ai-evidence"><b>Sustento de la subdisciplina</b>'+esc(evS)+'</div>':'')+'</div></div>'}$('clasificacion').innerHTML=html;for(let i=1;i<=3;i++){const de=$('disc'+i);const aiD=String(gd['disciplina'+i]||'').trim(),aiS=String(gd['subdisciplina'+i]||'').trim();const valD=String(d['disciplina'+i]||'').trim()||aiD;const valS=String(d['subdisciplina'+i]||'').trim()||aiS;initSelect(de,C.disciplina||[]);if(valD&&!Array.from(de.options).some(o=>o.value===valD)){de.add(new Option(valD,valD))}de.value=valD;fillSubs(i,valS);de.onchange=()=>fillSubs(i,'')}}
+function fillSubs(i,val){const d=$('disc'+i).value;const arr=(C[d]||[]).map(x=>String(x).trim()).filter(Boolean);const se=$('sub'+i);initSelect(se,arr);if(val&&!Array.from(se.options).some(o=>o.value===val)){se.add(new Option(val,val))}se.value=val||''}
+function collectDocument(){const d=clone(currentBlock(current).documento);d.articulo=getVal('titulo');const langs=Array.from($('idiomaDocumento').selectedOptions).map(o=>o.value);d.idioma=langs.join(', ');d.titulo2=getVal('titulo2');d.idioma2=$('idioma2').value;d.titulo3=getVal('titulo3');d.idioma3=$('idioma3').value;d.tipo_documento=$('tipo_documento').value;for(let i=1;i<=3;i++){d['disciplina'+i]=$('disc'+i).value;d['subdisciplina'+i]=$('sub'+i).value}d.url1=getVal('url1');d.url2=getVal('url2');d.tipourl1=$('tipourl1').value;d.tipourl2=$('tipourl2').value;d.palabraClave=JSON.stringify(selectedEs);d.keyword=JSON.stringify(selectedEn);return d}
+
+function clearValidation(){document.querySelectorAll('.field-invalid').forEach(el=>el.classList.remove('field-invalid'))}
+function validationError(message,id){clearValidation();const el=id&&$(id);if(el){el.classList.add('field-invalid');try{el.focus()}catch(e){}}showNotice(message,true);return false}
+function validateArticle(){
+  clearValidation();
+  const langs=Array.from($('idiomaDocumento').selectedOptions).map(o=>o.value).filter(Boolean);
+  if(!langs.length)return validationError('Falta: Idioma(s) del documento.','idiomaDocumento');
+  if(!getVal('titulo'))return validationError('Falta: Título.','titulo');
+  if(!$('idioma').value)return validationError('Falta: Idioma de título.','idioma');
+  if(!$('tipo_documento').value)return validationError('Falta: Tipo de documento.','tipo_documento');
+  if(!$('disc1') || !$('disc1').value)return validationError('Falta: Disciplina.','disc1');
+  if(getVal('titulo2')&&!$('idioma2').value)return validationError('Falta: Idioma del primer título traducido.','idioma2');
+  if(getVal('titulo3')&&!$('idioma3').value)return validationError('Falta: Idioma del segundo título traducido.','idioma3');
+  const pattern=/^https?:\/\/.+/i;
+  if(getVal('url1')&&!pattern.test(getVal('url1')))return validationError('URL 1 mal estructurada: debe comenzar con http:// o https://.','url1');
+  if(getVal('url2')&&!pattern.test(getVal('url2')))return validationError('URL 2 mal estructurada: debe comenzar con http:// o https://.','url2');
+  return true;
+}
+function validateInstitutions(){
+  clearValidation();
+  const rows=Array.from(document.querySelectorAll('.inst-row'));
+  const seen=new Set();
+  for(let i=0;i<rows.length;i++){
+    const row=rows[i],pais=row.querySelector('.pais'),inst=row.querySelector('.inst'),ciudad=row.querySelector('.ciudad'),dep=row.querySelector('.dep');
+    if(!String(pais.value||'').trim()){pais.classList.add('field-invalid');showNotice('Falta: País de Institución '+(i+1)+'.',true);pais.focus();return false}
+    if(!String(inst.value||'').trim()){inst.classList.add('field-invalid');showNotice('Falta: nombre de Institución '+(i+1)+'.',true);inst.focus();return false}
+    const key=[pais.value,ciudad?ciudad.value:'',inst.value,dep?dep.value:''].map(norm).join('|');
+    if(seen.has(key)){inst.classList.add('field-invalid');showNotice('Existen instituciones duplicadas. Mantenga sólo un registro y elimine las demás.',true);inst.focus();return false}
+    seen.add(key);
+  }
+  return true;
+}
+function validateAuthors(){
+  clearValidation();
+  if($('corporativo').checked)return true;
+  const rows=Array.from(document.querySelectorAll('.aut-row'));
+  const orcidPattern=/^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$/i;
+  for(let i=0;i<rows.length;i++){
+    const nombre=rows[i].querySelector('.nombre'),orcid=rows[i].querySelector('.orcid');
+    if(!String(nombre.value||'').trim()){nombre.classList.add('field-invalid');showNotice('Falta: nombre de Autor '+(i+1)+'.',true);nombre.focus();return false}
+    if(String(orcid.value||'').trim()&&!orcidPattern.test(String(orcid.value).trim())){orcid.classList.add('field-invalid');showNotice('Error en ORCID '+(i+1)+'. Use el formato 0000-0000-0000-0000.',true);orcid.focus();return false}
+  }
+  return true;
+}
+function validateInstitutionAuthorLinks(){
+  if($('corporativo').checked)return true;
+  const inst=collectInstitutions();
+  const aut=collectAutores();
+  for(let i=0;i<inst.length;i++){
+    const id=String(inst[i].id);
+    if(!aut.some(a=>String(a.institucionId||'')===id)){
+      showNotice('Existen Instituciones sin relación con algún Autor. Indique la relación o elimínelas.',true);
+      return false;
+    }
+  }
+  return true;
+}
+
+
+function freqMap(arr){const m=new Map();(arr||[]).forEach(x=>m.set(norm(x.valor),Number(x.num||0)));return m}let freqEs=null,freqEn=null;
+function renderKeywords(g){if(!freqEs){freqEs=freqMap(C.palabras);freqEn=freqMap(C.keywords)}renderIA('iaEs',g,'biblat_exactas','biblat_sugerencias','es');renderIA('iaEn',g,'biblat_exactas_en','biblat_sugerencias_en','en');renderSelected()}
+function parseSuggestions(v){const a=parseJSON(v,[]);return Array.isArray(a)?a.map(x=>({palabra:String((x&&x.palabra)||'').trim(),aproximaciones:Array.isArray(x&&x.aproximaciones)?x.aproximaciones:parseJSON(x&&x.aproximaciones,[])})):[]}
+function chip(term,lang,group){const arr=lang==='es'?selectedEs:selectedEn;const sel=arr.some(x=>norm(x)===norm(term));const n=(lang==='es'?freqEs:freqEn).get(norm(term))||0;return '<button type="button" class="chip '+(sel?'selected':'')+'" data-term="'+esc(term)+'" data-lang="'+lang+'" data-group="'+esc(group||'')+'">'+esc(term)+'<span class="n">'+n+'</span></button>'}
+function origenIALabel(g){
+  const f=String((g&&g.fuente)||'').trim().toLowerCase();
+  if(f==='pdf')return ' (A partir de PDF)';
+  if(f==='resumen')return ' (A partir de Resumen)';
+  return '';
+}
+function renderIA(id,g,fe,fs,lang){if(!g){$(id).innerHTML='<div class="small">Sin sugerencias IA precargadas.</div>';return}const ex=parseJSON(g[fe],[])||[];const su=parseSuggestions(g[fs]);const origen=origenIALabel(g);let h='<b>'+(lang==='es'?'Palabras clave seleccionadas con IA':'Keywords seleccionadas con IA')+origen+'</b><div class="small">Las coincidencias exactas son independientes; en cada grupo de aproximaciones sólo puede quedar una.</div>';if(ex.length)h+='<div class="chips" style="margin-top:8px">'+ex.map((x,i)=>chip(x,lang,'')).join('')+'</div>';if(su.length){h+='<div class="chips" style="margin-top:10px">';su.forEach((x,i)=>{const group=lang+'-'+i;const terms=unique([x.palabra].concat(x.aproximaciones||[]));h+='<div class="sug-group"><span class="small">Opciones relacionadas</span><div class="sug-options">'+terms.map(t=>chip(t,lang,group)).join('')+'</div></div>'});h+='</div>'}$(id).innerHTML=h;$(id).querySelectorAll('.chip').forEach(c=>c.onclick=()=>toggleChip(c.dataset.term,c.dataset.lang,c.dataset.group))}
+function toggleChip(term,lang,group){let arr=lang==='es'?selectedEs:selectedEn;const wasSelected=arr.some(x=>norm(x)===norm(term));if(group){const container=document.querySelectorAll('.chip[data-group="'+CSS.escape(group)+'"]');const groupTerms=Array.from(container).map(x=>norm(x.dataset.term));arr=arr.filter(x=>!groupTerms.includes(norm(x)))}else{arr=arr.filter(x=>norm(x)!==norm(term))}if(!wasSelected)arr.push(term);arr=unique(arr);if(lang==='es')selectedEs=arr;else selectedEn=arr;renderKeywords(currentBlock(current).genera_pc);markDirty('keywords')}
+function renderSelected(){$('selEs').innerHTML=selectedEs.map(x=>'<button class="chip selected" data-rmes="'+esc(x)+'">'+esc(x)+' ×</button>').join('');$('selEn').innerHTML=selectedEn.map(x=>'<button class="chip selected" data-rmen="'+esc(x)+'">'+esc(x)+' ×</button>').join('');$('selEs').querySelectorAll('[data-rmes]').forEach(b=>b.onclick=()=>{selectedEs=selectedEs.filter(x=>norm(x)!==norm(b.dataset.rmes));renderKeywords(currentBlock(current).genera_pc);markDirty('keywords')});$('selEn').querySelectorAll('[data-rmen]').forEach(b=>b.onclick=()=>{selectedEn=selectedEn.filter(x=>norm(x)!==norm(b.dataset.rmen));renderKeywords(currentBlock(current).genera_pc);markDirty('keywords')})}
+function closeWordSearch(optId){const box=$(optId);if(!box)return;box.style.display='none';box.innerHTML=''}
+function addWord(lang){const id=lang==='es'?'newEs':'newEn';const optId=lang==='es'?'optsEs':'optsEn';const v=getVal(id);if(!v){closeWordSearch(optId);return}if(lang==='es')selectedEs=unique(selectedEs.concat(v));else selectedEn=unique(selectedEn.concat(v));$(id).value='';closeWordSearch(optId);renderKeywords(currentBlock(current).genera_pc);markDirty('keywords')}
+function bindWordSearch(inputId,optId,arr,lang){const input=$(inputId),box=$(optId);input.oninput=function(){const raw=String(this.value||'').trim(),q=norm(raw);if(q.length<2){closeWordSearch(optId);return}const hits=[];let exact=false;for(let i=0;i<(arr||[]).length;i++){const valor=String(arr[i].valor||'').trim(),nv=norm(valor);if(nv===q)exact=true;if(hits.length<15&&nv.includes(q))hits.push(arr[i])}let html='';if(raw&&!exact){html+='<div class="search-new-option" data-new="1"><b>Agregar como nueva:</b> '+esc(raw)+'</div>'}html+=hits.map(x=>'<div class="search-option" data-v="'+esc(x.valor)+'">'+esc(x.valor)+' <span class="small">('+Number(x.num||0)+')</span></div>').join('');box.innerHTML=html;box.style.display=html?'block':'none';const nueva=box.querySelector('[data-new]');if(nueva)nueva.onclick=()=>addWord(lang);box.querySelectorAll('.search-option').forEach(x=>x.onclick=()=>{input.value=x.dataset.v;closeWordSearch(optId);addWord(lang)})};input.onkeydown=function(e){if(e.key==='Escape'){closeWordSearch(optId);return}if(e.key==='Enter'){e.preventDefault();addWord(lang)}}}
+function closeWordSearchOutside(e){[['newEs','optsEs'],['newEn','optsEn']].forEach(pair=>{const input=$(pair[0]),box=$(pair[1]);if(input&&box&&!input.contains(e.target)&&!box.contains(e.target))closeWordSearch(pair[1])})}
+document.addEventListener('click',closeWordSearchOutside);
+
+function renderInstituciones(rows,corp){$('corporativo').checked=!!corp;$('corpNote').classList.toggle('hidden',!corp);const rs=C.catalogos_institucionales_resumen||{};$('catalogoInstitucionalInfo').textContent=rs.total_paises?('Catálogo precargado: '+rs.total_paises+' país(es), '+Number(rs.total_ciudades||0)+' ciudades, '+Number(rs.total_instituciones||0)+' instituciones y '+Number(rs.total_dependencias||0)+' dependencias. Si selecciona otro país, se intentará consultar Biblat en línea.'): 'Sin catálogos institucionales precargados. Al elegir un país se intentará consultar Biblat en línea; si no hay conexión puede escribir manualmente.';$('institucionesRows').innerHTML='';(rows||[]).forEach((r,i)=>addInstitutionRow(r,i+1));$('autoresSection').classList.toggle('hidden',!!corp)}
+function comboMarkup(cls,placeholder){return '<div class="combo"><input class="'+cls+'" autocomplete="off" placeholder="'+esc(placeholder||'')+'"><button type="button" class="combo-toggle" tabindex="-1">▾</button><div class="combo-menu"></div></div>'}
+function setCatalogStatus(div,text,kind){const el=div.querySelector('.catalog-source');if(!el)return;el.textContent=text||'';el.className='catalog-source'+(kind?' '+kind:'')}
+
+/*
+ * Bloqueo temporal de combos mientras se obtienen catálogos remotos.
+ * Se usa un contador porque pueden coincidir dos cargas (por ejemplo,
+ * una petición anterior y otra del país recién seleccionado).
+ */
+function setComboCatalogLoading(input,loading){
+  if(!input)return;
+  const wrap=input.closest('.combo');
+  if(!wrap)return;
+  const toggle=wrap.querySelector('.combo-toggle');
+  const menu=wrap.querySelector('.combo-menu');
+  let n=Number(input.dataset.catalogLoadingCount||0);
+
+  if(loading){
+    if(n===0){
+      input.dataset.catalogWasDisabled=input.disabled?'1':'0';
+      if(toggle)toggle.dataset.catalogWasDisabled=toggle.disabled?'1':'0';
+    }
+    n++;
+  }else{
+    n=Math.max(0,n-1);
+  }
+
+  input.dataset.catalogLoadingCount=String(n);
+  const activo=n>0;
+  wrap.classList.toggle('catalog-loading',activo);
+
+  if(activo){
+    input.disabled=true;
+    if(toggle)toggle.disabled=true;
+    if(menu)menu.classList.remove('open');
+  }else{
+    input.disabled=(input.dataset.catalogWasDisabled==='1');
+    if(toggle)toggle.disabled=(toggle.dataset.catalogWasDisabled==='1');
+    delete input.dataset.catalogWasDisabled;
+    if(toggle)delete toggle.dataset.catalogWasDisabled;
+  }
+}
+
+function setInstitutionCatalogLoading(div,loading){
+  ['.ciudad','.inst','.dep'].forEach(sel=>{
+    setComboCatalogLoading(div.querySelector(sel),loading);
+  });
+}
+
+function normalizeApiRows(rows,field){return (Array.isArray(rows)?rows:[]).map(x=>({id:String(x[field]||''),text:String(x[field]||''),num:Number(x.count||x.num||0)})).filter(x=>x.text)}
+function comboItems(input,items,onPick){const wrap=input.closest('.combo'),menu=wrap.querySelector('.combo-menu'),toggle=wrap.querySelector('.combo-toggle');let all=Array.isArray(items)?items:[];
+
+/*
+ * showAll=true se usa al abrir el catálogo con la flecha.
+ * Así el valor actualmente capturado se conserva, pero NO se utiliza
+ * como filtro del catálogo recién cargado (por ejemplo, al cambiar País).
+ * Cuando el analista escribe sí se filtran las opciones normalmente.
+ */
+function draw(showAll){const q=showAll?'':norm(input.value);const hits=all.filter(x=>!q||norm(x.text||x.id).includes(q)).slice(0,100);menu.innerHTML='';hits.forEach(x=>{const o=document.createElement('div');o.className='combo-option';const a=document.createElement('span');a.textContent=x.text||x.id||'';const n=document.createElement('span');n.className='count';n.textContent=Number(x.num||0)||'';o.appendChild(a);o.appendChild(n);o.onclick=()=>{input.value=x.text||x.id||'';menu.classList.remove('open');if(onPick)onPick(input.value)};menu.appendChild(o)});menu.classList.toggle('open',hits.length>0)}
+
+input._comboItems=all;
+input._comboDraw=draw;
+
+/* Al entrar al campo se respeta el texto como filtro. */
+input.onfocus=()=>draw(false);
+
+/* Al escribir se filtra el catálogo. */
+input.oninput=()=>{draw(false);if(onPick)onPick(input.value,true)};
+
+input.onchange=()=>{if(onPick)onPick(input.value,false)};
+
+/*
+ * La flecha siempre despliega el catálogo completo disponible,
+ * independientemente del valor que ya exista en el input.
+ */
+toggle.onclick=e=>{e.preventDefault();if(menu.classList.contains('open'))menu.classList.remove('open');else draw(true)};
+
+input.addEventListener('blur',()=>setTimeout(()=>menu.classList.remove('open'),160))}
+function updateCombo(input,items,onPick){if(!input)return;comboItems(input,items,onPick)}
+function parseCatalogXml(txt){const doc=new DOMParser().parseFromString(txt,'application/xml');if(doc.querySelector('parsererror'))throw new Error('XML inválido');const items=Array.from(doc.getElementsByTagName('item'));return items.map(item=>{const row={};Array.from(item.children).forEach(node=>{row[node.tagName]=String(node.textContent||'').trim()});return row})}
+async function apiCatalog(path){const sep=path.includes('?')?'&':'?';const url=ONLINE_CATALOG_BASE+path+sep+'format=json&_='+Date.now();const r=await fetch(url,{method:'GET',mode:'cors',credentials:'omit',cache:'no-store',headers:{'Accept':'application/json, text/json, application/xml, text/xml;q=0.9, */*;q=0.1'}});if(!r.ok)throw new Error('HTTP '+r.status);const txt=await r.text();let data=null;try{data=JSON.parse(txt)}catch(e){try{data=parseCatalogXml(txt)}catch(xmlErr){throw new Error('Respuesta de catálogo no reconocida (ni JSON ni XML)')}}if(data&&data.xml&&Array.isArray(data.xml.item))data=data.xml.item;if(data&&Array.isArray(data.item))data=data.item;if(!Array.isArray(data))throw new Error('Formato inesperado');return data}
+function hasCountryLocal(pais,corp){return !!((C.ciudades_por_pais[pais]&&C.ciudades_por_pais[pais].length)||(C.instituciones_por_pais[corp]&&C.instituciones_por_pais[corp][pais]&&C.instituciones_por_pais[corp][pais].length))}
+async function ensureCountryCatalogs(div,id,pais,corp,cambioPais=false){
+  if(!pais){
+    setCatalogStatus(div,'Seleccione un país para cargar sus catálogos.','manual');
+    fillInstLists(div,id,false,cambioPais);
+    return;
+  }
+
+  const local=hasCountryLocal(pais,corp);
+  if(local){
+    fillInstLists(div,id,false,cambioPais);
+    setCatalogStatus(div,'✓ Catálogo local disponible para '+pais+'.','local');
+    return;
+  }
+
+  /*
+   * No permitimos modificar Ciudad, Institución ni Dependencia mientras
+   * todavía no sabemos cuáles son las opciones válidas del país.
+   * Los valores visibles se conservan; únicamente quedan temporalmente
+   * deshabilitados.
+   */
+  setInstitutionCatalogLoading(div,true);
+  setCatalogStatus(div,'Consultando ciudades e instituciones de '+pais+' en Biblat…','loading');
+
+  try{
+    const enc=encodeURIComponent(pais);
+    const res=await Promise.all([
+      apiCatalog('/datos/ciudad_by_pais/'+enc),
+      apiCatalog('/datos/institucion_by_pais/'+enc+'/'+corp)
+    ]);
+
+    C.ciudades_por_pais[pais]=normalizeApiRows(res[0],'ciudad');
+    C.instituciones_por_pais[corp][pais]=normalizeApiRows(res[1],'institucion');
+    cacheBranch('ciudades_por_pais')[pais]=C.ciudades_por_pais[pais];
+    cacheBranch('instituciones_por_pais',corp)[pais]=C.instituciones_por_pais[corp][pais];
+    await saveCatalogCache();
+
+    /*
+     * Si el usuario eligió otro país durante la espera, la respuesta puede
+     * quedar en caché pero ya no debe repintar esta fila.
+     */
+    if(div.querySelector('.pais').value!==pais)return;
+
+    fillInstLists(div,id,false,cambioPais);
+    setCatalogStatus(div,'☁ Catálogo obtenido de Biblat y guardado localmente para '+pais+'.','online');
+  }catch(e){
+    if(div.querySelector('.pais').value!==pais)return;
+    fillInstLists(div,id,false,cambioPais);
+    setCatalogStatus(div,'Sin catálogo en línea para '+pais+'. Puede escribir ciudad, institución y dependencia manualmente.','manual');
+  }finally{
+    /*
+     * El contador evita desbloquear antes de tiempo si ya existe otra
+     * petición de catálogo para la misma fila.
+     */
+    setInstitutionCatalogLoading(div,false);
+  }
+}
+async function ensureInstitutionCatalogs(div,id,ins,corp){
+  if(!ins){
+    fillDeps(div,id,false);
+    return;
+  }
+
+  const deps=C.dependencias_por_institucion[corp]&&C.dependencias_por_institucion[corp][ins]||[];
+  const cis=C.ciudades_por_institucion&&C.ciudades_por_institucion[ins]||[];
+
+  if(deps.length||cis.length){
+    fillDeps(div,id,false);
+    return;
+  }
+
+  const paisSolicitud=String(div.querySelector('.pais').value||'');
+  setInstitutionCatalogLoading(div,true);
+  setCatalogStatus(div,'Consultando dependencias de la institución en Biblat…','loading');
+
+  try{
+    const enc=encodeURIComponent(ins);
+    const req=[apiCatalog('/datos/dependencia_by_institucion/'+enc+'/'+corp)];
+    if(corp==='0')req.push(apiCatalog('/datos/ciudad_by_institucion/'+enc));
+
+    const res=await Promise.all(req);
+
+    C.dependencias_por_institucion[corp][ins]=normalizeApiRows(res[0],'dependencia');
+    cacheBranch('dependencias_por_institucion',corp)[ins]=C.dependencias_por_institucion[corp][ins];
+
+    if(corp==='0'){
+      C.ciudades_por_institucion[ins]=normalizeApiRows(res[1],'ciudad');
+      cacheBranch('ciudades_por_institucion')[ins]=C.ciudades_por_institucion[ins];
+    }
+
+    await saveCatalogCache();
+
+    /*
+     * Una respuesta de una institución anterior no debe modificar los combos
+     * si mientras tanto cambió el país o la institución de la fila.
+     */
+    if(String(div.querySelector('.pais').value||'')!==paisSolicitud ||
+       String(div.querySelector('.inst').value||'')!==String(ins)){
+      return;
+    }
+
+    fillDeps(div,id,false);
+    setCatalogStatus(div,'☁ Dependencias obtenidas de Biblat y guardadas localmente.','online');
+  }catch(e){
+    if(String(div.querySelector('.pais').value||'')!==paisSolicitud ||
+       String(div.querySelector('.inst').value||'')!==String(ins)){
+      return;
+    }
+
+    fillDeps(div,id,false);
+    setCatalogStatus(div,'No fue posible obtener dependencias en línea. Puede escribirlas manualmente.','manual');
+  }finally{
+    setInstitutionCatalogLoading(div,false);
+  }
+}
+function addInstitutionRow(r,id){r=r||{};const div=document.createElement('div');div.className='row-card inst-row';div.dataset.id=id;div.innerHTML='<div class="row-head"><strong>Institución '+id+'</strong><button class="btn btn-danger rm-inst">Borrar</button></div><div class="grid2"><div class="field"><label>País</label><select class="pais"></select></div><div class="field ciudad-wrap"><label>Ciudad</label>'+comboMarkup('ciudad','Seleccione o escriba una ciudad')+'</div><div class="field"><label>Institución</label>'+comboMarkup('inst','Seleccione o escriba una institución')+'</div><div class="field"><label>Dependencia</label>'+comboMarkup('dep','Seleccione o escriba una dependencia')+'</div></div><div class="catalog-source"></div>';$('institucionesRows').appendChild(div);const p=div.querySelector('.pais');initSelect(p,C.pais||[]);p.value=r.pais||'';div.querySelector('.ciudad').value=r.ciudad||'';div.querySelector('.inst').value=r.institucion||'';div.querySelector('.dep').value=r.dependencia||'';p.onchange=()=>{/*
+ * Al cambiar el país sólo se actualizan los catálogos disponibles.
+ * Se conservan ciudad, institución y dependencia ya capturadas,
+ * igual que en la versión en línea. El usuario decide si las cambia.
+ */
+ensureCountryCatalogs(div,id,p.value,$('corporativo').checked?'1':'0',true);markDirty('instituciones')};div.querySelector('.rm-inst').onclick=()=>{div.remove();renumber('.inst-row','Institución');markDirty('instituciones')};fillInstLists(div,id,false);const corp=$('corporativo').checked?'1':'0';if(p.value){ensureCountryCatalogs(div,id,p.value,corp).then(()=>{if(r.institucion&&String(div.querySelector('.pais').value||'')===String(p.value||'')&&String(div.querySelector('.inst').value||'')===String(r.institucion||'')){ensureInstitutionCatalogs(div,id,r.institucion,corp)}})}else if(r.institucion){ensureInstitutionCatalogs(div,id,r.institucion,corp)}if($('corporativo').checked)div.querySelector('.ciudad-wrap').classList.add('hidden')}
+function fillInstLists(div,id,fetchMissing=true,cambioPais=false){
+  const pais=div.querySelector('.pais').value;
+  const corp=$('corporativo').checked?'1':'0';
+  const cis=C.ciudades_por_pais[pais]||[];
+  const ins=C.instituciones_por_pais[corp][pais]||[];
+
+  /*
+   * Siempre reconstruimos Ciudad e Institución exclusivamente con las ramas
+   * del país actualmente seleccionado.
+   */
+  updateCombo(div.querySelector('.ciudad'),cis,()=>markDirty('instituciones'));
+  updateCombo(div.querySelector('.inst'),ins,(v,typing)=>{
+    markDirty('instituciones');
+    if(!typing&&v)ensureInstitutionCatalogs(div,id,v,corp);
+  });
+
+  if(cambioPais){
+    /*
+     * Se conserva visualmente la Dependencia anterior, pero su desplegable no
+     * debe seguir mostrando dependencias de una institución perteneciente al
+     * país anterior. Queda sin catálogo hasta que se seleccione/confirme una
+     * institución del país nuevo.
+     */
+    updateCombo(div.querySelector('.dep'),[],()=>markDirty('instituciones'));
+  }else{
+    /*
+     * En la carga inicial sí mantenemos el comportamiento normal: sugerencias
+     * de ciudad por institución y catálogo de dependencias del registro actual.
+     */
+    fillDeps(div,id,false);
+  }
+
+  if(fetchMissing&&pais&&!hasCountryLocal(pais,corp)){
+    ensureCountryCatalogs(div,id,pais,corp,false);
+  }
+}
+function fillDeps(div,id,fetchMissing=true){const corp=$('corporativo').checked?'1':'0',ins=div.querySelector('.inst').value;const deps=C.dependencias_por_institucion[corp][ins]||[];updateCombo(div.querySelector('.dep'),deps,()=>markDirty('instituciones'));if(corp==='0'){const pais=div.querySelector('.pais').value;const base=C.ciudades_por_pais[pais]||[];const sug=C.ciudades_por_institucion[ins]||[];const seen=new Set(),all=[];sug.concat(base).forEach(x=>{const k=String(x.text||x.id||'');if(k&&!seen.has(k)){seen.add(k);all.push(x)}});updateCombo(div.querySelector('.ciudad'),all,()=>markDirty('instituciones'))}if(fetchMissing&&ins&&!deps.length)ensureInstitutionCatalogs(div,id,ins,corp)}
+function collectInstitutions(){return Array.from(document.querySelectorAll('.inst-row')).map((div,i)=>({sistema:current,id:i+1,pais:div.querySelector('.pais').value||null,ciudad:$('corporativo').checked?'':(div.querySelector('.ciudad').value.trim()||null),institucion:div.querySelector('.inst').value.trim()||null,dependencia:div.querySelector('.dep').value.trim()||null,corporativo:$('corporativo').checked?1:0}))}
+function renumber(sel,label){document.querySelectorAll(sel).forEach((d,i)=>{d.dataset.id=i+1;const s=d.querySelector('.row-head strong');if(s)s.textContent=label+' '+(i+1)})}
+
+function renderAutores(rows,inst,corp){$('autoresRows').innerHTML='';(rows||[]).forEach((r,i)=>addAuthorRow(r,i+1,inst));$('autoresSection').classList.toggle('hidden',!!corp)}
+function addAuthorRow(r,id,inst){r=r||{};const div=document.createElement('div');div.className='row-card aut-row';div.dataset.email=r.email||'';div.innerHTML='<div class="row-head"><strong>Autor '+id+'</strong><button class="btn btn-danger rm-aut">Borrar</button></div><div class="grid2"><div class="field"><label>Nombre</label><input class="nombre"></div><div class="field"><label>ORCID</label><input class="orcid"></div><div class="field"><label>Institución</label><select class="ainst"></select></div></div>';$('autoresRows').appendChild(div);div.querySelector('.nombre').value=r.nombre||'';div.querySelector('.orcid').value=r.orcid||'';fillAuthorInst(div.querySelector('.ainst'),inst,r.institucionId);div.querySelector('.rm-aut').onclick=()=>{div.remove();renumber('.aut-row','Autor');markDirty('autores')}}
+function fillAuthorInst(sel,inst,val){sel.innerHTML='<option value=""></option>'+(inst||[]).map(x=>'<option value="'+esc(x.id)+'">'+esc((x.institucion||'')+(x.dependencia?' - '+x.dependencia:''))+'</option>').join('');sel.value=val==null?'':String(val)}
+function collectAutores(){return Array.from(document.querySelectorAll('.aut-row')).map((d,i)=>({sistema:current,id:i+1,nombre:d.querySelector('.nombre').value.trim()||null,orcid:d.querySelector('.orcid').value.trim()||null,institucionId:d.querySelector('.ainst').value||null,email:String(d.dataset.email||'').trim()||null}))}
+
+function ensureWork(){if(!work[current])work[current]={};return work[current]}
+async function saveArticle(){if(!validateArticle())return;const w=ensureWork();w.documento=collectDocument();recordMovement('Guarda Artículo');if(await saveWork()){$('articuloTitle').textContent=w.documento.articulo||'';markSaved('article','Artículo')}}
+async function saveKeywords(){const w=ensureWork();const d=w.documento||clone(currentBlock(current).documento);d.palabraClave=JSON.stringify(selectedEs);d.keyword=JSON.stringify(selectedEn);w.documento=d;recordMovement('Guarda PC');if(await saveWork())markSaved('keywords','Palabras clave')}
+async function saveInstituciones(){if(!validateInstitutions())return;const w=ensureWork();w.instituciones=collectInstitutions();w.corporativo=$('corporativo').checked?1:0;recordMovement('Guarda Instituciones');if(await saveWork()){renderAutores(currentBlock(current).autores,w.instituciones,w.corporativo);markSaved('instituciones','Instituciones')}}
+async function saveAutores(){if(!validateAuthors())return;const w=ensureWork();w.autores=collectAutores();recordMovement('Guarda Autores');if(await saveWork())markSaved('autores','Autores')}
+async function mark(kind){
+  /*
+   * No finalizamos si el analista modificó una sección y aún no pulsó su
+   * botón de guardado local. "No indizable" conserva el comportamiento
+   * previo y no exige guardar las secciones.
+   */
+  if(!warnUnsavedBeforeCompletion(kind))return;
+
+  if(kind==='C'){
+    if(!validateArticle()||!validateInstitutions()||!validateAuthors()||!validateInstitutionAuthorLinks())return;
+  }
+
+  const w=ensureWork();
+
+  if(kind==='CPC'){
+    const d=w.documento||clone(currentBlock(current).documento);
+    d.palabraClave=JSON.stringify(selectedEs);
+    d.keyword=JSON.stringify(selectedEn);
+    w.documento=d;
+  }else if(kind==='C'){
+    w.documento=collectDocument();
+    w.instituciones=collectInstitutions();
+    w.corporativo=$('corporativo').checked?1:0;
+    if(!w.corporativo)w.autores=collectAutores();
+  }
+
+  w.finalizacion=kind;
+
+  if(kind==='C')recordMovement('Completado');
+  else if(kind==='CPC')recordMovement('Completado PC');
+
+  if(!(await saveWork()))return;
+
+  activityStop();
+  renderPending(kind);
+  applyMode(currentBlock(current));
+
+  const label=({B:'No indizable',C:'Análisis completo',CPC:'Análisis de palabras clave completo'}[kind]||kind);
+  showNotice('✓ '+label+' guardado en este paquete. La edición quedó bloqueada hasta reabrir el análisis.');
+}
+async function reopenAnalysis(){if(!current)return;if(!confirm('¿Reabrir este análisis en el paquete portátil? Podrá volver a editarlo y la finalización pendiente se cancelará.'))return;const w=ensureWork();w.finalizacion=null;if(!(await saveWork()))return;activityStart(current);renderPending(null);applyMode(currentBlock(current));showNotice('Análisis reabierto. Puede continuar editando el registro.')}
+
+function renderPending(v){const el=$('pendingStatus');['markNo','markComplete','markPC'].forEach(id=>$(id).classList.remove('is-selected'));if(!v){el.className='pending-status';el.textContent='Sin finalización pendiente';return}const labels={B:'No indizable',C:'Análisis completado',CPC:'Análisis de palabras clave completado'};const btn={B:'markNo',C:'markComplete',CPC:'markPC'}[v];if(btn&&$(btn))$(btn).classList.add('is-selected');el.className='pending-status active'+(v==='B'?' no':'');el.innerHTML='<strong>✓ '+esc(labels[v]||v)+' en este paquete</strong><span>Pendiente de importar a Biblat Central</span>'}
+
+/* ZIP mínimo, método STORE, sin librerías externas. */
+const crcTable=(()=>{let t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?0xedb88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(bytes){let c=0xffffffff;for(let i=0;i<bytes.length;i++)c=crcTable[(c^bytes[i])&255]^(c>>>8);return (c^0xffffffff)>>>0}function u16(v){return new Uint8Array([v&255,(v>>>8)&255])}function u32(v){return new Uint8Array([v&255,(v>>>8)&255,(v>>>16)&255,(v>>>24)&255])}function cat(parts){let n=parts.reduce((a,b)=>a+b.length,0),o=new Uint8Array(n),p=0;parts.forEach(b=>{o.set(b,p);p+=b.length});return o}function dosDate(d){const date=((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate();const time=(d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1);return {date,time}}
+function makeZip(files){const enc=new TextEncoder(),locals=[],centrals=[];let off=0;const now=dosDate(new Date());Object.keys(files).forEach(name=>{const nb=enc.encode(name),data=enc.encode(files[name]),crc=crc32(data);const lh=cat([u32(0x04034b50),u16(20),u16(0x0800),u16(0),u16(now.time),u16(now.date),u32(crc),u32(data.length),u32(data.length),u16(nb.length),u16(0),nb,data]);locals.push(lh);const ch=cat([u32(0x02014b50),u16(20),u16(20),u16(0x0800),u16(0),u16(now.time),u16(now.date),u32(crc),u32(data.length),u32(data.length),u16(nb.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(off),nb]);centrals.push(ch);off+=lh.length});const central=cat(centrals),local=cat(locals),end=cat([u32(0x06054b50),u16(0),u16(0),u16(centrals.length),u16(centrals.length),u32(central.length),u32(local.length),u16(0)]);return new Blob([local,central,end],{type:'application/zip'})}
+function returnPayload(){const changes={};Object.keys(work).forEach(s=>{if(A[s]){const sig=M.article_signatures&&M.article_signatures[s]||{};changes[s]={original:A[s],original_hash:sig.hash||'',original_signature:sig.signature||'',cambio:work[s]}}});return {schema_version:1,package_id:M.package_id,usuario:M.usuario,rol:M.rol||'',original_hash:M.original_hash,signature:M.signature,generated_at:new Date().toISOString(),changes}}
+function generateZip(){const ret=returnPayload();if(!Object.keys(ret.changes).length&&!confirm('No hay cambios guardados. ¿Desea generar el ZIP de todos modos?'))return;const manifest={schema_version:1,package_id:M.package_id,usuario:M.usuario,rol:M.rol||'',exported_at:M.exported_at,original_hash:M.original_hash,signature:M.signature};const blob=makeZip({'manifest.json':JSON.stringify(manifest,null,2),'trabajo.json':JSON.stringify(ret,null,2)});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='biblat_retorno_'+M.package_id+'.zip';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
+
+async function init(){if(!P.metadata){document.body.innerHTML='<pre>No se encontró data/paquete.js. Mantenga la estructura completa de la carpeta.</pre>';return}$('meta').textContent='Usuario: '+(M.usuario||'')+' · Exportado: '+new Date(M.exported_at).toLocaleString()+' · '+(M.total_articulos||0)+' artículos';if(M.omitidos_no_soportados)showNotice(M.omitidos_no_soportados+' registro(s) no se incluyeron por pertenecer a un flujo no soportado en la v1 portátil.');initSelect($('idiomaDocumento'),idiomas,false);['idioma','idioma2','idioma3'].forEach(id=>initSelect($(id),idiomas));const tipos=(C.tipo_documento||[]).filter(x=>norm(x)!=='errata');initSelect($('tipo_documento'),tipos);await loadCatalogCache();await loadWork();installActivityTracking();renderList();bindWordSearch('newEs','optsEs',C.palabras||[],'es');bindWordSearch('newEn','optsEn',C.keywords||[],'en')}
+$('buscar').oninput=renderList;$('btnBack').onclick=()=>{activityStop();current=null;$('editorView').style.display='none';$('listView').style.display='block';renderList();window.scrollTo(0,0)};$('saveArticle').onclick=saveArticle;$('saveKeywords').onclick=saveKeywords;$('saveInstituciones').onclick=saveInstituciones;$('saveAutores').onclick=saveAutores;$('addEs').onclick=()=>addWord('es');$('addEn').onclick=()=>addWord('en');$('addInstitucion').onclick=()=>{addInstitutionRow({},document.querySelectorAll('.inst-row').length+1);markDirty('instituciones')};$('addAutor').onclick=()=>{addAuthorRow({},document.querySelectorAll('.aut-row').length+1,currentBlock(current).instituciones);markDirty('autores')};$('corporativo').onchange=()=>{document.querySelectorAll('.ciudad-wrap').forEach(x=>x.classList.toggle('hidden',$('corporativo').checked));$('autoresSection').classList.toggle('hidden',$('corporativo').checked);$('corpNote').classList.toggle('hidden',!$('corporativo').checked);document.querySelectorAll('.inst-row').forEach((d,i)=>{fillInstLists(d,i+1,false);const p=d.querySelector('.pais').value;if(p)ensureCountryCatalogs(d,i+1,p,$('corporativo').checked?'1':'0')});markDirty('instituciones')};$('markNo').onclick=()=>mark('B');$('markComplete').onclick=()=>mark('C');$('markPC').onclick=()=>mark('CPC');$('reopenAnalysis').onclick=reopenAnalysis;$('reopenAnalysis2').onclick=reopenAnalysis;$('btnZip').onclick=generateZip;$('btnZip2').onclick=generateZip;$('editorView').addEventListener('input',e=>{if(e.target&&e.target.classList)e.target.classList.remove('field-invalid');const k=dirtySectionForElement(e.target);if(k)markDirty(k)});$('editorView').addEventListener('change',e=>{if(e.target&&e.target.classList)e.target.classList.remove('field-invalid');const k=dirtySectionForElement(e.target);if(k)markDirty(k)});
+init();
+})();
+</script>
+</body>
+</html>

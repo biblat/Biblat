@@ -2,7 +2,22 @@
     const cons =    { 
                         rol: Object.freeze( { val: '<?php echo $rol; ?>'}),
                         pal_cla: Object.freeze( { val: '<?php echo $pal_cla; ?>'}),
-                        res: Object.freeze( { val: '<?php echo $res; ?>'})
+                        res: Object.freeze( { val: '<?php echo $res; ?>'}),
+
+                        /*
+                         * Interruptores temporales de liberación.
+                         * Use true/false para habilitar u ocultar cada parte durante las pruebas/liberación.
+                         */
+                        features: Object.freeze({
+                            // El modo portátil nunca se habilita para Editores.
+                            mostrar_portatil: 'Editor' != '<?php echo $rol; ?>' && (false || 'Administrador' == '<?php echo $rol; ?>'),
+                            mostrar_ia_disciplinas: false || 'Administrador' == '<?php echo $rol; ?>',
+                            // Los Editores no realizan la revisión de palabras clave.
+                            mostrar_ia_palabras_clave: 'Editor' != '<?php echo $rol; ?>' && (false || 'Administrador' == '<?php echo $rol; ?>'),
+                            // Indicador "IA" en la columna Estatus del listado.
+                            mostrar_indicador_ia: false || 'Administrador' == '<?php echo $rol; ?>',
+                            mostrar_consulta_finalizados: false || 'Administrador' == '<?php echo $rol; ?>',
+                        })
                     };
 </script>
 
@@ -39,6 +54,421 @@
   }
   .despacio {
     transition: all 3s;
+  }
+
+  /* Indicador compacto de registro ya procesado por IA en el listado. */
+  .ia-status-slot {
+      display: inline-block;
+      margin-left: 5px;
+      min-width: 0;
+      vertical-align: middle;
+  }
+
+  .ia-status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 6px;
+      border: 1px solid #ff8000;
+      border-radius: 10px;
+      background: #fff7ed;
+      color: #d96d00;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1.2;
+      white-space: nowrap;
+  }
+
+  /* Acceso visible al modo consulta para registros finalizados. */
+  .consulta-status-slot {
+      display: inline-block;
+      margin-left: 6px;
+      vertical-align: middle;
+  }
+
+  .consulta-eye {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      border: 1px solid #d7d7d7;
+      border-radius: 50%;
+      background: #ffffff;
+      color: #ff8000;
+      cursor: pointer;
+      font-size: 12px;
+      line-height: 1;
+      vertical-align: middle;
+      transition: background .15s ease, border-color .15s ease, color .15s ease;
+  }
+
+  .consulta-eye:hover,
+  .consulta-eye:focus {
+      border-color: #ff8000;
+      background: #fff4e8;
+      color: #d96d00;
+      outline: none;
+  }
+
+
+  /* ==============================================================
+   * Presentación de palabras clave seleccionadas con IA
+   * ============================================================== */
+  #div_palabras_clave_texto,
+  #div_keywords_texto {
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: #fafafa;
+      border-left: 4px solid #ff8000;
+      border-radius: 6px;
+  }
+
+  .pc-titulo-ia {
+      margin-bottom: 5px;
+      font-size: 15px;
+      font-weight: 700;
+  }
+
+  .pc-ayuda-ia {
+      margin: 0;
+      color: #666666;
+      font-size: 12px;
+      line-height: 1.45;
+  }
+
+  #div_palabras,
+  #div_palabras_clave {
+      margin-top: 8px;
+  }
+
+  #palabras_catalogo,
+  #keywords_catalogo,
+  #palabras_clave_n,
+  #keywords_n {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 8px;
+  }
+
+  .pc-chip-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      max-width: 100%;
+      margin: 0;
+  }
+
+  .pc-chip {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 8px;
+
+    width: 100% !important;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    margin: 0 !important;
+    padding: 6px 10px 6px 12px;
+
+    border-radius: 16px;
+    white-space: normal !important;
+    box-shadow: none;
+    }
+
+    .pc-chip-text {
+        min-width: 0;
+        text-align: left;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: normal;
+    }
+
+    .pc-chip .badge {
+        position: static !important;
+        display: inline-block;
+        margin: 0 !important;
+
+        justify-self: end;
+        flex: none;
+        white-space: nowrap;
+    }
+
+  /* Todas las opciones de IA comienzan en blanco. */
+  .pc-chip.badge-secondary {
+      background: #ffffff !important;
+      border: 1px solid #ff8000;
+      color: #333333;
+  }
+
+  .pc-chip.badge-secondary:hover {
+      background: #fff4e8 !important;
+  }
+
+  .pc-chip.badge-warning {
+      background: #ff8000 !important;
+      border: 1px solid #ff8000;
+      color: #111111;
+  }
+
+  .pc-chip-item .edita_palabra,
+  .pc-chip-item .edita_keyword {
+      margin-left: 2px;
+      flex: 0 0 auto;
+  }
+
+  .pc-subtitulo {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 700;
+  }
+
+  /*
+   * Los grupos de sugerencias se distribuyen horizontalmente.
+   * En escritorio caben normalmente 3 por fila; en pantallas más
+   * estrechas la cuadrícula se adapta automáticamente a 2 o 1.
+   */
+  .pc-sugerencias-lista {
+      display: grid;
+      --grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px 12px;
+      align-items: start;
+  }
+
+  .pc-sugerencia-item {
+      width: 100%;
+      min-width: 0;
+      padding: 8px 10px;
+      background: #ffffff;
+      border: 1px solid #eeeeee;
+      border-radius: 7px;
+      align-self: start;
+  }
+
+  .pc-sugerencia-cabecera {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 3px;
+  }
+
+  .pc-principal-slot {
+      display: inline-flex;
+      align-items: center;
+      min-width: 0;
+      width: 100%;
+  }
+
+  .pc-sugerencia-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 2px;
+      padding: 2px 0;
+      border: 0;
+      background: transparent;
+      color: #d96d00;
+      cursor: pointer;
+      font-size: 11px;
+  }
+
+  .pc-sugerencia-toggle:hover,
+  .pc-sugerencia-toggle:focus {
+      color: #b95d00;
+      text-decoration: underline;
+      outline: none;
+  }
+
+  .pc-sugerencia-toggle .fa {
+      transition: transform .18s ease;
+  }
+
+  .pc-sugerencia-toggle.abierto .fa {
+      transform: rotate(180deg);
+  }
+
+  .pc-aproximaciones-panel {
+      display: none;
+      margin-top: 8px;
+      padding: 8px 0 2px 8px;
+      border-top: 1px solid #eeeeee;
+  }
+
+  .pc-aproximaciones-label {
+      color: #777777;
+      font-size: 11px;
+      margin-bottom: 7px;
+  }
+
+  .pc-chip-list {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 8px;
+  }
+
+  @media (max-width: 767px) {
+      .pc-sugerencias-lista {
+          grid-template-columns: 1fr;
+      }
+  }
+
+  /* Clasificación temática */
+  #bloque_clasificacion_tematica {
+      margin-top: 8px;
+  }
+
+  .clasificacion-titulo-general {
+      margin: 4px 0 12px 0;
+      font-size: 15px;
+      font-weight: 700;
+  }
+
+  .clasificacion-ayuda {
+      color: #777777;
+      font-size: 12px;
+      font-weight: normal;
+      margin-left: 8px;
+  }
+
+  .clasificacion-card {
+      margin-bottom: 14px;
+      padding: 14px 16px;
+      background: #ffffff;
+      border: 1px solid #e3e3e3;
+      border-left: 4px solid #ff8000;
+      border-radius: 7px;
+  }
+
+  .clasificacion-card-titulo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      font-weight: 700;
+  }
+
+  .clasificacion-numero {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #ff8000;
+      color: #111111;
+      font-size: 12px;
+  }
+
+  .clasificacion-origen {
+      display: none;
+      margin-left: auto;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: #f2f2f2;
+      color: #666666;
+      font-size: 10px;
+      font-weight: normal;
+  }
+
+  .ia-sugerencia {
+      display: none;
+      margin-top: 5px;
+      color: #777777;
+      font-size: 11px;
+  }
+
+  .evidencia-box {
+      display: none;
+      margin-top: 10px;
+      padding: 9px 11px;
+      background: #fafafa;
+      border: 1px solid #e6e6e6;
+      border-radius: 5px;
+  }
+
+  .evidencia-cabecera {
+      margin-bottom: 5px;
+      color: #555555;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .2px;
+  }
+
+  .evidencia-texto {
+      color: #444444;
+      font-size: 12px;
+      line-height: 1.45;
+  }
+
+  .evidencia-texto.colapsada {
+      max-height: 4.35em;
+      overflow: hidden;
+  }
+
+  .evidencia-texto.expandida {
+      max-height: none;
+      overflow: visible;
+  }
+
+  .evidencia-toggle {
+      display: none;
+      margin: 5px 0 0 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #d96d00;
+      cursor: pointer;
+      font-size: 11px;
+  }
+
+  .evidencia-toggle:hover {
+      text-decoration: underline;
+  }
+
+  @media (max-width: 767px) {
+      .clasificacion-card .col-sm-6 + .col-sm-6 {
+          margin-top: 14px;
+      }
+  }
+
+
+  /* Consulta de registros ya finalizados: se reutiliza la misma ficha,
+   * pero toda la captura queda bloqueada. */
+  #aviso_solo_lectura {
+      display: none;
+      margin: 0 0 14px 0;
+      padding: 11px 13px;
+      border: 1px solid #f0c48e;
+      border-left: 4px solid #ff8000;
+      border-radius: 6px;
+      background: #fff8ef;
+      color: #5e4a31;
+      font-size: 12px;
+  }
+  #accordion.modo-solo-lectura input,
+  #accordion.modo-solo-lectura select,
+  #accordion.modo-solo-lectura textarea,
+  #accordion.modo-solo-lectura button,
+  #accordion.modo-solo-lectura .select2-selection,
+  #accordion.modo-solo-lectura .pc-chip,
+  #accordion.modo-solo-lectura .pc-sugerencia-toggle,
+  #accordion.modo-solo-lectura .edita_palabra,
+  #accordion.modo-solo-lectura .edita_keyword {
+      pointer-events: none !important;
+  }
+  #accordion.modo-solo-lectura input,
+  #accordion.modo-solo-lectura select,
+  #accordion.modo-solo-lectura textarea {
+      background: #f6f6f6 !important;
+      color: #555 !important;
   }
 </style>
 <div class="row"><br></div>
@@ -122,6 +552,22 @@
     </div>
 </div>
 
+{if $rol != "Editor"}
+<div class="row" id="bloque_portatil" style="display:none; margin-top:14px; margin-bottom:10px;">
+    <div class="col-sm-12">
+        <center>
+            <button id="btn_exportar_portatil" type="button" class="btn btn-warning">
+                <i class="fa fa-download" aria-hidden="true"></i><span> Exportar</span>
+            </button>
+            <button id="btn_importar_portatil" type="button" class="btn btn-default" title="Importar el ZIP generado por Biblat Central portátil">
+                <i class="fa fa-upload" aria-hidden="true"></i><span> Importar</span>
+            </button>
+            <input id="input_importar_portatil" type="file" accept=".zip,application/zip" style="display:none">
+        </center>
+    </div>
+</div>
+{/if}
+
 <div class="row">
     <div class="col-xs-12" id="div-filtro" style="">
         <div class="btn-group" role="group">
@@ -134,8 +580,8 @@
             </button>
             <ul class="dropdown-menu" style="border-radius:5px">
                 <li><a class="li-filtro" id="estatus">Estatus</a></li>
-				{if $pal_cla == '1'}
-					<li><a class="li-filtro" id="estatusPC">Estatus PC</a></li>
+                {if $pal_cla == '1'}
+                <li><a class="li-filtro" id="estatusPC">Estatus PC</a></li>
                 {/if}
                 <li><a class="li-filtro" id="fechaAsignado">Fecha asignado</a></li>
                 <li><a class="li-filtro" id="mes">Completados por mes</a></li>
@@ -205,6 +651,11 @@
                 </div>
                 <div id="articulo" class="panel-collapse collapse in">
                     <div class="panel-body">
+                        <div id="aviso_solo_lectura">
+                            <i class="fa fa-lock" aria-hidden="true" style="color:#ff8000"></i>
+                            <b>Registro finalizado — modo consulta.</b>
+                            Se muestran los datos actualmente almacenados en Biblat Central para que pueda verificar el resultado, pero no se permite modificarlos ni volver a guardarlos.
+                        </div>
                         <div class="row">
                             <div class="col-xs-12">
                                 <span><b>Idioma(s) del documento:</b></span><br>
@@ -333,7 +784,7 @@
                                     </select>
                             </div>
                         </div>
-						<div class="row" id="row_errata">
+                        <div class="row" id="row_errata">
                             <div id="div_busca_original" class="col-xs-12 form-group" style="display:none">
                                 <br>
                                 <center>
@@ -353,26 +804,107 @@
                         <div class="row">
                             <br>
                         </div>
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <span><b>Disciplina 1:</b></span><br><select width="100%" style="width: 100%" id="disciplina1" class="form-control disciplina"></select>
-                                <div id="divSubdisciplina1" style="display: none">
-                                    <br>
-                                    <span><b>Subdisciplina 1:</b></span><br><select width="100%" style="width: 100%" id="subdisciplina1" class="form-control"></select>
+                        <div class="row" id="bloque_clasificacion_tematica">
+                            <div class="col-xs-12">
+                                <div class="clasificacion-titulo-general">
+                                    Clasificación temática
+                                    <span id="clasificacion_ayuda_ia" class="clasificacion-ayuda" style="display:none">Revise la sugerencia y su sustento antes de conservarla o modificarla.</span>
                                 </div>
-                            </div>
-                            <div class="col-sm-4">
-                                <span><b>Disciplina 2:</b></span><br><select width="100%" style="width: 100%" id="disciplina2" class="form-control disciplina"></select>
-                                <div id="divSubdisciplina2" style="display: none">
-                                    <br>
-                                    <span><b>Subdisciplina 2:</b></span><br><select width="100%" style="width: 100%" id="subdisciplina2" class="form-control"></select>
+
+                                <div class="clasificacion-card" id="clasificacion-card-1">
+                                    <!--<div class="clasificacion-card-titulo">
+                                        <span class="clasificacion-numero">1</span>
+                                        <span>Clasificación 1</span>
+                                        <span class="clasificacion-origen" id="clasificacion-origen-1">Sugerencia IA disponible</span>
+                                    </div>-->
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <span><b>Disciplina 1:</b></span><br>
+                                            <select width="100%" style="width: 100%" id="disciplina1" class="form-control disciplina"></select>
+                                            <!--<div class="ia-sugerencia" id="ia-sugerencia-disciplina1"></div>-->
+                                            <div class="evidencia-box" id="evidencia-disciplina1">
+                                                <div class="evidencia-cabecera">Sustento de la disciplina</div>
+                                                <div class="evidencia-texto colapsada" id="evidencia-disciplina1-texto"></div>
+                                                <button type="button" class="evidencia-toggle" data-target="evidencia-disciplina1-texto">Ver más</button>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div id="divSubdisciplina1" style="display: none">
+                                                <span><b>Subdisciplina 1:</b></span><br>
+                                                <select width="100%" style="width: 100%" id="subdisciplina1" class="form-control"></select>
+                                                <!--<div class="ia-sugerencia" id="ia-sugerencia-subdisciplina1"></div>-->
+                                                <div class="evidencia-box" id="evidencia-subdisciplina1">
+                                                    <div class="evidencia-cabecera">Sustento de la subdisciplina</div>
+                                                    <div class="evidencia-texto colapsada" id="evidencia-subdisciplina1-texto"></div>
+                                                    <button type="button" class="evidencia-toggle" data-target="evidencia-subdisciplina1-texto">Ver más</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-sm-4">
-                                <span><b>Disciplina 3:</b></span><br><select width="100%" style="width: 100%" id="disciplina3" class="form-control disciplina"></select>
-                                <div id="divSubdisciplina3" style="display: none">
-                                    <br>
-                                    <span><b>Subdisciplina 3:</b></span><br><select width="100%" style="width: 100%" id="subdisciplina3" class="form-control"></select>
+
+                                <div class="clasificacion-card" id="clasificacion-card-2">
+<!--                                    <div class="clasificacion-card-titulo">
+                                        <span class="clasificacion-numero">2</span>
+                                        <span>Clasificación 2</span>
+                                        <span class="clasificacion-origen" id="clasificacion-origen-2">Sugerencia IA disponible</span>
+                                    </div>-->
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <span><b>Disciplina 2:</b></span><br>
+                                            <select width="100%" style="width: 100%" id="disciplina2" class="form-control disciplina"></select>
+                                            <!--<div class="ia-sugerencia" id="ia-sugerencia-disciplina2"></div>-->
+                                            <div class="evidencia-box" id="evidencia-disciplina2">
+                                                <div class="evidencia-cabecera">Sustento de la disciplina</div>
+                                                <div class="evidencia-texto colapsada" id="evidencia-disciplina2-texto"></div>
+                                                <button type="button" class="evidencia-toggle" data-target="evidencia-disciplina2-texto">Ver más</button>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div id="divSubdisciplina2" style="display: none">
+                                                <span><b>Subdisciplina 2:</b></span><br>
+                                                <select width="100%" style="width: 100%" id="subdisciplina2" class="form-control"></select>
+                                                <!--<div class="ia-sugerencia" id="ia-sugerencia-subdisciplina2"></div>-->
+                                                <div class="evidencia-box" id="evidencia-subdisciplina2">
+                                                    <div class="evidencia-cabecera">Sustento de la subdisciplina</div>
+                                                    <div class="evidencia-texto colapsada" id="evidencia-subdisciplina2-texto"></div>
+                                                    <button type="button" class="evidencia-toggle" data-target="evidencia-subdisciplina2-texto">Ver más</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="clasificacion-card" id="clasificacion-card-3">
+<!--                                    <div class="clasificacion-card-titulo">
+                                        <span class="clasificacion-numero">3</span>
+                                        <span>Clasificación 3</span>
+                                        <span class="clasificacion-origen" id="clasificacion-origen-3">Sugerencia IA disponible</span>
+                                    </div>-->
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <span><b>Disciplina 3:</b></span><br>
+                                            <select width="100%" style="width: 100%" id="disciplina3" class="form-control disciplina"></select>
+                                            <!--<div class="ia-sugerencia" id="ia-sugerencia-disciplina3"></div>-->
+                                            <div class="evidencia-box" id="evidencia-disciplina3">
+                                                <div class="evidencia-cabecera">Sustento de la disciplina</div>
+                                                <div class="evidencia-texto colapsada" id="evidencia-disciplina3-texto"></div>
+                                                <button type="button" class="evidencia-toggle" data-target="evidencia-disciplina3-texto">Ver más</button>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div id="divSubdisciplina3" style="display: none">
+                                                <span><b>Subdisciplina 3:</b></span><br>
+                                                <select width="100%" style="width: 100%" id="subdisciplina3" class="form-control"></select>
+                                                <!--<div class="ia-sugerencia" id="ia-sugerencia-subdisciplina3"></div>-->
+                                                <div class="evidencia-box" id="evidencia-subdisciplina3">
+                                                    <div class="evidencia-cabecera">Sustento de la subdisciplina</div>
+                                                    <div class="evidencia-texto colapsada" id="evidencia-subdisciplina3-texto"></div>
+                                                    <button type="button" class="evidencia-toggle" data-target="evidencia-subdisciplina3-texto">Ver más</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -450,48 +982,43 @@
                             <br>
                             <br>
                             <div class="col-xs-12">
-                                <p>
-                                A continuación se muestran las palabras claves sugeridas, palabras asentadas por autores y palabras extraídas del texto.
-                                <p>
-                                    (I) Seleccione las adecuadas para el artículo.<br>
-                                    (II) Edite la palabra si determina que existe un término más adecuado para sustituir, considere que en adelante si se encuentra nuevamente el mismo término, se realizará la misma sustitución de manera automática.
-                                </p>
+                                <div class="pc-titulo-ia" id="titulo_palabras_clave_ia">Palabras clave seleccionadas con IA</div>
+                                <p class="pc-ayuda-ia">
+                                    Seleccione las palabras adecuadas para el artículo. En los grupos con opciones relacionadas sólo puede quedar una seleccionada; si elige una aproximación, ésta pasa a ocupar el lugar principal y las demás quedan ocultas en el botón de opciones. Si el artículo ya fue guardado en esta revisión, la opción conservada se muestra como principal en naranja.
                                 </p>
                             </div>
                         </div>
-                        
+
                         <div class="row" id="div_cargando_pc" style="display:none">
                             <div class="col-xs-12">
                                 <b>Obteniendo palabras clave</b> ...<i id="check-titulo-load" class="fa fa-spinner fa-pulse" aria-hidden="true" style="color: #ff8000; display: true"></i>
                             </div>
                         </div>
-                        
-						<div class="row" id="div_palabras_clave_autor" style="display:none">
+
+                        <!-- Compatibilidad: ya no se muestran article.palabraClave ni article.keyword. -->
+                        <div id="div_palabras_clave_autor" style="display:none"><span id="palabras_clave_autores"></span></div>
+
+                        <!-- genera_pc.biblat_exactas -->
+                        <div class="row" id="div_palabras" style="display:none">
                             <br>
                             <div class="col-xs-12">
-                                <span><b>Palabras clave guardadas:</b></span><br>
-                                <span id="palabras_clave_autores"></span>
+                                <span class="pc-subtitulo" id="titulo_palabras_generadas">Coincidencias exactas en catálogo Biblat:</span>
+                                <div id="palabras_catalogo"></div>
                             </div>
                         </div>
-						<div class="row" id="div_palabras" style="display:none">
-                            <br>
-                            <div class="col-xs-12">
-                                <span><b>Palabras clave:</b></span><br>
-                            </div>
-                        </div>
+
+                        <!-- genera_pc.biblat_sugerencias -->
                         <div class="row" id="div_palabras_clave" style="display:none">
                             <br>
                             <div class="col-xs-12">
-                                <span><b>Palabras clave sugeridas de acuerdo al texto:</b></span><br>
-                                <span id="palabras_clave"></span>
+                                <span class="pc-subtitulo">Palabras con aproximaciones en catálogo:</span>
+                                <div class="pc-sugerencias-lista" id="otras_palabras"></div>
                             </div>
                         </div>
-                        <div class="row" id="div_palabras_clave2" style="display:none">
-                            <br>
-                            <div class="col-xs-12">
-                                <span id="palabras_clave2"></span>
-                            </div>
-                        </div>
+
+                        <!-- Se conserva por compatibilidad con selectores anteriores. -->
+                        <div class="row" id="div_palabras_clave2" style="display:none"></div>
+
                         <div class="row">
                             <br>
                             <center>
@@ -504,11 +1031,31 @@
                                 <span id="palabras_clave_n"></span>
                             </div>
                         </div>
+
+                        <!-- Inglés: misma dinámica con biblat_exactas_en y biblat_sugerencias_en. -->
+                        <div class="row" id="div_keywords_texto" style="display:none">
+                            <br>
+                            <br>
+                            <div class="col-xs-12">
+                                <div class="pc-titulo-ia" id="titulo_keywords_ia">Keywords seleccionadas con IA</div>
+                            </div>
+                        </div>
+
                         <div class="row" id="div_keywords" style="display:none">
                             <br>
                             <div class="col-xs-12">
-                                <span><b>Palabras clave traducidas al inglés:</b></span><br>
-                                <span id="keywords"></span>
+                                <!-- Compatibilidad: article.keyword ya no se muestra. -->
+                                <div id="div_keywords_guardadas_interno" style="display:none"><div id="keywords_guardadas"></div></div>
+
+                                <div id="div_keywords_catalogo_interno" style="display:none; margin-top:12px;">
+                                    <span class="pc-subtitulo">Coincidencias exactas en catálogo Biblat:</span>
+                                    <div id="keywords_catalogo"></div>
+                                </div>
+
+                                <div id="div_otras_keywords_interno" style="display:none; margin-top:14px;">
+                                    <span class="pc-subtitulo">Keywords con aproximaciones en catálogo:</span>
+                                    <div class="pc-sugerencias-lista" id="otras_keywords"></div>
+                                </div>
                             </div>
                         </div>
                         <div class="row">
@@ -523,7 +1070,7 @@
                                 <span id="keywords_n"></span>
                             </div>
                         </div>
-                        <div class="row">
+<div class="row">
                             <br>
                             <center>
                                 <button id="import-ai" type="button" class="btn btn-dark" style="display:none"><img class="imagen" src="{base_url('img/aie.png')}" style="filter: invert(0.5) sepia(9) hue-rotate(0deg) saturate(1000%);height:20px;display:inline-block"><span> Extraer de PDF</span></button>

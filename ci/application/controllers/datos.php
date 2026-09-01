@@ -8,6 +8,24 @@ class Datos extends REST_Controller {
 		parent::__construct();
 		header('Content-Type: application/json');
 	}
+	
+	 /*
+	 * Catálogos públicos usados por la versión portátil.
+	 * El HTML portátil se abre desde file:// (origen null), por lo que
+	 * el navegador necesita CORS para poder leer estas respuestas.
+	 * No se envían credenciales y estos endpoints son sólo de lectura.
+	 */
+	private function cors_portatil_catalogo(){
+		header('Access-Control-Allow-Origin: *');
+		header('Access-Control-Allow-Methods: GET, OPTIONS');
+		header('Access-Control-Allow-Headers: Content-Type');
+		header('Access-Control-Max-Age: 86400');
+
+		if(isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS'){
+			header('HTTP/1.1 204 No Content');
+			exit;
+		}
+	}
 
 	public function datosPais_get(){
 		$data = array();
@@ -778,6 +796,7 @@ class Datos extends REST_Controller {
         }
         
         public function ciudad_by_pais_get($pais){
+			$this->cors_portatil_catalogo();
             $data = array();
             //$this->load->database('prueba');
 			$this->load->database();
@@ -805,6 +824,7 @@ class Datos extends REST_Controller {
         }
         
         public function ciudad_by_institucion_get($institucion){
+			$this->cors_portatil_catalogo();
             $data = array();
             //$this->load->database('prueba');
 			$this->load->database();
@@ -820,6 +840,7 @@ class Datos extends REST_Controller {
         }
         
         public function institucion_by_pais_get($pais, $corporativo){
+			$this->cors_portatil_catalogo();
             $data = array();
             //$this->load->database('prueba');
 			$this->load->database();
@@ -847,6 +868,7 @@ class Datos extends REST_Controller {
         }
         
         public function dependencia_by_institucion_get($institucion, $corporativo){
+			$this->cors_portatil_catalogo();
             $data = array();
             //$this->load->database('prueba');
 			$this->load->database();
