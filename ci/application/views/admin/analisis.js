@@ -3409,13 +3409,20 @@ class_av = {
     },
     pinta_icono_consulta: function(sistema, mostrar){
         var $slot = $('.consulta-status-slot[data-sistema="' + sistema + '"]');
+
         if(!$slot.length){
             return;
         }
+
+        mostrar =
+            mostrar === true &&
+            cons.features.mostrar_consulta_finalizados === true;
+
         if(!mostrar){
             $slot.empty();
             return;
         }
+
         $slot.html(
             '<button type="button" class="consulta-eye" data-sistema="' + sistema + '" ' +
             'title="Ver datos almacenados" aria-label="Ver datos almacenados">' +
