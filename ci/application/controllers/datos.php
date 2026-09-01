@@ -1257,6 +1257,19 @@ class Datos extends REST_Controller {
                 $this->response($query->result_array(), 200);  
             }
 		}
+		
+		public function tabla_by_campo_fdw_get($tabla, $campo, $valor){
+            $data = array();
+            $this->load->database();
+            if( $this->session->userdata('usu_base') ){
+                $query = '
+                    select * from claper_kw_fdw."'.$tabla.'" where "'.$campo.'" = \''.$valor.'\'
+                ';
+
+                $query = $this->db->query($query);
+                $this->response($query->result_array(), 200);  
+            }
+	}
 			
 		public function hevila_get(){
             if (in_array($_SERVER['REMOTE_ADDR'], unserialize(IPS)) || in_array($_SERVER['HTTP_X_REAL_IP'], unserialize(IPS))){
