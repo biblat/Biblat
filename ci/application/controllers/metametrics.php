@@ -877,7 +877,7 @@ class Metametrics extends CI_Controller {
         }
     }
 	
-	/* ============================================================
+    /* ============================================================
      * BIBLAT CENTRAL PORTÁTIL - EXPORTACIÓN
      * Fase 1: genera el ZIP autocontenido con datos y catálogos.
      * ============================================================ */
@@ -1063,6 +1063,16 @@ class Metametrics extends CI_Controller {
                 'genera_pc' => isset($genera_pc[$sistema]) ? $genera_pc[$sistema] : null
             );
         }
+        
+        /*
+        * Ya quedaron incorporadas dentro de $por_sistema.
+        */
+       unset($articulos);
+       unset($documentos);
+       unset($autores);
+       unset($instituciones);
+       unset($genera_pc);
+       unset($permitidos_rows);
 
         $firmas_articulos = array();
         foreach($por_sistema as $sistema => $original_articulo){
@@ -1106,15 +1116,32 @@ class Metametrics extends CI_Controller {
 
         $json_flags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
         $portatil_stage = 'serializando_articulos';
+
         $articulos_json_firma = json_encode($por_sistema, $json_flags);
+
         if($articulos_json_firma === false){
-            return $this->portatil_error('No fue posible serializar los artículos del paquete portátil.', 500);
+            return $this->portatil_error(
+                'No fue posible serializar los artículos del paquete portátil.',
+                500
+            );
         }
 
-        /* Los catálogos se incorporan en el navegador, por eso la firma global
-         * cubre el estado original de los artículos, no los catálogos auxiliares. */
         $hash_original = hash('sha256', $articulos_json_firma);
-        $firma = $this->portatil_firma($package_id, $usuario, $fecha, $hash_original);
+
+        /*
+         * IMPORTANTE:
+         * esta cadena puede ocupar varios MB y ya cumplió su propósito.
+         * No debe seguir viva durante json_encode($respuesta).
+         */
+        unset($articulos_json_firma);
+
+        $firma = $this->portatil_firma(
+            $package_id,
+            $usuario,
+            $fecha,
+            $hash_original
+        );
+        
         $manifest = array(
             'schema_version' => 1,
             'package_id' => $package_id,
@@ -1171,19 +1198,70 @@ class Metametrics extends CI_Controller {
         );
 
         $portatil_stage = 'serializando_respuesta';
-        $salida = json_encode($respuesta, $json_flags);
-        if($salida === false){
-            return $this->portatil_error('No fue posible serializar la respuesta de exportación.', 500);
-        }
 
-        // Evita que cualquier buffer previo contamine la respuesta JSON.
+        /*
+         * A partir de aquí ya no construimos $respuesta ni $salida.
+         * Se genera el mismo JSON directamente hacia la salida.
+         */
         while(ob_get_level() > 0){
             @ob_end_clean();
         }
+
         header('Content-Type: application/json; charset=utf-8');
         header('Cache-Control: no-store, no-cache, must-revalidate');
         header('Pragma: no-cache');
-        echo $salida;
+
+        echo '{';
+
+        echo '"resp":"success"';
+
+        echo ',"export_version":"1.10"';
+
+        echo ',"filename":';
+        echo json_encode($nombre, $json_flags);
+
+        echo ',"entries":4';
+
+        echo ',"index_html":';
+        echo json_encode($index_html, $json_flags);
+
+        echo ',"paquete":{';
+
+        echo '"metadata":';
+        echo json_encode($paquete['metadata'], $json_flags);
+
+        echo ',"catalogos":';
+        echo json_encode($paquete['catalogos'], $json_flags);
+
+        echo ',"articulos":{';
+
+        $primero = true;
+
+        foreach($por_sistema as $sistema => $articulo){
+
+            if(!$primero){
+                echo ',';
+            }
+
+            $primero = false;
+
+            echo json_encode((string)$sistema, $json_flags);
+            echo ':';
+            echo json_encode($articulo, $json_flags);
+        }
+
+        echo '}'; // articulos
+
+        echo '}'; // paquete
+
+        echo ',"manifest":';
+        echo json_encode($manifest, $json_flags);
+
+        echo ',"leeme":';
+        echo json_encode($leeme, $json_flags);
+
+        echo '}';
+
         $portatil_finalizado = true;
         exit;
     }
