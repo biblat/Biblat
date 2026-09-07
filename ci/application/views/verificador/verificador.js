@@ -28,7 +28,7 @@ class_ver = {
                 'fr' : 'Francés',                
             },
         expiry:1000 * 5 * 60, //ms * min * 60seg
-        er: {
+         er: {
             'mayus2' : /^[A-Z]*.*[A-Z]{3}.*[A-Z]+$/,
             //Sólo mayúsculas
             'mayus' : /[a-z]/,
@@ -46,7 +46,7 @@ class_ver = {
             //Mayúsculas seguidas
             //'doblemayus' : /([A-Z][A-Z]|[A-Z]\.[A-Z])/,
             'doblemayus' : /^(?!.*\b[A-Z]{2,}\b(?![^()]*\)))(?!^\([^()]*\)$)[\s\S]*$/,
-			//Afiliaciones permitidas
+            //Afiliaciones permitidas
             'afiliacion_permitida' : [
                 /\bFundação do ABC\b/i,
             ],
@@ -375,8 +375,8 @@ class_ver = {
                     gapi.client.sheets.spreadsheets.values.get({
                         spreadsheetId: b(env.sId),
                         range: "Bitacora!AJ1",
-					}).then(function(response) {
-						var row = response.result.values[0][0];
+                    }).then(function(response) {
+                        var row = response.result.values[0][0];
                         $.getJSON('https://api.bigdatacloud.net/data/ip-geolocation?key='+b(env.C_K1), function(data) {
                             class_ver.envio_data(data, row);
                           })
@@ -403,8 +403,8 @@ class_ver = {
                 });
             });
     },
-	
-	porcentaje_bitacora: function(valor, total){
+    
+    porcentaje_bitacora: function(valor, total){
         valor = parseFloat(valor || 0);
         total = parseFloat(total || 0);
 
@@ -436,7 +436,7 @@ class_ver = {
             doi_resuelve_precision: class_ver.porcentaje_bitacora(dois_resuelven, total_dois)
         };
     },
-	
+    
     envio_data: function(data, row){
         var secciones = '';
         $.each($('.seccion'), function(isec, valsec){
@@ -479,8 +479,8 @@ class_ver = {
         datos[27] = class_ver.var.salida.pi.length;
         //Autores
         datos[28] = class_ver.var.salida.a.length;
-		
-		// Indicadores específicos para bitácora
+        
+        // Indicadores específicos para bitácora
         var indicadores = class_ver.indicadores_bitacora();
 
         // % Afiliación, suficiencia
@@ -491,7 +491,7 @@ class_ver = {
 
         // % DOI resuelve, precisión
         datos[31] = indicadores.doi_resuelve_precision;
-		
+        
         var body = {
             values: [datos]
         };
@@ -523,7 +523,7 @@ class_ver = {
         }
         return String(valor).trim();
     },
-	es_afiliacion_permitida: function(afiliacion){
+    es_afiliacion_permitida: function(afiliacion){
         if(afiliacion === undefined || afiliacion === null){
             return false;
         }
@@ -605,6 +605,46 @@ class_ver = {
             return valor !== '' && !er.test(valor);
         });
     },
+
+    /*
+     * Detecta iniciales o abreviaturas en nombres de autor, conservando
+     * la regla original pero evitando falsos positivos en apellidos
+     * legítimos como "De la O Cordero" o "De O Santos".
+     */
+    tiene_inicial_invalida: function(nombre){
+        if(nombre === undefined || nombre === null){
+            return false;
+        }
+
+        var valor = String(nombre)
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        if(valor === ''){
+            return false;
+        }
+
+        /*
+         * Se protege temporalmente la O cuando forma parte de los
+         * apellidos "de la O" o "de O". Así la expresión regular
+         * original no la interpreta como una inicial aislada.
+         */
+        var valor_evaluable = valor
+            .replace(/\bde\s+la\s+o(?=\s|,|$)/gi, 'de la OVALIDA')
+            .replace(/\bde\s+o(?=\s|,|$)/gi, 'de OVALIDA');
+
+        class_ver.cons.er.inicial.lastIndex = 0;
+        return class_ver.cons.er.inicial.test(valor_evaluable);
+    },
+
+    filtra_iniciales_invalidas: function(arr, prop){
+        arr = class_ver.arreglo_seguro(arr);
+        return arr.filter(function(obj){
+            var valor = class_ver.valor_propiedad(obj, prop);
+            return valor !== '' && class_ver.tiene_inicial_invalida(valor);
+        });
+    },
+
     filtra_ocurrencias_menor: function(arr, prop, minimo){
         arr = class_ver.arreglo_seguro(arr);
         return arr.filter(function(obj){
@@ -1010,7 +1050,7 @@ class_ver = {
             class_ver.def_incidencia('Autor', 'Suficiencia', 'Valor vacío', 'Valor ausente', 'Autor ausente', 'AUT-SUF-01', class_ver.arr_global('autores_faltantes')),
             class_ver.def_incidencia('Autor', 'Consistencia', 'Longitud no válida (≤ 1 carácter)', 'Valor incompleto', 'Longitud no válida (≤ 1 carácter)', 'AUT-CON-01', class_ver.filtra_longitud_menor_igual(autores, 'name', 1)),
             class_ver.def_incidencia('Autor', 'Consistencia', 'Uso de mayúsculas en todo el texto', 'Valor no coincide con los parámetros del campo', 'Uso de mayúsculas en todo el texto', 'AUT-CON-02', class_ver.filtra_todo_mayusculas(autores, 'name')),
-            class_ver.def_incidencia('Autor', 'Consistencia', 'Uso de iniciales o abreviaturas', 'Valor incompleto', 'Uso de iniciales o abreviaturas', 'AUT-CON-03', class_ver.filtra_regex(autores, 'name', class_ver.cons.er.inicial)),
+            class_ver.def_incidencia('Autor', 'Consistencia', 'Uso de iniciales o abreviaturas', 'Valor incompleto', 'Uso de iniciales o abreviaturas', 'AUT-CON-03', class_ver.filtra_iniciales_invalidas(autores, 'name')),
             class_ver.def_incidencia('Autor', 'Consistencia', 'Uso de títulos profesionales o cargos laborales', 'Registro incorrecto', 'Problemas varios', 'AUT-CON-04', []),
             class_ver.def_incidencia('Autor', 'Consistencia', 'Caracteres basura o espacios en blanco', 'Registro incorrecto', 'Problemas varios', 'AUT-CON-05', class_ver.filtra_regex(autores, 'name', class_ver.cons.er.char)),
 
@@ -2093,7 +2133,9 @@ class_ver = {
         });
             consis_autores = class_utils.filter_prop_er(autores_nombre_id, 'name', class_ver.cons.er.mayus);
             consis_autores = class_utils.filter_len(consis_autores, 'name', 1);
-            consis_autores = class_utils.filter_prop_noter(consis_autores, 'name', class_ver.cons.er.inicial);
+            consis_autores = consis_autores.filter(function(autor){
+                return !class_ver.tiene_inicial_invalida(autor.name);
+            });
             consis_autores = class_utils.filter_prop_noter(consis_autores, 'name', class_ver.cons.er.autor);
             consis_autores = class_utils.filter_prop_noter(consis_autores, 'name', class_ver.cons.er.char);
 
@@ -2162,7 +2204,7 @@ class_ver = {
         //instituciones_faltantes = class_utils.filter_prop_notarr(arr_pubs, class_ver.cons.pub_id[class_ver.var.data.ver], autores_pub_id);
         //Esta parte es para tomar los ids de publicaciones con instituciones faltantes
         instituciones_faltantes = class_utils.filter_prop_arr(arr_pubs, "id", autores_pub_id_sv);
-
+        
         /*
             * Se separan las afiliaciones permitidas antes de aplicar
             * las reglas generales de consistencia.
