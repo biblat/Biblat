@@ -18,7 +18,7 @@
                             mostrar_indicador_ia: false || 'Administrador' == '<?php echo $rol; ?>',
                             mostrar_consulta_finalizados: false || 'Administrador' == '<?php echo $rol; ?>',
                             // Permite a Analistas/Administradores devolver un registro cerrado a revisión.
-                            mostrar_reabrir_finalizados: ['Analista','Administrador'].indexOf('<?php echo $rol; ?>') !== -1,
+                            mostrar_reabrir_finalizados: false || 'Administrador' == '<?php echo $rol; ?>',
                         })
                     };
 </script>
