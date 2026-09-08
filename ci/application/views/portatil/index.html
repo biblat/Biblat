@@ -13,9 +13,23 @@
 .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0 16px;padding:12px 14px;border:1px solid var(--border);border-radius:8px;background:#fafafa}.toolbar input{min-width:300px;max-width:460px}.status-local{display:inline-flex;align-items:center;padding:5px 9px;border-radius:12px;background:#f0f1f2;color:var(--muted);font-size:12px}.status-local.changed{background:var(--orange-soft);color:#a95a09;border:1px solid #ffd7ad}
 input,select,textarea{width:100%;border:1px solid #c3c7cc;border-radius:5px;padding:8px;background:#fff;font:inherit;transition:border-color .15s,box-shadow .15s}input:focus,select:focus,textarea:focus{outline:none;border-color:#f1a44d;box-shadow:0 0 0 3px rgba(255,128,0,.10)}textarea{min-height:95px;resize:vertical}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:13px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}.field label{font-weight:700;display:block;margin-bottom:5px}.field small{display:block;color:var(--muted);margin-top:4px}.field-invalid{border-color:var(--red)!important;box-shadow:0 0 0 3px rgba(160,49,49,.10)!important}.required-mark{color:var(--red);font-weight:700}
 .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:8px;box-shadow:0 2px 9px #00000008}table{border-collapse:separate;border-spacing:0;width:100%;font-size:12px}th,td{border-bottom:1px solid #e6e7e9;padding:10px 9px;text-align:left;vertical-align:top}th{background:#f7f7f7;position:sticky;top:0;z-index:1;color:#34383d;font-size:11px}tbody tr:nth-child(even){background:#fcfcfc}tbody tr:hover{background:#fff7ed}tbody tr.local-finalized{background:#fffaf2}.article-link{color:#e87300;cursor:pointer;font-weight:600}.article-link:hover{text-decoration:underline}.badge{display:inline-block;border-radius:12px;padding:3px 8px;background:#7d8287;color:#fff;white-space:nowrap;font-size:11px}.badge.R{background:var(--gold)}.badge.C{background:var(--green)}.badge.B{background:var(--red)}.badge.pending{max-width:165px;white-space:normal;line-height:1.25;background:#fff7df;color:#755100;border:1px solid #e8ca77;font-weight:600}.status-stack{display:flex;align-items:center;gap:5px;flex-wrap:wrap}.ia-status-chip{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border:1px solid var(--orange2);border-radius:10px;background:#fff7ed;color:#b85d00;font-size:10px;font-weight:700;line-height:1.2;white-space:nowrap}.ia-status-chip .dot{width:5px;height:5px;border-radius:50%;background:var(--orange2);display:inline-block}
-.editor{display:none}.back{margin-bottom:12px}.title-box{border:1px solid #e5d6c6;border-left:4px solid var(--orange2);background:linear-gradient(90deg,#fff9f2,#fff);padding:14px 16px;margin-bottom:14px;border-radius:7px}.title-box span{color:#555}.title-box b{display:block;margin-top:5px;font-size:16px}.section{border:1px solid var(--border);border-radius:8px;margin:14px 0;background:#fff;box-shadow:0 2px 10px #00000007;overflow:hidden}.section>h2{font-size:15px;margin:0;padding:12px 14px 12px 16px;background:#fafafa;border-bottom:1px solid var(--border);border-left:3px solid var(--orange2)}.section-body{padding:15px 16px}.ai-suggestion{margin-top:6px;padding:5px 8px;border-left:3px solid var(--orange2);background:var(--orange-soft);color:#8a520e;font-size:11px;border-radius:3px}.ai-evidence{margin-top:6px;padding:7px 9px;background:#fafafa;border:1px solid #e6e6e6;border-radius:5px;color:#555;font-size:11px;line-height:1.4}.ai-evidence b{display:block;margin-bottom:3px;color:#444}.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:14px}.row-card{border:1px solid #e5e7e9;border-radius:7px;padding:12px;margin:10px 0;background:#fcfcfc}.row-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}.row-head strong{font-size:13px}.corp-note{padding:9px 11px;background:#fff6e8;border-left:4px solid var(--orange2);margin-bottom:10px;border-radius:4px}
+.editor{display:none}.back{margin-bottom:12px}.title-box{border:1px solid #e5d6c6;border-left:4px solid var(--orange2);background:linear-gradient(90deg,#fff9f2,#fff);padding:14px 16px;margin-bottom:14px;border-radius:7px}.title-box span{color:#555}.title-box b{display:block;margin-top:5px;font-size:16px}.section{border:1px solid var(--border);border-radius:8px;margin:14px 0;background:#fff;box-shadow:0 2px 10px #00000007;overflow:hidden}.section>h2{font-size:15px;margin:0;padding:12px 14px 12px 16px;background:#fafafa;border-bottom:1px solid var(--border);border-left:3px solid var(--orange2)}.section-body{padding:15px 16px}.ai-class-suggestions{display:flex;flex-direction:column;gap:7px;margin-top:8px}.ai-class-card{border:1px solid #e7dfd5;border-left:3px solid var(--orange2);border-radius:5px;background:#fffaf4;padding:8px 9px;transition:background .15s,border-color .15s,box-shadow .15s}.ai-class-card.selected{background:#fff0df;border-color:#efb16d;box-shadow:0 0 0 2px rgba(255,128,0,.08)}.ai-class-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}.ai-class-label{color:#b85d00;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.25px}.ai-class-value{font-size:12px;font-weight:700;color:#333}.ai-class-use{padding:4px 8px;color:#b85d00;border-color:#efb16d}.ai-class-use:hover{background:#fff0df;border-color:var(--orange2)}.ai-class-card.selected .ai-class-use{background:var(--orange2);border-color:var(--orange2);color:#fff}.ai-class-evidence{margin-top:7px;padding-top:7px;border-top:1px solid #eee3d7;color:#555;font-size:11px;line-height:1.4}.ai-class-evidence b{display:block;margin-bottom:3px;color:#444;text-transform:uppercase;font-size:10px;letter-spacing:.2px}.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:14px}.row-card{border:1px solid #e5e7e9;border-radius:7px;padding:12px;margin:10px 0;background:#fcfcfc}.row-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}.row-head strong{font-size:13px}.corp-note{padding:9px 11px;background:#fff6e8;border-left:4px solid var(--orange2);margin-bottom:10px;border-radius:4px}
 .chips{display:flex;flex-wrap:wrap;gap:7px}.chip{border:1px solid var(--orange2);background:#fff;border-radius:16px;padding:6px 10px;cursor:pointer;transition:background .12s,box-shadow .12s}.chip:hover{background:#fff5ea}.chip.selected{background:var(--orange2);color:#111;box-shadow:0 2px 6px #ff800026}.chip .n{margin-left:7px;background:#eee;border-radius:10px;padding:1px 6px;font-size:11px}.chip.selected .n{background:#ffd6a8}.sug-group{display:inline-flex;flex-direction:column;gap:5px;border:1px solid #e8e8e8;border-radius:7px;padding:8px;background:#fdfdfd;max-width:360px}.sug-options{display:flex;flex-wrap:wrap;gap:5px}.small{font-size:12px;color:var(--muted)}.selected-box{padding:11px;border:1px dashed #c7c9cc;border-radius:7px;margin:11px 0;background:#fdfdfd}.add-line{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;margin-top:8px;align-items:start}.add-line input{grid-column:1;grid-row:1;min-width:0}.add-line>.btn{grid-column:2;grid-row:1}.search-options{grid-column:1;grid-row:2;border:1px solid #ccc;max-height:180px;overflow:auto;display:none;background:#fff;position:static;z-index:auto;min-width:0;width:100%;box-shadow:0 4px 12px #00000012;border-radius:5px;margin-top:-2px}.search-option,.search-new-option{padding:7px 9px}.search-option{cursor:pointer}.search-option:hover{background:#fff2e5}.search-new-option{background:#fff7ed;border-bottom:1px solid #f1d1ad;color:#8a520e;cursor:pointer}.search-new-option:hover{background:#ffedd8}.search-new-option b{color:#b85d00}.relative{position:relative}.combo{position:relative;display:flex}.combo>input{padding-right:37px}.combo-toggle{position:absolute;right:1px;top:1px;bottom:1px;width:34px;border:0;border-left:1px solid #ddd;background:#fafafa;border-radius:0 4px 4px 0;cursor:pointer;color:#666}.combo-toggle:hover{background:#f1f1f1}.combo.catalog-loading input:disabled{cursor:wait;background:#f3f4f5;color:#767b81}.combo.catalog-loading .combo-toggle:disabled{cursor:wait;opacity:.5;background:#f1f1f1;color:#999}.combo.catalog-loading .combo-menu{display:none!important}.combo-menu{position:absolute;left:0;right:0;top:calc(100% + 3px);z-index:50;display:none;max-height:220px;overflow:auto;background:#fff;border:1px solid #c8ccd0;border-radius:5px;box-shadow:0 7px 20px #0002}.combo-menu.open{display:block}.combo-option{display:flex;justify-content:space-between;gap:10px;padding:7px 9px;cursor:pointer}.combo-option:hover,.combo-option.active{background:#fff2e5}.combo-option .count{color:var(--muted);font-size:11px}.catalog-source{min-height:20px;margin-top:8px;font-size:11px;color:var(--muted)}.catalog-source.online{color:#2c6f87}.catalog-source.local{color:var(--green)}.catalog-source.manual{color:#8a6200}.catalog-source.loading{color:#7b5a00}.relative{position:relative}.links{margin-top:8px}.links a{margin-right:14px;color:#df7100;text-decoration:none}.links a:hover{text-decoration:underline}
 .notice{border-left:4px solid var(--orange2);padding:10px 12px;background:#fff8ee;margin:10px 0;border-radius:4px}.notice.error{border-color:var(--red);background:#fff1f1}#notice{position:fixed;top:18px;right:18px;z-index:9999;max-width:430px;min-width:280px;margin:0;box-shadow:0 8px 28px rgba(0,0,0,.18);animation:noticeIn .16s ease-out}@keyframes noticeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}.save-feedback{display:inline-flex;align-items:center;min-height:28px;padding:3px 8px;border-radius:12px;color:var(--green);font-size:12px;font-weight:700}.save-feedback.dirty{color:#8a6200;background:#fff8df}.save-feedback.error{color:var(--red);background:var(--red-soft)}.lock-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;margin:0 0 14px;border:1px solid #e3cc85;border-left:4px solid #d59a00;border-radius:7px;background:#fff9e7;color:#665016}.lock-banner.no{border-color:#ddb5b5;border-left-color:var(--red);background:var(--red-soft);color:#773434}.lock-banner strong{display:block;margin-bottom:2px}.lock-banner .small{color:inherit;opacity:.86}input:disabled,select:disabled,textarea:disabled{background:#f3f4f5;color:#767b81;cursor:not-allowed}.btn:disabled{opacity:.48;cursor:not-allowed;box-shadow:none;transform:none}.finalization-section .section-body{padding:18px}.finalization-help{margin:0 0 12px}.pending-status{display:flex;flex-direction:column;align-items:center;gap:3px;margin:12px auto 0;padding:10px 14px;max-width:500px;border-radius:7px;background:#f7f7f7;color:var(--muted);text-align:center}.pending-status.active{background:var(--green-soft);border:1px solid #bddbc4;color:#285e35}.pending-status.active.no{background:var(--red-soft);border-color:#e0b9b9;color:#833333}.pending-status strong{font-size:13px}.pending-status span{font-size:11px}.hidden{display:none!important}.footer-actions{position:sticky;bottom:0;background:#fffffff5;border-top:1px solid var(--border);padding:11px 2px;margin-top:22px;display:flex;justify-content:space-between;align-items:center;gap:10px;box-shadow:0 -4px 12px #00000008}.muted{color:var(--muted)}
+.backup-modal{position:fixed;inset:0;z-index:10020;background:rgba(0,0,0,.38);display:flex;align-items:center;justify-content:center;padding:18px}
+.backup-panel{width:min(720px,96vw);max-height:86vh;overflow:auto;background:#fff;border-radius:9px;box-shadow:0 18px 55px rgba(0,0,0,.28);border:1px solid #d7dade}
+.backup-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);background:#fafafa}
+.backup-head h3{margin:0;font-size:16px}
+.backup-body{padding:15px 16px}
+.backup-help{font-size:12px;color:var(--muted);line-height:1.45;margin-bottom:12px}
+.backup-list{display:flex;flex-direction:column;gap:8px;margin:10px 0 14px}
+.backup-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 11px;border:1px solid var(--border);border-radius:7px;background:#fcfcfc}
+.backup-item-main{min-width:0}
+.backup-item-main strong{display:block;font-size:13px;margin-bottom:3px}
+.backup-item-main span{display:block;font-size:11px;color:var(--muted)}
+.backup-item-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.backup-empty{padding:14px;border:1px dashed #c9ccd0;border-radius:7px;color:var(--muted);text-align:center;background:#fafafa}
+.backup-file-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--border)}
 @media(max-width:800px){body{background:#fff}.grid2,.grid3{grid-template-columns:1fr}.wrap{margin:0;padding:0 14px 30px;border-radius:0;box-shadow:none}.top{margin:0 -14px 16px;padding:14px;border-radius:0}.toolbar input{min-width:0;max-width:none}.footer-actions{position:static;align-items:stretch;flex-direction:column}.table-wrap{border-radius:5px}}
 </style>
 </head>
@@ -24,9 +38,32 @@ input,select,textarea{width:100%;border:1px solid #c3c7cc;border-radius:5px;padd
   <div class="top">
     <div><div class="brand-line"><h1>Biblat Central portátil</h1><span class="portable-tag">Modo portátil</span></div><div class="meta" id="meta"></div></div>
     <div class="spacer"></div>
+    <button class="btn" id="btnBackupSave">Guardar respaldo</button>
+    <button class="btn" id="btnBackupLoad">Cargar respaldo</button>
     <button class="btn btn-dark" id="btnZip">Generar ZIP para importar</button>
   </div>
   <div id="notice" class="notice hidden"></div>
+
+  <div id="backupModal" class="backup-modal hidden" role="dialog" aria-modal="true" aria-labelledby="backupTitle">
+    <div class="backup-panel">
+      <div class="backup-head">
+        <h3 id="backupTitle">Cargar respaldo</h3>
+        <button type="button" class="btn" id="backupClose">Cerrar</button>
+      </div>
+      <div class="backup-body">
+        <div class="backup-help">
+          Aquí aparecen automáticamente los respaldos creados en este navegador para este paquete.
+          Para continuar en otro navegador o equipo, seleccione el archivo de respaldo descargado.
+        </div>
+        <div id="backupList" class="backup-list"></div>
+        <div class="backup-file-row">
+          <button type="button" class="btn btn-orange" id="backupFileButton">Cargar respaldo desde archivo</button>
+          <input type="file" id="backupFileInput" accept=".json,application/json" class="hidden">
+          <span class="small">Use el archivo <b>biblat_respaldo_*.json</b> generado por “Guardar respaldo”.</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <section id="listView">
     <div class="toolbar">
@@ -84,7 +121,6 @@ input,select,textarea{width:100%;border:1px solid #c3c7cc;border-radius:5px;padd
 
     <div class="section" id="institucionesSection"><h2>Instituciones</h2><div class="section-body">
       <label><input type="checkbox" id="corporativo" style="width:auto"> <b>Es autor corporativo</b></label>
-      <div id="corpNote" class="corp-note hidden">Al marcar autor corporativo, los autores personales se conservarán en el paquete original pero la importación aplicará la lógica corporativa.</div>
       <div id="catalogoInstitucionalInfo" class="muted" style="margin:8px 0 12px"></div>
       <div id="institucionesRows"></div><button class="btn" id="addInstitucion">+ Agregar institución</button>
       <div class="actions"><span class="save-feedback" id="saveInstitucionesStatus"></span><button class="btn btn-orange" id="saveInstituciones">Guardar instituciones localmente</button></div>
@@ -96,7 +132,7 @@ input,select,textarea{width:100%;border:1px solid #c3c7cc;border-radius:5px;padd
 
   </section>
 
-  <div class="footer-actions"><span class="muted" id="footerState">Los cambios se guardan en este navegador.</span><button class="btn btn-dark" id="btnZip2">Generar ZIP para importar</button></div>
+  <div class="footer-actions"><span class="muted" id="footerState">Los cambios se guardan localmente. Use Respaldo para mover el trabajo entre navegadores y genere el ZIP para enviarlo a Biblat Central.</span><button class="btn btn-dark" id="btnZip2">Generar ZIP para importar</button></div>
 </div>
 <script src="data/paquete.js"></script>
 <script>
@@ -135,7 +171,7 @@ function hasAIKeywords(g){
 function hasAIDisciplines(g){
   if(!g)return false;
   const d=aiObject(g.disciplinas);
-  return [1,2,3].some(i=>String(d['disciplina'+i]||'').trim()!=='' || String(d['subdisciplina'+i]||'').trim()!=='');
+  return [1,2,3].some(i=>String(d['disciplina'+i]||'').trim()!=='' || String(d['subdisciplina'+i]||'').trim()!=='' || String(d['subdisciplina'+i+'b']||'').trim()!=='');
 }
 function hasAIWork(sistema){
   const base=getOriginal(sistema);
@@ -153,14 +189,274 @@ function getOriginal(s){return A[s]||{}}
 function currentBlock(s){const base=getOriginal(s); const w=work[s]||{}; return {listado:base.listado||{},documento:Object.assign(clone(base.documento||{}),clone(w.documento||{})),autores:w.autores?clone(w.autores):clone(base.autores||[]),instituciones:w.instituciones?clone(w.instituciones):clone(base.instituciones||[]),corporativo:w.hasOwnProperty('corporativo')?w.corporativo:((base.instituciones||[]).some(x=>String(x.corporativo)==='1')?1:0),finalizacion:w.finalizacion||null,genera_pc:base.genera_pc||null}}
 
 /* IndexedDB */
-function dbOpen(){return new Promise((res,rej)=>{const r=indexedDB.open('biblat_portatil',1);r.onupgradeneeded=e=>{const db=e.target.result;if(!db.objectStoreNames.contains('work'))db.createObjectStore('work')};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+function dbOpen(){return new Promise((res,rej)=>{const r=indexedDB.open('biblat_portatil',2);r.onupgradeneeded=e=>{const db=e.target.result;if(!db.objectStoreNames.contains('work'))db.createObjectStore('work');if(!db.objectStoreNames.contains('backups'))db.createObjectStore('backups')};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
 async function loadWork(){try{const db=await dbOpen();work=await new Promise((res,rej)=>{const t=db.transaction('work','readonly').objectStore('work').get(M.package_id);t.onsuccess=()=>res(t.result||{});t.onerror=()=>rej(t.error)});db.close()}catch(e){work={};showNotice('No se pudo abrir el almacenamiento local. Los cambios sólo vivirán mientras la página permanezca abierta.',true)}updateLocalStatus()}
-async function saveWork(){try{const db=await dbOpen();await new Promise((res,rej)=>{const t=db.transaction('work','readwrite').objectStore('work').put(work,M.package_id);t.onsuccess=()=>res();t.onerror=()=>rej(t.error)});db.close();updateLocalStatus();$('footerState').textContent='Cambios guardados localmente: '+new Date().toLocaleTimeString();return true}catch(e){showNotice('No se pudo guardar localmente: '+e.message,true);return false}}
+async function saveWork(){try{const db=await dbOpen();await new Promise((res,rej)=>{const t=db.transaction('work','readwrite').objectStore('work').put(work,M.package_id);t.onsuccess=()=>res();t.onerror=()=>rej(t.error)});db.close();updateLocalStatus();$('footerState').textContent='✓ Cambios guardados localmente · Puede crear un respaldo o generar el ZIP · '+new Date().toLocaleTimeString();return true}catch(e){showNotice('No se pudo guardar localmente: '+e.message,true);return false}}
 async function loadCatalogCache(){try{const db=await dbOpen();catalogCache=await new Promise((res,rej)=>{const t=db.transaction('work','readonly').objectStore('work').get('catalog_cache_v1:'+ONLINE_CATALOG_BASE);t.onsuccess=()=>res(t.result||{});t.onerror=()=>rej(t.error)});db.close();mergeCatalogCache()}catch(e){catalogCache={}}}
 async function saveCatalogCache(){try{const db=await dbOpen();await new Promise((res,rej)=>{const t=db.transaction('work','readwrite').objectStore('work').put(catalogCache,'catalog_cache_v1:'+ONLINE_CATALOG_BASE);t.onsuccess=()=>res();t.onerror=()=>rej(t.error)});db.close()}catch(e){console.warn('No se pudo guardar caché de catálogos',e)}}
 function cacheBranch(name,corp){if(!catalogCache[name])catalogCache[name]={};if(corp!=null){if(!catalogCache[name][corp])catalogCache[name][corp]={};return catalogCache[name][corp]}return catalogCache[name]}
 function mergeCatalogCache(){normalizeCatalogContainers();const cp=asObject(catalogCache.ciudades_por_pais);Object.keys(cp).forEach(k=>{if(!C.ciudades_por_pais[k]||!C.ciudades_por_pais[k].length)C.ciudades_por_pais[k]=cp[k]});['0','1'].forEach(c=>{const ip=asObject(catalogCache.instituciones_por_pais&&catalogCache.instituciones_por_pais[c]);Object.keys(ip).forEach(k=>{if(!C.instituciones_por_pais[c][k]||!C.instituciones_por_pais[c][k].length)C.instituciones_por_pais[c][k]=ip[k]});const dp=asObject(catalogCache.dependencias_por_institucion&&catalogCache.dependencias_por_institucion[c]);Object.keys(dp).forEach(k=>{if(!C.dependencias_por_institucion[c][k]||!C.dependencias_por_institucion[c][k].length)C.dependencias_por_institucion[c][k]=dp[k]})});const ci=asObject(catalogCache.ciudades_por_institucion);Object.keys(ci).forEach(k=>{if(!C.ciudades_por_institucion[k]||!C.ciudades_por_institucion[k].length)C.ciudades_por_institucion[k]=ci[k]})}
 function updateLocalStatus(){const n=Object.keys(work).length;const el=$('localStatus');el.textContent=n? n+' artículo(s) con cambios locales':'Sin cambios locales';el.classList.toggle('changed',n>0)}
+
+/* ================================================================
+ * RESPALDOS
+ * - IndexedDB: historial automático dentro del mismo navegador.
+ * - Archivo JSON: permite mover el trabajo a otro navegador/equipo.
+ * ================================================================ */
+const BACKUP_KIND='biblat_portatil_backup';
+const BACKUP_SCHEMA=1;
+const MAX_LOCAL_BACKUPS=30;
+
+function backupTimestampName(iso){
+  const d=new Date(iso||Date.now());
+  const p=n=>String(n).padStart(2,'0');
+  return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds());
+}
+
+function backupDisplayDate(iso){
+  try{return new Date(iso).toLocaleString()}catch(e){return String(iso||'')}
+}
+
+function dirtySectionsNow(){
+  return Object.keys(saveFeedbackIds).filter(section=>{
+    const id=saveFeedbackIds[section],el=id&&$(id);
+    return !!(el&&el.classList.contains('dirty'));
+  });
+}
+
+function backupPayload(){
+  const now=new Date().toISOString();
+  return {
+    kind:BACKUP_KIND,
+    schema_version:BACKUP_SCHEMA,
+    id:String(M.package_id||'')+'::'+now,
+    package_id:M.package_id,
+    original_hash:M.original_hash||'',
+    usuario:M.usuario||'',
+    rol:M.rol||'',
+    created_at:now,
+    article_count:Object.keys(work||{}).length,
+    work:clone(work||{}),
+    catalogCache:clone(catalogCache||{})
+  };
+}
+
+async function putLocalBackup(b){
+  const db=await dbOpen();
+  await new Promise((res,rej)=>{
+    const req=db.transaction('backups','readwrite').objectStore('backups').put(b,b.id);
+    req.onsuccess=()=>res();
+    req.onerror=()=>rej(req.error);
+  });
+  db.close();
+  await pruneLocalBackups();
+}
+
+async function listLocalBackups(){
+  const db=await dbOpen();
+  const all=await new Promise((res,rej)=>{
+    const req=db.transaction('backups','readonly').objectStore('backups').getAll();
+    req.onsuccess=()=>res(req.result||[]);
+    req.onerror=()=>rej(req.error);
+  });
+  db.close();
+  return all
+    .filter(b=>b&&b.kind===BACKUP_KIND&&String(b.package_id||'')===String(M.package_id||''))
+    .sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
+}
+
+async function deleteLocalBackup(id){
+  const db=await dbOpen();
+  await new Promise((res,rej)=>{
+    const req=db.transaction('backups','readwrite').objectStore('backups').delete(id);
+    req.onsuccess=()=>res();
+    req.onerror=()=>rej(req.error);
+  });
+  db.close();
+}
+
+async function pruneLocalBackups(){
+  const backups=await listLocalBackups();
+  const extras=backups.slice(MAX_LOCAL_BACKUPS);
+  for(const b of extras){
+    try{await deleteLocalBackup(b.id)}catch(e){}
+  }
+}
+
+function validateBackupObject(b){
+  if(!b||typeof b!=='object')throw new Error('El archivo no contiene un respaldo válido.');
+  if(b.kind!==BACKUP_KIND)throw new Error('El archivo seleccionado no es un respaldo de Biblat Central portátil.');
+  if(Number(b.schema_version)!==BACKUP_SCHEMA)throw new Error('La versión del respaldo no es compatible.');
+  if(String(b.package_id||'')!==String(M.package_id||'')){
+    throw new Error('Este respaldo pertenece a otro paquete. Abra el paquete portátil con el que fue creado.');
+  }
+  if(b.original_hash&&M.original_hash&&String(b.original_hash)!==String(M.original_hash)){
+    throw new Error('El respaldo no corresponde al contenido original de este paquete.');
+  }
+  if(!b.work||typeof b.work!=='object')throw new Error('El respaldo no contiene trabajo guardado.');
+  return true;
+}
+
+function downloadBackupFile(b){
+  const blob=new Blob([JSON.stringify(b,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='biblat_respaldo_'+String(M.package_id||'paquete')+'_'+backupTimestampName(b.created_at)+'.json';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
+}
+
+async function saveBackup(){
+  const dirty=dirtySectionsNow();
+  if(dirty.length){
+    const labels=dirty.map(x=>completionSectionLabels[x]||x);
+    alert('Antes de crear el respaldo, guarde los cambios pendientes de estas secciones:\n\n'+labels.join(', ')+'.');
+    showNotice('Guarde primero los cambios pendientes antes de crear el respaldo.',true);
+    return;
+  }
+
+  if(!(await saveWork()))return;
+
+  const b=backupPayload();
+  try{
+    await putLocalBackup(b);
+    downloadBackupFile(b);
+    $('footerState').textContent='✓ Respaldo guardado y descargado · '+backupDisplayDate(b.created_at);
+    showNotice('✓ Respaldo guardado. También se descargó un archivo para poder abrirlo en otro navegador.');
+  }catch(e){
+    showNotice('No se pudo crear el respaldo: '+e.message,true);
+  }
+}
+
+async function renderBackupList(){
+  const box=$('backupList');
+  box.innerHTML='<div class="backup-empty">Buscando respaldos…</div>';
+
+  try{
+    const backups=await listLocalBackups();
+    if(!backups.length){
+      box.innerHTML='<div class="backup-empty">No hay respaldos de este paquete guardados en este navegador.</div>';
+      return;
+    }
+
+    box.innerHTML='';
+    backups.forEach(b=>{
+      const row=document.createElement('div');
+      row.className='backup-item';
+
+      const main=document.createElement('div');
+      main.className='backup-item-main';
+      const strong=document.createElement('strong');
+      strong.textContent=backupDisplayDate(b.created_at);
+      const meta=document.createElement('span');
+      meta.textContent=Number(b.article_count||Object.keys(b.work||{}).length)+' artículo(s) con cambios · '+(b.usuario||'Usuario');
+      main.appendChild(strong);
+      main.appendChild(meta);
+
+      const actions=document.createElement('div');
+      actions.className='backup-item-actions';
+
+      const restore=document.createElement('button');
+      restore.type='button';
+      restore.className='btn btn-success';
+      restore.textContent='Restaurar';
+      restore.onclick=()=>restoreBackup(b,'respaldo del '+backupDisplayDate(b.created_at));
+
+      const del=document.createElement('button');
+      del.type='button';
+      del.className='btn btn-danger';
+      del.textContent='Eliminar';
+      del.onclick=async()=>{
+        if(!confirm('¿Eliminar este respaldo del historial de este navegador?'))return;
+        try{
+          await deleteLocalBackup(b.id);
+          await renderBackupList();
+        }catch(e){
+          showNotice('No se pudo eliminar el respaldo: '+e.message,true);
+        }
+      };
+
+      actions.appendChild(restore);
+      actions.appendChild(del);
+      row.appendChild(main);
+      row.appendChild(actions);
+      box.appendChild(row);
+    });
+  }catch(e){
+    box.innerHTML='<div class="backup-empty">No se pudieron leer los respaldos: '+esc(e.message)+'</div>';
+  }
+}
+
+async function openBackupModal(){
+  $('backupModal').classList.remove('hidden');
+  await renderBackupList();
+}
+
+function closeBackupModal(){
+  $('backupModal').classList.add('hidden');
+}
+
+async function restoreBackup(b,label){
+  try{
+    validateBackupObject(b);
+  }catch(e){
+    showNotice(e.message,true);
+    return;
+  }
+
+  if(!confirm(
+    '¿Restaurar '+label+'?\n\n'+
+    'El trabajo guardado actualmente en este navegador para este paquete será reemplazado por el respaldo seleccionado.'
+  ))return;
+
+  activityStop();
+
+  work=clone(b.work||{});
+  catalogCache=clone(b.catalogCache||{});
+
+  try{
+    if(!(await saveWork()))return;
+    await saveCatalogCache();
+    mergeCatalogCache();
+
+    current=null;
+    resetSaveFeedback();
+    $('editorView').style.display='none';
+    $('listView').style.display='block';
+    renderList();
+    updateLocalStatus();
+    closeBackupModal();
+
+    $('footerState').textContent='✓ Respaldo restaurado · '+backupDisplayDate(b.created_at);
+    showNotice('✓ Respaldo restaurado correctamente.');
+    window.scrollTo(0,0);
+  }catch(e){
+    showNotice('No se pudo restaurar el respaldo: '+e.message,true);
+  }
+}
+
+async function importBackupFile(file){
+  if(!file)return;
+
+  try{
+    const txt=await file.text();
+    const b=JSON.parse(txt);
+    validateBackupObject(b);
+
+    /*
+     * Al importarlo desde otro navegador también lo incorporamos al historial
+     * local de este navegador, para que aparezca automáticamente en adelante.
+     */
+    await putLocalBackup(b);
+    await restoreBackup(b,'el respaldo seleccionado');
+  }catch(e){
+    showNotice('No se pudo cargar el respaldo: '+e.message,true);
+  }finally{
+    $('backupFileInput').value='';
+  }
+}
+
 const saveFeedbackIds={article:'saveArticleStatus',keywords:'saveKeywordsStatus',instituciones:'saveInstitucionesStatus',autores:'saveAutoresStatus'};
 function setSaveFeedback(section,text,state){const id=saveFeedbackIds[section],el=id&&$(id);if(!el)return;el.textContent=text||'';el.className='save-feedback'+(state?' '+state:'')}
 function markSaved(section,label){const t=new Date().toLocaleTimeString();setSaveFeedback(section,'✓ '+label+' · '+t,'');showNotice('✓ '+label+' guardado localmente.')}
@@ -276,14 +572,226 @@ function renderList(){const q=norm($('buscar').value);const allRows=Object.keys(
 function applyMode(b){const revisionPC=['A','R'].includes(String((b.listado||{}).estatusPC||''));const finalized=!!b.finalizacion;const articleSection=$('articleSection');articleSection.querySelectorAll('input,select,textarea').forEach(x=>x.disabled=revisionPC);$('saveArticle').classList.toggle('hidden',revisionPC);$('keywordsSection').classList.toggle('hidden',String(M.pal_cla||'0')!=='1');const normalPanels=!revisionPC;$('autoresSection').classList.toggle('hidden',!normalPanels||!!b.corporativo);$('institucionesSection').classList.toggle('hidden',!normalPanels);$('markPC').classList.toggle('hidden',!revisionPC);const editor=String(M.rol||'')==='Editor';$('markNo').classList.toggle('hidden',revisionPC||editor);$('markComplete').classList.toggle('hidden',revisionPC);
  const allowIds=new Set(['btnBack','btnZip2','reopenAnalysis','reopenAnalysis2']);$('editorView').querySelectorAll('input,select,textarea,button').forEach(el=>{if(allowIds.has(el.id))return;if(finalized)el.disabled=true;else if(!revisionPC||!articleSection.contains(el))el.disabled=false});
  $('lockedBanner').classList.toggle('hidden',!finalized);$('lockedBanner').classList.toggle('no',b.finalizacion==='B');$('reopenAnalysis2').classList.toggle('hidden',!finalized);if(finalized){const labels={B:'No indizable',C:'Análisis completo',CPC:'Análisis de palabras clave completo'};$('lockedTitle').textContent=(labels[b.finalizacion]||'Registro finalizado')+' en este paquete';$('lockedText').textContent='La edición está bloqueada. El estado se aplicará a Biblat Central al importar el ZIP.';$('markNo').classList.add('hidden');$('markComplete').classList.add('hidden');$('markPC').classList.add('hidden')}else{$('reopenAnalysis2').classList.add('hidden')}}
-function openArticle(s){const original=getOriginal(s);if(!isExportableOriginal(original.listado||{})){showNotice('Este artículo ya estaba finalizado antes de crear el paquete y no puede editarse en modo portátil.',true);return}current=s;activityStart(s);resetSaveFeedback();const b=currentBlock(s),d=b.documento,l=b.listado;$('listView').style.display='none';$('editorView').style.display='block';$('revistaTitle').textContent=l.revista||'';$('articuloTitle').textContent=d.articulo||l.articulo||'';$('links').innerHTML=(d.url1?'<a target="_blank" href="'+esc(d.url1)+'">Abrir URL 1</a>':'')+(d.url2?'<a target="_blank" href="'+esc(d.url2)+'">Abrir URL 2</a>':'');
- setVal('titulo',d.articulo); setVal('idioma',firstIdioma(d.idioma)); setVal('titulo2',d.titulo2);setVal('idioma2',d.idioma2);setVal('titulo3',d.titulo3);setVal('idioma3',d.idioma3);setVal('tipo_documento',d.tipo_documento);setVal('url1',d.url1);setVal('url2',d.url2);setVal('tipourl1',d.tipourl1||'html');setVal('tipourl2',d.tipourl2||'html');
- const langs=String(d.idioma||'').split(',').map(x=>x.trim());Array.from($('idiomaDocumento').options).forEach(o=>o.selected=langs.includes(o.value));
- renderClassification(d,b.genera_pc); selectedEs=unique(parseJSON(d.palabraClave,[])||[]);selectedEn=unique(parseJSON(d.keyword,[])||[]);renderKeywords(b.genera_pc);renderInstituciones(b.instituciones,b.corporativo);renderAutores(b.autores,b.instituciones,b.corporativo);renderPending(b.finalizacion);applyMode(b);window.scrollTo(0,0)}
+function openArticle(s){
+  const original=getOriginal(s);
+  if(!isExportableOriginal(original.listado||{})){
+    showNotice('Este artículo ya estaba finalizado antes de crear el paquete y no puede editarse en modo portátil.',true);
+    return;
+  }
+
+  current=s;
+  activityStart(s);
+  resetSaveFeedback();
+
+  const b=currentBlock(s),d=b.documento,l=b.listado;
+  const finalized=!!b.finalizacion;
+
+  $('listView').style.display='none';
+  $('editorView').style.display='block';
+  $('revistaTitle').textContent=l.revista||'';
+  $('articuloTitle').textContent=d.articulo||l.articulo||'';
+  $('links').innerHTML=
+    (d.url1?'<a target="_blank" href="'+esc(d.url1)+'">Abrir URL 1</a>':'')+
+    (d.url2?'<a target="_blank" href="'+esc(d.url2)+'">Abrir URL 2</a>':'');
+
+  setVal('titulo',d.articulo);
+  setVal('idioma',firstIdioma(d.idioma));
+  setVal('titulo2',d.titulo2);
+  setVal('idioma2',d.idioma2);
+  setVal('titulo3',d.titulo3);
+  setVal('idioma3',d.idioma3);
+  setVal('tipo_documento',d.tipo_documento);
+  setVal('url1',d.url1);
+  setVal('url2',d.url2);
+  setVal('tipourl1',d.tipourl1||'html');
+  setVal('tipourl2',d.tipourl2||'html');
+
+  const langs=String(d.idioma||'').split(',').map(x=>x.trim());
+  Array.from($('idiomaDocumento').options).forEach(o=>o.selected=langs.includes(o.value));
+
+  // Finalizado: clasificación sólo desde documento, sin genera_pc ni prellenado IA.
+  renderClassification(d,finalized?null:b.genera_pc,finalized);
+
+  selectedEs=unique(parseJSON(d.palabraClave,[])||[]);
+  selectedEn=unique(parseJSON(d.keyword,[])||[]);
+
+  if(finalized){
+    renderKeywordsStoredOnly();
+  }else{
+    renderKeywords(b.genera_pc);
+  }
+
+  // Finalizado: tampoco se consultan catálogos institucionales remotos.
+  renderInstituciones(b.instituciones,b.corporativo,finalized);
+  renderAutores(b.autores,b.instituciones,b.corporativo);
+
+  renderPending(b.finalizacion);
+  applyMode(b);
+  window.scrollTo(0,0);
+}
 function firstIdioma(v){return String(v||'').split(',')[0].trim()}
 function evidenceText(v){if(v==null)return '';if(typeof v==='string')return v.trim();if(typeof v==='object'){if(v.razon!=null)return String(v.razon).trim();if(v.evidencia!=null)return String(v.evidencia).trim()}return ''}
-function renderClassification(d,g){const gd=(g&&parseJSON(g.disciplinas,{}))||{};const ge=(g&&parseJSON(g.evidencias,{}))||{};let html='';for(let i=1;i<=3;i++){const aiD=String(gd['disciplina'+i]||'').trim(),aiS=String(gd['subdisciplina'+i]||'').trim(),evD=evidenceText(ge['disciplina'+i]),evS=evidenceText(ge['subdisciplina'+i]);html+='<div class="row-card"><div class="field"><label>Disciplina '+i+(i===1?' <span class=\"required-mark\">*</span>':'')+'</label><select id="disc'+i+'"></select>'+(aiD?'<div class="ai-suggestion"><b>Sugerencia IA:</b> '+esc(aiD)+'</div>':'')+(evD?'<div class="ai-evidence"><b>Sustento de la disciplina</b>'+esc(evD)+'</div>':'')+'</div><div class="field" style="margin-top:8px"><label>Subdisciplina '+i+'</label><select id="sub'+i+'"></select>'+(aiS?'<div class="ai-suggestion"><b>Sugerencia IA:</b> '+esc(aiS)+'</div>':'')+(evS?'<div class="ai-evidence"><b>Sustento de la subdisciplina</b>'+esc(evS)+'</div>':'')+'</div></div>'}$('clasificacion').innerHTML=html;for(let i=1;i<=3;i++){const de=$('disc'+i);const aiD=String(gd['disciplina'+i]||'').trim(),aiS=String(gd['subdisciplina'+i]||'').trim();const valD=String(d['disciplina'+i]||'').trim()||aiD;const valS=String(d['subdisciplina'+i]||'').trim()||aiS;initSelect(de,C.disciplina||[]);if(valD&&!Array.from(de.options).some(o=>o.value===valD)){de.add(new Option(valD,valD))}de.value=valD;fillSubs(i,valS);de.onchange=()=>fillSubs(i,'')}}
-function fillSubs(i,val){const d=$('disc'+i).value;const arr=(C[d]||[]).map(x=>String(x).trim()).filter(Boolean);const se=$('sub'+i);initSelect(se,arr);if(val&&!Array.from(se.options).some(o=>o.value===val)){se.add(new Option(val,val))}se.value=val||''}
+function cleanAISuggestion(v){const s=String(v==null?'':v).trim();const u=s.toUpperCase();return (!s||u==='SIN'||u==='SIN RESULTADO'||u==='NULL')?'':s}
+function renderClassification(d,g,storedOnly=false){
+  const gd=storedOnly?{}:((g&&parseJSON(g.disciplinas,{}))||{});
+  const ge=storedOnly?{}:((g&&parseJSON(g.evidencias,{}))||{});
+  let html='';
+
+  function suggestionCard(value,evidence,label,kind){
+    if(!value)return '';
+    return '<div class="ai-class-card" data-ai-'+kind+'="'+esc(value)+'">'+
+      '<div class="ai-class-head"><span class="ai-class-label">'+esc(label)+'</span><button type="button" class="btn ai-class-use" data-ai-'+kind+'-use="'+esc(value)+'">Usar</button></div>'+
+      '<div class="ai-class-value">'+esc(value)+'</div>'+
+      (evidence?'<div class="ai-class-evidence"><b>Sustento de la sugerencia</b>'+esc(evidence)+'</div>':'')+
+    '</div>';
+  }
+
+  for(let i=1;i<=3;i++){
+    const aiD=cleanAISuggestion(gd['disciplina'+i]);
+    const aiS1=cleanAISuggestion(gd['subdisciplina'+i]);
+    const aiS2=cleanAISuggestion(gd['subdisciplina'+i+'b']);
+    const evD=evidenceText(ge['disciplina'+i]);
+    const evS1=evidenceText(ge['subdisciplina'+i]);
+    const evS2=evidenceText(ge['subdisciplina'+i+'b']);
+
+    const subs=[];
+    if(aiS1)subs.push({value:aiS1,evidence:evS1,label:'Sugerencia IA 1'});
+    if(aiS2&&!subs.some(x=>norm(x.value)===norm(aiS2)))subs.push({value:aiS2,evidence:evS2,label:'Sugerencia IA '+(subs.length+1)});
+
+    const discCard=aiD
+      ? '<div class="ai-class-suggestions" id="aiDiscBox'+i+'">'+suggestionCard(aiD,evD,'Sugerencia IA','disc')+'</div>'
+      : '';
+
+    const subCards=subs.length
+      ? '<div class="ai-class-suggestions" id="aiSubs'+i+'">'+subs.map(x=>suggestionCard(x.value,x.evidence,x.label,'sub')).join('')+'</div>'
+      : '';
+
+    html+=
+      '<div class="row-card">'+
+        '<div class="field">'+
+          '<label>Disciplina '+i+(i===1?' <span class="required-mark">*</span>':'')+'</label>'+
+          '<select id="disc'+i+'"></select>'+
+          discCard+
+        '</div>'+
+        '<div class="field" style="margin-top:8px">'+
+          '<label>Subdisciplina '+i+'</label>'+
+          '<select id="sub'+i+'"></select>'+
+          subCards+
+        '</div>'+
+      '</div>';
+  }
+
+  $('clasificacion').innerHTML=html;
+
+  for(let i=1;i<=3;i++){
+    const de=$('disc'+i);
+    const se=$('sub'+i);
+
+    const aiD=cleanAISuggestion(gd['disciplina'+i]);
+    const aiS1=cleanAISuggestion(gd['subdisciplina'+i]);
+    const aiS2=cleanAISuggestion(gd['subdisciplina'+i+'b']);
+    const aiSubs=unique([aiS1,aiS2].filter(Boolean));
+    const storedD=String(d['disciplina'+i]||'').trim();
+    const storedS=String(d['subdisciplina'+i]||'').trim();
+
+    // Ni disciplina ni subdisciplina usan fallback IA. Sólo se restaura lo que
+    // ya estaba almacenado/guardado por el analista.
+    const valD=storedD;
+    const valS=storedS;
+
+    de.dataset.aiSuggestion=aiD;
+    se.dataset.aiSuggestions=JSON.stringify(aiSubs);
+
+    initSelect(de,C.disciplina||[]);
+    if(valD&&!Array.from(de.options).some(o=>o.value===valD)){
+      de.add(new Option(valD,valD));
+    }
+    de.value=valD;
+
+    fillSubs(i,valS);
+
+    de.onchange=()=>{
+      fillSubs(i,'');
+      updateClassificationEvidence(i);
+    };
+
+    se.onchange=()=>updateClassificationEvidence(i);
+
+    const discBox=$('aiDiscBox'+i);
+    if(discBox){
+      discBox.querySelectorAll('[data-ai-disc-use]').forEach(btn=>{
+        btn.onclick=()=>{
+          const value=String(btn.dataset.aiDiscUse||'').trim();
+          if(!value)return;
+          if(!Array.from(de.options).some(o=>o.value===value))de.add(new Option(value,value));
+          de.value=value;
+          de.dispatchEvent(new Event('change',{bubbles:true}));
+        };
+      });
+    }
+
+    const subBox=$('aiSubs'+i);
+    if(subBox){
+      subBox.querySelectorAll('[data-ai-sub-use]').forEach(btn=>{
+        btn.onclick=()=>{
+          const value=String(btn.dataset.aiSubUse||'').trim();
+          if(!value)return;
+          if(!Array.from(se.options).some(o=>o.value===value))se.add(new Option(value,value));
+          se.value=value;
+          se.dispatchEvent(new Event('change',{bubbles:true}));
+        };
+      });
+    }
+
+    updateClassificationEvidence(i);
+  }
+}
+
+function fillSubs(i,val){
+  const d=$('disc'+i).value;
+  const arr=(C[d]||[]).map(x=>String(x).trim()).filter(Boolean);
+  const se=$('sub'+i);
+
+  initSelect(se,arr);
+  if(val&&!Array.from(se.options).some(o=>o.value===val)){
+    se.add(new Option(val,val));
+  }
+  se.value=val||'';
+}
+
+function updateClassificationEvidence(i){
+  const de=$('disc'+i),se=$('sub'+i);
+  if(!de||!se)return;
+
+  const aiD=String(de.dataset.aiSuggestion||'').trim();
+  const currentD=String(de.value||'').trim();
+  const currentS=String(se.value||'').trim();
+  let aiSubs=[];
+  try{aiSubs=JSON.parse(se.dataset.aiSuggestions||'[]')}catch(e){aiSubs=[]}
+
+  const discMatches=aiD!==''&&currentD===aiD;
+  const discCanShow=aiD!==''&&(currentD===''||discMatches);
+  const subMatches=aiSubs.some(v=>String(v||'').trim()===currentS);
+  const subCanShow=discMatches&&(currentS===''||subMatches);
+
+  const discBox=$('aiDiscBox'+i);
+  if(discBox){
+    discBox.classList.toggle('hidden',!discCanShow);
+    discBox.querySelectorAll('.ai-class-card').forEach(card=>{
+      card.classList.toggle('selected',discMatches&&String(card.dataset.aiDisc||'')===currentD);
+    });
+  }
+
+  const subBox=$('aiSubs'+i);
+  if(subBox){
+    // Si se selecciona una subdisciplina distinta de las sugerencias IA,
+    // se ocultan ambas sugerencias y sus sustentos.
+    subBox.classList.toggle('hidden',!subCanShow);
+    subBox.querySelectorAll('.ai-class-card').forEach(card=>{
+      card.classList.toggle('selected',subCanShow&&currentS!==''&&String(card.dataset.aiSub||'')===currentS);
+    });
+  }
+}
 function collectDocument(){const d=clone(currentBlock(current).documento);d.articulo=getVal('titulo');const langs=Array.from($('idiomaDocumento').selectedOptions).map(o=>o.value);d.idioma=langs.join(', ');d.titulo2=getVal('titulo2');d.idioma2=$('idioma2').value;d.titulo3=getVal('titulo3');d.idioma3=$('idioma3').value;d.tipo_documento=$('tipo_documento').value;for(let i=1;i<=3;i++){d['disciplina'+i]=$('disc'+i).value;d['subdisciplina'+i]=$('sub'+i).value}d.url1=getVal('url1');d.url2=getVal('url2');d.tipourl1=$('tipourl1').value;d.tipourl2=$('tipourl2').value;d.palabraClave=JSON.stringify(selectedEs);d.keyword=JSON.stringify(selectedEn);return d}
 
 function clearValidation(){document.querySelectorAll('.field-invalid').forEach(el=>el.classList.remove('field-invalid'))}
@@ -346,6 +854,24 @@ function validateInstitutionAuthorLinks(){
 
 function freqMap(arr){const m=new Map();(arr||[]).forEach(x=>m.set(norm(x.valor),Number(x.num||0)));return m}let freqEs=null,freqEn=null;
 function renderKeywords(g){if(!freqEs){freqEs=freqMap(C.palabras);freqEn=freqMap(C.keywords)}renderIA('iaEs',g,'biblat_exactas','biblat_sugerencias','es');renderIA('iaEn',g,'biblat_exactas_en','biblat_sugerencias_en','en');renderSelected()}
+
+function renderKeywordsStoredOnly(){
+  $('iaEs').innerHTML='<b>Palabras clave almacenadas</b>';
+  $('iaEn').innerHTML='<b>Keywords almacenadas</b>';
+
+  $('selEs').innerHTML=selectedEs.map(x=>
+    '<span class="chip selected" style="cursor:default">'+esc(x)+'</span>'
+  ).join('');
+
+  $('selEn').innerHTML=selectedEn.map(x=>
+    '<span class="chip selected" style="cursor:default">'+esc(x)+'</span>'
+  ).join('');
+
+  $('newEs').value='';
+  $('newEn').value='';
+  closeWordSearch('optsEs');
+  closeWordSearch('optsEn');
+}
 function parseSuggestions(v){const a=parseJSON(v,[]);return Array.isArray(a)?a.map(x=>({palabra:String((x&&x.palabra)||'').trim(),aproximaciones:Array.isArray(x&&x.aproximaciones)?x.aproximaciones:parseJSON(x&&x.aproximaciones,[])})):[]}
 function chip(term,lang,group){const arr=lang==='es'?selectedEs:selectedEn;const sel=arr.some(x=>norm(x)===norm(term));const n=(lang==='es'?freqEs:freqEn).get(norm(term))||0;return '<button type="button" class="chip '+(sel?'selected':'')+'" data-term="'+esc(term)+'" data-lang="'+lang+'" data-group="'+esc(group||'')+'">'+esc(term)+'<span class="n">'+n+'</span></button>'}
 function origenIALabel(g){
@@ -363,7 +889,23 @@ function bindWordSearch(inputId,optId,arr,lang){const input=$(inputId),box=$(opt
 function closeWordSearchOutside(e){[['newEs','optsEs'],['newEn','optsEn']].forEach(pair=>{const input=$(pair[0]),box=$(pair[1]);if(input&&box&&!input.contains(e.target)&&!box.contains(e.target))closeWordSearch(pair[1])})}
 document.addEventListener('click',closeWordSearchOutside);
 
-function renderInstituciones(rows,corp){$('corporativo').checked=!!corp;$('corpNote').classList.toggle('hidden',!corp);const rs=C.catalogos_institucionales_resumen||{};$('catalogoInstitucionalInfo').textContent=rs.total_paises?('Catálogo precargado: '+rs.total_paises+' país(es), '+Number(rs.total_ciudades||0)+' ciudades, '+Number(rs.total_instituciones||0)+' instituciones y '+Number(rs.total_dependencias||0)+' dependencias. Si selecciona otro país, se intentará consultar Biblat en línea.'): 'Sin catálogos institucionales precargados. Al elegir un país se intentará consultar Biblat en línea; si no hay conexión puede escribir manualmente.';$('institucionesRows').innerHTML='';(rows||[]).forEach((r,i)=>addInstitutionRow(r,i+1));$('autoresSection').classList.toggle('hidden',!!corp)}
+function renderInstituciones(rows,corp,readonly=false){
+  $('corporativo').checked=!!corp;
+  
+
+  const rs=C.catalogos_institucionales_resumen||{};
+  if(readonly){
+    $('catalogoInstitucionalInfo').textContent='Mostrando los datos institucionales almacenados. No se consultan catálogos en modo finalizado.';
+  }else{
+    $('catalogoInstitucionalInfo').textContent=rs.total_paises
+      ? ('Catálogo precargado: '+rs.total_paises+' país(es), '+Number(rs.total_ciudades||0)+' ciudades, '+Number(rs.total_instituciones||0)+' instituciones y '+Number(rs.total_dependencias||0)+' dependencias. Si selecciona otro país, se intentará consultar Biblat en línea.')
+      : 'Sin catálogos institucionales precargados. Al elegir un país se intentará consultar Biblat en línea; si no hay conexión puede escribir manualmente.';
+  }
+
+  $('institucionesRows').innerHTML='';
+  (rows||[]).forEach((r,i)=>addInstitutionRow(r,i+1,readonly));
+  $('autoresSection').classList.toggle('hidden',!!corp);
+}
 function comboMarkup(cls,placeholder){return '<div class="combo"><input class="'+cls+'" autocomplete="off" placeholder="'+esc(placeholder||'')+'"><button type="button" class="combo-toggle" tabindex="-1">▾</button><div class="combo-menu"></div></div>'}
 function setCatalogStatus(div,text,kind){const el=div.querySelector('.catalog-source');if(!el)return;el.textContent=text||'';el.className='catalog-source'+(kind?' '+kind:'')}
 
@@ -413,6 +955,56 @@ function setInstitutionCatalogLoading(div,loading){
 }
 
 function normalizeApiRows(rows,field){return (Array.isArray(rows)?rows:[]).map(x=>({id:String(x[field]||''),text:String(x[field]||''),num:Number(x.count||x.num||0)})).filter(x=>x.text)}
+/*
+ * Búsqueda y orden de los combos institucionales.
+ *
+ * Al escribir:
+ *   1) coincidencia exacta,
+ *   2) comienza con el texto escrito,
+ *   3) contiene el texto en cualquier otra posición.
+ * Dentro de cada grupo se ordena por ocurrencias de mayor a menor.
+ * Sin texto de búsqueda, el catálogo también se muestra por frecuencia.
+ * La comparación ignora mayúsculas y acentos.
+ */
+function normComboSearch(v){
+  let s=String(v==null?'':v).trim().toLowerCase();
+  try{s=s.normalize('NFD').replace(/[\u0300-\u036f]/g,'')}catch(e){}
+  return s;
+}
+function comboSearchPriority(text,q){
+  const t=normComboSearch(text),term=normComboSearch(q);
+  if(!term)return 3;
+  if(t===term)return 0;
+  if(t.startsWith(term))return 1;
+  if(t.includes(term))return 2;
+  return 9;
+}
+function sortComboHits(items,q){
+  return items.slice().sort((a,b)=>{
+    const pa=comboSearchPriority(a.text||a.id,q);
+    const pb=comboSearchPriority(b.text||b.id,q);
+    if(pa!==pb)return pa-pb;
+    const na=Number(a.num||0),nb=Number(b.num||0);
+    if(na!==nb)return nb-na;
+    return String(a.text||a.id||'').localeCompare(String(b.text||b.id||''),'es',{sensitivity:'base'});
+  });
+}
+/*
+ * Orden específico para listas de sugerencias institucionales.
+ * Mantiene primero las ciudades con más ocurrencias y usa el nombre
+ * como desempate. No altera el arreglo original del catálogo.
+ */
+function sortByOccurrences(items){
+  return (Array.isArray(items)?items:[]).slice().sort((a,b)=>{
+    const na=Number(a&&a.num||0),nb=Number(b&&b.num||0);
+    if(na!==nb)return nb-na;
+    return String(a&&((a.text||a.id)||'')||'').localeCompare(
+      String(b&&((b.text||b.id)||'')||''),
+      'es',
+      {sensitivity:'base'}
+    );
+  });
+}
 function comboItems(input,items,onPick){const wrap=input.closest('.combo'),menu=wrap.querySelector('.combo-menu'),toggle=wrap.querySelector('.combo-toggle');let all=Array.isArray(items)?items:[];
 
 /*
@@ -421,7 +1013,26 @@ function comboItems(input,items,onPick){const wrap=input.closest('.combo'),menu=
  * como filtro del catálogo recién cargado (por ejemplo, al cambiar País).
  * Cuando el analista escribe sí se filtran las opciones normalmente.
  */
-function draw(showAll){const q=showAll?'':norm(input.value);const hits=all.filter(x=>!q||norm(x.text||x.id).includes(q)).slice(0,100);menu.innerHTML='';hits.forEach(x=>{const o=document.createElement('div');o.className='combo-option';const a=document.createElement('span');a.textContent=x.text||x.id||'';const n=document.createElement('span');n.className='count';n.textContent=Number(x.num||0)||'';o.appendChild(a);o.appendChild(n);o.onclick=()=>{input.value=x.text||x.id||'';menu.classList.remove('open');if(onPick)onPick(input.value)};menu.appendChild(o)});menu.classList.toggle('open',hits.length>0)}
+function draw(showAll){
+  const q=showAll?'':normComboSearch(input.value);
+  const filtrados=all.filter(x=>!q||normComboSearch(x.text||x.id).includes(q));
+  const hits=sortComboHits(filtrados,q).slice(0,100);
+  menu.innerHTML='';
+  hits.forEach(x=>{
+    const o=document.createElement('div');
+    o.className='combo-option';
+    const a=document.createElement('span');
+    a.textContent=x.text||x.id||'';
+    const n=document.createElement('span');
+    n.className='count';
+    n.textContent=Number(x.num||0)||'';
+    o.appendChild(a);
+    o.appendChild(n);
+    o.onclick=()=>{input.value=x.text||x.id||'';menu.classList.remove('open');if(onPick)onPick(input.value)};
+    menu.appendChild(o);
+  });
+  menu.classList.toggle('open',hits.length>0);
+}
 
 input._comboItems=all;
 input._comboDraw=draw;
@@ -559,12 +1170,35 @@ async function ensureInstitutionCatalogs(div,id,ins,corp){
     setInstitutionCatalogLoading(div,false);
   }
 }
-function addInstitutionRow(r,id){r=r||{};const div=document.createElement('div');div.className='row-card inst-row';div.dataset.id=id;div.innerHTML='<div class="row-head"><strong>Institución '+id+'</strong><button class="btn btn-danger rm-inst">Borrar</button></div><div class="grid2"><div class="field"><label>País</label><select class="pais"></select></div><div class="field ciudad-wrap"><label>Ciudad</label>'+comboMarkup('ciudad','Seleccione o escriba una ciudad')+'</div><div class="field"><label>Institución</label>'+comboMarkup('inst','Seleccione o escriba una institución')+'</div><div class="field"><label>Dependencia</label>'+comboMarkup('dep','Seleccione o escriba una dependencia')+'</div></div><div class="catalog-source"></div>';$('institucionesRows').appendChild(div);const p=div.querySelector('.pais');initSelect(p,C.pais||[]);p.value=r.pais||'';div.querySelector('.ciudad').value=r.ciudad||'';div.querySelector('.inst').value=r.institucion||'';div.querySelector('.dep').value=r.dependencia||'';p.onchange=()=>{/*
+function addInstitutionRow(r,id,readonly=false){r=r||{};const div=document.createElement('div');div.className='row-card inst-row';div.dataset.id=id;div.innerHTML='<div class="row-head"><strong>Institución '+id+'</strong><button class="btn btn-danger rm-inst">Borrar</button></div><div class="grid2"><div class="field"><label>País</label><select class="pais"></select></div><div class="field ciudad-wrap"><label>Ciudad</label>'+comboMarkup('ciudad','Seleccione o escriba una ciudad')+'</div><div class="field"><label>Institución</label>'+comboMarkup('inst','Seleccione o escriba una institución')+'</div><div class="field"><label>Dependencia</label>'+comboMarkup('dep','Seleccione o escriba una dependencia')+'</div></div><div class="catalog-source"></div>';$('institucionesRows').appendChild(div);const p=div.querySelector('.pais');initSelect(p,C.pais||[]);p.value=r.pais||'';div.querySelector('.ciudad').value=r.ciudad||'';div.querySelector('.inst').value=r.institucion||'';div.querySelector('.dep').value=r.dependencia||'';p.onchange=()=>{/*
  * Al cambiar el país sólo se actualizan los catálogos disponibles.
  * Se conservan ciudad, institución y dependencia ya capturadas,
  * igual que en la versión en línea. El usuario decide si las cambia.
  */
-ensureCountryCatalogs(div,id,p.value,$('corporativo').checked?'1':'0',true);markDirty('instituciones')};div.querySelector('.rm-inst').onclick=()=>{div.remove();renumber('.inst-row','Institución');markDirty('instituciones')};fillInstLists(div,id,false);const corp=$('corporativo').checked?'1':'0';if(p.value){ensureCountryCatalogs(div,id,p.value,corp).then(()=>{if(r.institucion&&String(div.querySelector('.pais').value||'')===String(p.value||'')&&String(div.querySelector('.inst').value||'')===String(r.institucion||'')){ensureInstitutionCatalogs(div,id,r.institucion,corp)}})}else if(r.institucion){ensureInstitutionCatalogs(div,id,r.institucion,corp)}if($('corporativo').checked)div.querySelector('.ciudad-wrap').classList.add('hidden')}
+ensureCountryCatalogs(div,id,p.value,$('corporativo').checked?'1':'0',true);markDirty('instituciones')};div.querySelector('.rm-inst').onclick=()=>{div.remove();renumber('.inst-row','Institución');markDirty('instituciones')};
+if(readonly){
+  updateCombo(div.querySelector('.ciudad'),[],()=>{});
+  updateCombo(div.querySelector('.inst'),[],()=>{});
+  updateCombo(div.querySelector('.dep'),[],()=>{});
+}else{
+  fillInstLists(div,id,false);
+  const corp=$('corporativo').checked?'1':'0';
+
+  if(p.value){
+    ensureCountryCatalogs(div,id,p.value,corp).then(()=>{
+      if(
+        r.institucion &&
+        String(div.querySelector('.pais').value||'')===String(p.value||'') &&
+        String(div.querySelector('.inst').value||'')===String(r.institucion||'')
+      ){
+        ensureInstitutionCatalogs(div,id,r.institucion,corp);
+      }
+    });
+  }else if(r.institucion){
+    ensureInstitutionCatalogs(div,id,r.institucion,corp);
+  }
+}
+if($('corporativo').checked)div.querySelector('.ciudad-wrap').classList.add('hidden')}
 function fillInstLists(div,id,fetchMissing=true,cambioPais=false){
   const pais=div.querySelector('.pais').value;
   const corp=$('corporativo').checked?'1':'0';
@@ -601,7 +1235,7 @@ function fillInstLists(div,id,fetchMissing=true,cambioPais=false){
     ensureCountryCatalogs(div,id,pais,corp,false);
   }
 }
-function fillDeps(div,id,fetchMissing=true){const corp=$('corporativo').checked?'1':'0',ins=div.querySelector('.inst').value;const deps=C.dependencias_por_institucion[corp][ins]||[];updateCombo(div.querySelector('.dep'),deps,()=>markDirty('instituciones'));if(corp==='0'){const pais=div.querySelector('.pais').value;const base=C.ciudades_por_pais[pais]||[];const sug=C.ciudades_por_institucion[ins]||[];const seen=new Set(),all=[];sug.concat(base).forEach(x=>{const k=String(x.text||x.id||'');if(k&&!seen.has(k)){seen.add(k);all.push(x)}});updateCombo(div.querySelector('.ciudad'),all,()=>markDirty('instituciones'))}if(fetchMissing&&ins&&!deps.length)ensureInstitutionCatalogs(div,id,ins,corp)}
+function fillDeps(div,id,fetchMissing=true){const corp=$('corporativo').checked?'1':'0',ins=div.querySelector('.inst').value;const deps=C.dependencias_por_institucion[corp][ins]||[];updateCombo(div.querySelector('.dep'),deps,()=>markDirty('instituciones'));if(corp==='0'){const pais=div.querySelector('.pais').value;const base=C.ciudades_por_pais[pais]||[];const sug=sortByOccurrences(C.ciudades_por_institucion[ins]||[]);const seen=new Set(),all=[];sug.concat(base).forEach(x=>{const k=String(x.text||x.id||'');if(k&&!seen.has(k)){seen.add(k);all.push(x)}});updateCombo(div.querySelector('.ciudad'),all,()=>markDirty('instituciones'))}if(fetchMissing&&ins&&!deps.length)ensureInstitutionCatalogs(div,id,ins,corp)}
 function collectInstitutions(){return Array.from(document.querySelectorAll('.inst-row')).map((div,i)=>({sistema:current,id:i+1,pais:div.querySelector('.pais').value||null,ciudad:$('corporativo').checked?'':(div.querySelector('.ciudad').value.trim()||null),institucion:div.querySelector('.inst').value.trim()||null,dependencia:div.querySelector('.dep').value.trim()||null,corporativo:$('corporativo').checked?1:0}))}
 function renumber(sel,label){document.querySelectorAll(sel).forEach((d,i)=>{d.dataset.id=i+1;const s=d.querySelector('.row-head strong');if(s)s.textContent=label+' '+(i+1)})}
 
@@ -655,7 +1289,30 @@ async function mark(kind){
   const label=({B:'No indizable',C:'Análisis completo',CPC:'Análisis de palabras clave completo'}[kind]||kind);
   showNotice('✓ '+label+' guardado en este paquete. La edición quedó bloqueada hasta reabrir el análisis.');
 }
-async function reopenAnalysis(){if(!current)return;if(!confirm('¿Reabrir este análisis en el paquete portátil? Podrá volver a editarlo y la finalización pendiente se cancelará.'))return;const w=ensureWork();w.finalizacion=null;if(!(await saveWork()))return;activityStart(current);renderPending(null);applyMode(currentBlock(current));showNotice('Análisis reabierto. Puede continuar editando el registro.')}
+async function reopenAnalysis(){
+  if(!current)return;
+  if(!confirm('¿Reabrir este análisis en el paquete portátil? Podrá volver a editarlo y la finalización pendiente se cancelará.'))return;
+
+  const w=ensureWork();
+  w.finalizacion=null;
+  if(!(await saveWork()))return;
+
+  activityStart(current);
+
+  const b=currentBlock(current);
+  renderClassification(b.documento,b.genera_pc,false);
+
+  selectedEs=unique(parseJSON(b.documento.palabraClave,[])||[]);
+  selectedEn=unique(parseJSON(b.documento.keyword,[])||[]);
+  renderKeywords(b.genera_pc);
+
+  renderInstituciones(b.instituciones,b.corporativo,false);
+  renderAutores(b.autores,b.instituciones,b.corporativo);
+
+  renderPending(null);
+  applyMode(b);
+  showNotice('Análisis reabierto. Puede continuar editando el registro.');
+}
 
 function renderPending(v){const el=$('pendingStatus');['markNo','markComplete','markPC'].forEach(id=>$(id).classList.remove('is-selected'));if(!v){el.className='pending-status';el.textContent='Sin finalización pendiente';return}const labels={B:'No indizable',C:'Análisis completado',CPC:'Análisis de palabras clave completado'};const btn={B:'markNo',C:'markComplete',CPC:'markPC'}[v];if(btn&&$(btn))$(btn).classList.add('is-selected');el.className='pending-status active'+(v==='B'?' no':'');el.innerHTML='<strong>✓ '+esc(labels[v]||v)+' en este paquete</strong><span>Pendiente de importar a Biblat Central</span>'}
 
@@ -664,10 +1321,10 @@ const crcTable=(()=>{let t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++
 function crc32(bytes){let c=0xffffffff;for(let i=0;i<bytes.length;i++)c=crcTable[(c^bytes[i])&255]^(c>>>8);return (c^0xffffffff)>>>0}function u16(v){return new Uint8Array([v&255,(v>>>8)&255])}function u32(v){return new Uint8Array([v&255,(v>>>8)&255,(v>>>16)&255,(v>>>24)&255])}function cat(parts){let n=parts.reduce((a,b)=>a+b.length,0),o=new Uint8Array(n),p=0;parts.forEach(b=>{o.set(b,p);p+=b.length});return o}function dosDate(d){const date=((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate();const time=(d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1);return {date,time}}
 function makeZip(files){const enc=new TextEncoder(),locals=[],centrals=[];let off=0;const now=dosDate(new Date());Object.keys(files).forEach(name=>{const nb=enc.encode(name),data=enc.encode(files[name]),crc=crc32(data);const lh=cat([u32(0x04034b50),u16(20),u16(0x0800),u16(0),u16(now.time),u16(now.date),u32(crc),u32(data.length),u32(data.length),u16(nb.length),u16(0),nb,data]);locals.push(lh);const ch=cat([u32(0x02014b50),u16(20),u16(20),u16(0x0800),u16(0),u16(now.time),u16(now.date),u32(crc),u32(data.length),u32(data.length),u16(nb.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(off),nb]);centrals.push(ch);off+=lh.length});const central=cat(centrals),local=cat(locals),end=cat([u32(0x06054b50),u16(0),u16(0),u16(centrals.length),u16(centrals.length),u32(central.length),u32(local.length),u16(0)]);return new Blob([local,central,end],{type:'application/zip'})}
 function returnPayload(){const changes={};Object.keys(work).forEach(s=>{if(A[s]){const sig=M.article_signatures&&M.article_signatures[s]||{};changes[s]={original:A[s],original_hash:sig.hash||'',original_signature:sig.signature||'',cambio:work[s]}}});return {schema_version:1,package_id:M.package_id,usuario:M.usuario,rol:M.rol||'',original_hash:M.original_hash,signature:M.signature,generated_at:new Date().toISOString(),changes}}
-function generateZip(){const ret=returnPayload();if(!Object.keys(ret.changes).length&&!confirm('No hay cambios guardados. ¿Desea generar el ZIP de todos modos?'))return;const manifest={schema_version:1,package_id:M.package_id,usuario:M.usuario,rol:M.rol||'',exported_at:M.exported_at,original_hash:M.original_hash,signature:M.signature};const blob=makeZip({'manifest.json':JSON.stringify(manifest,null,2),'trabajo.json':JSON.stringify(ret,null,2)});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='biblat_retorno_'+M.package_id+'.zip';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
+function generateZip(){const ret=returnPayload();if(!Object.keys(ret.changes).length&&!confirm('No hay cambios guardados. ¿Desea generar el ZIP de todos modos?'))return;const manifest={schema_version:1,package_id:M.package_id,usuario:M.usuario,rol:M.rol||'',exported_at:M.exported_at,original_hash:M.original_hash,signature:M.signature};const blob=makeZip({'manifest.json':JSON.stringify(manifest,null,2),'trabajo.json':JSON.stringify(ret,null,2)});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='biblat_retorno_'+M.package_id+'.zip';document.body.appendChild(a);a.click();$('footerState').textContent='✓ ZIP generado. Importe este archivo en Biblat Central para aplicar los cambios.';setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
 
 async function init(){if(!P.metadata){document.body.innerHTML='<pre>No se encontró data/paquete.js. Mantenga la estructura completa de la carpeta.</pre>';return}$('meta').textContent='Usuario: '+(M.usuario||'')+' · Exportado: '+new Date(M.exported_at).toLocaleString()+' · '+(M.total_articulos||0)+' artículos';if(M.omitidos_no_soportados)showNotice(M.omitidos_no_soportados+' registro(s) no se incluyeron por pertenecer a un flujo no soportado en la v1 portátil.');initSelect($('idiomaDocumento'),idiomas,false);['idioma','idioma2','idioma3'].forEach(id=>initSelect($(id),idiomas));const tipos=(C.tipo_documento||[]).filter(x=>norm(x)!=='errata');initSelect($('tipo_documento'),tipos);await loadCatalogCache();await loadWork();installActivityTracking();renderList();bindWordSearch('newEs','optsEs',C.palabras||[],'es');bindWordSearch('newEn','optsEn',C.keywords||[],'en')}
-$('buscar').oninput=renderList;$('btnBack').onclick=()=>{activityStop();current=null;$('editorView').style.display='none';$('listView').style.display='block';renderList();window.scrollTo(0,0)};$('saveArticle').onclick=saveArticle;$('saveKeywords').onclick=saveKeywords;$('saveInstituciones').onclick=saveInstituciones;$('saveAutores').onclick=saveAutores;$('addEs').onclick=()=>addWord('es');$('addEn').onclick=()=>addWord('en');$('addInstitucion').onclick=()=>{addInstitutionRow({},document.querySelectorAll('.inst-row').length+1);markDirty('instituciones')};$('addAutor').onclick=()=>{addAuthorRow({},document.querySelectorAll('.aut-row').length+1,currentBlock(current).instituciones);markDirty('autores')};$('corporativo').onchange=()=>{document.querySelectorAll('.ciudad-wrap').forEach(x=>x.classList.toggle('hidden',$('corporativo').checked));$('autoresSection').classList.toggle('hidden',$('corporativo').checked);$('corpNote').classList.toggle('hidden',!$('corporativo').checked);document.querySelectorAll('.inst-row').forEach((d,i)=>{fillInstLists(d,i+1,false);const p=d.querySelector('.pais').value;if(p)ensureCountryCatalogs(d,i+1,p,$('corporativo').checked?'1':'0')});markDirty('instituciones')};$('markNo').onclick=()=>mark('B');$('markComplete').onclick=()=>mark('C');$('markPC').onclick=()=>mark('CPC');$('reopenAnalysis').onclick=reopenAnalysis;$('reopenAnalysis2').onclick=reopenAnalysis;$('btnZip').onclick=generateZip;$('btnZip2').onclick=generateZip;$('editorView').addEventListener('input',e=>{if(e.target&&e.target.classList)e.target.classList.remove('field-invalid');const k=dirtySectionForElement(e.target);if(k)markDirty(k)});$('editorView').addEventListener('change',e=>{if(e.target&&e.target.classList)e.target.classList.remove('field-invalid');const k=dirtySectionForElement(e.target);if(k)markDirty(k)});
+$('buscar').oninput=renderList;$('btnBackupSave').onclick=saveBackup;$('btnBackupLoad').onclick=openBackupModal;$('backupClose').onclick=closeBackupModal;$('backupFileButton').onclick=()=>$('backupFileInput').click();$('backupFileInput').onchange=e=>importBackupFile(e.target.files&&e.target.files[0]);$('backupModal').onclick=e=>{if(e.target===$('backupModal'))closeBackupModal()};$('btnBack').onclick=()=>{activityStop();current=null;$('editorView').style.display='none';$('listView').style.display='block';renderList();window.scrollTo(0,0)};$('saveArticle').onclick=saveArticle;$('saveKeywords').onclick=saveKeywords;$('saveInstituciones').onclick=saveInstituciones;$('saveAutores').onclick=saveAutores;$('addEs').onclick=()=>addWord('es');$('addEn').onclick=()=>addWord('en');$('addInstitucion').onclick=()=>{addInstitutionRow({},document.querySelectorAll('.inst-row').length+1);markDirty('instituciones')};$('addAutor').onclick=()=>{addAuthorRow({},document.querySelectorAll('.aut-row').length+1,currentBlock(current).instituciones);markDirty('autores')};$('corporativo').onchange=()=>{document.querySelectorAll('.ciudad-wrap').forEach(x=>x.classList.toggle('hidden',$('corporativo').checked));$('autoresSection').classList.toggle('hidden',$('corporativo').checked);document.querySelectorAll('.inst-row').forEach((d,i)=>{fillInstLists(d,i+1,false);const p=d.querySelector('.pais').value;if(p)ensureCountryCatalogs(d,i+1,p,$('corporativo').checked?'1':'0')});markDirty('instituciones')};$('markNo').onclick=()=>mark('B');$('markComplete').onclick=()=>mark('C');$('markPC').onclick=()=>mark('CPC');$('reopenAnalysis').onclick=reopenAnalysis;$('reopenAnalysis2').onclick=reopenAnalysis;$('btnZip').onclick=generateZip;$('btnZip2').onclick=generateZip;$('editorView').addEventListener('input',e=>{if(e.target&&e.target.classList)e.target.classList.remove('field-invalid');const k=dirtySectionForElement(e.target);if(k)markDirty(k)});$('editorView').addEventListener('change',e=>{if(e.target&&e.target.classList)e.target.classList.remove('field-invalid');const k=dirtySectionForElement(e.target);if(k)markDirty(k)});
 init();
 })();
 </script>
