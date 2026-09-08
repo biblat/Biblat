@@ -72,10 +72,10 @@ class_av = {
         palabra_clave_sustituye: '<br><center><i class="fa fa-arrow-down" aria-hidden="true"></i><center><br><palabra> <span class="badge"><num></span>'
     },   
     var: {
-        //servidor: 'http://localhost:5000',
-        //app: '',
-        servidor: 'https://biblat.unam.mx',
-        app: '/scielo-claper',
+        servidor: 'http://localhost:5000',
+        app: '',
+        //servidor: 'https://biblat.unam.mx',
+        //app: '/scielo-claper',
         usuariosJSON: [],
         analistasJSON: [],
         documentoJSON: '',
@@ -138,7 +138,7 @@ class_av = {
             <td><a href="<url2>" target="_blank"><texto2></a></td>\n\
             <td><fecha></td>\n\
             <td><fecha_c></td>\n\
-            <td><span id="estatus-<id_estatus>" style="background-color:<color>" class="badge"><estatus></span><span class="ia-status-slot" data-sistema="<sistema_ia>"></span><span class="consulta-status-slot" data-sistema="<sistema_consulta>"><consulta></span></td>',
+            <td><span id="estatus-<id_estatus>" style="background-color:<color>" class="badge"><estatus></span><span class="ia-status-slot" data-sistema="<sistema_ia>"></span><span class="consulta-status-slot" data-sistema="<sistema_consulta>"><consulta></span><span class="reabrir-status-slot" data-sistema="<sistema_reabrir>"><reabrir></span></td>',
         barra_avance:   '<div class="progress-bar progress-bar-warning progress-bar-striped" role="progressbar" aria-valuenow="<avance>" aria-valuemin="0" aria-valuemax="100" style="width: <avance>%">' +
                         '<span style="color:black"><b><avance> %</b></span>' +
                         '</div>',
@@ -372,6 +372,121 @@ class_av = {
         $('.ui-tooltip[role="tooltip"], body > .tooltip[role="tooltip"]').remove();
     },
 
+    /*
+     * Las subdisciplinas sugeridas por IA ya no se precargan en el select.
+     * Se muestran como alternativas independientes debajo del campo y el
+     * analista decide si usa la primera, la segunda o cualquier otra del catálogo.
+     */
+
+    /*
+     * Sugerencia de disciplina:
+     * - nunca se selecciona automáticamente;
+     * - se muestra cuando el selector está vacío o conserva exactamente la
+     *   sugerencia IA;
+     * - si el analista elige otra disciplina, la sugerencia y su sustento se
+     *   ocultan para no dejar evidencia que ya no corresponde a la selección.
+     */
+    actualiza_sugerencias_disciplina: function(n){
+        if(class_av.var.solo_lectura === true){
+            return;
+        }
+
+        var $disciplina = $('#disciplina'+n);
+        var $contenedor = $('#sugerencias-disciplina'+n);
+
+        if(!$disciplina.length || !$contenedor.length){
+            return;
+        }
+
+        var actual = String($disciplina.val() || '').trim();
+        var sugerida = String($disciplina.data('ia-sugerida') || '').trim();
+        var mostrar = (
+            sugerida !== '' &&
+            (actual === '' || actual === sugerida) &&
+            $contenedor.find('.clasificacion-sugerencia-card').length > 0
+        );
+
+        $contenedor.toggle(mostrar);
+        $contenedor.find('.clasificacion-sugerencia-card').each(function(){
+            var valor = String($(this).attr('data-valor') || '').trim();
+            $(this).toggleClass('seleccionada', mostrar && actual !== '' && actual === valor);
+        });
+    },
+
+    /*
+     * Las dos sugerencias de subdisciplina sólo permanecen visibles mientras:
+     * 1) la disciplina elegida sea la disciplina sugerida por IA, y
+     * 2) la subdisciplina esté vacía o sea una de las sugerencias IA.
+     *
+     * Si el analista selecciona una subdisciplina diferente, ambas sugerencias
+     * y sus sustentos se ocultan. Al limpiar el selector vuelven a mostrarse.
+     */
+    actualiza_sugerencias_subdisciplina: function(n){
+        if(class_av.var.solo_lectura === true){
+            return;
+        }
+
+        var $disciplina = $('#disciplina'+n);
+        var $subdisciplina = $('#subdisciplina'+n);
+        var $contenedor = $('#sugerencias-subdisciplina'+n);
+
+        if(!$disciplina.length || !$subdisciplina.length || !$contenedor.length){
+            return;
+        }
+
+        var disciplinaActual = String($disciplina.val() || '').trim();
+        var disciplinaIA = String($disciplina.data('ia-sugerida') || '').trim();
+        var subActual = String($subdisciplina.val() || '').trim();
+        var sugerencias = $subdisciplina.data('ia-sugerencias') || [];
+
+        if(!Array.isArray(sugerencias)){
+            sugerencias = [];
+        }
+
+        var subEsSugerida = sugerencias.some(function(valor){
+            return String(valor || '').trim() === subActual;
+        });
+
+        var mostrar = (
+            disciplinaIA !== '' &&
+            disciplinaActual === disciplinaIA &&
+            $contenedor.find('.clasificacion-sugerencia-card').length > 0 &&
+            (subActual === '' || subEsSugerida)
+        );
+
+        $contenedor.toggle(mostrar);
+
+        $contenedor.find('.clasificacion-sugerencia-card').each(function(){
+            var valor = String($(this).attr('data-valor') || '').trim();
+            $(this).toggleClass('seleccionada', mostrar && subActual !== '' && subActual === valor);
+        });
+    },
+
+    /*
+     * Conservamos el nombre de esta función porque ya se invoca desde los
+     * eventos change existentes. Ahora sólo sincroniza las tarjetas IA de
+     * disciplina/subdisciplina con la selección actual.
+     */
+    actualiza_evidencia_clasificacion: function(tipo, n){
+        if(class_av.var.solo_lectura === true){
+            return;
+        }
+
+        class_av.actualiza_sugerencias_disciplina(n);
+        class_av.actualiza_sugerencias_subdisciplina(n);
+
+        var bloqueVisible =
+            $('#sugerencias-disciplina'+n).is(':visible') ||
+            $('#sugerencias-subdisciplina'+n).is(':visible');
+
+        $('#clasificacion-origen-'+n).toggle(bloqueVisible);
+
+        var existeSustentoVisible =
+            $('.clasificacion-sugerencias-ia:visible').length > 0;
+
+        $('#clasificacion_ayuda_ia').toggle(existeSustentoVisible);
+    },
+
     initClient: function() {
         $.when(class_utils.getResource('/datos/articulos/'),
         class_utils.getResource('/datos/tabla_by_user/usuario_institution_dic')
@@ -510,6 +625,14 @@ class_av = {
                             $('.disciplina').off('change').on('change', function(e){
                                 var id_dis = this.id.slice(-1);
                                 var disc = $('#disciplina'+id_dis).val();
+
+                                /*
+                                 * Al cambiar la disciplina se reevalúa tanto
+                                 * su sustento como el de la subdisciplina.
+                                 */
+                                class_av.actualiza_evidencia_clasificacion('disciplina', id_dis);
+                                class_av.actualiza_evidencia_clasificacion('subdisciplina', id_dis);
+                                
                                 
                                 if(disc == null || disc == ''){
                                     $('#divSubdisciplina'+id_dis).hide();
@@ -531,9 +654,12 @@ class_av = {
                                     });
 
                                     $('#subdisciplina'+id_dis).html(options);
-                                    $('#subdisciplina'+id_dis).on('change', function(){
-                                        class_av.var.cambios_documento = (true && !class_av.var.cambios_de_inicio);
-                                    });
+                                    $('#subdisciplina'+id_dis)
+                                        .off('change.clasificacionIA')
+                                        .on('change.clasificacionIA', function(){
+                                            class_av.actualiza_evidencia_clasificacion('subdisciplina', id_dis);
+                                            class_av.var.cambios_documento = (true && !class_av.var.cambios_de_inicio);
+                                        });
                                     $('#subdisciplina'+id_dis).select2({ tags: false, placeholder: "Seleccione una subdisciplina", allowClear: true});
                                 }
                                 
@@ -1122,14 +1248,14 @@ class_av = {
             class_av.var.cambios_documento = false;
             class_av.var.cambios_institucion = false;
             class_av.var.cambios_autor = false;
-            $('#save-no-indizable, #save-full, #save-full-pc, #save-article, #save-pc, #save-instituciones, #save-autores, #agrega-institucion, #agrega-autor, #add-palabra, #add-keyword, #import-ai, #add-errata, #importar_original').hide();
+            $('#save-no-indizable, #save-full, #save-full-pc, #save-article, #save-article-bottom, #save-pc, #save-instituciones, #save-instituciones-bottom, #save-autores, #save-autores-bottom, #agrega-institucion, #agrega-autor, #add-palabra, #add-keyword, #import-ai, #add-errata, #importar_original').hide();
             $('#accordion').find('input, select, textarea').prop('disabled', true);
         }else{
             $('#accordion').removeClass('modo-solo-lectura');
             $('#aviso_solo_lectura').hide();
             // Estos controles no dependen del flujo normal/PC; el resto se ajusta
             // después con la lógica existente al cargar cada artículo.
-            $('#save-instituciones, #save-autores, #agrega-institucion, #agrega-autor').show();
+            $('#save-instituciones, #save-instituciones-bottom, #save-autores, #save-autores-bottom, #agrega-institucion, #agrega-autor').show();
         }
     },
     control: function(){
@@ -1150,6 +1276,43 @@ class_av = {
             }
         });
         
+        $(document).off('click.reabrirFinalizado', '.reabrir-status-btn').on('click.reabrirFinalizado', '.reabrir-status-btn', function(e){
+            e.preventDefault();
+            e.stopPropagation();
+
+            var $btn = $(this);
+            var sistema = String($btn.data('sistema') || '');
+            var tipo = String($btn.data('tipo') || 'normal');
+
+            if(sistema === '' || cons.features.mostrar_reabrir_finalizados !== true){
+                return false;
+            }
+
+            var texto = (tipo === 'pc')
+                ? 'El registro volverá a <b>En revisión PC</b> y podrá editar sus palabras clave nuevamente.'
+                : 'El registro volverá a <b>En revisión</b> y podrá editarse nuevamente.';
+
+            $.confirm({
+                title: 'Reabrir registro',
+                content: texto,
+                buttons: {
+                    cancelar: {
+                        text: 'Cancelar',
+                        action: function(){}
+                    },
+                    aceptar: {
+                        text: 'Reabrir',
+                        btnClass: 'btn-warning',
+                        action: function(){
+                            class_av.reabrir_registro(sistema, tipo);
+                        }
+                    }
+                }
+            });
+
+            return false;
+        });
+
         $(document).off('click.consultaFinalizada', '.consulta-eye').on('click.consultaFinalizada', '.consulta-eye', function(e){
             e.preventDefault();
             e.stopPropagation();
@@ -1223,6 +1386,7 @@ class_av = {
                     $(val).hide();
                 });
             $('.ia-sugerencia, .evidencia-box, .clasificacion-origen').hide();
+            $('.subdisciplina-sugerencias-ia').empty().hide();
             $('.evidencia-texto').empty().removeClass('expandida').addClass('colapsada');
             $('.evidencia-toggle').hide().text('Ver más');
             
@@ -1258,13 +1422,13 @@ class_av = {
                 var revision_pc = ['A', 'R'].indexOf(class_av.var.documentoJSON[0].estatusPC) !== -1;
         
                 if(revision_pc){
-                    $('#save-no-indizable, #panelInstituciones, #panelAutores, #save-article, #save-full').hide();
+                    $('#save-no-indizable, #panelInstituciones, #panelAutores, #save-article, #save-article-bottom, #save-full').hide();
                     $('#save-pc, #save-full-pc').show();
                     $('#idiomaDocumento, #titulo, #idioma, #titulo2, #idioma2, #titulo3, #idioma3, #tipo_documento, \n\
                         #disciplina1, #disciplina2, #disciplina3, #subdisciplina1, #subdisciplina2, #subdisciplina3, \n\
                         #url1, #url2, #tipourl1, #tipourl2').prop("disabled", true);
                 }else{
-                    $('#save-no-indizable, #panelInstituciones, #panelAutores, #save-article, #save-full').show();
+                    $('#save-no-indizable, #panelInstituciones, #panelAutores, #save-article, #save-article-bottom, #save-full').show();
                     $('#save-pc, #save-full-pc').hide();
                     $('#idiomaDocumento, #titulo, #idioma, #titulo2, #idioma2, #titulo3, #idioma3, #tipo_documento, \n\
                         #disciplina1, #disciplina2, #disciplina3, #subdisciplina1, #subdisciplina2, #subdisciplina3, \n\
@@ -1326,7 +1490,16 @@ class_av = {
                 .then(function(resp_pdf){*/
                     
                     var setArticulo = function(resp_pdf){
-                        class_av.var.texto_pdf = resp_pdf.result;
+                        /*
+                         * Cuando se abre mediante el ojo no hay resp_pdf.
+                         * Se limpia texto_pdf para no reutilizar por accidente
+                         * el contenido del artículo consultado anteriormente.
+                         */
+                        class_av.var.texto_pdf = (
+                            resp_pdf &&
+                            resp_pdf.result !== undefined &&
+                            resp_pdf.result !== null
+                        ) ? resp_pdf.result : '';
 
                         /**** Búsqueda de título en pdf *********/
                         //if(url_pdf !== ''){
@@ -2217,14 +2390,15 @@ class_av = {
                         //$('#save-no-indizable').show();
                         //$('#save-full').show();
                         //$('#save-article').show();
-                        $('#save-instituciones').show();
-                        $('#save-autores').show();
+                        $('#save-instituciones, #save-instituciones-bottom').show();
+                        $('#save-autores, #save-autores-bottom').show();
 
                         class_av.var.cambios_de_inicio = false;
                     };
                     
 					
-					if(!revision_pc){
+					/* El ojo consulta sólo datos almacenados; no vuelve a obtener el PDF. */
+					if(!revision_pc && !soloLectura){
 						$.ajax({
 							url:class_av.var.servidor + class_av.var.app + '/get_pdf/', 
 							type:'POST',
@@ -2239,7 +2413,7 @@ class_av = {
 							setArticulo(resp_pdf);
 						});
 					}else{
-                        setArticulo('');
+                        setArticulo({result:''});
                     }
                 //});
             });
@@ -2321,10 +2495,17 @@ class_av = {
         });
 
         /*
-         * Se intenta cargar palabras clave para cualquier artículo que abra
-         * un usuario con la funcionalidad habilitada, sea manual o cosechado.
+         * Palabras clave:
+         *
+         * - Modo consulta (ojo): NO se consulta genera_pc ni palabras_sustituye,
+         *   NO se espera a los catálogos y NO se hace ningún prellenado IA.
+         *   Se muestran directamente article.palabraClave / article.keyword.
+         *
+         * - Modo editable: conserva el flujo normal de sugerencias/catálogos.
          */
-        if(cons.pal_cla.val == "1"){
+        if(class_av.var.solo_lectura === true){
+            class_av.palabras_clave_almacenadas();
+        }else if(cons.pal_cla.val == "1"){
             function checkPC() {
                 const interval = setInterval(() => {
                     if (class_av.var.palabras_clave0 !== null && class_av.var.keywords0 !== null) {
@@ -2734,6 +2915,21 @@ class_av = {
             $(id + '-texto').html('');
             $(id + '-texto').hide();
             
+            /*
+             * Los registros abiertos desde el icono de ojo están en modo
+             * sólo lectura. Sus datos ya fueron almacenados, por lo que no
+             * se vuelve a ejecutar ninguna comparación contra el PDF.
+             *
+             * Resolvemos la Promise para conservar sin cambios los .then()
+             * existentes en instituciones y autores.
+             */
+            if(class_av.var.solo_lectura === true){
+                $(id + '-load').hide();
+                $(id).hide();
+                resolve();
+                return false;
+            }
+
             if(texto == null || texto == '' || texto == undefined || url_pdf == null || url_pdf == '' || url_pdf == undefined){
                 resolve();
                 return false;
@@ -3389,7 +3585,7 @@ class_av = {
             class_av.var.ia_status_pendientes[sistema] = true;
 
             $.ajax({
-                url: '/datos/tabla_by_campo_fdw/genera_pc/sistema/' + encodeURIComponent(sistema),
+                url: '/datos/tabla_by_campo_fdw/genera_pc_tmp/sistema/' + encodeURIComponent(sistema),
                 dataType: 'json',
                 cache: true
             }).done(function(registros){
@@ -3409,20 +3605,21 @@ class_av = {
     },
     pinta_icono_consulta: function(sistema, mostrar){
         var $slot = $('.consulta-status-slot[data-sistema="' + sistema + '"]');
-
         if(!$slot.length){
             return;
         }
-
+        /*
+         * También se llama después de cambiar estatus: respetar siempre
+         * el interruptor de consulta de finalizados.
+         */
         mostrar =
-            mostrar === true &&
-            cons.features.mostrar_consulta_finalizados === true;
+            (mostrar === true) &&
+            (cons.features.mostrar_consulta_finalizados === true);
 
         if(!mostrar){
             $slot.empty();
             return;
         }
-
         $slot.html(
             '<button type="button" class="consulta-eye" data-sistema="' + sistema + '" ' +
             'title="Ver datos almacenados" aria-label="Ver datos almacenados">' +
@@ -3430,6 +3627,181 @@ class_av = {
             '</button>'
         );
     },
+
+    pinta_icono_reabrir: function(sistema, mostrar, tipo){
+        var $slot = $('.reabrir-status-slot[data-sistema="' + sistema + '"]');
+
+        if(!$slot.length){
+            return;
+        }
+
+        mostrar =
+            (mostrar === true) &&
+            (cons.features.mostrar_reabrir_finalizados === true) &&
+            (cons.rol.val === 'Analista' || cons.rol.val === 'Administrador');
+
+        if(!mostrar){
+            $slot.empty();
+            return;
+        }
+
+        tipo = (tipo === 'pc') ? 'pc' : 'normal';
+
+        $slot.html(
+            '<button type="button" class="reabrir-status-btn" ' +
+                    'data-sistema="' + sistema + '" data-tipo="' + tipo + '" ' +
+                    'title="Reabrir para edición" aria-label="Reabrir para edición">' +
+                '<i class="fa fa-unlock-alt" aria-hidden="true"></i>' +
+            '</button>'
+        );
+    },
+
+    /*
+     * El clic de reabrir nace en el listado, por lo que no usamos set_bitacora():
+     * esa función depende de class_av.var.sistema y podría registrar el movimiento
+     * sobre otro artículo que estuviera cargado. Aquí se envía el sistema explícito.
+     */
+    set_bitacora_sistema: function(movimiento, sistema, tiempo){
+        tiempo = (tiempo === undefined || tiempo === null) ? 0 : tiempo;
+
+        return $.ajax({
+            type: 'POST',
+            url: "<?=site_url('metametrics/ws_bitacora');?>",
+            data: {
+                movimiento: movimiento,
+                sistema: sistema,
+                tiempo: tiempo
+            }
+        });
+    },
+
+    reabrir_registro: function(sistema, tipo){
+        sistema = String(sistema || '');
+        tipo = (tipo === 'pc') ? 'pc' : 'normal';
+
+        if(
+            sistema === '' ||
+            cons.features.mostrar_reabrir_finalizados !== true ||
+            (cons.rol.val !== 'Analista' && cons.rol.val !== 'Administrador')
+        ){
+            return false;
+        }
+
+        var articulo = class_utils.find_prop(class_av.var.articulosJSON, 'sistema', sistema);
+
+        if(!articulo){
+            class_av.mensaje('No fue posible localizar el registro en el listado.');
+            return false;
+        }
+
+        /*
+         * Impide reabrir desde un icono viejo si el estatus ya cambió.
+         */
+        if(tipo === 'pc'){
+            if(String(articulo.estatusPC || '') !== 'C'){
+                class_av.pinta_icono_reabrir(sistema, false, 'pc');
+                return false;
+            }
+        }else{
+            if(['C','B'].indexOf(String(articulo.estatus || '')) === -1){
+                class_av.pinta_icono_reabrir(sistema, false, 'normal');
+                return false;
+            }
+        }
+
+        var data = {};
+        data['tabla'] = 'article';
+        data['where'] = ['sistema'];
+
+        if(tipo === 'pc'){
+            data['data'] = [{
+                estatusPC: 'R',
+                sistema: sistema,
+                usuario: 'sesion'
+            }];
+        }else{
+            data['data'] = [{
+                estatus: 'R',
+                sistema: sistema,
+                usuario: 'sesion'
+            }];
+        }
+
+        loading.start();
+
+        $.ajax({
+            type: 'POST',
+            url: "<?=site_url('metametrics/ws_update_estatus');?>",
+            data: data
+        }).done(function(resp){
+            if(resp && resp.resp === 'session'){
+                loading.end();
+                class_av.mensaje(
+                    'Su sesión expiró, es necesario iniciar nuevamente.',
+                    function(){ window.location.reload(); }
+                );
+                return;
+            }
+
+            if(!resp || resp.resp !== 'success'){
+                loading.end();
+                class_av.mensaje('No fue posible reabrir el registro. Intente nuevamente.');
+                return;
+            }
+
+            if(tipo === 'pc'){
+                articulo.estatusPC = 'R';
+                class_av.cambio_estatus_pc(sistema, 'R');
+            }else{
+                articulo.estatus = 'R';
+                class_av.cambio_estatus(sistema, 'R');
+            }
+
+            /*
+             * El título vuelve al flujo normal: el analista hace clic y abre la ficha
+             * editable como cualquier otro registro En revisión.
+             */
+            $('.' + sistema)
+                .removeClass('cerrado')
+                .addClass('sistema')
+                .css('cursor', 'pointer')
+                .css('color', '#ff8000');
+
+            class_av.pinta_icono_consulta(sistema, false);
+            class_av.pinta_icono_reabrir(sistema, false, tipo);
+
+            /*
+             * Si estaba abierta la misma ficha mediante el ojo, se cierra para evitar
+             * dejar en pantalla un formulario todavía bloqueado. El siguiente acceso
+             * debe hacerse desde el título, ya en modo edición.
+             */
+            if(String(class_av.var.sistema || '') === sistema && class_av.var.solo_lectura === true){
+                class_av.aplicar_modo_solo_lectura(false);
+                $('#accordion').hide();
+            }
+
+            var movimiento = (tipo === 'pc') ? 'Reabierto PC' : 'Reabierto';
+
+            class_av.set_bitacora_sistema(movimiento, sistema, 0)
+                .fail(function(){
+                    console.warn('El registro fue reabierto, pero no fue posible registrar la bitácora.');
+                });
+
+            loading.end();
+
+            class_av.mensaje(
+                (tipo === 'pc')
+                    ? 'Registro reabierto. Ahora está <b>En revisión PC</b>.'
+                    : 'Registro reabierto. Ahora está <b>En revisión</b>.'
+            );
+        }).fail(function(){
+            loading.end();
+            class_av.mensaje('No fue posible reabrir el registro. Intente nuevamente.');
+        });
+
+        return false;
+    },
+
     setTabla: function(data){
         var tbody = '';
         var total_meta = 0;
@@ -3455,6 +3827,26 @@ class_av = {
             var consulta_html = mostrar_consulta
                 ? '<button type="button" class="consulta-eye" data-sistema="' + val['sistema'] + '" title="Ver datos almacenados" aria-label="Ver datos almacenados"><i class="fa fa-eye" aria-hidden="true"></i></button>'
                 : '';
+
+            /*
+             * Si el flujo PC está completado se reabre estatusPC; en caso contrario,
+             * los cerrados C/B del flujo normal se reabren sobre estatus.
+             */
+            var reabrir_tipo = (String(val['estatusPC'] || '') === 'C') ? 'pc' : 'normal';
+            var reabrir_cerrado =
+                (reabrir_tipo === 'pc')
+                    ? true
+                    : (['C','B'].indexOf(String(val['estatus'] || '')) !== -1);
+
+            var mostrar_reabrir =
+                cons.features.mostrar_reabrir_finalizados === true &&
+                (cons.rol.val === 'Analista' || cons.rol.val === 'Administrador') &&
+                reabrir_cerrado;
+
+            var reabrir_html = mostrar_reabrir
+                ? '<button type="button" class="reabrir-status-btn" data-sistema="' + val['sistema'] + '" data-tipo="' + reabrir_tipo + '" title="Reabrir para edición" aria-label="Reabrir para edición"><i class="fa fa-unlock-alt" aria-hidden="true"></i></button>'
+                : '';
+
             val['articulo'] = val['articulo'].replace(/<[^>]+>/g, '');
             var tr = class_av.var.tr.replace('<revista>', val['revista'])
                             .replace('<issn>', val['issn'])
@@ -3464,6 +3856,8 @@ class_av = {
                             .replace('<sistema_ia>', val['sistema'])
                             .replace('<sistema_consulta>', val['sistema'])
                             .replace('<consulta>', consulta_html)
+                            .replace('<sistema_reabrir>', val['sistema'])
+                            .replace('<reabrir>', reabrir_html)
                             .replace('<id_estatus>', val['sistema'])
                             .replace('<art>', val['articulo'])
                             .replace('<url1>', val['url1'])
@@ -4720,12 +5114,18 @@ class_av = {
     cambio_estatus: function(sistema, estatus){
         $('#estatus-'+sistema).html(class_av.cons.estatus[estatus]);
         $('#estatus-'+sistema).css('background-color',class_av.cons.color_estatus[estatus]);
-        class_av.pinta_icono_consulta(sistema, ['C','B'].indexOf(estatus) !== -1);
+
+        var cerrado = ['C','B'].indexOf(estatus) !== -1;
+        class_av.pinta_icono_consulta(sistema, cerrado);
+        class_av.pinta_icono_reabrir(sistema, cerrado, 'normal');
     },
     cambio_estatus_pc: function(sistema, estatus){
         $('#estatus-'+sistema).html(class_av.cons.estatus[estatus+'PC']);
         $('#estatus-'+sistema).css('background-color',class_av.cons.color_estatus[estatus]);
-        class_av.pinta_icono_consulta(sistema, estatus === 'C');
+
+        var cerrado = (estatus === 'C');
+        class_av.pinta_icono_consulta(sistema, cerrado);
+        class_av.pinta_icono_reabrir(sistema, cerrado, 'pc');
     },
     cambios_sin_guardar: function(evento = null, elemento = null){
         // En modo consulta todos los controles están deshabilitados. Aunque algún
@@ -5573,6 +5973,32 @@ class_av = {
         return error;
     },
     control_guarda:function(){
+        /*
+         * Los botones de guardado colocados al final de cada acordeón no
+         * duplican la lógica. Únicamente disparan el botón original de la
+         * sección, por lo que conservan exactamente las mismas validaciones,
+         * confirmaciones, AJAX y bitácora.
+         */
+        $(document)
+            .off('click.guardarDuplicado', '.guardar-duplicado')
+            .on('click.guardarDuplicado', '.guardar-duplicado', function(e){
+                e.preventDefault();
+
+                if(class_av.var.solo_lectura === true){
+                    return false;
+                }
+
+                var target = String($(this).data('target') || '');
+                var $target = $(target);
+
+                if(target === '' || !$target.length || !$target.is(':visible') || $target.prop('disabled')){
+                    return false;
+                }
+
+                $target.trigger('click');
+                return false;
+            });
+
         $('#save-article').off('click').on('click', function(){
             
             var campos = [
@@ -5685,41 +6111,95 @@ class_av = {
                                         envio = false;
                                         $(this).prop('disabled', true);
                                         loading.start();
+
                                         var data = {};
                                         var usuario = 'sesion';
+
                                         data['tabla'] = 'article';
                                         data['where'] = ['sistema'];
+
                                         if(cons.rol.val == 'Editor'){
                                             usuario = 'EDITOR';
                                         }
-                                        data['data'] = [{estatus: "C", sistema:class_av.var.sistema, usuario: usuario}];
+
+                                        data['data'] = [{
+                                            estatus: "C",
+                                            sistema: class_av.var.sistema,
+                                            usuario: usuario
+                                        }];
+
                                         $.ajax({
-                                                type: 'POST',
-                                                url: "<?=site_url('metametrics/ws_update_estatus');?>",
-                                                data: data,
-                                        }).done(function(resp) {
+                                            type: 'POST',
+                                            url: "<?=site_url('metametrics/ws_update_estatus');?>",
+                                            data: data
+                                        })
+                                        .done(function(resp) {
+
                                             if(resp.resp == 'success'){
+
                                                 class_av.cambio_estatus(class_av.var.sistema, 'C');
-                                                class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).estatus = 'C';
-                                                class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).fecha = class_av.var.fechaActual;
-                                                $('.'+class_av.var.sistema).addClass('sistema cerrado');
-                                                $('.'+class_av.var.sistema).css('cursor','default');
-                                                $('.'+class_av.var.sistema).css('color','#777777');
+
+                                                var articulo = class_utils.find_prop(
+                                                    class_av.var.articulosJSON,
+                                                    'sistema',
+                                                    class_av.var.sistema
+                                                );
+
+                                                articulo.estatus = 'C';
+                                                articulo.fecha = class_av.var.fechaActual;
+
+                                                $('.'+class_av.var.sistema)
+                                                    .addClass('sistema cerrado')
+                                                    .css({
+                                                        'cursor': 'default',
+                                                        'color': '#777777'
+                                                    });
+
                                                 $('#accordion').hide();
                                                 $('#save-no-indizable').hide();
                                                 $('#save-full').hide();
-                                                $('#save-article').hide();
-                                                $('#save-instituciones').hide();
-                                                $('#save-autores').hide();
-                                                loading.end();
+                                                $('#save-article, #save-article-bottom').hide();
+                                                $('#save-instituciones, #save-instituciones-bottom').hide();
+                                                $('#save-autores, #save-autores-bottom').hide();
+
                                                 class_av.mensaje('Artículo completado correctamente.');
                                                 class_av.set_bitacora('Completado');
-                                                window.location.href="#div_tabla";
+
+                                                window.location.href = "#div_tabla";
+
                                             }else{
-                                                class_av.mensaje('Ocurrió un error, intente completar nuevamente');
+
+                                                class_av.mensaje(
+                                                    'Ocurrió un error, intente completar nuevamente'
+                                                );
+
+                                                // Permitir otro intento
+                                                envio = true;
                                             }
-                                        }).fail(function(){
-                                            class_av.mensaje('Ocurrió un error, intente completar nuevamente');
+
+                                        })
+                                        .fail(function(xhr, status, error){
+
+                                            console.error(
+                                                'Error al completar artículo:',
+                                                status,
+                                                error,
+                                                xhr.responseText
+                                            );
+
+                                            class_av.mensaje(
+                                                'Ocurrió un error, intente completar nuevamente'
+                                            );
+
+                                            // Permitir otro intento
+                                            envio = true;
+
+                                        })
+                                        .always(function(){
+
+                                            // SIEMPRE quitar loading
+                                            loading.end();
+
                                         });
                                     }
                                 }
@@ -6044,10 +6524,10 @@ class_av = {
                                                 $('#save-no-indizable').hide();
                                                 $('#save-full').hide();
                                                 $('#save-full-pc').hide();
-                                                $('#save-article').hide();
+                                                $('#save-article, #save-article-bottom').hide();
                                                 $('#save-pc').hide();
-                                                $('#save-instituciones').hide();
-                                                $('#save-autores').hide();
+                                                $('#save-instituciones, #save-instituciones-bottom').hide();
+                                                $('#save-autores, #save-autores-bottom').hide();
                                                 loading.end();
                                                 class_av.mensaje('Palabras clave completadas correctamente.');
                                                 class_av.set_bitacora('Completado PC');
@@ -6196,7 +6676,168 @@ class_av = {
             'Keywords seleccionadas con IA' + sufijo
         );
     },
+    /*
+     * ============================================================
+     * MODO CONSULTA (icono de ojo)
+     * ============================================================
+     * Aquí NO se consulta genera_pc, palabras_sustituye ni los catálogos
+     * de palabras. Únicamente se muestran los valores que ya quedaron
+     * almacenados en article.palabraClave / article.keyword.
+     *
+     * Las disciplinas y subdisciplinas no se tocan aquí: setArticulo()
+     * ya las coloca directamente desde documentoJSON, es decir, desde
+     * lo almacenado en article.
+     */
+    palabras_clave_almacenadas: function(){
+        var documento = (
+            class_av.var.documentoJSON &&
+            class_av.var.documentoJSON.length > 0
+        ) ? class_av.var.documentoJSON[0] : {};
+
+        var listaAlmacenada = function(valor){
+            if(valor === undefined || valor === null || valor === ''){
+                return [];
+            }
+
+            var lista = valor;
+            if(typeof valor === 'string'){
+                var limpio = valor.trim();
+                if(limpio === '' || limpio.toLowerCase() === 'null'){
+                    return [];
+                }
+                try{
+                    lista = JSON.parse(limpio);
+                }catch(e){
+                    lista = [limpio];
+                }
+            }
+
+            if(!Array.isArray(lista)){
+                lista = [lista];
+            }
+
+            var vistos = {};
+            var salida = [];
+
+            $.each(lista, function(i,val){
+                if(val === undefined || val === null){
+                    return;
+                }
+
+                var termino = String(val).trim();
+                if(termino === ''){
+                    return;
+                }
+
+                /*
+                 * El almacenamiento histórico puede conservar:
+                 *   termino-original-sustituye-termino-elegido
+                 * Para consulta se muestra el término finalmente elegido,
+                 * igual que lo veía el analista después de guardar.
+                 */
+                var marca = '-sustituye-';
+                if(termino.indexOf(marca) !== -1){
+                    var partes = termino.split(marca);
+                    termino = String(partes[partes.length - 1] || '').trim();
+                }
+
+                var llave = termino.toLowerCase();
+                if(termino !== '' && !vistos[llave]){
+                    vistos[llave] = true;
+                    salida.push(termino);
+                }
+            });
+
+            return salida;
+        };
+
+        var escHtml = function(valor){
+            return String(valor || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        };
+
+        var pintaLista = function(selector, lista){
+            var html = '';
+
+            $.each(lista, function(i,termino){
+                html +=
+                    '<span class="pc-chip-item">' +
+                        '<span class="badge badge-warning pc-chip" ' +
+                              'style="background-color:#ff8000;border-color:#ff8000;cursor:default;">' +
+                            '<span class="pc-chip-text">' + escHtml(termino) + '</span>' +
+                        '</span>' +
+                    '</span>';
+            });
+
+            $(selector).html(html);
+        };
+
+        var palabras = listaAlmacenada(documento.palabraClave);
+        var keywords = listaAlmacenada(documento.keyword);
+
+        /*
+         * Limpiamos por completo cualquier rastro de la ficha anterior.
+         * En modo consulta no existe concepto de sugerencia o evidencia IA.
+         */
+        class_av.actualiza_titulos_fuente_ia('');
+        $('#clasificacion_ayuda_ia').hide();
+        $('.ia-sugerencia, .evidencia-box, .clasificacion-origen').hide();
+
+        $('#div_cargando_pc').hide();
+
+        $('#div_palabras_clave_autor, #div_palabras, #div_palabras_clave, #div_palabras_clave2').hide();
+        $('#div_keywords, #div_keywords_guardadas_interno, #div_keywords_catalogo_interno, #div_otras_keywords_interno').hide();
+        $('#add-palabra, #add-keyword').hide();
+
+        $('#palabras_clave_autores, #palabras_catalogo, #otras_palabras').empty();
+        $('#keywords_guardadas, #keywords_catalogo, #otras_keywords').empty();
+
+        /*
+         * Reutilizamos los contenedores de palabras adicionales únicamente
+         * como área visual de sólo lectura.
+         */
+        $('#titulo_palabras_clave_ia').text('Palabras clave almacenadas');
+        $('#titulo_keywords_ia').text('Keywords almacenadas');
+
+        $('#div_palabras_clave_texto').toggle(palabras.length > 0);
+        $('#div_keywords_texto').toggle(keywords.length > 0);
+
+        /*
+         * La ayuda de selección corresponde al flujo editable; en consulta
+         * sólo interesa el encabezado con los valores almacenados.
+         */
+        $('#div_palabras_clave_texto .pc-ayuda-ia').hide();
+
+        pintaLista('#palabras_clave_n', palabras);
+        pintaLista('#keywords_n', keywords);
+
+        $('#div_palabras_clave_n').toggle(palabras.length > 0);
+        $('#div_keywords_n').toggle(keywords.length > 0);
+
+        class_av.var.count_palabras_clave = palabras.length;
+        class_av.var.count_keywords = keywords.length;
+        class_av.var.palabras_clave_n = [];
+        class_av.var.keywords_n = [];
+
+        /*
+         * Vuelve a aplicar el bloqueo después de pintar los elementos nuevos.
+         */
+        class_av.aplicar_modo_solo_lectura(true);
+    },
+
     palabras_clave: function(){
+        /*
+         * Restaura los textos del flujo editable por si anteriormente se
+         * abrió un registro finalizado mediante el ojo.
+         */
+        $('#titulo_palabras_clave_ia').text('Palabras clave seleccionadas con IA');
+        $('#titulo_keywords_ia').text('Keywords seleccionadas con IA');
+        $('#div_palabras_clave_texto .pc-ayuda-ia').show();
+
         // Evita conservar temporalmente el origen del artículo anterior.
         class_av.actualiza_titulos_fuente_ia('');
 
@@ -6235,7 +6876,7 @@ class_av = {
         $('#div_cargando_pc').toggle(mostrarIAPalabras || mostrarIADisciplinas);
 
         $.when(
-            class_utils.getResource('/datos/tabla_by_campo_fdw/genera_pc/sistema/'+class_av.var.sistema, true),
+            class_utils.getResource('/datos/tabla_by_campo_fdw/genera_pc_tmp/sistema/'+class_av.var.sistema, true),
             class_utils.getResource('/datos/palabras_sustituye', true)
         )
         .then(function(resp_pc, resp_sustituye){
@@ -6458,14 +7099,25 @@ class_av = {
              *   - artículos agregados manualmente por un Analista;
              *   - cualquier otro registro que aún no tenga genera_pc.
              */
+            var limpiaValorIA = function(valor){
+                var texto = (valor === undefined || valor === null) ? '' : String(valor).trim();
+                var mayus = texto.toUpperCase();
+                if(texto === '' || mayus === 'SIN' || mayus === 'SIN RESULTADO' || mayus === 'NULL'){
+                    return '';
+                }
+                return texto;
+            };
+
             var tieneIADisciplinas = false;
             $.each([1,2,3], function(i,n){
-                var discIA = String(disciplinas_pc['disciplina'+n] || '').trim();
-                var subIA = String(disciplinas_pc['subdisciplina'+n] || '').trim();
+                var discIA = limpiaValorIA(disciplinas_pc['disciplina'+n]);
+                var subIA1 = limpiaValorIA(disciplinas_pc['subdisciplina'+n]);
+                var subIA2 = limpiaValorIA(disciplinas_pc['subdisciplina'+n+'b']);
                 var evDisc = razonEvidencia(evidencias_pc['disciplina'+n]);
-                var evSub = razonEvidencia(evidencias_pc['subdisciplina'+n]);
+                var evSub1 = razonEvidencia(evidencias_pc['subdisciplina'+n]);
+                var evSub2 = razonEvidencia(evidencias_pc['subdisciplina'+n+'b']);
 
-                if(discIA !== '' || subIA !== '' || evDisc !== '' || evSub !== ''){
+                if(discIA !== '' || subIA1 !== '' || subIA2 !== '' || evDisc !== '' || evSub1 !== '' || evSub2 !== ''){
                     tieneIADisciplinas = true;
                     return false;
                 }
@@ -6475,52 +7127,164 @@ class_av = {
                 mostrarIADisciplinas && tieneIADisciplinas
             );
 
-            var preparaEvidencia = function(tipo, n, valorIA, evidencia){
-                var $sugerencia = $('#ia-sugerencia-'+tipo+n);
-                var $box = $('#evidencia-'+tipo+n);
-                var $texto = $('#evidencia-'+tipo+n+'-texto');
-                var $toggle = $box.find('.evidencia-toggle');
+            var creaTarjetaSugerenciaClasificacion = function(valor, evidencia, etiqueta, onUsar){
+                var $card = $('<div>')
+                    .addClass('clasificacion-sugerencia-card')
+                    .attr('data-valor', valor);
 
-                $sugerencia.hide().empty();
-                $box.hide();
-                $texto.removeClass('expandida').addClass('colapsada').empty();
-                $toggle.hide().text('Ver más');
+                var $cabecera = $('<div>').addClass('clasificacion-sugerencia-cabecera');
+                var $etiqueta = $('<span>')
+                    .addClass('clasificacion-sugerencia-etiqueta')
+                    .text(etiqueta);
+                var $usar = $('<button>', {
+                    type: 'button',
+                    class: 'btn btn-default btn-xs clasificacion-sugerencia-usar',
+                    text: 'Usar'
+                });
 
-                if(valorIA !== undefined && valorIA !== null && String(valorIA).trim() !== ''){
-                    $sugerencia.text('Sugerencia IA: ' + String(valorIA).trim()).show();
-                }
+                $usar.on('click', function(e){
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if(typeof onUsar === 'function'){
+                        onUsar();
+                    }
+                    return false;
+                });
+
+                $cabecera.append($etiqueta).append($usar);
+                $card.append($cabecera);
+                $card.append($('<div>').addClass('clasificacion-sugerencia-valor').text(valor));
 
                 if(evidencia !== ''){
-                    $texto.text(evidencia);
-                    $box.show();
-
-                    // Espera a que el navegador pinte el texto para decidir si hace falta "Ver más".
-                    setTimeout(function(){
-                        var el = $texto.get(0);
-                        if(el && el.scrollHeight > el.clientHeight + 2){
-                            $toggle.show();
-                        }
-                    }, 0);
+                    var $evidencia = $('<div>').addClass('clasificacion-sugerencia-evidencia');
+                    $evidencia.append($('<div>').addClass('evidencia-cabecera').text('Sustento de la sugerencia'));
+                    $evidencia.append($('<div>').addClass('clasificacion-sugerencia-evidencia-texto').text(evidencia));
+                    $card.append($evidencia);
                 }
+
+                return $card;
+            };
+
+            var preparaSugerenciaDisciplina = function(n, valorIA, evidencia){
+                var $campo = $('#disciplina'+n);
+                var $contenedor = $('#sugerencias-disciplina'+n);
+
+                valorIA = limpiaValorIA(valorIA);
+                evidencia = String(evidencia || '').trim();
+
+                $campo.data('ia-sugerida', valorIA);
+                $campo.data('ia-evidencia', evidencia);
+                $contenedor.empty().hide();
+
+                if(valorIA === ''){
+                    return;
+                }
+
+                var $card = creaTarjetaSugerenciaClasificacion(
+                    valorIA,
+                    evidencia,
+                    'Sugerencia IA',
+                    function(){
+                        if(class_av.var.solo_lectura === true){
+                            return false;
+                        }
+
+                        var existe = false;
+                        $campo.find('option').each(function(){
+                            if(String($(this).val() || '').trim() === valorIA){
+                                existe = true;
+                                return false;
+                            }
+                        });
+                        if(!existe){
+                            $campo.append(new Option(valorIA, valorIA));
+                        }
+
+                        $campo.val(valorIA).trigger('change');
+                        class_av.var.cambios_documento = (true && !class_av.var.cambios_de_inicio);
+                    }
+                );
+
+                $contenedor.append($card);
+                class_av.actualiza_sugerencias_disciplina(n);
+            };
+
+            var preparaSugerenciasSubdisciplina = function(n, sugerencias){
+                var $campo = $('#subdisciplina'+n);
+                var $contenedor = $('#sugerencias-subdisciplina'+n);
+                var vistas = {};
+                var valores = [];
+
+                $contenedor.empty().hide();
+
+                $.each(sugerencias || [], function(i, item){
+                    var valor = limpiaValorIA(item.valor);
+                    var evidencia = String(item.evidencia || '').trim();
+                    var clave = valor.toLowerCase();
+
+                    if(valor === '' || vistas[clave]){
+                        return;
+                    }
+                    vistas[clave] = true;
+                    valores.push(valor);
+
+                    var $card = creaTarjetaSugerenciaClasificacion(
+                        valor,
+                        evidencia,
+                        'Sugerencia IA ' + valores.length,
+                        function(){
+                            if(class_av.var.solo_lectura === true){
+                                return false;
+                            }
+
+                            var existe = false;
+                            $campo.find('option').each(function(){
+                                if(String($(this).val() || '').trim() === valor){
+                                    existe = true;
+                                    return false;
+                                }
+                            });
+                            if(!existe){
+                                $campo.append(new Option(valor, valor));
+                            }
+
+                            $campo.val(valor).trigger('change');
+                            class_av.var.cambios_documento = (true && !class_av.var.cambios_de_inicio);
+                        }
+                    );
+
+                    $contenedor.append($card);
+                });
+
+                $campo.data('ia-sugerencias', valores);
+                class_av.actualiza_sugerencias_subdisciplina(n);
             };
 
             $.each([1,2,3], function(i,n){
-                var discIA = disciplinas_pc['disciplina'+n] || '';
-                var subIA = disciplinas_pc['subdisciplina'+n] || '';
+                var discIA = limpiaValorIA(disciplinas_pc['disciplina'+n]);
+                var subIA1 = limpiaValorIA(disciplinas_pc['subdisciplina'+n]);
+                var subIA2 = limpiaValorIA(disciplinas_pc['subdisciplina'+n+'b']);
                 var evDisc = razonEvidencia(evidencias_pc['disciplina'+n]);
-                var evSub = razonEvidencia(evidencias_pc['subdisciplina'+n]);
+                var evSub1 = razonEvidencia(evidencias_pc['subdisciplina'+n]);
+                var evSub2 = razonEvidencia(evidencias_pc['subdisciplina'+n+'b']);
 
                 if(mostrarIADisciplinas){
-                    preparaEvidencia('disciplina', n, discIA, evDisc);
-                    preparaEvidencia('subdisciplina', n, subIA, evSub);
+                    preparaSugerenciaDisciplina(n, discIA, evDisc);
+                    preparaSugerenciasSubdisciplina(n, [
+                        {valor: subIA1, evidencia: evSub1},
+                        {valor: subIA2, evidencia: evSub2}
+                    ]);
 
-                    if(discIA !== '' || subIA !== '' || evDisc !== '' || evSub !== ''){
-                        $('#clasificacion-origen-'+n).show();
-                    }else{
-                        $('#clasificacion-origen-'+n).hide();
-                    }
+                    class_av.actualiza_evidencia_clasificacion('disciplina', n);
+                    class_av.actualiza_evidencia_clasificacion('subdisciplina', n);
                 }else{
-                    $('#ia-sugerencia-disciplina'+n+', #ia-sugerencia-subdisciplina'+n+', #evidencia-disciplina'+n+', #evidencia-subdisciplina'+n+', #clasificacion-origen-'+n).hide();
+                    $('#disciplina'+n)
+                        .removeData('ia-sugerida')
+                        .removeData('ia-evidencia');
+                    $('#subdisciplina'+n).removeData('ia-sugerencias');
+
+                    $('#sugerencias-disciplina'+n+', #sugerencias-subdisciplina'+n).empty().hide();
+                    $('#clasificacion-origen-'+n).hide();
                 }
             });
 
@@ -6857,20 +7621,18 @@ class_av = {
             });
 
             /* ============================
-             * DISCIPLINAS: compatibilidad con el nuevo JSON de genera_pc
+             * CLASIFICACIÓN IA:
+             * Disciplina y subdisciplina se presentan únicamente como
+             * sugerencias. Ninguna se selecciona automáticamente.
+             * Si el artículo ya tenía una selección almacenada, esa selección
+             * se conserva porque fue cargada previamente desde article.
              * ============================ */
             if(mostrarIADisciplinas && registro_pc !== null){
                 $.each([1,2,3], function(i,n){
-                    var disc = disciplinas_pc['disciplina'+n];
-                    var sub = disciplinas_pc['subdisciplina'+n];
-                    if(disc !== undefined && disc !== null && disc !== '' && ($('#disciplina'+n).val() === '' || $('#disciplina'+n).val() === null)){
-                        $('#disciplina'+n).val(disc).trigger('change');
-                    }
-                    if(sub !== undefined && sub !== null && sub !== ''){
-                        setTimeout(function(){
-                            $('#subdisciplina'+n).val(sub).trigger('change');
-                        }, 50);
-                    }
+                    setTimeout(function(){
+                        class_av.actualiza_evidencia_clasificacion('disciplina', n);
+                        class_av.actualiza_evidencia_clasificacion('subdisciplina', n);
+                    }, 50);
                 });
             }
 
@@ -8019,8 +8781,8 @@ class_av = {
                             recorrido_autores(class_av.var.autoresJSON);
 
 
-                        $('#save-instituciones').show();
-                        $('#save-autores').show();
+                        $('#save-instituciones, #save-instituciones-bottom').show();
+                        $('#save-autores, #save-autores-bottom').show();
                         
                         class_av.var.cambios_de_inicio = false;
                     };
