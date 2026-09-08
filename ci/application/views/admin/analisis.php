@@ -17,6 +17,8 @@
                             // Indicador "IA" en la columna Estatus del listado.
                             mostrar_indicador_ia: false || 'Administrador' == '<?php echo $rol; ?>',
                             mostrar_consulta_finalizados: false || 'Administrador' == '<?php echo $rol; ?>',
+                            // Permite a Analistas/Administradores devolver un registro cerrado a revisión.
+                            mostrar_reabrir_finalizados: ['Analista','Administrador'].indexOf('<?php echo $rol; ?>') !== -1,
                         })
                     };
 </script>
@@ -109,6 +111,39 @@
       border-color: #ff8000;
       background: #fff4e8;
       color: #d96d00;
+      outline: none;
+  }
+
+  /* Reabrir un registro finalizado para devolverlo a edición. */
+  .reabrir-status-slot {
+      display: inline-block;
+      margin-left: 4px;
+      vertical-align: middle;
+  }
+
+  .reabrir-status-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      border: 1px solid #c8d8e8;
+      border-radius: 50%;
+      background: #ffffff;
+      color: #337ab7;
+      cursor: pointer;
+      font-size: 12px;
+      line-height: 1;
+      vertical-align: middle;
+      transition: background .15s ease, border-color .15s ease, color .15s ease;
+  }
+
+  .reabrir-status-btn:hover,
+  .reabrir-status-btn:focus {
+      border-color: #337ab7;
+      background: #eef6fc;
+      color: #245580;
       outline: none;
   }
 
@@ -433,6 +468,85 @@
       text-decoration: underline;
   }
 
+
+  /* Sugerencias IA de disciplina y subdisciplina.
+   * Ninguna se selecciona automáticamente. Las tarjetas comparten el mismo
+   * estilo tenue para que se identifiquen como ayuda y no como dato capturado. */
+  .clasificacion-sugerencias-ia {
+      display: none;
+      margin-top: 10px;
+  }
+
+  .clasificacion-sugerencia-card {
+      margin-top: 8px;
+      padding: 9px 10px;
+      border: 1px solid #e5e5e5;
+      border-left: 3px solid #ff8000;
+      border-radius: 5px;
+      background: #fffaf4;
+      transition: background .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+
+  .clasificacion-sugerencia-card.seleccionada {
+      background: #fff0df;
+      border-color: #f2b36f;
+      box-shadow: 0 0 0 2px rgba(255,128,0,.08);
+  }
+
+  .clasificacion-sugerencia-cabecera {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 4px;
+  }
+
+  .clasificacion-sugerencia-etiqueta {
+      color: #d96d00;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .25px;
+  }
+
+  .clasificacion-sugerencia-valor {
+      color: #333333;
+      font-size: 12px;
+      font-weight: 700;
+  }
+
+  .clasificacion-sugerencia-usar {
+      border-color: #f0b06d;
+      background: #ffffff;
+      color: #c76500;
+  }
+
+  .clasificacion-sugerencia-usar:hover,
+  .clasificacion-sugerencia-usar:focus {
+      border-color: #ff8000;
+      background: #fff3e5;
+      color: #a95300;
+      outline: none;
+  }
+
+  .clasificacion-sugerencia-card.seleccionada .clasificacion-sugerencia-usar {
+      border-color: #ff8000;
+      background: #ff8000;
+      color: #ffffff;
+  }
+
+  .clasificacion-sugerencia-evidencia {
+      margin-top: 7px;
+      padding-top: 7px;
+      border-top: 1px solid #eee3d7;
+  }
+
+  .clasificacion-sugerencia-evidencia-texto {
+      color: #555555;
+      font-size: 11px;
+      line-height: 1.4;
+  }
+
   @media (max-width: 767px) {
       .clasificacion-card .col-sm-6 + .col-sm-6 {
           margin-top: 14px;
@@ -469,6 +583,192 @@
   #accordion.modo-solo-lectura textarea {
       background: #f6f6f6 !important;
       color: #555 !important;
+  }
+
+  /* ==============================================================
+   * Familia visual de botones para guardar secciones.
+   * Todos los guardados comparten la misma identidad: blanco +
+   * borde naranja. Así se distinguen de las acciones finales como
+   * Análisis completo / No indizable sin asignar un color distinto
+   * a Artículo, Instituciones y Autores.
+   * ============================================================== */
+  .btn-guardar-seccion {
+      background: #ffffff;
+      border: 1px solid #ff8000;
+      color: #555555;
+      border-radius: 5px;
+      font-weight: 500;
+      box-shadow: none;
+      transition: background .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease;
+  }
+
+  .btn-guardar-seccion .fa,
+  .btn-guardar-seccion .glyphicon {
+      color: #ff8000 !important;
+      margin-right: 4px;
+  }
+
+  .btn-guardar-seccion:hover,
+  .btn-guardar-seccion:focus {
+      background: #fff4e8;
+      border-color: #e67300;
+      color: #333333;
+      outline: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+
+  .btn-guardar-seccion:active,
+  .btn-guardar-seccion.active {
+      background: #ffe7cc;
+      border-color: #cc6600;
+      color: #222222;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,.08);
+  }
+
+  .btn-guardar-seccion[disabled],
+  .btn-guardar-seccion.disabled {
+      background: #f7f7f7;
+      border-color: #d8d8d8;
+      color: #999999;
+      opacity: .7;
+  }
+
+  .btn-guardar-seccion[disabled] .fa,
+  .btn-guardar-seccion.disabled .fa {
+      color: #aaaaaa !important;
+  }
+
+  /* Botón duplicado al final del acordeón para evitar volver arriba. */
+  .guardar-final {
+      margin-top: 28px;
+      padding-top: 15px;
+      padding-bottom: 5px;
+      border-top: 1px solid #eeeeee;
+      text-align: right;
+  }
+
+  .guardar-final .btn-guardar-seccion {
+      min-width: 180px;
+      padding: 8px 14px;
+  }
+
+  @media (max-width: 767px) {
+      .guardar-final .btn-guardar-seccion {
+          width: 100%;
+      }
+  }
+
+
+  /* ==============================================================
+   * Acciones finales del registro.
+   * Se distinguen de los botones de guardado por color semántico:
+   *   - completar: verde
+   *   - no indizable: rojo
+   * En reposo conservan fondo blanco para no saturar la interfaz;
+   * al pasar el mouse se vuelven sólidos para reforzar que son
+   * acciones finales/importantes.
+   * ============================================================== */
+  .btn-finalizar {
+      background: #ffffff;
+      border: 1px solid #3c763d;
+      color: #3c763d;
+      border-radius: 5px;
+      font-weight: 600;
+      box-shadow: none;
+      transition: background .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease, transform .08s ease;
+  }
+
+  .btn-finalizar .fa,
+  .btn-finalizar .glyphicon {
+      color: #3c763d !important;
+      margin-right: 4px;
+      transition: color .15s ease;
+  }
+
+  .btn-finalizar:hover,
+  .btn-finalizar:focus {
+      background: #3c763d;
+      border-color: #315f32;
+      color: #ffffff;
+      outline: none;
+      box-shadow: 0 2px 5px rgba(60,118,61,.22);
+  }
+
+  .btn-finalizar:hover .fa,
+  .btn-finalizar:focus .fa,
+  .btn-finalizar:hover .glyphicon,
+  .btn-finalizar:focus .glyphicon {
+      color: #ffffff !important;
+  }
+
+  .btn-finalizar:active,
+  .btn-finalizar.active {
+      background: #2b542c;
+      border-color: #234624;
+      color: #ffffff;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,.16);
+      transform: translateY(1px);
+  }
+
+  .btn-no-indizable {
+      background: #ffffff;
+      border: 1px solid #a94442;
+      color: #a94442;
+      border-radius: 5px;
+      font-weight: 600;
+      box-shadow: none;
+      transition: background .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease, transform .08s ease;
+  }
+
+  .btn-no-indizable .fa,
+  .btn-no-indizable .glyphicon {
+      color: #a94442 !important;
+      margin-right: 4px;
+      transition: color .15s ease;
+  }
+
+  .btn-no-indizable:hover,
+  .btn-no-indizable:focus {
+      background: #a94442;
+      border-color: #8f3836;
+      color: #ffffff;
+      outline: none;
+      box-shadow: 0 2px 5px rgba(169,68,66,.22);
+  }
+
+  .btn-no-indizable:hover .fa,
+  .btn-no-indizable:focus .fa,
+  .btn-no-indizable:hover .glyphicon,
+  .btn-no-indizable:focus .glyphicon {
+      color: #ffffff !important;
+  }
+
+  .btn-no-indizable:active,
+  .btn-no-indizable.active {
+      background: #843534;
+      border-color: #6f2d2c;
+      color: #ffffff;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,.16);
+      transform: translateY(1px);
+  }
+
+  .btn-finalizar[disabled],
+  .btn-finalizar.disabled,
+  .btn-no-indizable[disabled],
+  .btn-no-indizable.disabled {
+      background: #f7f7f7;
+      border-color: #d8d8d8;
+      color: #999999;
+      opacity: .7;
+      box-shadow: none;
+      transform: none;
+  }
+
+  .btn-finalizar[disabled] .fa,
+  .btn-finalizar.disabled .fa,
+  .btn-no-indizable[disabled] .fa,
+  .btn-no-indizable.disabled .fa {
+      color: #aaaaaa !important;
   }
 </style>
 <div class="row"><br></div>
@@ -628,11 +928,11 @@
                       <br><br>
                       <center>
                             {if $rol == "Editor"}
-                                <button id="save-full" type="button" class="btn btn-dark"><i class="fa fa-thumbs-up" aria-hidden="true" style="color: darkgreen;"></i> <span>Completado</span></button>
+                                <button id="save-full" type="button" class="btn btn-finalizar"><i class="fa fa-thumbs-up" aria-hidden="true"></i> <span>Completado</span></button>
                             {else}
-                                <button id="save-no-indizable" type="button" class="btn btn-dark"><i class="fa fa-thumbs-down" aria-hidden="true" style="color: darkred;"></i> <span>No indizable</span></button>
-                                <button id="save-full" type="button" class="btn btn-dark"><i class="fa fa-thumbs-up" aria-hidden="true" style="color: darkgreen;"></i> <span>Análisis completo</span></button>
-                                <button id="save-full-pc" type="button" class="btn btn-dark"><i class="fa fa-thumbs-up" aria-hidden="true" style="color: darkgreen;"></i> <span>Análisis de palabras clave completo</span></button>
+                                <button id="save-no-indizable" type="button" class="btn btn-no-indizable"><i class="fa fa-thumbs-down" aria-hidden="true"></i> <span>No indizable</span></button>
+                                <button id="save-full" type="button" class="btn btn-finalizar"><i class="fa fa-thumbs-up" aria-hidden="true"></i> <span>Análisis completo</span></button>
+                                <button id="save-full-pc" type="button" class="btn btn-finalizar"><i class="fa fa-thumbs-up" aria-hidden="true"></i> <span>Análisis de palabras clave completo</span></button>
                             {/if}
                       </center>
                   </h5>
@@ -644,7 +944,7 @@
                       <a data-toggle="collapse" data-parent="#accordion" href="#articulo">
                           Artículo
                       </a><a href="<?=site_url("adminb/ayuda_articulos");?>" target="_blank" style="padding: 5px"><i class="fa fa-question-circle" style="color: #ff8000;"></i></a>
-                      <button id="save-article" type="button" class="btn btn-dark" style="float: right;"><i class="fa fa-file" aria-hidden="true" style="color: #ff8000;"></i><span> Guardar artículo</span></button>
+                      <button id="save-article" type="button" class="btn btn-guardar-seccion" style="float: right;"><i class="fa fa-file" aria-hidden="true"></i><span> Guardar artículo</span></button>
                       <button id="save-pc" type="button" class="btn btn-dark" style="float: right;"><i class="fa fa-list-ol" aria-hidden="true" style="color: #ff8000;"></i><span> Guardar palabras clave</span></button>
                       <br><br>
                   </h5>
@@ -808,7 +1108,7 @@
                             <div class="col-xs-12">
                                 <div class="clasificacion-titulo-general">
                                     Clasificación temática
-                                    <span id="clasificacion_ayuda_ia" class="clasificacion-ayuda" style="display:none">Revise la sugerencia y su sustento antes de conservarla o modificarla.</span>
+                                    <span id="clasificacion_ayuda_ia" class="clasificacion-ayuda" style="display:none">Revise las sugerencias y sus sustentos. Ninguna disciplina ni subdisciplina sugerida por IA se selecciona automáticamente; puede usar una sugerencia o elegir otra opción del catálogo.</span>
                                 </div>
 
                                 <div class="clasificacion-card" id="clasificacion-card-1">
@@ -821,23 +1121,13 @@
                                         <div class="col-sm-6">
                                             <span><b>Disciplina 1:</b></span><br>
                                             <select width="100%" style="width: 100%" id="disciplina1" class="form-control disciplina"></select>
-                                            <!--<div class="ia-sugerencia" id="ia-sugerencia-disciplina1"></div>-->
-                                            <div class="evidencia-box" id="evidencia-disciplina1">
-                                                <div class="evidencia-cabecera">Sustento de la disciplina</div>
-                                                <div class="evidencia-texto colapsada" id="evidencia-disciplina1-texto"></div>
-                                                <button type="button" class="evidencia-toggle" data-target="evidencia-disciplina1-texto">Ver más</button>
-                                            </div>
+                                            <div id="sugerencias-disciplina1" class="clasificacion-sugerencias-ia"></div>
                                         </div>
                                         <div class="col-sm-6">
                                             <div id="divSubdisciplina1" style="display: none">
                                                 <span><b>Subdisciplina 1:</b></span><br>
                                                 <select width="100%" style="width: 100%" id="subdisciplina1" class="form-control"></select>
-                                                <!--<div class="ia-sugerencia" id="ia-sugerencia-subdisciplina1"></div>-->
-                                                <div class="evidencia-box" id="evidencia-subdisciplina1">
-                                                    <div class="evidencia-cabecera">Sustento de la subdisciplina</div>
-                                                    <div class="evidencia-texto colapsada" id="evidencia-subdisciplina1-texto"></div>
-                                                    <button type="button" class="evidencia-toggle" data-target="evidencia-subdisciplina1-texto">Ver más</button>
-                                                </div>
+                                                <div id="sugerencias-subdisciplina1" class="clasificacion-sugerencias-ia"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -853,23 +1143,13 @@
                                         <div class="col-sm-6">
                                             <span><b>Disciplina 2:</b></span><br>
                                             <select width="100%" style="width: 100%" id="disciplina2" class="form-control disciplina"></select>
-                                            <!--<div class="ia-sugerencia" id="ia-sugerencia-disciplina2"></div>-->
-                                            <div class="evidencia-box" id="evidencia-disciplina2">
-                                                <div class="evidencia-cabecera">Sustento de la disciplina</div>
-                                                <div class="evidencia-texto colapsada" id="evidencia-disciplina2-texto"></div>
-                                                <button type="button" class="evidencia-toggle" data-target="evidencia-disciplina2-texto">Ver más</button>
-                                            </div>
+                                            <div id="sugerencias-disciplina2" class="clasificacion-sugerencias-ia"></div>
                                         </div>
                                         <div class="col-sm-6">
                                             <div id="divSubdisciplina2" style="display: none">
                                                 <span><b>Subdisciplina 2:</b></span><br>
                                                 <select width="100%" style="width: 100%" id="subdisciplina2" class="form-control"></select>
-                                                <!--<div class="ia-sugerencia" id="ia-sugerencia-subdisciplina2"></div>-->
-                                                <div class="evidencia-box" id="evidencia-subdisciplina2">
-                                                    <div class="evidencia-cabecera">Sustento de la subdisciplina</div>
-                                                    <div class="evidencia-texto colapsada" id="evidencia-subdisciplina2-texto"></div>
-                                                    <button type="button" class="evidencia-toggle" data-target="evidencia-subdisciplina2-texto">Ver más</button>
-                                                </div>
+                                                <div id="sugerencias-subdisciplina2" class="clasificacion-sugerencias-ia"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -885,23 +1165,13 @@
                                         <div class="col-sm-6">
                                             <span><b>Disciplina 3:</b></span><br>
                                             <select width="100%" style="width: 100%" id="disciplina3" class="form-control disciplina"></select>
-                                            <!--<div class="ia-sugerencia" id="ia-sugerencia-disciplina3"></div>-->
-                                            <div class="evidencia-box" id="evidencia-disciplina3">
-                                                <div class="evidencia-cabecera">Sustento de la disciplina</div>
-                                                <div class="evidencia-texto colapsada" id="evidencia-disciplina3-texto"></div>
-                                                <button type="button" class="evidencia-toggle" data-target="evidencia-disciplina3-texto">Ver más</button>
-                                            </div>
+                                            <div id="sugerencias-disciplina3" class="clasificacion-sugerencias-ia"></div>
                                         </div>
                                         <div class="col-sm-6">
                                             <div id="divSubdisciplina3" style="display: none">
                                                 <span><b>Subdisciplina 3:</b></span><br>
                                                 <select width="100%" style="width: 100%" id="subdisciplina3" class="form-control"></select>
-                                                <!--<div class="ia-sugerencia" id="ia-sugerencia-subdisciplina3"></div>-->
-                                                <div class="evidencia-box" id="evidencia-subdisciplina3">
-                                                    <div class="evidencia-cabecera">Sustento de la subdisciplina</div>
-                                                    <div class="evidencia-texto colapsada" id="evidencia-subdisciplina3-texto"></div>
-                                                    <button type="button" class="evidencia-toggle" data-target="evidencia-subdisciplina3-texto">Ver más</button>
-                                                </div>
+                                                <div id="sugerencias-subdisciplina3" class="clasificacion-sugerencias-ia"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -1076,6 +1346,15 @@
                                 <button id="import-ai" type="button" class="btn btn-dark" style="display:none"><img class="imagen" src="{base_url('img/aie.png')}" style="filter: invert(0.5) sepia(9) hue-rotate(0deg) saturate(1000%);height:20px;display:inline-block"><span> Extraer de PDF</span></button>
                             </center>
                         </div>
+                        <div class="guardar-final">
+                            <button id="save-article-bottom"
+                                    type="button"
+                                    class="btn btn-guardar-seccion guardar-duplicado"
+                                    data-target="#save-article">
+                                <i class="fa fa-file" aria-hidden="true"></i>
+                                <span> Guardar artículo</span>
+                            </button>
+                        </div>
                         <!--comentar-->
                     </div>
                 </div>
@@ -1086,7 +1365,7 @@
                       <a data-toggle="collapse" data-parent="#accordion" href="#instituciones" id="accordionInstituciones">
                         Instituciones
                       </a><a href="<?=site_url("adminb/ayuda_instituciones");?>" target="_blank" style="padding: 5px"><i class="fa fa-question-circle" style="color: #ff8000;"></i></a>
-                      <button id="save-instituciones" type="button" class="btn btn-dark" style="float: right;"><i class="fa fa-university" aria-hidden="true" style="color: #ff8000;"></i><span> Guardar instituciones</span></button>
+                      <button id="save-instituciones" type="button" class="btn btn-guardar-seccion" style="float: right;"><i class="fa fa-university" aria-hidden="true"></i><span> Guardar instituciones</span></button>
                       <br><br>
                   </h5>
                 </div>
@@ -1104,6 +1383,16 @@
                                 <span class="glyphicon glyphicon-plus" aria-hidden="true" style="color: #ff8000;"></span> Agregar Institución 
                             </button> 
                             </center>
+
+                            <div class="guardar-final">
+                                <button id="save-instituciones-bottom"
+                                        type="button"
+                                        class="btn btn-guardar-seccion guardar-duplicado"
+                                        data-target="#save-instituciones">
+                                    <i class="fa fa-university" aria-hidden="true"></i>
+                                    <span> Guardar instituciones</span>
+                                </button>
+                            </div>
                         </li>
                     </ul>
                 </div>
@@ -1121,7 +1410,7 @@
                       <a data-toggle="collapse" data-parent="#accordion" href="#autores" id="accordionAutores">
                         Autores
                       </a><a href="<?=site_url("adminb/ayuda_autores");?>" target="_blank" style="padding: 5px"><i class="fa fa-question-circle" style="color: #ff8000;"></i></a>
-                      <button id="save-autores" type="button" class="btn btn-dark" style="float: right;"><i class="fa fa-users" aria-hidden="true" style="color: #ff8000;"></i><span> Guardar autores</span></button>
+                      <button id="save-autores" type="button" class="btn btn-guardar-seccion" style="float: right;"><i class="fa fa-users" aria-hidden="true"></i><span> Guardar autores</span></button>
                       <br><br>
                   </h5>
                 </div>
@@ -1136,6 +1425,16 @@
                                 <span class="glyphicon glyphicon-plus" aria-hidden="true" style="color: #ff8000;"></span> Agregar Autor
                             </button> 
                             </center>
+
+                            <div class="guardar-final">
+                                <button id="save-autores-bottom"
+                                        type="button"
+                                        class="btn btn-guardar-seccion guardar-duplicado"
+                                        data-target="#save-autores">
+                                    <i class="fa fa-users" aria-hidden="true"></i>
+                                    <span> Guardar autores</span>
+                                </button>
+                            </div>
                         </li>
                     </ul>
                 </div>
