@@ -249,8 +249,8 @@
 <div class="progress esperado">
   
 </div>
-<div class="row"><div class="col-sm-12"><center id="avance-actual"><b>Avance:</b> <span id='avance_total'></span> Registros</center></div></div>
-<center><div id="conseguida" class="row texto parpadea" style="display:none"><b>¡ Meta Superada !</b></div></center>
+<!--div class="row"><div class="col-sm-12"><center id="avance-actual"><b>Avance:</b> <span id='avance_total'></span> Registros</center></div></div-->
+<!--center><div id="conseguida" class="row texto parpadea" style="display:none"><b>¡ Meta Superada !</b></div></center-->
 <br>
 <div class="progress" style='height: 40px'>
   
