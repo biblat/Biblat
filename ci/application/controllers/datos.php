@@ -512,6 +512,7 @@ class Datos extends REST_Controller {
                     inner join primer_registro p
                         on a.sistema = p.sistema
                     where a.estatus = 'C'
+					and a.sistema not in (select distinct c.sistema from bitacora c where c.movimiento='Para corrección' and " .$txtAnio. ")
                     group by extract(month from p.primera_fecha)
                     order by mes
                 ";

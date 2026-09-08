@@ -392,11 +392,11 @@ class_av = {
 
             if (avance_total > total_departamento) {
                 total_mes_visual = Math.max(0, total_departamento - pre_total);
-                //$('#conseguida').show();
+                $('#conseguida').show();
 
-                //setTimeout(()=>$(".esperado").after('<div class="firework"></div>'),1000);
-                //setTimeout(()=>$(".esperado").after('<div class="firework2"></div>'),2000);
-                //setTimeout(()=>$(".esperado").after('<div class="firework3"></div>'),3000);
+                setTimeout(()=>$(".esperado").after('<div class="firework"></div>'),1000);
+                setTimeout(()=>$(".esperado").after('<div class="firework2"></div>'),2000);
+                setTimeout(()=>$(".esperado").after('<div class="firework3"></div>'),3000);
             }else{
                 $('#conseguida').hide();
                  $(".firework, .firework2, .firework3").remove();
