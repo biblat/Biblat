@@ -116,6 +116,9 @@ class_av = {
         ia_status_pendientes: {},
 		selectedData: '',
 		termino_busqueda_catalogo: '',
+        // Preferencia global para Ciudad, Institución y Dependencia.
+        // Se conserva en localStorage y puede cambiarse en cualquier momento.
+        orden_catalogos_institucionales: 'frecuencia',
         tabla: '<table id="tbl_articulos" class="display responsive nowrap" style="width:100%;font-size:11px">' +
                             '<thead>' +
                                 '<tr>' +
@@ -1234,6 +1237,7 @@ class_av = {
         class_av.initClient();
         class_av.filtro();
         class_av.portatil_control();
+        class_av.inicia_orden_catalogos_institucionales();
         class_av.var.tiempo_inactividad = Date.now();
     },
     aplicar_modo_solo_lectura: function(activo){
@@ -1249,7 +1253,7 @@ class_av = {
             class_av.var.cambios_documento = false;
             class_av.var.cambios_institucion = false;
             class_av.var.cambios_autor = false;
-            $('#save-no-indizable, #save-full, #save-full-pc, #save-article, #save-article-bottom, #save-pc, #save-instituciones, #save-instituciones-bottom, #save-autores, #save-autores-bottom, #agrega-institucion, #agrega-autor, #add-palabra, #add-keyword, #import-ai, #add-errata, #importar_original').hide();
+            $('#save-no-indizable, #save-full, #save-full-pc, #acciones-finales-bottom, #save-article, #save-article-bottom, #save-pc, #save-instituciones, #save-instituciones-bottom, #save-autores, #save-autores-bottom, #agrega-institucion, #agrega-autor, #add-palabra, #add-keyword, #import-ai, #add-errata, #importar_original').hide();
             $('#accordion').find('input, select, textarea').prop('disabled', true);
         }else{
             $('#accordion').removeClass('modo-solo-lectura');
@@ -1383,7 +1387,7 @@ class_av = {
             $('#div-autores').find('*').off('change');
             $('#div-autores').empty();
             
-            $.each(['#div_palabras_clave_autor', '#div_palabras_clave', '#div_palabras_clave2', '#div_palabras_clave_n', '#div_keywords_n', '#div_keywords_texto', '#div_keywords', '#add-palabra', '#add-keyword'], function(i,val){
+            $.each(['#div_palabras_clave_autor', '#div_palabras', '#div_palabras_clave', '#div_palabras_clave2', '#div_palabras_clave_n', '#div_palabras_clave_texto', '#div_keywords_n', '#div_keywords_texto', '#div_keywords', '#add-palabra', '#add-keyword'], function(i,val){
                     $(val).hide();
                 });
             $('.ia-sugerencia, .evidencia-box, .clasificacion-origen').hide();
@@ -1423,13 +1427,13 @@ class_av = {
                 var revision_pc = ['A', 'R'].indexOf(class_av.var.documentoJSON[0].estatusPC) !== -1;
         
                 if(revision_pc){
-                    $('#save-no-indizable, #panelInstituciones, #panelAutores, #save-article, #save-article-bottom, #save-full').hide();
+                    $('#save-no-indizable, #panelInstituciones, #panelAutores, #save-article, #save-article-bottom, #save-full, #acciones-finales-bottom').hide();
                     $('#save-pc, #save-full-pc').show();
                     $('#idiomaDocumento, #titulo, #idioma, #titulo2, #idioma2, #titulo3, #idioma3, #tipo_documento, \n\
                         #disciplina1, #disciplina2, #disciplina3, #subdisciplina1, #subdisciplina2, #subdisciplina3, \n\
                         #url1, #url2, #tipourl1, #tipourl2').prop("disabled", true);
                 }else{
-                    $('#save-no-indizable, #panelInstituciones, #panelAutores, #save-article, #save-article-bottom, #save-full').show();
+                    $('#save-no-indizable, #panelInstituciones, #panelAutores, #save-article, #save-article-bottom, #save-full, #acciones-finales-bottom').show();
                     $('#save-pc, #save-full-pc').hide();
                     $('#idiomaDocumento, #titulo, #idioma, #titulo2, #idioma2, #titulo3, #idioma3, #tipo_documento, \n\
                         #disciplina1, #disciplina2, #disciplina3, #subdisciplina1, #subdisciplina2, #subdisciplina3, \n\
@@ -5416,11 +5420,8 @@ class_av = {
         });
     },
     prompt_n: function(id, idioma, arr_sustituye){
-        var agregar = 'Agregar palabra clave:';
-        if(idioma == 'eng'){
-            agregar = 'Agregar keyword:';
-        }
-        
+        var agregar = (idioma == 'eng') ? 'Agregar keyword:' : 'Agregar palabra clave:';
+
         $.confirm({
             title: '',
             content: '' +
@@ -5434,263 +5435,201 @@ class_av = {
             buttons: {
                 cancelar: {
                     text: 'Cancelar',
-                    //btnClass: 'btn-red',
-                    action: function(){
-                        //$('#'+id_s).html('');
-                    }
+                    action: function(){}
                 },
                 formSubmit: {
                     text: 'Agregar',
                     btnClass: 'btn-warning',
                     action: function () {
-                        var name = this.$content.find('.name').val();
-                        name = name.trim();
-                        var name_ant = '';
-                        //var palabras = $('.esp.palabra_clave');
-                        var duplicada = false;
-                        var clase ='.esp.palabra_clave';
-                        var var_palabras_clave = class_av.var.palabras_clave_n;
-                        if(idioma == 'eng'){
-                            clase ='.keyword.palabra_clave';
-                            var_palabras_clave = class_av.var.keywords_n;
-                        }
-                           
-                        var sustituye = undefined;
-                        var existe_sugerencia = class_utils.find_prop(arr_sustituye, 'palabra', name);
-                        //Revisa si existe una palabra más apropiada
-                        /*var sustituye = class_utils.find_prop(arr_sustituye, 'palabra', name);
-                        if(sustituye !== undefined){
-                            name_ant = name;
-                            name = sustituye.palabra_adecuada;    
-                        }*/
-                        
-                        $(clase).each(function() {
-                            var palabra = $(this).html();
-                            var palabra1 = palabra.split('<span')[0].trim();
-                            var palabra2 = palabra.split('<br>');
+                        var name = String(this.$content.find('.name').val() || '').trim();
+                        var clase = (idioma == 'eng') ? '.keyword.palabra_clave' : '.esp.palabra_clave';
+                        var var_palabras_clave = (idioma == 'eng') ? class_av.var.keywords_n : class_av.var.palabras_clave_n;
+                        var catalogo = (idioma == 'eng') ? class_av.var.keywords0 : class_av.var.palabras_clave0;
+                        var normalizaLocal = function(v){ return String(v || '').trim().toLowerCase(); };
 
-                            if( palabra2[2] !== undefined){
-                                palabra2 = palabra2[2].split('<span')[0].trim();
-                            }
-                            
-                            if(palabra1 == name || palabra2 == name || var_palabras_clave.indexOf(name) !== -1){
-                                duplicada = true;
-                                return true;
-                            }
-                        });
-                        
-                        if(duplicada){
-                            if(sustituye !== undefined){
-                                class_av.mensaje('Se encontró una palabra que fue considerada más adecuada: <b>'+name+'</b><br><br>Esta palabra ya se encuentra en las opciones para seleccionar');
-                            }else{
-                                class_av.mensaje('La palabra ya se encuentra en las opciones para seleccionar');
-                            }
-                            return false;
-                        }else if(name == ''){
+                        if(name === ''){
                             $.alert('No es una palabra válida');
                             return false;
-                        }else{
-                            if(idioma == 'esp'){
-                                class_av.var.palabras_clave_n.push(name);
-                            }else{
-                                class_av.var.keywords_n.push(name);
+                        }
+
+                        var llave = normalizaLocal(name);
+                        var duplicada = false;
+
+                        $(clase).each(function(){
+                            var termino = String($(this).attr('data-pc-term') || '');
+                            if(termino === ''){
+                                var html = $(this).html() || '';
+                                termino = html.split('<span')[0].trim();
                             }
-                            var html= '';
-                            if (existe_sugerencia !== undefined){
-                                var cons_palabra_clave = class_av.cons.palabra_clave;
-                                if(idioma == 'eng'){
-                                    cons_palabra_clave = class_av.cons.keyword;
-                                }
-                                cons_palabra_clave = cons_palabra_clave.replaceAll('fa-pencil', 'fa-comments');
-                                class_av.mensaje('La palabra cuenta con alguna(s) sugerencia(s)');
-                            }else{
-                                var cons_palabra_clave = class_av.cons.palabra_clave_n;
-                                if(idioma == 'eng'){
-                                    cons_palabra_clave = class_av.cons.keyword_n;
-                                }
+                            if(normalizaLocal(termino) === llave){
+                                duplicada = true;
+                                return false;
                             }
-                            $.each(var_palabras_clave, function(i, val){
+                        });
 
-                                var busca;
-
-                                if(idioma == 'eng'){
-                                    busca = class_utils.find_prop(
-                                        class_av.var.keywords0,
-                                        'valor',
-                                        val
-                                    );
-                                }else{
-                                    busca = class_utils.find_prop(
-                                        class_av.var.palabras_clave0,
-                                        'valor',
-                                        val
-                                    );
-                                }
-
-                                if(busca !== undefined){
-                                    html += cons_palabra_clave
-                                        .replaceAll('<palabra>', val)
-                                        .replaceAll('<num>', busca.num)
-                                        .replaceAll('<palabra-slug>', 'n-'+class_utils.slug(val));
-                                }else{
-                                    html += cons_palabra_clave
-                                        .replaceAll('<palabra>', val)
-                                        .replaceAll('<num>', '0')
-                                        .replaceAll('<palabra-slug>', 'n-'+class_utils.slug(val));
+                        if(!duplicada){
+                            $('.pc-sugerencia-opcion').each(function(){
+                                if(normalizaLocal($(this).attr('data-pc-term')) === llave){
+                                    duplicada = true;
+                                    return false;
                                 }
                             });
-                            
-                            if(idioma == 'esp'){
-                                var ids = [];
-                                $('.new_p.badge-warning').each(function() {
-                                    ids.push('#'+this.id);
-                                });
-                                $('#palabras_clave_n').html(html);
-								
-								if(class_av.var.count_palabras_clave == 10){
-                                    class_av.mensaje('El número máximo de palabras clave son 10');
-                                }else{
-                                    $('#n-'+class_utils.slug(name)).removeClass('badge-secondary');
-                                    $('#n-'+class_utils.slug(name)).addClass('badge-warning');
-                                    $('#n-'+class_utils.slug(name)).css('background-color', '#ff8000');
-                                    class_av.var.count_palabras_clave ++;
-                                }
-								
-                                $('.new_p.esp.palabra_clave').off('click').on('click', function(){
-                                    if( $(this).hasClass('badge-secondary') ){
-                                        if(class_av.var.count_palabras_clave == 10){
-                                            class_av.mensaje('El número máximo de palabras clave son 10');
-                                        }else{
-                                            $(this).removeClass('badge-secondary');
-                                            $(this).addClass('badge-warning');
-                                            $(this).css('background-color', '#ff8000');
-                                            class_av.var.count_palabras_clave ++;
-                                        }
-                                    }else{
-                                        $(this).removeClass('badge-warning');
-                                        $(this).addClass('badge-secondary');
-                                        $(this).css({'background-color':'#ffffff','border-color':'#ff8000'});
-                                        class_av.var.count_palabras_clave --;
-                                    }
-                                });
-                                $.each(ids, function(i, val){
-                                    $(val).removeClass('badge-secondary');
-                                    $(val).addClass('badge-warning');
-                                    $(val).css('background-color', '#ff8000');
-                                });
-                            }else{
-                                var ids = [];
-                                $('.new_k.badge-warning').each(function() {
-                                    ids.push('#'+this.id);
-                                });
-                                $('#keywords_n').html(html);
-                                $('.new_k.keyword.palabra_clave').off('click').on('click', function(){
-                                    if( $(this).hasClass('badge-secondary') ){
-                                        if(class_av.var.count_keywords == 10){
-                                            class_av.mensaje('El número máximo de keywords son 10');
-                                        }else{
-                                            $(this).removeClass('badge-secondary');
-                                            $(this).addClass('badge-warning');
-                                            $(this).css('background-color', '#ff8000');
-                                            class_av.var.count_keywords ++;
-                                        }
-                                    }else{
-                                        $(this).removeClass('badge-warning');
-                                        $(this).addClass('badge-secondary');
-                                        $(this).css({'background-color':'#ffffff','border-color':'#ff8000'});
-                                        class_av.var.count_keywords --;
-                                    }
-                                });
-                                $.each(ids, function(i, val){
-                                    $(val).removeClass('badge-secondary');
-                                    $(val).addClass('badge-warning');
-                                    $(val).css('background-color', '#ff8000');
-                                });
-                            }
-                            
-                            if(sustituye !== undefined){
-                                class_av.mensaje('Se encontró una palabra que fue considerada más adecuada:<br><br><b>'+name_ant+'</b> será sustituida por <b>' + name +'</b>');
-                            }else{
-                                class_av.mensaje('<b>'+ name +'</b> ha sido agregada correctamente');
-                            }
-                            
-                            if(existe_sugerencia !== undefined){
-                                $('.fa-pencil.edita_palabra, .fa-comments.edita_palabra').off('click').on('click', function(){
-                                    class_av.prompt(this.id, 'esp', class_av.var.palabras_sustituye);
-                                });
-                                $('.fa-pencil.edita_keyword, .fa-comments.edita_keyword').off('click').on('click', function(){
-                                    class_av.prompt(this.id, 'eng', class_av.var.palabras_sustituye);
-                                });
-                            }
                         }
+
+                        if(!duplicada){
+                            $.each(var_palabras_clave, function(i,val){
+                                if(normalizaLocal(val) === llave){
+                                    duplicada = true;
+                                    return false;
+                                }
+                            });
+                        }
+
+                        if(duplicada){
+                            class_av.mensaje('La palabra ya se encuentra en las opciones para seleccionar');
+                            return false;
+                        }
+
+                        var encontrado;
+                        $.each(catalogo || [], function(i,val){
+                            if(normalizaLocal(val.valor) === llave){
+                                encontrado = val;
+                                return false;
+                            }
+                        });
+
+                        var exacta = (encontrado !== undefined);
+                        var num = exacta ? Number(encontrado.num || 0) : 0;
+                        var terminoMostrar = exacta ? String(encontrado.valor || name) : name;
+                        var tipoClase = exacta ? 'pc-exacta' : 'pc-aprox';
+                        var claseNueva = (idioma == 'eng') ? 'new_k keyword' : 'new_p esp';
+                        var selectorIdioma = (idioma == 'eng') ? '.keyword.palabra_clave' : '.esp.palabra_clave';
+                        var maxMensaje = (idioma == 'eng') ? 'El número máximo de keywords son 10' : 'El número máximo de palabras clave son 10';
+                        var seleccionadas = $(selectorIdioma + '.badge-warning').length;
+                        var seleccionarNueva = (seleccionadas < 10);
+                        var estadoClase = seleccionarNueva ? 'badge-warning' : 'badge-secondary';
+                        var idChip = 'n-' + class_utils.slug(terminoMostrar);
+
+                        var html = '<div class="pc-chip-item" data-pc-manual="1" data-pc-num="'+num+'">' +
+                                   '<button id="'+idChip+'" class="btn '+claseNueva+' '+estadoClase+' palabra_clave pc-chip '+tipoClase+'" type="button" ' +
+                                           'data-pc-term="'+String(terminoMostrar).replace(/"/g, '&quot;')+'" data-pc-tipo="'+(exacta?'exacta':'aprox')+'" data-pc-num="'+num+'">' +
+                                       terminoMostrar + ' <span class="badge">'+num+'</span>' +
+                                       '<div id="'+idChip+'-sustituye"></div>' +
+                                   '</button></div>';
+
+                        var $destino;
+                        if(idioma == 'eng'){
+                            $destino = exacta ? $('#keywords_catalogo') : $('#otras_keywords');
+                        }else{
+                            $destino = exacta ? $('#palabras_catalogo') : $('#otras_palabras');
+                        }
+                        $destino.append(html);
+
+                        var ordenar = function($contenedor){
+                            var nodos = $contenedor.children().get();
+                            var tieneOrdenFijado = false;
+                            var maxOrden = -1;
+
+                            $.each(nodos, function(i,nodo){
+                                var orden = $(nodo).attr('data-pc-order');
+                                if(orden !== undefined && orden !== null && orden !== ''){
+                                    tieneOrdenFijado = true;
+                                    maxOrden = Math.max(maxOrden, Number(orden));
+                                }
+                            });
+
+                            if(!tieneOrdenFijado){
+                                nodos.sort(function(a,b){
+                                    var na = Number($(a).attr('data-pc-num') || 0);
+                                    var nb = Number($(b).attr('data-pc-num') || 0);
+                                    if(nb !== na){ return nb - na; }
+                                    return String($(a).text() || '').trim().localeCompare(String($(b).text() || '').trim(), 'es', {sensitivity:'base'});
+                                });
+                                $.each(nodos, function(i,nodo){
+                                    $(nodo).attr('data-pc-order', i);
+                                    $contenedor.append(nodo);
+                                });
+                                return;
+                            }
+
+                            $.each(nodos, function(i,nodo){
+                                var $nodo = $(nodo);
+                                var orden = $nodo.attr('data-pc-order');
+                                if(orden === undefined || orden === null || orden === ''){
+                                    maxOrden += 1;
+                                    $nodo.attr('data-pc-order', maxOrden);
+                                }
+                            });
+                            nodos.sort(function(a,b){
+                                return Number($(a).attr('data-pc-order') || 0) - Number($(b).attr('data-pc-order') || 0);
+                            });
+                            $.each(nodos, function(i,nodo){ $contenedor.append(nodo); });
+                        };
+                        ordenar($destino);
+
+                        var_palabras_clave.push(terminoMostrar);
+
+                        if(idioma == 'eng'){
+                            $('#div_keywords_texto, #div_keywords').show();
+                            $('#div_keywords_catalogo_interno, #div_otras_keywords_interno').show();
+                            class_av.var.count_keywords = $('.keyword.palabra_clave.badge-warning').length;
+                        }else{
+                            $('#div_palabras_clave_texto, #div_palabras').show();
+                            class_av.var.count_palabras_clave = $('.esp.palabra_clave.badge-warning').length;
+                        }
+
+                        if(!seleccionarNueva){
+                            class_av.mensaje(maxMensaje + '. La palabra se agregó sin seleccionar.');
+                        }else{
+                            class_av.mensaje('<b>'+ terminoMostrar +'</b> ha sido agregada correctamente');
+                        }
+
+                        class_av.var.cambios_documento = true;
                     }
                 },
             },
             onContentReady: function () {
                 $("#palabra_clave_sel").select2({
-                tags: true,
-                allowClear: true,
-                placeholder: "Selecciona o escribe una palabra clave",
-                ajax: {
-                  url: '/datos/vacio',
-                  dataType: 'json',
-                  delay: 1000,
-                  data: (params) => {
-                    return {
-                      q: params.term,
-                    }
-                  },
-                  processResults: (data, params) => {
-                    var arr_busca = class_av.var.palabras_clave0;
-                    if(idioma == 'eng'){
-                        arr_busca = class_av.var.keywords0;
-                    }
-                    const results = class_utils.filter_prop_er(arr_busca,'valor',new RegExp("^" + params.term + ".*", "i")).map(item => {
-                      return {
-                        id: item.valor,
-                        text: item.valor,
-                        num: item.num
-                      };
-                    });
-                    return {
-                      results: results,
-                    }
-                  }
-                },
-                language: {
-                            inputTooShort: function () {
-                            return "";
-                            }
-                        },
-                minimumInputLength: 2,
-                templateResult: formatRepo,
+                    tags: true,
+                    allowClear: true,
+                    placeholder: "Selecciona o escribe una palabra clave",
+                    ajax: {
+                      url: '/datos/vacio',
+                      dataType: 'json',
+                      delay: 1000,
+                      data: (params) => {
+                        return { q: params.term }
+                      },
+                      processResults: (data, params) => {
+                        var arr_busca = (idioma == 'eng') ? class_av.var.keywords0 : class_av.var.palabras_clave0;
+                        const results = class_utils.filter_prop_er(arr_busca,'valor',new RegExp("^" + params.term + ".*", "i")).map(item => {
+                          return { id: item.valor, text: item.valor, num: item.num };
+                        });
+                        return { results: results };
+                      }
+                    },
+                    language: {
+                        inputTooShort: function () { return ""; }
+                    },
+                    minimumInputLength: 2,
+                    templateResult: formatRepo,
                 });
-                
+
                 function formatRepo (repo) {
                     if (repo.loading) {
                       return repo.text;
                     }
-                    
-                    var $container = $(
+                    return $(
                         "<div class='select2-result-repository__title'>" + repo.text + ' <span class="badge">' + ((repo.num == undefined)?0:repo.num) + '</span></div>'
                     );
+                }
 
-                    return $container;
-                  };
-                
-                  /*
-                  function formatRepoSelection (repo) {
-                    return repo.valor;
-                  }*/
-                  
-                  $('.jconfirm').css('z-index',0);
-                
-                // bind to events
+                $('.jconfirm').css('z-index',0);
+
                 var jc = this;
                 this.$content.find('form').on('submit', function (e) {
-                    // if the user submits the form by pressing enter in the field.
                     e.preventDefault();
-                    jc.$$formSubmit.trigger('click'); // reference the button and click it
+                    jc.$$formSubmit.trigger('click');
                 });
             }
         });
@@ -5977,10 +5916,10 @@ class_av = {
     },
     control_guarda:function(){
         /*
-         * Los botones de guardado colocados al final de cada acordeón no
-         * duplican la lógica. Únicamente disparan el botón original de la
-         * sección, por lo que conservan exactamente las mismas validaciones,
-         * confirmaciones, AJAX y bitácora.
+         * Los botones duplicados colocados al final de cada sección/formulario
+         * no replican la lógica. Únicamente disparan el botón original, por lo
+         * que conservan exactamente las mismas validaciones, confirmaciones,
+         * AJAX y bitácora, incluidas las acciones finales del registro.
          */
         $(document)
             .off('click.guardarDuplicado', '.guardar-duplicado')
@@ -6161,6 +6100,7 @@ class_av = {
                                                 $('#accordion').hide();
                                                 $('#save-no-indizable').hide();
                                                 $('#save-full').hide();
+                                                $('#acciones-finales-bottom').hide();
                                                 $('#save-article, #save-article-bottom').hide();
                                                 $('#save-instituciones, #save-instituciones-bottom').hide();
                                                 $('#save-autores, #save-autores-bottom').hide();
@@ -6527,6 +6467,7 @@ class_av = {
                                                 $('#save-no-indizable').hide();
                                                 $('#save-full').hide();
                                                 $('#save-full-pc').hide();
+                                                $('#acciones-finales-bottom').hide();
                                                 $('#save-article, #save-article-bottom').hide();
                                                 $('#save-pc').hide();
                                                 $('#save-instituciones, #save-instituciones-bottom').hide();
@@ -6673,10 +6614,10 @@ class_av = {
     actualiza_titulos_fuente_ia: function(fuente){
         var sufijo = class_av.sufijo_fuente_ia(fuente);
         $('#titulo_palabras_clave_ia').text(
-            'Palabras clave seleccionadas con IA' + sufijo
+            'Palabras clave' + sufijo
         );
         $('#titulo_keywords_ia').text(
-            'Keywords seleccionadas con IA' + sufijo
+            'Keywords' + sufijo
         );
     },
     /*
@@ -7035,22 +6976,33 @@ class_av = {
 
             var numeroCatalogo = function(termino, idioma){
                 var catalogo = (idioma === 'eng') ? class_av.var.keywords0 : class_av.var.palabras_clave0;
-                var encontrado = class_utils.find_prop(catalogo, 'valor', termino);
-                return (encontrado !== undefined && encontrado.num !== undefined) ? encontrado.num : 0;
+                var buscado = normaliza(termino);
+                var encontrado;
+                $.each(catalogo || [], function(i,val){
+                    if(normaliza(val.valor) === buscado){
+                        encontrado = val;
+                        return false;
+                    }
+                });
+                return (encontrado !== undefined && encontrado.num !== undefined) ? Number(encontrado.num || 0) : 0;
             };
 
             // Botón seleccionable. Los generados por IA no llevan lápiz.
-            // grupo es opcional y se usa para hacer excluyentes palabra/aproximaciones.
-            var botonCatalogo = function(termino, idioma, prefijo, indice, grupo){
+            // tipo: exacta (verde) o aprox (naranja).
+            // grupo es opcional y mantiene la exclusividad entre alternativas relacionadas.
+            var botonCatalogo = function(termino, idioma, prefijo, indice, grupo, tipo){
                 var claseIdioma = (idioma === 'eng') ? 'keyword' : 'esp';
                 var slug = class_utils.slug(termino);
                 var id = prefijo + '-' + indice + '-' + slug;
                 var num = numeroCatalogo(termino, idioma);
                 var atributoGrupo = grupo ? ' data-pc-grupo="'+grupo+'"' : '';
                 var claseGrupo = grupo ? ' pc-opcion-grupo' : '';
+                tipo = (tipo === 'exacta') ? 'exacta' : 'aprox';
+                var claseTipo = (tipo === 'exacta') ? ' pc-exacta' : ' pc-aprox';
 
-                return '<div class="pc-chip-item">' +
-                       '<button id="'+id+'" class="btn badge-secondary '+claseIdioma+' palabra_clave pc-chip'+claseGrupo+'"'+atributoGrupo+' type="button">' +
+                return '<div class="pc-chip-item" data-pc-num="'+num+'">' +
+                       '<button id="'+id+'" class="btn badge-secondary '+claseIdioma+' palabra_clave pc-chip'+claseGrupo+claseTipo+'"' +
+                       atributoGrupo + ' data-pc-term="'+String(termino).replace(/"/g, '&quot;')+'" data-pc-tipo="'+tipo+'" data-pc-num="'+num+'" type="button">' +
                        termino + ' <span class="badge">' + num + '</span>' +
                        '<div id="'+id+'-sustituye"></div>' +
                        '</button></div>';
@@ -7142,7 +7094,7 @@ class_av = {
                 var $usar = $('<button>', {
                     type: 'button',
                     class: 'btn btn-default btn-xs clasificacion-sugerencia-usar',
-                    text: 'Usar'
+                    text: 'Seleccionar'
                 });
 
                 $usar.on('click', function(e){
@@ -7160,7 +7112,7 @@ class_av = {
 
                 if(evidencia !== ''){
                     var $evidencia = $('<div>').addClass('clasificacion-sugerencia-evidencia');
-                    $evidencia.append($('<div>').addClass('evidencia-cabecera').text('Sustento de la sugerencia'));
+                    //$evidencia.append($('<div>').addClass('evidencia-cabecera').text('Sustento de la sugerencia'));
                     $evidencia.append($('<div>').addClass('clasificacion-sugerencia-evidencia-texto').text(evidencia));
                     $card.append($evidencia);
                 }
@@ -7186,7 +7138,7 @@ class_av = {
                 var $card = creaTarjetaSugerenciaClasificacion(
                     valorIA,
                     evidencia,
-                    'Sugerencia IA',
+                    'Sugerencia',
                     function(){
                         if(class_av.var.solo_lectura === true){
                             return false;
@@ -7234,7 +7186,7 @@ class_av = {
                     var $card = creaTarjetaSugerenciaClasificacion(
                         valor,
                         evidencia,
-                        'Sugerencia IA ' + valores.length,
+                        'Sugerencia ' + valores.length,
                         function(){
                             if(class_av.var.solo_lectura === true){
                                 return false;
@@ -7318,8 +7270,9 @@ class_av = {
              *
              * En este flujo, Guardar palabras clave cambia estatusPC a R. Por eso:
              *   - estatusPC NULL/A => primera entrada: todas las propuestas IA en blanco.
-             *   - estatusPC R/C    => ya hubo guardado: se restauran en naranja las
-             *                        palabras almacenadas por el analista.
+             *   - estatusPC R/C    => ya hubo guardado: se restauran las palabras
+             *                        almacenadas por el analista respetando su tipo
+             *                        (verde exacta / naranja aproximación).
              *
              * estatusPC NO determina si se muestran o no las propuestas IA; únicamente
              * permite distinguir los valores originales del artículo de una selección
@@ -7390,181 +7343,158 @@ class_av = {
 
             /* ============================
              * PRESENTACIÓN DE PALABRAS IA
-             * Sólo se muestran biblat_exactas / biblat_sugerencias
-             * y sus equivalentes en inglés. article.palabraClave y
-             * article.keyword ya no se usan para pintar opciones.
+             *
+             * Dos columnas lógicas, cada una con dos columnas visuales:
+             *   izquierda: coincidencias exactas en catálogo (verde)
+             *   derecha: aproximaciones / fuera de catálogo (naranja)
+             *
+             * En un grupo de aproximaciones sólo existe un óvalo líder.
+             * Las alternativas se muestran como texto sencillo bajo
+             * "Sugerencias en catálogo".
              * ============================ */
             class_av.var.count_palabras_clave = 0;
             class_av.var.count_keywords = 0;
 
-            // Siempre comienzan en blanco; cualquier selección es decisión del analista.
             $('#div_palabras_clave_autor, #div_keywords_guardadas_interno').hide();
             $('#palabras_clave_autores, #keywords_guardadas').empty();
 
+            var ordenaTerminosPorOcurrencias = function(lista, idioma){
+                return (lista || []).slice().sort(function(a,b){
+                    var nb = Number(numeroCatalogo(b, idioma) || 0);
+                    var na = Number(numeroCatalogo(a, idioma) || 0);
+                    if(nb !== na){
+                        return nb - na;
+                    }
+                    return String(a || '').localeCompare(String(b || ''), 'es', {sensitivity:'base'});
+                });
+            };
+
+            exactas = ordenaTerminosPorOcurrencias(exactas, 'esp');
+            exactas_en = ordenaTerminosPorOcurrencias(exactas_en, 'eng');
+
+            var htmlOpcionSugerencia = function(termino, idioma, tipo){
+                var num = numeroCatalogo(termino, idioma);
+                return '<li>' +
+                           '<button type="button" class="pc-sugerencia-opcion" ' +
+                                   'data-pc-term="'+String(termino).replace(/"/g, '&quot;')+'" ' +
+                                   'data-pc-tipo="'+tipo+'" data-pc-num="'+num+'">' +
+                               termino + ' <span class="badge">'+num+'</span>' +
+                           '</button>' +
+                       '</li>';
+            };
+
+            var htmlGrupoSugerencia = function(item, idioma, indice, prefijo, grupo, usadas){
+                var originales = [];
+                var original = String(item.palabra || '').trim();
+                var aproximaciones = ordenaTerminosPorOcurrencias(item.aproximaciones || [], idioma);
+                var vistasGrupo = {};
+
+                if(original !== ''){
+                    vistasGrupo[normaliza(original)] = true;
+                    originales.push({termino: original, tipo: 'aprox'});
+                }
+
+                $.each(aproximaciones, function(j,aprox){
+                    var llave = normaliza(aprox);
+                    if(llave === '' || vistasGrupo[llave] || usadas[llave]){
+                        return;
+                    }
+                    vistasGrupo[llave] = true;
+                    usadas[llave] = true;
+                    originales.push({termino: aprox, tipo: 'exacta'});
+                });
+
+                if(originales.length === 0){
+                    return '';
+                }
+
+                var lider = originales[0];
+                var opciones = originales.slice(1);
+                var tipoPrefijo = lider.tipo === 'exacta' ? prefijo+'e' : prefijo+'a';
+                var htmlLider = botonCatalogo(lider.termino, idioma, tipoPrefijo, indice, grupo, lider.tipo);
+                var numLider = numeroCatalogo(lider.termino, idioma);
+                var idPanel = 'pc-aprox-' + grupo.replace(/[^a-zA-Z0-9_-]/g, '-');
+                var html = '<div class="pc-sugerencia-item" data-pc-grupo-contenedor="'+grupo+'" ' +
+                                  'data-pc-num="'+numLider+'" data-pc-lider-tipo="'+lider.tipo+'">' +
+                               '<div class="pc-sugerencia-cabecera">' +
+                                   '<div class="pc-principal-slot">'+htmlLider+'</div>';
+
+                if(opciones.length){
+                    html += '<button type="button" class="pc-sugerencia-toggle" data-target="'+idPanel+'" aria-expanded="false">' +
+                                '<i class="fa fa-chevron-down" aria-hidden="true"></i>' +
+                                '<span>Sugerencias en catálogo</span>' +
+                            '</button>' +
+                            '<div id="'+idPanel+'" class="pc-aproximaciones-panel">' +
+                                '<ul class="pc-sugerencias-catalogo">';
+                    $.each(opciones, function(i,op){
+                        html += htmlOpcionSugerencia(op.termino, idioma, op.tipo);
+                    });
+                    html +=     '</ul>' +
+                            '</div>';
+                }
+
+                html +=   '</div>' +
+                        '</div>';
+                return html;
+            };
+
             if(mostrarIAPalabras && tiene_ia_esp){
-                /* Coincidencias exactas: arriba, seleccionables e independientes. */
                 var html_exactas = '';
+                var html_otras = '';
                 var usadas_esp = {};
                 var indice_esp = 0;
 
                 $.each(exactas, function(i,val){
                     usadas_esp[normaliza(val)] = true;
-                    html_exactas += botonCatalogo(val, 'esp', 'be', indice_esp++);
+                    html_exactas += botonCatalogo(val, 'esp', 'be', indice_esp++, '', 'exacta');
                 });
-
-                if(html_exactas !== ''){
-                    $('#titulo_palabras_generadas').text('Coincidencias exactas en catálogo Biblat:');
-                    $('#palabras_catalogo').html(html_exactas);
-                    $('#div_palabras').show();
-                }
-
-                /*
-                 * Sugerencias: la palabra original también es seleccionable.
-                 * El botón de la derecha despliega sus aproximaciones.
-                 * Todas las opciones del grupo comparten data-pc-grupo.
-                 */
-                var html_otras = '';
-                var palabras_sugeridas_vistas = {};
 
                 $.each(sugerencias, function(i,item){
                     var grupo = 'esp-sug-' + i;
-                    var idPanel = 'pc-aprox-esp-' + i;
-                    var html_principal = '';
-                    var html_aprox = '';
-
-                    if(item.palabra !== '' && !palabras_sugeridas_vistas[normaliza(item.palabra)]){
-                        palabras_sugeridas_vistas[normaliza(item.palabra)] = true;
-                        html_principal = botonCatalogo(item.palabra, 'esp', 'bs', indice_esp++, grupo);
-                    }
-
-                    $.each(item.aproximaciones, function(j,aprox){
-                        var llave = normaliza(aprox);
-                        if(usadas_esp[llave]){
-                            return;
-                        }
-                        usadas_esp[llave] = true;
-                        html_aprox += botonCatalogo(aprox, 'esp', 'ba', indice_esp++, grupo);
-                    });
-
-                    if(html_principal === '' && html_aprox === ''){
-                        return;
-                    }
-
-                    html_otras += '<div class="pc-sugerencia-item" data-pc-grupo-contenedor="'+grupo+'">';
-                    html_otras +=   '<div class="pc-sugerencia-cabecera">';
-                    html_otras +=       '<div class="pc-principal-slot">'+html_principal+'</div>';
-                    if(html_aprox !== ''){
-                        html_otras +=   '<button type="button" class="pc-sugerencia-toggle" data-target="'+idPanel+'" aria-expanded="false">' +
-                                            '<i class="fa fa-chevron-down" aria-hidden="true"></i>' +
-                                            '<span>Opciones</span>' +
-                                        '</button>';
-                    }
-                    html_otras +=   '</div>';
-                    if(html_aprox !== ''){
-                        html_otras += '<div id="'+idPanel+'" class="pc-aproximaciones-panel">' +
-                                          '<div class="pc-aproximaciones-label">Otras opciones del grupo:</div>' +
-                                          '<div class="pc-chip-list">'+html_aprox+'</div>' +
-                                      '</div>';
-                    }
-                    html_otras += '</div>';
+                    html_otras += htmlGrupoSugerencia(item, 'esp', indice_esp++, 'bs', grupo, usadas_esp);
                 });
 
-                if(html_otras !== ''){
-                    $('#otras_palabras').html(html_otras);
-                    $('#div_palabras_clave').show();
-                }
+                $('#palabras_catalogo').html(html_exactas);
+                $('#otras_palabras').html(html_otras);
 
-                $('#div_palabras_clave_texto').show();
+                if(html_exactas !== '' || html_otras !== ''){
+                    $('#div_palabras, #div_palabras_clave_texto').show();
+                }
             }else{
-                // Sin sugerencias en español: se deja disponible únicamente la captura manual.
-                $('#div_palabras, #div_palabras_clave').hide();
+                $('#div_palabras').hide();
             }
 
             if(mostrarIAPalabras && tiene_ia_en){
+                var html_exactas_en = '';
+                var html_otras_en = '';
                 var usadas_en = {};
                 var indice_en = 0;
-                var html_exactas_en = '';
 
                 $.each(exactas_en, function(i,val){
                     usadas_en[normaliza(val)] = true;
-                    html_exactas_en += botonCatalogo(val, 'eng', 'ke', indice_en++);
+                    html_exactas_en += botonCatalogo(val, 'eng', 'ke', indice_en++, '', 'exacta');
                 });
-
-                if(html_exactas_en !== ''){
-                    $('#keywords_catalogo').html(html_exactas_en);
-                    $('#div_keywords_catalogo_interno').show();
-                }
-
-                var html_otras_en = '';
-                var keywords_sugeridas_vistas = {};
 
                 $.each(sugerencias_en, function(i,item){
                     var grupo = 'eng-sug-' + i;
-                    var idPanel = 'pc-aprox-eng-' + i;
-                    var html_principal = '';
-                    var html_aprox = '';
-
-                    if(item.palabra !== '' && !keywords_sugeridas_vistas[normaliza(item.palabra)]){
-                        keywords_sugeridas_vistas[normaliza(item.palabra)] = true;
-                        html_principal = botonCatalogo(item.palabra, 'eng', 'ks', indice_en++, grupo);
-                    }
-
-                    $.each(item.aproximaciones, function(j,aprox){
-                        var llave = normaliza(aprox);
-                        if(usadas_en[llave]){
-                            return;
-                        }
-                        usadas_en[llave] = true;
-                        html_aprox += botonCatalogo(aprox, 'eng', 'kap', indice_en++, grupo);
-                    });
-
-                    if(html_principal === '' && html_aprox === ''){
-                        return;
-                    }
-
-                    html_otras_en += '<div class="pc-sugerencia-item" data-pc-grupo-contenedor="'+grupo+'">';
-                    html_otras_en +=   '<div class="pc-sugerencia-cabecera">';
-                    html_otras_en +=       '<div class="pc-principal-slot">'+html_principal+'</div>';
-                    if(html_aprox !== ''){
-                        html_otras_en +=   '<button type="button" class="pc-sugerencia-toggle" data-target="'+idPanel+'" aria-expanded="false">' +
-                                               '<i class="fa fa-chevron-down" aria-hidden="true"></i>' +
-                                               '<span>Opciones</span>' +
-                                           '</button>';
-                    }
-                    html_otras_en +=   '</div>';
-                    if(html_aprox !== ''){
-                        html_otras_en += '<div id="'+idPanel+'" class="pc-aproximaciones-panel">' +
-                                             '<div class="pc-aproximaciones-label">Otras opciones del grupo:</div>' +
-                                             '<div class="pc-chip-list">'+html_aprox+'</div>' +
-                                         '</div>';
-                    }
-                    html_otras_en += '</div>';
+                    html_otras_en += htmlGrupoSugerencia(item, 'eng', indice_en++, 'ks', grupo, usadas_en);
                 });
 
-                if(html_otras_en !== ''){
-                    $('#otras_keywords').html(html_otras_en);
-                    $('#div_otras_keywords_interno').show();
-                }
+                $('#keywords_catalogo').html(html_exactas_en);
+                $('#otras_keywords').html(html_otras_en);
+                $('#div_keywords_catalogo_interno, #div_otras_keywords_interno').show();
 
-                $('#div_keywords_texto, #div_keywords').show();
+                if(html_exactas_en !== '' || html_otras_en !== ''){
+                    $('#div_keywords_texto, #div_keywords').show();
+                }
             }else if(modo_manual_pc){
-                // Sin sugerencias IA, el bloque de catálogo en inglés permanece oculto.
                 $('#div_keywords_texto, #div_keywords').hide();
             }
 
             if(modo_manual_pc || !mostrarIAPalabras){
-                $('#div_palabras_clave_texto, #div_keywords_texto, #div_keywords').hide();
-                $('#div_palabras, #div_palabras_clave, #div_keywords_catalogo_interno, #div_otras_keywords_interno').hide();
+                $('#div_palabras_clave_texto, #div_keywords_texto, #div_keywords, #div_palabras').hide();
             }
 
-            /*
-             * La captura manual adicional se habilita en dos casos:
-             *   1) registros nuevos (fechaAsignado == null), como funcionaba originalmente;
-             *   2) cualquier registro cuando se libera la sección de sugerencias de IA.
-             *
-             * De esta forma mostrar_ia_palabras_clave actúa como switch de liberación
-             * de toda la experiencia de selección/complemento de palabras sugeridas.
-             */
             var esRegistroNuevo = (
                 class_av.var.documentoJSON &&
                 class_av.var.documentoJSON[0] &&
@@ -7573,10 +7503,13 @@ class_av = {
             var permitirAgregarPalabras = (esRegistroNuevo || mostrarIAPalabras);
 
             if(permitirAgregarPalabras){
-                $('#div_palabras_clave_n, #div_keywords_n, #add-palabra, #add-keyword').show();
+                $('#add-palabra, #add-keyword').show();
             }else{
-                $('#div_palabras_clave_n, #div_keywords_n, #add-palabra, #add-keyword').hide();
+                $('#add-palabra, #add-keyword').hide();
             }
+
+            // Los contenedores antiguos de nuevas palabras ya no participan en la vista.
+            $('#div_palabras_clave_n, #div_keywords_n').hide();
 
             if(class_av.var.solo_lectura){
                 $('#add-palabra, #add-keyword').hide();
@@ -7584,43 +7517,53 @@ class_av = {
             }
 
             /*
-             * Cada grupo mantiene siempre una opción visible como principal.
-             * Si por compatibilidad llegara una sugerencia sin "palabra" pero sí con
-             * aproximaciones, la primera opción disponible ocupa ese lugar.
+             * Conservamos en memoria todas las alternativas de cada grupo.
+             * La opción que esté en el óvalo líder NO se repite en la lista.
+             * Al cambiar de líder se reconstruye la lista y la opción anterior
+             * vuelve a quedar disponible; esto incluye la palabra original.
              */
             $('.pc-sugerencia-item').each(function(){
                 var $item = $(this);
-                var $slot = $item.find('.pc-principal-slot').first();
-                if($slot.find('.palabra_clave').length === 0){
-                    var $primera = $item.find('.pc-aproximaciones-panel .pc-chip-item').first();
-                    if($primera.length){
-                        $slot.append($primera);
+                var opciones = [];
+                var vistos = {};
+                var $lider = $item.find('.pc-principal-slot .palabra_clave').first();
+
+                var agregaOpcion = function(termino, tipo, num){
+                    termino = String(termino || '').trim();
+                    var llave = normaliza(termino);
+                    if(llave === '' || vistos[llave]){
+                        return;
+                    }
+                    vistos[llave] = true;
+                    opciones.push({termino: termino, tipo: tipo, num: Number(num || 0)});
+                };
+
+                agregaOpcion(
+                    $lider.attr('data-pc-term') || '',
+                    $lider.attr('data-pc-tipo') || 'aprox',
+                    $lider.attr('data-pc-num') || 0
+                );
+
+                $item.find('.pc-sugerencia-opcion').each(function(){
+                    agregaOpcion(
+                        $(this).attr('data-pc-term'),
+                        $(this).attr('data-pc-tipo') || 'exacta',
+                        $(this).attr('data-pc-num') || 0
+                    );
+                });
+
+                $item.data('pc-opciones', opciones);
+
+                // Compatibilidad: si un grupo no trae palabra original y su líder
+                // inicial es una coincidencia de catálogo, se coloca desde el inicio
+                // en el lado verde.
+                if(String($item.attr('data-pc-lider-tipo') || '') === 'exacta'){
+                    if($lider.hasClass('keyword')){
+                        $('#keywords_catalogo').append($item);
+                    }else{
+                        $('#palabras_catalogo').append($item);
                     }
                 }
-
-                // Si después de lo anterior no quedan alternativas, no hay nada que desplegar.
-                if($item.find('.pc-aproximaciones-panel .pc-chip-item').length === 0){
-                    $item.find('.pc-sugerencia-toggle').hide();
-                    $item.find('.pc-aproximaciones-panel').hide();
-                }
-            });
-
-            /* Menú desplegable de opciones del grupo. */
-            $('.pc-sugerencia-toggle').off('click').on('click', function(e){
-                e.preventDefault();
-                e.stopPropagation();
-
-                var target = $(this).data('target');
-                var $panel = $('#'+target);
-                var abierto = $panel.is(':visible');
-
-                $panel.stop(true, true).slideToggle(120);
-                $(this)
-                    .toggleClass('abierto', !abierto)
-                    .attr('aria-expanded', (!abierto) ? 'true' : 'false')
-                    .find('i')
-                    .toggleClass('fa-chevron-down', abierto)
-                    .toggleClass('fa-chevron-up', !abierto);
             });
 
             /* ============================
@@ -7649,12 +7592,18 @@ class_av = {
 
             /* ============================
              * EVENTOS DE SELECCIÓN
-             * - exactas: selección normal
-             * - sugerencias: palabra/aproximaciones son excluyentes por grupo
-             * - límite: máximo 10 términos únicos por idioma
+             * - borde verde: coincidencia exacta en catálogo
+             * - borde naranja: aproximación / fuera de catálogo
+             * - relleno del mismo color: se guardará
+             * - un solo líder por grupo de aproximaciones
              * ============================ */
             var textoBoton = function(elemento){
-                var $copia = $(elemento).clone();
+                var $el = $(elemento);
+                var terminoData = String($el.attr('data-pc-term') || '').trim();
+                if(terminoData !== ''){
+                    return terminoData;
+                }
+                var $copia = $el.clone();
                 $copia.children().remove();
                 return $copia.text().trim();
             };
@@ -7671,23 +7620,82 @@ class_av = {
             };
 
             var pintaSeleccion = function($boton, seleccionada){
+                $boton.css({'background-color':'','border-color':'','color':''});
                 if(seleccionada){
-                    $boton
-                        .removeClass('badge-secondary')
-                        .addClass('badge-warning')
-                        .css({'background-color':'#ff8000','border-color':'#ff8000'});
+                    $boton.removeClass('badge-secondary').addClass('badge-warning');
                 }else{
-                    $boton
-                        .removeClass('badge-warning')
-                        .addClass('badge-secondary')
-                        .css({'background-color':'#ffffff','border-color':'#ff8000'});
+                    $boton.removeClass('badge-warning').addClass('badge-secondary');
                 }
+            };
+
+            /*
+             * Orden estable de los óvalos.
+             *
+             * La primera vez que se ordena un contenedor se respeta el criterio
+             * de ocurrencias (mayor a menor) y se fija la posición resultante en
+             * data-pc-order. A partir de ese momento el orden ya no se recalcula
+             * por el número del nuevo líder.
+             *
+             * Esto permite que:
+             * - un grupo que pasa de naranja a verde siempre entre hasta abajo;
+             * - si luego cambia de una coincidencia exacta a otra, conserve su lugar;
+             * - si cambia de lado nuevamente, entre hasta abajo del nuevo lado.
+             */
+            var ordenaContenedorPC = function($contenedor){
+                if(!$contenedor || !$contenedor.length){
+                    return;
+                }
+
+                var nodos = $contenedor.children().get();
+                var tieneOrdenFijado = false;
+                var maxOrden = -1;
+
+                $.each(nodos, function(i,nodo){
+                    var orden = $(nodo).attr('data-pc-order');
+                    if(orden !== undefined && orden !== null && orden !== ''){
+                        tieneOrdenFijado = true;
+                        maxOrden = Math.max(maxOrden, Number(orden));
+                    }
+                });
+
+                // Primera carga: ordenar por ocurrencias y fijar ese orden.
+                if(!tieneOrdenFijado){
+                    nodos.sort(function(a,b){
+                        var na = Number($(a).attr('data-pc-num') || 0);
+                        var nb = Number($(b).attr('data-pc-num') || 0);
+                        if(nb !== na){
+                            return nb - na;
+                        }
+                        return String($(a).text() || '').trim().localeCompare(String($(b).text() || '').trim(), 'es', {sensitivity:'base'});
+                    });
+                    $.each(nodos, function(i,nodo){
+                        $(nodo).attr('data-pc-order', i);
+                        $contenedor.append(nodo);
+                    });
+                    return;
+                }
+
+                // Cualquier elemento nuevo o que cambió de lado entra al final.
+                $.each(nodos, function(i,nodo){
+                    var $nodo = $(nodo);
+                    var orden = $nodo.attr('data-pc-order');
+                    if(orden === undefined || orden === null || orden === ''){
+                        maxOrden += 1;
+                        $nodo.attr('data-pc-order', maxOrden);
+                    }
+                });
+
+                nodos.sort(function(a,b){
+                    return Number($(a).attr('data-pc-order') || 0) - Number($(b).attr('data-pc-order') || 0);
+                });
+                $.each(nodos, function(i,nodo){
+                    $contenedor.append(nodo);
+                });
             };
 
             var cierraOpcionesGrupo = function($item){
                 var $panel = $item.find('.pc-aproximaciones-panel').first();
                 var $toggle = $item.find('.pc-sugerencia-toggle').first();
-
                 $panel.stop(true, true).hide();
                 $toggle
                     .removeClass('abierto')
@@ -7697,46 +7705,121 @@ class_av = {
                     .addClass('fa-chevron-down');
             };
 
-            /*
-             * Rota las opciones del grupo: la opción elegida pasa al lugar principal
-             * y la que estaba visible pasa al panel oculto. No se recrean botones,
-             * sólo se mueven sus nodos, por lo que conservan conteo, clases y eventos.
-             */
-            var promueveOpcionGrupo = function($boton, cerrarPanel){
-                var grupo = $boton.attr('data-pc-grupo') || '';
-                if(grupo === ''){
-                    return;
-                }
+            var reconstruyeOpcionesGrupo = function($item, conservarAbierto){
+                var opciones = $item.data('pc-opciones') || [];
+                var $lider = $item.find('.pc-principal-slot .palabra_clave').first();
+                var lider = normaliza(textoBoton($lider));
+                var disponibles = [];
 
-                var $item = $boton.closest('.pc-sugerencia-item');
-                if(!$item.length){
-                    return;
-                }
-
-                var $slot = $item.find('.pc-principal-slot').first();
-                var $lista = $item.find('.pc-aproximaciones-panel .pc-chip-list').first();
-                var $chipElegido = $boton.closest('.pc-chip-item');
-
-                if(!$slot.length || !$chipElegido.length){
-                    return;
-                }
-
-                // Si ya es la principal, no hace falta rotar.
-                if(!$chipElegido.parent().is($slot)){
-                    var $principalAnterior = $slot.children('.pc-chip-item').first();
-                    if($principalAnterior.length && $lista.length){
-                        $lista.prepend($principalAnterior);
+                $.each(opciones, function(i,op){
+                    if(normaliza(op.termino) !== lider){
+                        disponibles.push(op);
                     }
-                    $slot.append($chipElegido);
+                });
+
+                disponibles.sort(function(a,b){
+                    var nb = Number(b.num || 0);
+                    var na = Number(a.num || 0);
+                    if(nb !== na){ return nb - na; }
+                    return String(a.termino || '').localeCompare(String(b.termino || ''), 'es', {sensitivity:'base'});
+                });
+
+                var $toggle = $item.find('.pc-sugerencia-toggle').first();
+                var $panel = $item.find('.pc-aproximaciones-panel').first();
+                var estabaAbierto = (conservarAbierto === true) || $panel.is(':visible');
+
+                if(disponibles.length === 0){
+                    $toggle.hide();
+                    $panel.hide();
+                    return;
                 }
 
-                // El botón sólo se muestra cuando realmente quedan opciones ocultas.
-                var quedanOpciones = ($lista.length && $lista.children('.pc-chip-item').length > 0);
-                $item.find('.pc-sugerencia-toggle').toggle(!!quedanOpciones);
+                if(!$toggle.length){
+                    var grupo = String($item.attr('data-pc-grupo-contenedor') || '');
+                    var idPanel = 'pc-aprox-' + grupo.replace(/[^a-zA-Z0-9_-]/g, '-');
+                    $item.find('.pc-sugerencia-cabecera').append(
+                        '<button type="button" class="pc-sugerencia-toggle" data-target="'+idPanel+'" aria-expanded="false">' +
+                            '<i class="fa fa-chevron-down" aria-hidden="true"></i>' +
+                            '<span>Sugerencias en catálogo</span>' +
+                        '</button>' +
+                        '<div id="'+idPanel+'" class="pc-aproximaciones-panel"><ul class="pc-sugerencias-catalogo"></ul></div>'
+                    );
+                    $toggle = $item.find('.pc-sugerencia-toggle').first();
+                    $panel = $item.find('.pc-aproximaciones-panel').first();
+                }
 
-                if(cerrarPanel){
+                var html = '';
+                $.each(disponibles, function(i,op){
+                    html += htmlOpcionSugerencia(op.termino, ($lider.hasClass('keyword') ? 'eng' : 'esp'), op.tipo);
+                });
+                $panel.find('.pc-sugerencias-catalogo').html(html);
+                $toggle.show();
+
+                if(estabaAbierto){
+                    $panel.show();
+                    $toggle.addClass('abierto').attr('aria-expanded','true');
+                    $toggle.find('i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+                }else{
                     cierraOpcionesGrupo($item);
                 }
+            };
+
+            var cambiaLiderGrupo = function($item, termino, conservarAbierto){
+                var opciones = $item.data('pc-opciones') || [];
+                var buscado = normaliza(termino);
+                var elegido = null;
+
+                $.each(opciones, function(i,op){
+                    if(normaliza(op.termino) === buscado){
+                        elegido = op;
+                        return false;
+                    }
+                });
+                if(!elegido){
+                    return $();
+                }
+
+                var $lider = $item.find('.pc-principal-slot .palabra_clave').first();
+                if(!$lider.length){
+                    return $();
+                }
+
+                var idSustituye = String($lider.attr('id') || 'pc-lider') + '-sustituye';
+                $lider
+                    .attr('data-pc-term', elegido.termino)
+                    .attr('data-pc-tipo', elegido.tipo)
+                    .attr('data-pc-num', Number(elegido.num || 0))
+                    .toggleClass('pc-exacta', elegido.tipo === 'exacta')
+                    .toggleClass('pc-aprox', elegido.tipo !== 'exacta')
+                    .html(elegido.termino + ' <span class="badge">' + Number(elegido.num || 0) + '</span><div id="'+idSustituye+'"></div>');
+
+                $lider.closest('.pc-chip-item').attr('data-pc-num', Number(elegido.num || 0));
+                $item
+                    .attr('data-pc-num', Number(elegido.num || 0))
+                    .attr('data-pc-lider-tipo', elegido.tipo);
+
+                var esKeyword = $lider.hasClass('keyword');
+                var $exactas = esKeyword ? $('#keywords_catalogo') : $('#palabras_catalogo');
+                var $aprox = esKeyword ? $('#otras_keywords') : $('#otras_palabras');
+                var $destino = (elegido.tipo === 'exacta') ? $exactas : $aprox;
+                var cambiaDeLado = (!$item.parent().length || $item.parent()[0] !== $destino[0]);
+
+                /*
+                 * Sólo movemos físicamente el grupo cuando cambia entre naranja
+                 * y verde. Al cambiar entre dos términos exactos permanece en el
+                 * mismo nodo y, por tanto, conserva exactamente su posición.
+                 *
+                 * Si cambia de lado se elimina su posición anterior para que el
+                 * contenedor destino le asigne la última disponible.
+                 */
+                if(cambiaDeLado){
+                    $item.removeAttr('data-pc-order');
+                    $destino.append($item);
+                    ordenaContenedorPC($destino);
+                }
+
+                reconstruyeOpcionesGrupo($item, conservarAbierto === true);
+                return $lider;
             };
 
             var clickPalabra = function(elemento, idioma){
@@ -7745,37 +7828,16 @@ class_av = {
                 var mensajeMax = (idioma === 'eng') ? 'El número máximo de keywords son 10' : 'El número máximo de palabras clave son 10';
                 var termino = normaliza(textoBoton(elemento));
                 var actuales = seleccionadasUnicas(selector);
-                var yaSeleccionadaEnOtro = actuales.indexOf(termino) !== -1;
-                var grupo = $boton.attr('data-pc-grupo') || '';
 
                 if($boton.hasClass('badge-warning')){
                     pintaSeleccion($boton, false);
                 }else{
-                    var $otraSeleccionadaGrupo = $();
-                    if(grupo !== ''){
-                        $otraSeleccionadaGrupo = $(selector+'[data-pc-grupo="'+grupo+'"]').filter('.badge-warning').not($boton);
-                    }
-
-                    // Cambiar de una opción a otra del mismo grupo no aumenta el total.
-                    var aumentaTotal = (!yaSeleccionadaEnOtro && $otraSeleccionadaGrupo.length === 0);
-                    if(aumentaTotal && actuales.length >= 10){
+                    var yaSeleccionadaEnOtro = actuales.indexOf(termino) !== -1;
+                    if(!yaSeleccionadaEnOtro && actuales.length >= 10){
                         class_av.mensaje(mensajeMax);
                         return false;
                     }
-
-                    if(grupo !== ''){
-                        $(selector+'[data-pc-grupo="'+grupo+'"]').each(function(){
-                            pintaSeleccion($(this), false);
-                        });
-                    }
-
                     pintaSeleccion($boton, true);
-
-                    // Si se eligió una opción oculta del grupo, pasa a ser la principal
-                    // y el resto vuelve a quedar recogido dentro del menú.
-                    if(grupo !== ''){
-                        promueveOpcionGrupo($boton, true);
-                    }
                 }
 
                 if(idioma === 'eng'){
@@ -7787,17 +7849,80 @@ class_av = {
                 return true;
             };
 
+            /* Abre/cierra la lista sencilla de sugerencias del grupo. */
+            $(document)
+                .off('click.pcSugerenciasCatalogo', '.pc-sugerencia-toggle')
+                .on('click.pcSugerenciasCatalogo', '.pc-sugerencia-toggle', function(e){
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    var target = $(this).data('target');
+                    var $panel = $('#'+target);
+                    var abierto = $panel.is(':visible');
+                    $panel.stop(true, true).slideToggle(120);
+                    $(this)
+                        .toggleClass('abierto', !abierto)
+                        .attr('aria-expanded', (!abierto) ? 'true' : 'false')
+                        .find('i')
+                        .toggleClass('fa-chevron-down', abierto)
+                        .toggleClass('fa-chevron-up', !abierto);
+                });
+
             /*
-             * Restaura lo guardado por el analista sin volver a mostrar como fuente
-             * las antiguas palabras de article.palabraClave/article.keyword.
-             *
-             * - Si el término sigue existiendo entre exactas, palabra sugerida o una
-             *   aproximación, se marca ese mismo chip en naranja.
-             * - Si fue una palabra agregada manualmente y no aparece entre las
-             *   propuestas IA, se reconstruye en el bloque de palabras agregadas.
-             * - Si lo guardado fue una aproximación, esa opción se rota al lugar principal.
-             *   El grupo vuelve a aparecer cerrado; las demás opciones quedan disponibles
-             *   al pulsar el botón de despliegue.
+             * Seleccionar una sugerencia sustituye al líder del grupo.
+             * La sugerencia elegida desaparece de la lista y queda sólo en el óvalo.
+             * La palabra anterior vuelve a la lista. Si se elige la palabra original,
+             * el grupo regresa al lado naranja; si se elige una coincidencia de catálogo,
+             * el grupo pasa al lado verde.
+             */
+            $(document)
+                .off('click.pcSugerenciaOpcion', '.pc-sugerencia-opcion')
+                .on('click.pcSugerenciaOpcion', '.pc-sugerencia-opcion', function(e){
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    var $opcion = $(this);
+                    var $item = $opcion.closest('.pc-sugerencia-item');
+                    var $liderActual = $item.find('.pc-principal-slot .palabra_clave').first();
+                    var idioma = $liderActual.hasClass('keyword') ? 'eng' : 'esp';
+                    var selector = (idioma === 'eng') ? '.keyword.palabra_clave' : '.esp.palabra_clave';
+                    var mensajeMax = (idioma === 'eng') ? 'El número máximo de keywords son 10' : 'El número máximo de palabras clave son 10';
+                    var actuales = seleccionadasUnicas(selector);
+                    var grupoYaSeleccionado = $liderActual.hasClass('badge-warning');
+
+                    if(!grupoYaSeleccionado && actuales.length >= 10){
+                        class_av.mensaje(mensajeMax);
+                        return false;
+                    }
+
+                    var termino = String($opcion.attr('data-pc-term') || '').trim();
+                    var $nuevoLider = cambiaLiderGrupo($item, termino, true);
+                    if(!$nuevoLider.length){
+                        return false;
+                    }
+
+                    pintaSeleccion($nuevoLider, true);
+
+                    if(idioma === 'eng'){
+                        class_av.var.count_keywords = seleccionadasUnicas(selector).length;
+                    }else{
+                        class_av.var.count_palabras_clave = seleccionadasUnicas(selector).length;
+                    }
+                    class_av.var.cambios_documento = true;
+                    return false;
+                });
+
+            /* Orden inicial por ocurrencias dentro de cada mitad. */
+            ordenaContenedorPC($('#palabras_catalogo'));
+            ordenaContenedorPC($('#otras_palabras'));
+            ordenaContenedorPC($('#keywords_catalogo'));
+            ordenaContenedorPC($('#otras_keywords'));
+
+            /*
+             * Restaura lo guardado por el analista.
+             * Si el término pertenece a un grupo, se convierte en su líder.
+             * Si no forma parte de las propuestas IA se reconstruye como palabra
+             * manual: verde si existe exactamente en catálogo, naranja si no existe.
              */
             var restauraGuardadas = function(idioma, guardadas){
                 if(!hay_seleccion_guardada || !Array.isArray(guardadas) || guardadas.length === 0){
@@ -7805,8 +7930,22 @@ class_av = {
                 }
 
                 var selector = (idioma === 'eng') ? '.keyword.palabra_clave' : '.esp.palabra_clave';
-                var pendientes = [];
+                var catalogo = (idioma === 'eng') ? class_av.var.keywords0 : class_av.var.palabras_clave0;
+                var variableNuevas = (idioma === 'eng') ? class_av.var.keywords_n : class_av.var.palabras_clave_n;
                 var grupos_usados = {};
+                variableNuevas.length = 0;
+
+                var buscaCatalogoExacto = function(termino){
+                    var salida;
+                    var llave = normaliza(termino);
+                    $.each(catalogo || [], function(i,val){
+                        if(normaliza(val.valor) === llave){
+                            salida = val;
+                            return false;
+                        }
+                    });
+                    return salida;
+                };
 
                 $.each(guardadas, function(i,termino){
                     var buscado = normaliza(termino);
@@ -7823,63 +7962,84 @@ class_av = {
                     });
 
                     if($coincidencia.length){
-                        var grupo = $coincidencia.attr('data-pc-grupo') || '';
+                        var grupoDirecto = String($coincidencia.attr('data-pc-grupo') || '');
+                        if(grupoDirecto !== '' && grupos_usados[grupoDirecto]){
+                            return;
+                        }
+                        if(grupoDirecto !== ''){
+                            grupos_usados[grupoDirecto] = true;
+                        }
+                        pintaSeleccion($coincidencia, true);
+                        return;
+                    }
 
-                        // Por seguridad ante datos antiguos inconsistentes, sólo una
-                        // opción de cada grupo de sugerencias puede restaurarse.
+                    var encontradoGrupo = false;
+                    $('.pc-sugerencia-item').each(function(){
+                        if(encontradoGrupo){
+                            return false;
+                        }
+
+                        var $item = $(this);
+                        var $lider = $item.find('.pc-principal-slot .palabra_clave').first();
+                        if(!$lider.is(selector)){
+                            return;
+                        }
+
+                        var grupo = String($item.attr('data-pc-grupo-contenedor') || '');
                         if(grupo !== '' && grupos_usados[grupo]){
                             return;
                         }
-                        if(grupo !== ''){
-                            grupos_usados[grupo] = true;
-                            $(selector+'[data-pc-grupo="'+grupo+'"]').each(function(){
-                                pintaSeleccion($(this), false);
-                            });
-                        }
 
-                        pintaSeleccion($coincidencia, true);
+                        var opciones = $item.data('pc-opciones') || [];
+                        var existe = false;
+                        $.each(opciones, function(j,op){
+                            if(normaliza(op.termino) === buscado){
+                                existe = true;
+                                return false;
+                            }
+                        });
 
-                        // Al regresar, la opción que quedó guardada ocupa el lugar
-                        // principal del grupo, pero las demás permanecen ocultas.
-                        if(grupo !== ''){
-                            promueveOpcionGrupo($coincidencia, true);
+                        if(existe){
+                            var $nuevo = cambiaLiderGrupo($item, termino, false);
+                            if($nuevo.length){
+                                pintaSeleccion($nuevo, true);
+                                if(grupo !== ''){
+                                    grupos_usados[grupo] = true;
+                                }
+                                encontradoGrupo = true;
+                            }
                         }
+                    });
+
+                    if(encontradoGrupo){
+                        return;
+                    }
+
+                    var encontrado = buscaCatalogoExacto(termino);
+                    var exacta = (encontrado !== undefined);
+                    var num = exacta ? Number(encontrado.num || 0) : 0;
+                    var terminoMostrar = exacta ? String(encontrado.valor || termino) : String(termino || '').trim();
+                    var tipoClase = exacta ? 'pc-exacta' : 'pc-aprox';
+                    var claseNueva = (idioma === 'eng') ? 'new_k keyword' : 'new_p esp';
+                    var idChip = 'n-' + class_utils.slug(terminoMostrar);
+                    var html = '<div class="pc-chip-item" data-pc-manual="1" data-pc-num="'+num+'">' +
+                                   '<button id="'+idChip+'" class="btn '+claseNueva+' badge-warning palabra_clave pc-chip '+tipoClase+'" type="button" ' +
+                                           'data-pc-term="'+String(terminoMostrar).replace(/"/g, '&quot;')+'" data-pc-tipo="'+(exacta?'exacta':'aprox')+'" data-pc-num="'+num+'">' +
+                                       terminoMostrar + ' <span class="badge">'+num+'</span>' +
+                                       '<div id="'+idChip+'-sustituye"></div>' +
+                                   '</button></div>';
+
+                    var $destino;
+                    if(idioma === 'eng'){
+                        $destino = exacta ? $('#keywords_catalogo') : $('#otras_keywords');
+                        $('#div_keywords_texto, #div_keywords, #div_keywords_catalogo_interno, #div_otras_keywords_interno').show();
                     }else{
-                        pendientes.push(termino);
+                        $destino = exacta ? $('#palabras_catalogo') : $('#otras_palabras');
+                        $('#div_palabras_clave_texto, #div_palabras').show();
                     }
-                });
-
-                if(pendientes.length === 0){
-                    return;
-                }
-
-                var plantilla = (idioma === 'eng') ? class_av.cons.keyword_n : class_av.cons.palabra_clave_n;
-                var catalogo = (idioma === 'eng') ? class_av.var.keywords0 : class_av.var.palabras_clave0;
-                var $contenedor = (idioma === 'eng') ? $('#keywords_n') : $('#palabras_clave_n');
-                var variableNuevas = (idioma === 'eng') ? class_av.var.keywords_n : class_av.var.palabras_clave_n;
-                var html = '';
-
-                // Estas variables representan precisamente las palabras añadidas que no
-                // forman parte de las propuestas actuales de IA.
-                variableNuevas.length = 0;
-
-                $.each(pendientes, function(i,termino){
-                    if(variableNuevas.indexOf(termino) === -1){
-                        variableNuevas.push(termino);
-                    }
-
-                    var encontrado = class_utils.find_prop(catalogo, 'valor', termino);
-                    var num = (encontrado !== undefined && encontrado.num !== undefined) ? encontrado.num : 0;
-
-                    html += plantilla
-                        .replaceAll('<palabra>', termino)
-                        .replaceAll('<num>', num)
-                        .replaceAll('<palabra-slug>', 'n-'+class_utils.slug(termino));
-                });
-
-                $contenedor.html(html);
-                $contenedor.find('.palabra_clave').each(function(){
-                    pintaSeleccion($(this), true);
+                    $destino.append(html);
+                    ordenaContenedorPC($destino);
+                    variableNuevas.push(terminoMostrar);
                 });
             };
 
@@ -7889,13 +8049,18 @@ class_av = {
             class_av.var.count_palabras_clave = seleccionadasUnicas('.esp.palabra_clave').length;
             class_av.var.count_keywords = seleccionadasUnicas('.keyword.palabra_clave').length;
 
-            $('.esp.palabra_clave').off('click').on('click', function(){
-                return clickPalabra(this, 'esp');
-            });
+            /* Delegado para que también funcione con palabras agregadas después. */
+            $(document)
+                .off('click.pcPalabrasEsp', '.esp.palabra_clave')
+                .on('click.pcPalabrasEsp', '.esp.palabra_clave', function(){
+                    return clickPalabra(this, 'esp');
+                });
 
-            $('.keyword.palabra_clave').off('click').on('click', function(){
-                return clickPalabra(this, 'eng');
-            });
+            $(document)
+                .off('click.pcPalabrasEng', '.keyword.palabra_clave')
+                .on('click.pcPalabrasEng', '.keyword.palabra_clave', function(){
+                    return clickPalabra(this, 'eng');
+                });
 
             // El lápiz/comentario se conserva sólo para palabras agregadas manualmente.
             $('.fa-pencil.edita_palabra, .fa-comments.edita_palabra').off('click').on('click', function(){
@@ -7941,6 +8106,87 @@ class_av = {
             }, 3000);
         });
     },
+    /* ============================================================
+     * Orden global de catálogos institucionales.
+     *
+     * Un único selector controla Ciudad, Institución y Dependencia.
+     * La preferencia se guarda en localStorage para conservarla al cambiar
+     * de artículo y al volver a abrir Biblat Central en este navegador.
+     * Cambiar esta opción NO representa un cambio del artículo.
+     * ============================================================ */
+    orden_catalogos_storage_key: function(){
+        return 'biblat_orden_catalogos_institucionales';
+    },
+
+    carga_orden_catalogos_institucionales: function(){
+        var modo = 'frecuencia';
+        try{
+            var guardado = window.localStorage.getItem(class_av.orden_catalogos_storage_key());
+            if(guardado === 'frecuencia' || guardado === 'alfabetico'){
+                modo = guardado;
+            }
+        }catch(e){}
+
+        class_av.var.orden_catalogos_institucionales = modo;
+        return modo;
+    },
+
+    pinta_orden_catalogos_institucionales: function(){
+        var modo = class_av.var.orden_catalogos_institucionales || 'frecuencia';
+        $('#orden_catalogos_institucionales .catalog-order-option').each(function(){
+            var activo = String($(this).data('mode') || '') === modo;
+            $(this)
+                .toggleClass('active', activo)
+                .attr('aria-pressed', activo ? 'true' : 'false');
+        });
+    },
+
+    refresca_orden_catalogos_abiertos: function(){
+        /*
+         * Los Select2 ya creados usan class_av.ordenar_catalogo como sorter,
+         * así que no necesitan reinicializarse. Si alguno está abierto,
+         * cerrarlo y abrirlo nuevamente fuerza a Select2 a pedir el orden
+         * actualizado sin tocar el valor seleccionado.
+         */
+        $('.ciudades, .instituciones, .dependencias').each(function(){
+            var $select = $(this);
+            try{
+                if($select.data('select2') && $select.select2('isOpen')){
+                    $select.select2('close');
+                    setTimeout(function(){
+                        try{$select.select2('open');}catch(e){}
+                    }, 0);
+                }
+            }catch(e){}
+        });
+    },
+
+    cambia_orden_catalogos_institucionales: function(modo){
+        modo = (modo === 'alfabetico') ? 'alfabetico' : 'frecuencia';
+        class_av.var.orden_catalogos_institucionales = modo;
+
+        try{
+            window.localStorage.setItem(class_av.orden_catalogos_storage_key(), modo);
+        }catch(e){}
+
+        class_av.pinta_orden_catalogos_institucionales();
+        class_av.refresca_orden_catalogos_abiertos();
+    },
+
+    inicia_orden_catalogos_institucionales: function(){
+        class_av.carga_orden_catalogos_institucionales();
+        class_av.pinta_orden_catalogos_institucionales();
+
+        $('#orden_catalogos_institucionales .catalog-order-option')
+            .off('click.ordenCatalogos')
+            .on('click.ordenCatalogos', function(e){
+                e.preventDefault();
+                e.stopPropagation();
+                class_av.cambia_orden_catalogos_institucionales(String($(this).data('mode') || 'frecuencia'));
+                return false;
+            });
+    },
+
     formato_badge: function(state){
         if (!state.id) {
             return state.text;
@@ -8015,15 +8261,34 @@ class_av = {
 
     ordenar_catalogo: function(data){
         var termino = class_av.var.termino_busqueda_catalogo || '';
+        var modo = class_av.var.orden_catalogos_institucionales || 'frecuencia';
 
         return data.sort(function(a, b){
             var prioridadA = class_av.prioridad_busqueda_catalogo(a && a.text, termino);
             var prioridadB = class_av.prioridad_busqueda_catalogo(b && b.text, termino);
 
+            /*
+             * En ambos modos se conserva la prioridad de búsqueda:
+             * exacta -> comienza con lo escrito -> contiene lo escrito.
+             */
             if(prioridadA !== prioridadB){
                 return prioridadA - prioridadB;
             }
 
+            /*
+             * En modo alfabético, dentro de cada grupo de coincidencia sólo
+             * manda el nombre. Por ejemplo, al escribir "gua", primero irán
+             * todos los valores que comiencen con "gua", ordenados A-Z.
+             */
+            if(modo === 'alfabetico'){
+                return String((a && a.text) || '').localeCompare(
+                    String((b && b.text) || ''),
+                    'es',
+                    {sensitivity: 'base'}
+                );
+            }
+
+            // Modo por frecuencia: ocurrencias descendentes y luego A-Z.
             var numA = parseInt(a && a.num, 10) || 0;
             var numB = parseInt(b && b.num, 10) || 0;
 
