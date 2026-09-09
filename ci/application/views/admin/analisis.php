@@ -149,19 +149,18 @@
 
 
   /* ==============================================================
-   * Presentación de palabras clave seleccionadas con IA
+   * Presentación de palabras clave
+   * - verde: término con coincidencia exacta en catálogo Biblat
+   * - naranja: aproximación / término fuera de catálogo
+   * - relleno: término seleccionado y por tanto se guardará
    * ============================================================== */
-  #div_palabras_clave_texto,
-  #div_keywords_texto {
+  .pc-titulo-ia {
       margin-top: 12px;
       padding: 12px 16px;
       background: #fafafa;
       border-left: 4px solid #ff8000;
       border-radius: 6px;
-  }
-
-  .pc-titulo-ia {
-      margin-bottom: 5px;
+      margin-bottom: 7px;
       font-size: 15px;
       font-weight: 700;
   }
@@ -173,78 +172,155 @@
       line-height: 1.45;
   }
 
-  #div_palabras,
-  #div_palabras_clave {
+  .pc-leyenda {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin: 7px 0 10px;
+      color: #666666;
+      font-size: 11px;
+  }
+
+  .pc-leyenda-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+  }
+
+  .pc-leyenda-muestra {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 2px solid;
+  }
+
+  .pc-leyenda-muestra.exacta {
+      border-color: #3c763d;
+  }
+
+  .pc-leyenda-muestra.aprox {
+      border-color: #ff8000;
+  }
+
+  .pc-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
       margin-top: 8px;
   }
 
-  #palabras_catalogo,
-  #keywords_catalogo,
-  #palabras_clave_n,
-  #keywords_n {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-start;
-      gap: 8px;
+  .pc-lado {
+      min-width: 0;
+  }
+
+  .pc-lado-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 12px;
+      align-items: start;
+  }
+
+  .pc-chip-item,
+  .pc-sugerencia-item {
+      width: 100%;
+      min-width: 0;
+      margin: 0;
   }
 
   .pc-chip-item {
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      max-width: 100%;
-      margin: 0;
   }
 
   .pc-chip {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-    column-gap: 8px;
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      column-gap: 8px;
+      width: 100% !important;
+      min-width: 0;
+      max-width: 100%;
+      box-sizing: border-box;
+      margin: 0 !important;
+      padding: 6px 10px 6px 12px;
+      border-radius: 16px;
+      white-space: normal !important;
+      box-shadow: none;
+      transition: background .14s ease, border-color .14s ease, color .14s ease, box-shadow .14s ease;
+  }
 
-    width: 100% !important;
-    min-width: 0;
-    max-width: 100%;
-    box-sizing: border-box;
+  .pc-chip-text {
+      min-width: 0;
+      text-align: left;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: normal;
+  }
 
-    margin: 0 !important;
-    padding: 6px 10px 6px 12px;
+  .pc-chip .badge {
+      position: static !important;
+      display: inline-block;
+      margin: 0 !important;
+      justify-self: end;
+      flex: none;
+      white-space: nowrap;
+  }
 
-    border-radius: 16px;
-    white-space: normal !important;
-    box-shadow: none;
-    }
+  .pc-chip.pc-exacta.badge-secondary {
+      background: #ffffff !important;
+      border: 1px solid #3c763d;
+      color: #333333;
+  }
 
-    .pc-chip-text {
-        min-width: 0;
-        text-align: left;
-        white-space: normal;
-        overflow-wrap: anywhere;
-        word-break: normal;
-    }
+  .pc-chip.pc-exacta.badge-secondary:hover {
+      background: #eef8f0 !important;
+  }
 
-    .pc-chip .badge {
-        position: static !important;
-        display: inline-block;
-        margin: 0 !important;
+  .pc-chip.pc-exacta.badge-warning {
+      background: #3c763d !important;
+      border: 1px solid #3c763d;
+      color: #ffffff;
+      box-shadow: 0 2px 5px rgba(60,118,61,.18);
+  }
 
-        justify-self: end;
-        flex: none;
-        white-space: nowrap;
-    }
+  .pc-chip.pc-exacta.badge-warning .badge {
+      background: #dff0d8;
+      color: #2b542c;
+  }
 
-  /* Todas las opciones de IA comienzan en blanco. */
-  .pc-chip.badge-secondary {
+  .pc-chip.pc-aprox.badge-secondary {
       background: #ffffff !important;
       border: 1px solid #ff8000;
       color: #333333;
   }
 
-  .pc-chip.badge-secondary:hover {
+  .pc-chip.pc-aprox.badge-secondary:hover {
       background: #fff4e8 !important;
   }
 
-  .pc-chip.badge-warning {
+  .pc-chip.pc-aprox.badge-warning {
+      background: #ff8000 !important;
+      border: 1px solid #ff8000;
+      color: #111111;
+      box-shadow: 0 2px 5px rgba(255,128,0,.16);
+  }
+
+  .pc-chip.pc-aprox.badge-warning .badge {
+      background: #ffd6a8;
+      color: #6b3a00;
+  }
+
+  .pc-chip.badge-secondary:not(.pc-exacta):not(.pc-aprox) {
+      background: #ffffff !important;
+      border: 1px solid #ff8000;
+      color: #333333;
+  }
+
+  .pc-chip.badge-warning:not(.pc-exacta):not(.pc-aprox) {
       background: #ff8000 !important;
       border: 1px solid #ff8000;
       color: #111111;
@@ -256,45 +332,19 @@
       flex: 0 0 auto;
   }
 
-  .pc-subtitulo {
-      display: block;
-      margin-bottom: 10px;
-      font-weight: 700;
-  }
-
-  /*
-   * Los grupos de sugerencias se distribuyen horizontalmente.
-   * En escritorio caben normalmente 3 por fila; en pantallas más
-   * estrechas la cuadrícula se adapta automáticamente a 2 o 1.
-   */
-  .pc-sugerencias-lista {
-      display: grid;
-      --grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px 12px;
-      align-items: start;
-  }
-
   .pc-sugerencia-item {
-      width: 100%;
-      min-width: 0;
-      padding: 8px 10px;
-      background: #ffffff;
-      border: 1px solid #eeeeee;
-      border-radius: 7px;
       align-self: start;
   }
 
   .pc-sugerencia-cabecera {
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
-      justify-content: flex-start;
+      align-items: stretch;
       gap: 3px;
   }
 
   .pc-principal-slot {
-      display: inline-flex;
+      display: flex;
       align-items: center;
       min-width: 0;
       width: 100%;
@@ -304,6 +354,7 @@
       display: inline-flex;
       align-items: center;
       gap: 5px;
+      align-self: flex-start;
       margin-top: 2px;
       padding: 2px 0;
       border: 0;
@@ -330,26 +381,55 @@
 
   .pc-aproximaciones-panel {
       display: none;
-      margin-top: 8px;
-      padding: 8px 0 2px 8px;
-      border-top: 1px solid #eeeeee;
+      margin-top: 3px;
+      padding: 1px 0 0 8px;
   }
 
-  .pc-aproximaciones-label {
-      color: #777777;
+  .pc-sugerencias-catalogo {
+      margin: 3px 0 0 0;
+      padding-left: 18px;
       font-size: 11px;
-      margin-bottom: 7px;
   }
 
-  .pc-chip-list {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-start;
-      gap: 8px;
+  .pc-sugerencias-catalogo li {
+      margin: 3px 0;
+      color: #444444;
+  }
+
+  .pc-sugerencia-opcion {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #333333;
+      cursor: pointer;
+      font: inherit;
+      text-align: left;
+  }
+
+  .pc-sugerencia-opcion:hover,
+  .pc-sugerencia-opcion:focus {
+      color: #d96d00;
+      text-decoration: underline;
+      outline: none;
+  }
+
+  .pc-sugerencia-opcion .badge {
+      font-size: 10px;
+      line-height: 1.2;
+  }
+
+  @media (max-width: 991px) {
+      .pc-layout {
+          grid-template-columns: 1fr;
+          gap: 12px;
+      }
   }
 
   @media (max-width: 767px) {
-      .pc-sugerencias-lista {
+      .pc-lado-grid {
           grid-template-columns: 1fr;
       }
   }
@@ -481,7 +561,7 @@
       margin-top: 8px;
       padding: 9px 10px;
       border: 1px solid #e5e5e5;
-      border-left: 3px solid #ff8000;
+      /*border-left: 3px solid #ff8000;*/
       border-radius: 5px;
       background: #fffaf4;
       transition: background .15s ease, border-color .15s ease, box-shadow .15s ease;
@@ -658,6 +738,115 @@
       }
   }
 
+
+  /* ==============================================================
+   * Preferencia global de orden para Ciudad / Institución / Dependencia.
+   * Es una opción de interfaz, no un dato del artículo.
+   * ============================================================== */
+  .catalog-order-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 5px 12px;
+      border-bottom: 1px solid #eeeeee;
+      width: 100%;
+      margin-top: 8px;
+      padding-top: 8px;
+      color: #666666;
+      font-size: 11px;
+      font-weight: normal;
+      text-align: center;
+  }
+
+  .catalog-order-label {
+      font-weight: 600;
+      color: #555555;
+  }
+
+  .catalog-order-option {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 3px;
+      border: 0;
+      background: transparent;
+      color: #666666;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: normal;
+      line-height: 1.2;
+  }
+
+  .catalog-order-option:hover,
+  .catalog-order-option:focus {
+      color: #333333;
+      text-decoration: none;
+      outline: none;
+  }
+
+  .catalog-order-dot {
+      width: 11px;
+      height: 11px;
+      border: 2px solid #a9a9a9;
+      border-radius: 50%;
+      background: #ffffff;
+      box-sizing: border-box;
+  }
+
+  .catalog-order-option.active {
+      color: #333333;
+      font-weight: 600;
+  }
+
+  .catalog-order-option.active .catalog-order-dot {
+      border-color: #ff8000;
+      background: #ff8000;
+      box-shadow: inset 0 0 0 2px #ffffff;
+  }
+
+
+  /* ==============================================================
+   * Acciones finales duplicadas al final del formulario.
+   * Reutilizan los botones originales mediante .guardar-duplicado,
+   * por lo que conservan las mismas validaciones y confirmaciones.
+   * ============================================================== */
+  .acciones-finales-bottom {
+      display: none;
+      margin: 20px 0 6px;
+      padding: 18px 14px;
+      border: 1px solid #e3e3e3;
+      border-radius: 7px;
+      background: #fafafa;
+      text-align: center;
+  }
+
+  .acciones-finales-bottom-titulo {
+      display: block;
+      margin-bottom: 12px;
+      color: #555555;
+      font-size: 12px;
+      font-weight: 700;
+  }
+
+  .acciones-finales-bottom-botones {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 9px;
+      flex-wrap: wrap;
+  }
+
+  @media (max-width: 767px) {
+      .acciones-finales-bottom-botones {
+          flex-direction: column;
+          align-items: stretch;
+      }
+
+      .acciones-finales-bottom-botones .btn {
+          width: 100%;
+      }
+  }
 
   /* ==============================================================
    * Acciones finales del registro.
@@ -1106,11 +1295,6 @@
                         </div>
                         <div class="row" id="bloque_clasificacion_tematica">
                             <div class="col-xs-12">
-                                <div class="clasificacion-titulo-general">
-                                    Clasificación temática
-                                    <span id="clasificacion_ayuda_ia" class="clasificacion-ayuda" style="display:none">Revise las sugerencias y sus sustentos. Ninguna disciplina ni subdisciplina sugerida por IA se selecciona automáticamente; puede usar una sugerencia o elegir otra opción del catálogo.</span>
-                                </div>
-
                                 <div class="clasificacion-card" id="clasificacion-card-1">
                                     <!--<div class="clasificacion-card-titulo">
                                         <span class="clasificacion-numero">1</span>
@@ -1248,14 +1432,14 @@
                         </div>
                         {/if}
                         
+                        <br>
                         <div class="row" id="div_palabras_clave_texto" style="display:none">
-                            <br>
-                            <br>
                             <div class="col-xs-12">
                                 <div class="pc-titulo-ia" id="titulo_palabras_clave_ia">Palabras clave seleccionadas con IA</div>
-                                <p class="pc-ayuda-ia">
-                                    Seleccione las palabras adecuadas para el artículo. En los grupos con opciones relacionadas sólo puede quedar una seleccionada; si elige una aproximación, ésta pasa a ocupar el lugar principal y las demás quedan ocultas en el botón de opciones. Si el artículo ya fue guardado en esta revisión, la opción conservada se muestra como principal en naranja.
-                                </p>
+                                <div class="pc-leyenda" aria-label="Leyenda de palabras clave">
+                                    <span class="pc-leyenda-item"><span class="pc-leyenda-muestra exacta"></span> En catálogo Biblat</span>
+                                    <span class="pc-leyenda-item"><span class="pc-leyenda-muestra aprox"></span> Aproximación</span>
+                                </div>
                             </div>
                         </div>
 
@@ -1265,28 +1449,23 @@
                             </div>
                         </div>
 
-                        <!-- Compatibilidad: ya no se muestran article.palabraClave ni article.keyword. -->
                         <div id="div_palabras_clave_autor" style="display:none"><span id="palabras_clave_autores"></span></div>
 
-                        <!-- genera_pc.biblat_exactas -->
                         <div class="row" id="div_palabras" style="display:none">
                             <br>
                             <div class="col-xs-12">
-                                <span class="pc-subtitulo" id="titulo_palabras_generadas">Coincidencias exactas en catálogo Biblat:</span>
-                                <div id="palabras_catalogo"></div>
+                                <div class="pc-layout">
+                                    <div class="pc-lado pc-lado-exactas">
+                                        <div id="palabras_catalogo" class="pc-lado-grid"></div>
+                                    </div>
+                                    <div class="pc-lado pc-lado-aproximaciones">
+                                        <div id="otras_palabras" class="pc-lado-grid"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- genera_pc.biblat_sugerencias -->
-                        <div class="row" id="div_palabras_clave" style="display:none">
-                            <br>
-                            <div class="col-xs-12">
-                                <span class="pc-subtitulo">Palabras con aproximaciones en catálogo:</span>
-                                <div class="pc-sugerencias-lista" id="otras_palabras"></div>
-                            </div>
-                        </div>
-
-                        <!-- Se conserva por compatibilidad con selectores anteriores. -->
+                        <div class="row" id="div_palabras_clave" style="display:none"></div>
                         <div class="row" id="div_palabras_clave2" style="display:none"></div>
 
                         <div class="row">
@@ -1295,50 +1474,46 @@
                                 <button id="add-palabra" type="button" class="btn btn-dark" style="display:none"><img class="imagen" src="{base_url('img/palabra-clave.png')}" style="filter: invert(0.5) sepia(9) hue-rotate(0deg) saturate(1000%);height:20px;display:inline-block"><span> Agregar palabra clave</span></button>
                             </center>
                         </div>
+
                         <div class="row" id="div_palabras_clave_n" style="display:none">
-                            <br>
-                            <div class="col-xs-12">
-                                <span id="palabras_clave_n"></span>
-                            </div>
+                            <span id="palabras_clave_n"></span>
                         </div>
 
                         <!-- Inglés: misma dinámica con biblat_exactas_en y biblat_sugerencias_en. -->
                         <div class="row" id="div_keywords_texto" style="display:none">
-                            <br>
-                            <br>
                             <div class="col-xs-12">
                                 <div class="pc-titulo-ia" id="titulo_keywords_ia">Keywords seleccionadas con IA</div>
+                                <div class="pc-leyenda" aria-label="Leyenda de keywords">
+                                    <span class="pc-leyenda-item"><span class="pc-leyenda-muestra exacta"></span> En catálogo Biblat</span>
+                                    <span class="pc-leyenda-item"><span class="pc-leyenda-muestra aprox"></span> Aproximación</span>
+                                </div>
                             </div>
                         </div>
 
                         <div class="row" id="div_keywords" style="display:none">
                             <br>
                             <div class="col-xs-12">
-                                <!-- Compatibilidad: article.keyword ya no se muestra. -->
                                 <div id="div_keywords_guardadas_interno" style="display:none"><div id="keywords_guardadas"></div></div>
-
-                                <div id="div_keywords_catalogo_interno" style="display:none; margin-top:12px;">
-                                    <span class="pc-subtitulo">Coincidencias exactas en catálogo Biblat:</span>
-                                    <div id="keywords_catalogo"></div>
-                                </div>
-
-                                <div id="div_otras_keywords_interno" style="display:none; margin-top:14px;">
-                                    <span class="pc-subtitulo">Keywords con aproximaciones en catálogo:</span>
-                                    <div class="pc-sugerencias-lista" id="otras_keywords"></div>
+                                <div class="pc-layout">
+                                    <div id="div_keywords_catalogo_interno" class="pc-lado pc-lado-exactas">
+                                        <div id="keywords_catalogo" class="pc-lado-grid"></div>
+                                    </div>
+                                    <div id="div_otras_keywords_interno" class="pc-lado pc-lado-aproximaciones">
+                                        <div id="otras_keywords" class="pc-lado-grid"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
                         <div class="row">
                             <br>
                             <center>
                                 <button id="add-keyword" type="button" class="btn btn-dark" style="display:none"><img class="imagen" src="{base_url('img/palabra-clave.png')}" style="filter: invert(0.5) sepia(9) hue-rotate(0deg) saturate(1000%);height:20px;display:inline-block"><span> Agregar keyword</span></button>
                             </center>
                         </div>
+
                         <div class="row" id="div_keywords_n" style="display:none">
-                            <br>
-                            <div class="col-xs-12">
-                                <span id="keywords_n"></span>
-                            </div>
+                            <span id="keywords_n"></span>
                         </div>
 <div class="row">
                             <br>
@@ -1372,6 +1547,18 @@
                 <div id="instituciones" class="panel-collapse collapse">
                     <ul class="list-group">
                         <li class="list-group-item">
+                            <div id="orden_catalogos_institucionales" class="catalog-order-bar" aria-label="Orden de los catálogos institucionales">
+                                <span class="catalog-order-label">Ordenamiento en catálogos:</span>
+                                <button type="button" class="catalog-order-option" data-mode="frecuencia" aria-pressed="false">
+                                    <span class="catalog-order-dot" aria-hidden="true"></span>
+                                    <span>Por frecuencia</span>
+                                </button>
+                                <button type="button" class="catalog-order-option" data-mode="alfabetico" aria-pressed="false">
+                                    <span class="catalog-order-dot" aria-hidden="true"></span>
+                                    <span>Alfabético</span>
+                                </button>
+                            </div>
+                            <div class="col-xs-12"><br><br></div>
                             <div class="col-xs-12">
                                 <input type="checkbox" id="es-corporativo" value="corporativo"><label for="es-corporativo" style="padding: 10px;"><b>Es autor corporativo</b></label>
                             </div>
@@ -1439,6 +1626,28 @@
                     </ul>
                 </div>
             </div>
+
+            {if $rol != "Editor"}
+            <div id="acciones-finales-bottom" class="acciones-finales-bottom">
+                <span class="acciones-finales-bottom-titulo">Finalizar registro</span>
+                <div class="acciones-finales-bottom-botones">
+                    <button id="save-no-indizable-bottom"
+                            type="button"
+                            class="btn btn-no-indizable guardar-duplicado"
+                            data-target="#save-no-indizable">
+                        <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                        <span>No indizable</span>
+                    </button>
+                    <button id="save-full-bottom"
+                            type="button"
+                            class="btn btn-finalizar guardar-duplicado"
+                            data-target="#save-full">
+                        <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                        <span>Análisis completo</span>
+                    </button>
+                </div>
+            </div>
+            {/if}
         </div>
     </div>
 </div>
