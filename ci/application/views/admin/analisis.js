@@ -7088,16 +7088,31 @@ class_av = {
                     .attr('data-valor', valor);
 
                 var $cabecera = $('<div>').addClass('clasificacion-sugerencia-cabecera');
-                var $etiqueta = $('<span>')
-                    .addClass('clasificacion-sugerencia-etiqueta')
-                    .text(etiqueta);
-                var $usar = $('<button>', {
-                    type: 'button',
-                    class: 'btn btn-default btn-xs clasificacion-sugerencia-usar',
-                    text: 'Seleccionar'
-                });
 
-                $usar.on('click', function(e){
+                /*
+                 * La etiqueta queda fija y sólo el valor sugerido es clicable.
+                 * El espacio entre ambos se controla por CSS para que se vea
+                 * como un tab después de los dos puntos.
+                 */
+                var textoEtiqueta = String(etiqueta || 'Sugerencia').trim().toUpperCase();
+                var $seleccion = $('<div>').addClass('clasificacion-sugerencia-seleccion');
+                $seleccion.append(
+                    $('<span>')
+                        .addClass('clasificacion-sugerencia-etiqueta')
+                        .text(textoEtiqueta + ':')
+                );
+
+                var $seleccionar = $('<button>', {
+                    type: 'button',
+                    class: 'clasificacion-sugerencia-seleccionar-link',
+                    title: 'Seleccionar ' + valor
+                }).append(
+                    $('<span>')
+                        .addClass('clasificacion-sugerencia-valor')
+                        .text(valor)
+                );
+
+                $seleccionar.on('click', function(e){
                     e.preventDefault();
                     e.stopPropagation();
                     if(typeof onUsar === 'function'){
@@ -7106,15 +7121,45 @@ class_av = {
                     return false;
                 });
 
-                $cabecera.append($etiqueta).append($usar);
-                $card.append($cabecera);
-                $card.append($('<div>').addClass('clasificacion-sugerencia-valor').text(valor));
+                $seleccion.append($seleccionar);
+                $cabecera.append($seleccion);
 
                 if(evidencia !== ''){
-                    var $evidencia = $('<div>').addClass('clasificacion-sugerencia-evidencia');
-                    //$evidencia.append($('<div>').addClass('evidencia-cabecera').text('Sustento de la sugerencia'));
-                    $evidencia.append($('<div>').addClass('clasificacion-sugerencia-evidencia-texto').text(evidencia));
-                    $card.append($evidencia);
+                    var $ayuda = $('<button>', {
+                        type: 'button',
+                        class: 'clasificacion-sugerencia-ayuda',
+                        title: 'Ver sustento',
+                        'aria-label': 'Ver sustento de la sugerencia',
+                        'aria-expanded': 'false'
+                    }).append($('<i>', {
+                        class: 'fa fa-question-circle',
+                        'aria-hidden': 'true'
+                    }));
+
+                    var $evidencia = $('<div>')
+                        .addClass('clasificacion-sugerencia-evidencia')
+                        .hide();
+                    $evidencia.append(
+                        $('<div>')
+                            .addClass('clasificacion-sugerencia-evidencia-texto')
+                            .text(evidencia)
+                    );
+
+                    $ayuda.on('click', function(e){
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var abierto = $(this).attr('aria-expanded') === 'true';
+                        $(this)
+                            .attr('aria-expanded', abierto ? 'false' : 'true')
+                            .attr('title', abierto ? 'Ver sustento' : 'Ocultar sustento');
+                        $evidencia.stop(true, true).slideToggle(140);
+                        return false;
+                    });
+
+                    $cabecera.append($ayuda);
+                    $card.append($cabecera).append($evidencia);
+                }else{
+                    $card.append($cabecera);
                 }
 
                 return $card;
