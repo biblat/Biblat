@@ -578,44 +578,89 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      margin-bottom: 4px;
+      margin-bottom: 0;
+  }
+
+  /*
+   * La etiqueta SUGERENCIA es informativa y no es clicable.
+   * Sólo el valor sugerido funciona como enlace de selección. El gap equivale
+   * visualmente a un tab entre los dos puntos y el valor.
+   */
+  .clasificacion-sugerencia-seleccion {
+      display: inline-flex;
+      align-items: baseline;
+      min-width: 0;
+      gap: 14px;
+      line-height: 1.35;
   }
 
   .clasificacion-sugerencia-etiqueta {
+      flex: 0 0 auto;
       color: #d96d00;
       font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: .25px;
+      white-space: nowrap;
   }
 
-  .clasificacion-sugerencia-valor {
-      color: #333333;
+  .clasificacion-sugerencia-seleccionar-link {
+      min-width: 0;
+      padding: 2px 0;
+      border: 0;
+      background: transparent;
+      color: #222222;
+      cursor: pointer;
+      text-align: left;
       font-size: 12px;
       font-weight: 700;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
   }
 
-  .clasificacion-sugerencia-usar {
-      border-color: #f0b06d;
-      background: #ffffff;
-      color: #c76500;
-  }
-
-  .clasificacion-sugerencia-usar:hover,
-  .clasificacion-sugerencia-usar:focus {
-      border-color: #ff8000;
-      background: #fff3e5;
-      color: #a95300;
+  /* Sólo el valor cambia de color al pasar el mouse. */
+  .clasificacion-sugerencia-seleccionar-link:hover,
+  .clasificacion-sugerencia-seleccionar-link:focus {
+      color: #d96d00;
+      text-decoration: underline;
       outline: none;
   }
 
-  .clasificacion-sugerencia-card.seleccionada .clasificacion-sugerencia-usar {
-      border-color: #ff8000;
-      background: #ff8000;
-      color: #ffffff;
+  .clasificacion-sugerencia-valor {
+      color: inherit;
+      font: inherit;
+  }
+
+  /* El signo de interrogación sólo abre/cierra el sustento. */
+  .clasificacion-sugerencia-ayuda {
+      flex: 0 0 auto;
+      padding: 1px 3px;
+      border: 0;
+      background: transparent;
+      color: #222222;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1;
+  }
+
+  .clasificacion-sugerencia-ayuda:hover,
+  .clasificacion-sugerencia-ayuda:focus {
+      color: #d96d00;
+      outline: none;
+  }
+
+  .clasificacion-sugerencia-card.seleccionada .clasificacion-sugerencia-seleccionar-link {
+      color: #222222;
+  }
+
+  .clasificacion-sugerencia-card.seleccionada .clasificacion-sugerencia-seleccionar-link:hover,
+  .clasificacion-sugerencia-card.seleccionada .clasificacion-sugerencia-seleccionar-link:focus {
+      color: #d96d00;
   }
 
   .clasificacion-sugerencia-evidencia {
+      display: none;
       margin-top: 7px;
       padding-top: 7px;
       border-top: 1px solid #eee3d7;
