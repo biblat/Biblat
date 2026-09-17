@@ -5446,7 +5446,17 @@ class_av = {
                         var var_palabras_clave = (idioma == 'eng') ? class_av.var.keywords_n : class_av.var.palabras_clave_n;
                         var catalogo = (idioma == 'eng') ? class_av.var.keywords0 : class_av.var.palabras_clave0;
                         var normalizaLocal = function(v){ return String(v || '').trim().toLowerCase(); };
+						var mayusculaInicial = function(v){
+							v = String(v || '').trim();
 
+							if(v === ''){
+								return v;
+							}
+
+							return v.charAt(0).toUpperCase() + v.slice(1);
+						};
+						
+						
                         if(name === ''){
                             $.alert('No es una palabra válida');
                             return false;
@@ -5500,7 +5510,10 @@ class_av = {
 
                         var exacta = (encontrado !== undefined);
                         var num = exacta ? Number(encontrado.num || 0) : 0;
-                        var terminoMostrar = exacta ? String(encontrado.valor || name) : name;
+                        //var terminoMostrar = exacta ? String(encontrado.valor || name) : name;
+						var terminoMostrar = exacta
+						? mayusculaInicial(String(encontrado.valor || name))
+						: mayusculaInicial(name);
                         var tipoClase = exacta ? 'pc-exacta' : 'pc-aprox';
                         var claseNueva = (idioma == 'eng') ? 'new_k keyword' : 'new_p esp';
                         var selectorIdioma = (idioma == 'eng') ? '.keyword.palabra_clave' : '.esp.palabra_clave';
