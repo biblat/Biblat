@@ -5500,20 +5500,43 @@ class_av = {
                             return false;
                         }
 
-                        var encontrado;
-                        $.each(catalogo || [], function(i,val){
-                            if(normalizaLocal(val.valor) === llave){
-                                encontrado = val;
-                                return false;
-                            }
-                        });
+                        // La forma que queremos conservar
+						name = mayusculaInicial(name);
+						var llave = normalizaLocal(name);
 
-                        var exacta = (encontrado !== undefined);
-                        var num = exacta ? Number(encontrado.num || 0) : 0;
-                        //var terminoMostrar = exacta ? String(encontrado.valor || name) : name;
-						var terminoMostrar = exacta
-						? mayusculaInicial(String(encontrado.valor || name))
-						: mayusculaInicial(name);
+						var encontrado = null;
+						var encontradoAlterno = null;
+
+						$.each(catalogo || [], function(i, val){
+							var valorCatalogo = String(val.valor || '').trim();
+
+							if(normalizaLocal(valorCatalogo) === llave){
+
+								// Prioridad absoluta: misma grafía que queremos mostrar.
+								// Ejemplo: México === México
+								if(valorCatalogo === name){
+									encontrado = val;
+									return false;
+								}
+
+								// Guardamos una coincidencia alternativa por si no existe
+								// exactamente con esa capitalización.
+								if(encontradoAlterno === null){
+									encontradoAlterno = val;
+								}
+							}
+						});
+
+						if(encontrado === null){
+							encontrado = encontradoAlterno;
+						}
+
+						var exacta = (encontrado !== null);
+						var num = exacta ? Number(encontrado.num || 0) : 0;
+
+						// Independientemente de cómo esté el catálogo,
+						// siempre conservar mayúscula inicial.
+						var terminoMostrar = mayusculaInicial(name);
                         var tipoClase = exacta ? 'pc-exacta' : 'pc-aprox';
                         var claseNueva = (idioma == 'eng') ? 'new_k keyword' : 'new_p esp';
                         var selectorIdioma = (idioma == 'eng') ? '.keyword.palabra_clave' : '.esp.palabra_clave';
