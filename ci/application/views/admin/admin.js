@@ -4,6 +4,8 @@ class_admin = {
         SCOPES: ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'],
         option_oai: '<option value="<url>"><revista></option>',
         get_oai: '/api_metametrics/get_oai?oai=<oai>&years=<years>',
+		iniciar_oai: '/api_metametrics/iniciar_oai?oai=<oai>&years=<years>&actualizar=<actualizar>',
+        estado_oai: '/api_metametrics/estado_oai?job_id=<job_id>',
 		send_xml: '/api_metametrics/send_xml?oai=<oai>&years=<years>',
 		send_zip: '/api_metametrics/send_zip',
         //td_num: '<a href="#" id="<anio>__<num>" class="thumbnail" style="color:#fff; background-color: #f0ad4e; border-color: #eea236; width:100px; text-align:center"><num></a>',
@@ -135,6 +137,8 @@ class_admin = {
         revistas: '',
         revista: {},
         registros:{},
+		oai_job_id: null,
+        oai_poll_token: 0,
     },
     initClient: function() {
         if (class_admin.var.init){
@@ -230,71 +234,47 @@ class_admin = {
             });
         });
         
-        $('#btn_ojs').off('click').on('click', function(){
-            loading.start();
-            class_admin.var.revista = class_utils.find_prop(class_admin.var.revistasJSON, 0, $('#select2-revista_sel-container').text());
-            var anio = $('#anio').val();
-            $.when( class_utils.getResource(class_admin.cons.get_oai.replace('<oai>', $('#revista_sel').val()).replace('<years>', anio)))
-            .then(function(resp_ojs){
-                if(resp_ojs.resp == 'Fail'){
-                    $('#respOJS').html('No se encontró el plugin');
-                }else{
-                
-                class_admin.var.data = resp_ojs;
-                var ids_issue = '';
-                var arr_ids_issue = [];
-                var issue = class_admin.var.data.numeros;
-                issue = issue.sort(class_utils.order_by_arr(['year', 'vol', 'num']));
-                var data_ss = '';
-                var data_p = '';
+		$('#btn_ojs')
+        .off('click')
+        .on('click', function(){
 
-                //total de publicaciones
-                var publicaciones_vigentes = class_admin.var.data.articulos;
-                
-                var tabla = '';
-                $.each(issue, function(i, val){
-                    tabla += class_admin.cons.td_num.replaceAll('<anio>', val.year).replaceAll('<num>', 'V'+val.vol+'N'+val.num + ((val.especial !== undefined)?'Esp':'') ) + ' ';
-                });
-                
-                if(tabla !== ''){
-                    $('#respOJS').html('<b>Números en OJS:</b> ' +  tabla);
-                    
-                    $('.nums').off().on('click',function(e){
-                        e.preventDefault();
-                        var id = this.id;
-                        $.confirm({
-                            title: '',
-                            content: 'Se ingresarán a Biblat los documentos encontrados en el número seleccionado: <b>' + this.id.replace('__', ' ') + '</b>',
-                            buttons: {
-                                cancelar: {
-                                        text: 'Cancelar',
-                                        //btnClass: 'btn-red',
-                                        action: function(){
-                                        }
-                                },
-                                aceptar: {
-                                        text: 'Aceptar',
-                                        btnClass: 'btn-warning',
-                                        action: function(){
-                                            $('#mensajeFin').html('');
-                                            var anio = id.split('__')[0];
-                                            var vol = id.split('__')[1].split('V')[1].split('N')[0];
-                                            var num = id.split('__')[1].split('N')[1].split('Esp')[0];
-                                            var especial = (id.indexOf('Esp') !== -1)?true:false;
-                                            class_admin.registrosCLAPER(anio, vol, num, especial);
-                                        }
-                                }
-                            }
-                        });
-                    });
-                }else{
-                    $('#respOJS').html('<b>Números en OJS:</b> No se encontraron números en OJS');
+            class_admin.iniciarOAI(false);
+
+        });
+        
+        $('#btn_actualizar_ojs')
+        .off('click')
+        .on('click', function(){
+
+            $.confirm({
+
+                title: 'Actualizar cosecha OJS',
+
+                content:
+                    'Se volverá a consultar la revista y se ' +
+                    'actualizarán los datos almacenados para el año ' +
+                    '<b>' + $('#anio').val() + '</b>.',
+
+                buttons: {
+
+                    cancelar: {
+                        text: 'Cancelar'
+                    },
+
+                    aceptar: {
+
+                        text: 'Actualizar',
+                        btnClass: 'btn-warning',
+
+                        action: function(){
+
+                            class_admin.iniciarOAI(true);
+
+                        }
+                    }
                 }
-                
-                }
-                
-                loading.end();
-            })
+            });
+
         });
         
 		$("#formXML").on("submit", function(event) {
@@ -745,10 +725,503 @@ class_admin = {
         data['where'] = columns;
         data['data'] = data_int;
         return data;
-    }
+    },
+	mostrarProgresoOAI: function(resp){
+
+        var progreso = parseInt(resp.progreso || 0);
+        var etapa = resp.etapa || 'INICIANDO';
+        var mensaje = resp.mensaje || '';
+
+        var nombres = {
+            'INICIANDO': 'Iniciando cosecha',
+            'VALIDANDO_OAI': 'Validando OAI-PMH',
+            'REVISANDO_REVISTA': 'Revisando sitio de la revista',
+            'BUSCANDO_NUMEROS': 'Revisando números',
+            'BUSCANDO_ARTICULOS': 'Buscando artículos',
+            'EXTRAYENDO_ARTICULOS': 'Extrayendo artículos',
+            'COMPLETANDO_ARTICULOS': 'Completando artículos',
+            'FINALIZANDO': 'Finalizando cosecha',
+            'FINALIZADO': 'Cosecha finalizada'
+        };
+
+        var titulo = nombres[etapa] || etapa;
+
+        $('#respOJS').html(
+            '<div style="max-width:600px;margin:10px auto;">' +
+
+                '<div style="margin-bottom:6px;">' +
+                    '<b>' + titulo + '</b>' +
+                '</div>' +
+
+                '<div class="progress" style="margin-bottom:6px;">' +
+                    '<div class="progress-bar progress-bar-warning" ' +
+                        'role="progressbar" ' +
+                        'aria-valuenow="' + progreso + '" ' +
+                        'aria-valuemin="0" ' +
+                        'aria-valuemax="100" ' +
+                        'style="width:' + progreso + '%;">' +
+                        progreso + '%' +
+                    '</div>' +
+                '</div>' +
+
+                '<div style="font-size:12px;">' +
+                    mensaje +
+                '</div>' +
+
+            '</div>'
+        );
+    },
+    mostrarResultadoOAI: function(resp_ojs){
+
+        if(resp_ojs.resp == 'Fail'){
+            $('#respOJS').html('No se encontró el plugin');
+            loading.end();
+            return;
+        }
+
+        class_admin.var.data = resp_ojs;
+
+        var ids_issue = '';
+        var arr_ids_issue = [];
+
+        var issue = class_admin.var.data.numeros;
+
+        issue = issue.sort(
+            class_utils.order_by_arr([
+                'year',
+                'vol',
+                'num'
+            ])
+        );
+
+        var data_ss = '';
+        var data_p = '';
+
+        // total de publicaciones
+        var publicaciones_vigentes =
+            class_admin.var.data.articulos;
+
+        var tabla = '';
+
+        $.each(issue, function(i, val){
+
+            tabla += class_admin.cons.td_num
+                .replaceAll('<anio>', val.year)
+                .replaceAll(
+                    '<num>',
+                    'V' +
+                    val.vol +
+                    'N' +
+                    val.num +
+                    (
+                        (val.especial !== undefined)
+                        ? 'Esp'
+                        : ''
+                    )
+                ) + ' ';
+        });
+
+
+        if(tabla !== ''){
+
+            $('#respOJS').html(
+                '<b>Números en OJS:</b> ' +
+                tabla
+            );
+
+
+            $('.nums')
+            .off()
+            .on('click', function(e){
+
+                e.preventDefault();
+
+                var id = this.id;
+
+                $.confirm({
+
+                    title: '',
+
+                    content:
+                        'Se ingresarán a Biblat los documentos ' +
+                        'encontrados en el número seleccionado: ' +
+                        '<b>' +
+                        this.id.replace('__', ' ') +
+                        '</b>',
+
+                    buttons: {
+
+                        cancelar: {
+
+                            text: 'Cancelar',
+
+                            action: function(){
+                            }
+                        },
+
+                        aceptar: {
+
+                            text: 'Aceptar',
+                            btnClass: 'btn-warning',
+
+                            action: function(){
+
+                                $('#mensajeFin').html('');
+
+                                var anio =
+                                    id.split('__')[0];
+
+                                var vol =
+                                    id.split('__')[1]
+                                    .split('V')[1]
+                                    .split('N')[0];
+
+                                var num =
+                                    id.split('__')[1]
+                                    .split('N')[1]
+                                    .split('Esp')[0];
+
+                                var especial =
+                                    (
+                                        id.indexOf('Esp') !== -1
+                                    )
+                                    ? true
+                                    : false;
+
+                                class_admin.registrosCLAPER(
+                                    anio,
+                                    vol,
+                                    num,
+                                    especial
+                                );
+                            }
+                        }
+                    }
+                });
+            });
+
+        }else{
+
+            $('#respOJS').html(
+                '<b>Números en OJS:</b> ' +
+                'No se encontraron números en OJS'
+            );
+        }
+
+        loading.end();
+    },
+    consultarEstadoOAI: function(job_id, token, fallos){
+
+        fallos = fallos || 0;
+
+        /*
+         * Si se inició otra cosecha desde esta pantalla,
+         * la anterior deja de actualizar la interfaz.
+         */
+        if(token !== class_admin.var.oai_poll_token){
+            return;
+        }
+
+        var url = class_admin.cons.estado_oai
+            .replace(
+                '<job_id>',
+                encodeURIComponent(job_id)
+            );
+
+        $.when(
+            class_utils.getResource(url)
+        )
+        .then(function(resp){
+
+            if(token !== class_admin.var.oai_poll_token){
+                return;
+            }
+
+
+            class_admin.mostrarProgresoOAI(resp);
+
+
+            /*
+             * =====================================================
+             * TERMINÓ
+             * =====================================================
+             */
+            if(resp.estado === 'COMPLETADO'){
+
+                var resultado = resp.resultado;
+
+                /*
+                 * Por compatibilidad, si llegara como JSON en texto.
+                 */
+                if(typeof resultado === 'string'){
+
+                    try{
+                        resultado = JSON.parse(resultado);
+                    }catch(e){
+
+                        $('#respOJS').html(
+                            '<b>Error:</b> ' +
+                            'La cosecha terminó pero no fue posible ' +
+                            'interpretar los metadatos.'
+                        );
+
+                        loading.end();
+
+                        return;
+                    }
+                }
+
+
+                class_admin.mostrarResultadoOAI(
+                    resultado
+                );
+
+                return;
+            }
+
+
+            /*
+             * =====================================================
+             * ERROR DEL WORKER
+             * =====================================================
+             */
+            if(resp.estado === 'ERROR'){
+
+                var mensaje =
+                    resp.error ||
+                    resp.mensaje ||
+                    'Ocurrió un error durante la cosecha OAI';
+
+                $('#respOJS').html(
+                    '<b>Error:</b> ' +
+                    $('<div>').text(mensaje).html()
+                );
+
+                loading.end();
+
+                return;
+            }
+
+
+            /*
+             * =====================================================
+             * JOB NO ENCONTRADO
+             * =====================================================
+             */
+            if(resp.estado === 'NO_ENCONTRADO'){
+
+                $('#respOJS').html(
+                    '<b>No fue posible localizar la cosecha.</b>'
+                );
+
+                loading.end();
+
+                return;
+            }
+
+
+            /*
+             * =====================================================
+             * SIGUE PROCESANDO
+             * =====================================================
+             */
+            setTimeout(function(){
+
+                class_admin.consultarEstadoOAI(
+                    job_id,
+                    token,
+                    0
+                );
+
+            }, 4000);
+
+        })
+        .fail(function(){
+
+            fallos++;
+
+            /*
+             * Un fallo al consultar estado no implica
+             * que la cosecha haya fallado.
+             */
+            if(fallos <= 5){
+
+                setTimeout(function(){
+
+                    class_admin.consultarEstadoOAI(
+                        job_id,
+                        token,
+                        fallos
+                    );
+
+                }, 4000);
+
+                return;
+            }
+
+
+            $('#respOJS').html(
+                '<b>No fue posible consultar el estado ' +
+                'de la cosecha.</b>'
+            );
+
+            loading.end();
+        });
+    },
+    iniciarOAI: function(actualizar){
+
+        loading.start();
+
+        $('#mensajeFin').html('');
+
+        $('#respOJS').html(
+            actualizar
+            ? '<b>Iniciando actualización de OJS...</b>'
+            : '<b>Consultando cosecha OJS...</b>'
+        );
+
+
+        class_admin.var.revista =
+            class_utils.find_prop(
+                class_admin.var.revistasJSON,
+                0,
+                $('#select2-revista_sel-container').text()
+            );
+
+
+        var anio = $('#anio').val();
+        var url_oai = $('#revista_sel').val();
+
+
+        class_admin.var.oai_poll_token =
+            (class_admin.var.oai_poll_token || 0) + 1;
+
+
+        var token =
+            class_admin.var.oai_poll_token;
+
+
+        var url_inicio =
+            class_admin.cons.iniciar_oai
+            .replace(
+                '<oai>',
+                encodeURIComponent(url_oai)
+            )
+            .replace(
+                '<years>',
+                encodeURIComponent(anio)
+            )
+            .replace(
+                '<actualizar>',
+                actualizar ? '1' : '0'
+            );
+
+
+        $.when(
+            class_utils.getResource(url_inicio)
+        )
+        .then(function(resp){
+
+
+            // =====================================================
+            // YA ESTABA COMPLETADO
+            // =====================================================
+
+            if(
+                resp.estado === 'COMPLETADO' &&
+                resp.resultado
+            ){
+
+                class_admin.var.oai_job_id =
+                    resp.job_id || null;
+
+                class_admin.mostrarResultadoOAI(
+                    resp.resultado
+                );
+
+                return;
+            }
+
+
+            // =====================================================
+            // NUEVA COSECHA O YA ESTABA TRABAJANDO
+            // =====================================================
+
+            if(
+                resp.estado === 'PROCESANDO' &&
+                resp.job_id
+            ){
+
+                class_admin.var.oai_job_id =
+                    resp.job_id;
+
+
+                class_admin.mostrarProgresoOAI(
+                    resp
+                );
+
+
+                loading.end();
+
+
+                class_admin.consultarEstadoOAI(
+                    resp.job_id,
+                    token,
+                    0
+                );
+
+                return;
+            }
+
+
+            // =====================================================
+            // GENERANDO DEL MECANISMO ANTIGUO SIN JOB
+            // =====================================================
+
+            if(
+                resp.estado === 'PROCESANDO' &&
+                !resp.job_id
+            ){
+
+                $('#respOJS').html(
+                    '<b>Existe una cosecha anterior en ejecución.</b>' +
+                    '<br>Espere a que termine o a que supere ' +
+                    'el tiempo máximo de 30 minutos sin actividad.'
+                );
+
+                loading.end();
+
+                return;
+            }
+
+
+            // =====================================================
+            // ERROR
+            // =====================================================
+
+            var mensaje =
+                resp.error ||
+                resp.mensaje ||
+                'No fue posible iniciar la cosecha OAI.';
+
+
+            $('#respOJS').html(
+                '<b>Error:</b> ' +
+                $('<div>').text(mensaje).html()
+            );
+
+            loading.end();
+
+        })
+        .fail(function(){
+
+            $('#respOJS').html(
+                '<b>No fue posible comunicarse con el servicio OAI.</b>'
+            );
+
+            loading.end();
+        });
+    },
 };
 
 $(class_admin.ready);
-
-
-
