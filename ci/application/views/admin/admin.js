@@ -274,7 +274,6 @@ class_admin = {
                     }
                 }
             });
-
         });
         
 		$("#formXML").on("submit", function(event) {

@@ -16,7 +16,10 @@
         <center>
             <button type="button" class="btn btn-warning" id="btn_biblat">Números en Biblat</button>
             <button type="button" class="btn btn-warning" id="btn_ojs">Números en OJS</button>
+<<<<<<< HEAD
             <button type="button" class="btn btn-warning" id="btn_actualizar_ojs">Actualizar cosecha</button>
+=======
+>>>>>>> bf0b749a553e21e908b0457045ca8f24d686605d
         </center>
     </div>
 </div>
