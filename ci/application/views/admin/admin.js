@@ -4,10 +4,10 @@ class_admin = {
         SCOPES: ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'],
         option_oai: '<option value="<url>"><revista></option>',
         get_oai: '/api_metametrics/get_oai?oai=<oai>&years=<years>',
-		iniciar_oai: '/api_metametrics/iniciar_oai?oai=<oai>&years=<years>&actualizar=<actualizar>',
+        iniciar_oai: '/api_metametrics/iniciar_oai?oai=<oai>&years=<years>&actualizar=<actualizar>',
         estado_oai: '/api_metametrics/estado_oai?job_id=<job_id>',
-		send_xml: '/api_metametrics/send_xml?oai=<oai>&years=<years>',
-		send_zip: '/api_metametrics/send_zip',
+        send_xml: '/api_metametrics/send_xml',
+        send_zip: '/api_metametrics/send_zip',
         //td_num: '<a href="#" id="<anio>__<num>" class="thumbnail" style="color:#fff; background-color: #f0ad4e; border-color: #eea236; width:100px; text-align:center"><num></a>',
         td_num: '<button type="button" class="btn btn-warning nums" id="<anio>__<num>"><num></button>',
         idiomas: {
@@ -121,7 +121,7 @@ class_admin = {
                 /^normas\s*para\s*autores/,
                 /^nota.*comité\s*editorial/,
                 /^advertencia\s*editorial$/,
-				/^author\s*guidelines$/,
+                /^author\s*guidelines$/,
                 /^contenido$/,
                 /^content$/,
                 /^directorio$/,
@@ -137,7 +137,7 @@ class_admin = {
         revistas: '',
         revista: {},
         registros:{},
-		oai_job_id: null,
+        oai_job_id: null,
         oai_poll_token: 0,
     },
     initClient: function() {
@@ -234,7 +234,7 @@ class_admin = {
             });
         });
         
-		$('#btn_ojs')
+        $('#btn_ojs')
         .off('click')
         .on('click', function(){
 
@@ -274,9 +274,10 @@ class_admin = {
                     }
                 }
             });
+
         });
         
-		$("#formXML").on("submit", function(event) {
+        $("#formXML").on("submit", function(event) {
             loading.start();
             class_admin.var.revista = class_utils.find_prop(class_admin.var.revistasJSON, 0, $('#select2-revista_sel-container').text());
             
@@ -326,8 +327,8 @@ class_admin = {
                 }
             });
         });
-		
-		$("#formZIP").on("submit", function(event) {
+        
+        $("#formZIP").on("submit", function(event) {
             loading.start();
             
             event.preventDefault();  // Prevenir el comportamiento por defecto del formulario
@@ -387,7 +388,7 @@ class_admin = {
         }else{
             issue = class_utils.filter_prop(issue, 'num', num);
         }
-		
+        //CAMBIO
         var issue_tmp = [];
         if (especial){
             issue_tmp = class_utils.filter_prop(issue, 'especial', 'especial');
@@ -412,6 +413,7 @@ class_admin = {
         var arr_id_pubs = [];
         //id's de las publicaciones
         $.each(publicaciones_vigentes, function(i,val){
+            //CAMBIO
             if(issue[0].num == val.numero.num && issue[0].vol == val.numero.vol && issue[0].especial == val.numero.especial){
 
                 //Revisión si es contenido indizable
@@ -516,6 +518,7 @@ class_admin = {
                 doc.volumen = (class_admin.cons.er.letra.test(vol.trim()))?'s/v':'V' + vol.trim();
             }
             doc.numero = (class_admin.cons.er.letra.test(num.trim()))?'s/n':'N' + num.trim();
+            //CAMBIO
             doc.parte = '';
             if(especial){
                 if (val.numero.especial.toUpperCase().indexOf('ESPECIAL') !== -1)
@@ -725,7 +728,7 @@ class_admin = {
         data['data'] = data_int;
         return data;
     },
-	mostrarProgresoOAI: function(resp){
+    mostrarProgresoOAI: function(resp){
 
         var progreso = parseInt(resp.progreso || 0);
         var etapa = resp.etapa || 'INICIANDO';
@@ -1224,3 +1227,6 @@ class_admin = {
 };
 
 $(class_admin.ready);
+
+
+
