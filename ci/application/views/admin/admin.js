@@ -4,10 +4,10 @@ class_admin = {
         SCOPES: ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'],
         option_oai: '<option value="<url>"><revista></option>',
         get_oai: '/api_metametrics/get_oai?oai=<oai>&years=<years>',
-        iniciar_oai: '/api_metametrics/iniciar_oai?oai=<oai>&years=<years>&actualizar=<actualizar>',
+		iniciar_oai: '/api_metametrics/iniciar_oai?oai=<oai>&years=<years>&actualizar=<actualizar>',
         estado_oai: '/api_metametrics/estado_oai?job_id=<job_id>',
-        send_xml: '/api_metametrics/send_xml',
-        send_zip: '/api_metametrics/send_zip',
+		send_xml: '/api_metametrics/send_xml?oai=<oai>&years=<years>',
+		send_zip: '/api_metametrics/send_zip',
         //td_num: '<a href="#" id="<anio>__<num>" class="thumbnail" style="color:#fff; background-color: #f0ad4e; border-color: #eea236; width:100px; text-align:center"><num></a>',
         td_num: '<button type="button" class="btn btn-warning nums" id="<anio>__<num>"><num></button>',
         idiomas: {
@@ -121,7 +121,7 @@ class_admin = {
                 /^normas\s*para\s*autores/,
                 /^nota.*comité\s*editorial/,
                 /^advertencia\s*editorial$/,
-                /^author\s*guidelines$/,
+				/^author\s*guidelines$/,
                 /^contenido$/,
                 /^content$/,
                 /^directorio$/,
@@ -137,65 +137,150 @@ class_admin = {
         revistas: '',
         revista: {},
         registros:{},
-        oai_job_id: null,
+		oai_job_id: null,
         oai_poll_token: 0,
     },
     initClient: function() {
-        if (class_admin.var.init){
+        if (class_admin.var.init) {
             class_admin.var.init = false;
+
             var object = {
                 private_key: env.P_K,
                 client_email: b(env.C_E),
                 scopes: class_admin.cons.SCOPES,
             };
+
             gapi.load("client", async function(){
-                gapi.auth.setToken(await GetAccessTokenFromServiceAccount.do(object));
-                gapi.client.init({
-                    discoveryDocs: class_admin.cons.DISCOVERY_DOCS,
-                }).then(function () {
-                    //Lectura de hoja de cálculo, se requiere el ID y la hoja de la que leerá
-                    gapi.client.sheets.spreadsheets.values.get({
-                        spreadsheetId: b(env.sId),
-                        range: b(env.s),
-                    }).then(function(response) {
-                        var revistas = response.result.values;
-                        var options = '';
-                        $.each(revistas, function(i, val){
-                                if(i>0){
-                                    //if(val[14] == '1'){
+                try {
+                    gapi.auth.setToken(
+                        await GetAccessTokenFromServiceAccount.do(object)
+                    );
+
+                    gapi.client.init({
+                        discoveryDocs: class_admin.cons.DISCOVERY_DOCS,
+                    })
+                    .then(function () {
+                        // Lectura de hoja de cálculo, se requiere el ID y la hoja de la que leerá
+                        gapi.client.sheets.spreadsheets.values.get({
+                            spreadsheetId: b(env.sId),
+                            range: b(env.s),
+                        })
+                        .then(function(response) {
+                            try {
+                                var revistas = response.result.values;
+                                var options = '';
+
+                                $.each(revistas, function(i, val){
+                                    if(i > 0){
                                         var obj = Object.assign({}, val);
+
                                         for (let key in obj) {
                                             if (typeof obj[key] === "string") {
-                                              obj[key] = obj[key].trim();
+                                                obj[key] = obj[key].trim();
                                             }
                                         }
-                                        class_admin.var.revistasJSON.push(JSON.parse(JSON.stringify(obj)));
-                                        //class_admin.var.revistasJSON.push(JSON.parse(JSON.stringify(Object.assign({}, val))));
-                                    //}
-                                }
-                        });
-                        class_admin.var.revistasJSON.sort(class_utils.order_by(0));
-                        options += class_admin.cons.option_oai.replace('<revista>', "").replace('<url>',"");
-                        $.each(class_admin.var.revistasJSON, function(i, val){
-                            try{
-                                options += class_admin.cons.option_oai.replace('<revista>', val[0].trim()).replace('<url>',val[9].trim());
-                            } catch (error) {
-                                console.log(error);
+
+                                        class_admin.var.revistasJSON.push(
+                                            JSON.parse(JSON.stringify(obj))
+                                        );
+                                    }
+                                });
+
+                                class_admin.var.revistasJSON.sort(
+                                    class_utils.order_by(0)
+                                );
+
+                                options += class_admin.cons.option_oai
+                                    .replace('<revista>', "")
+                                    .replace('<url>', "");
+
+                                $.each(
+                                    class_admin.var.revistasJSON,
+                                    function(i, val){
+                                        try {
+                                            options += class_admin.cons.option_oai
+                                                .replace('<revista>', val[0].trim())
+                                                .replace('<url>', val[9].trim());
+                                        } catch (error) {
+                                            console.error(
+                                                'Error procesando revista:',
+                                                val,
+                                                error
+                                            );
+                                        }
+                                    }
+                                );
+
+                                $('#revista_sel').show();
+                                $('#revista_sel').html(options);
+                                $('#revista_sel').select2({
+                                    tags: true,
+                                    placeholder: "Seleccione una Revista",
+                                    allowClear: true
+                                });
+
+                                loading.end();
+
+                            } catch(error) {
+                                console.error(
+                                    'ERROR PROCESANDO RESPUESTA DE GOOGLE SHEETS:',
+                                    error
+                                );
+
+                                console.error(
+                                    'Respuesta:',
+                                    response
+                                );
+
+                                $('#respOJS').html(
+                                    '<b>Error al procesar la lista de revistas.</b>'
+                                );
+
+                                loading.end();
                             }
+                        })
+                        .catch(function(error){
+                            console.error(
+                                'ERROR CONSULTANDO GOOGLE SHEETS:',
+                                error
+                            );
+
+                            $('#respOJS').html(
+                                '<b>No fue posible consultar la lista de revistas.</b>'
+                            );
+
+                            loading.end();
                         });
-                        $('#revista_sel').show();
-                        $('#revista_sel').html(options);
-                        $('#revista_sel').select2({ tags: true, placeholder: "Seleccione una Revista", allowClear: true});
+                    })
+                    .catch(function(error){
+                        console.error(
+                            'ERROR INICIALIZANDO GAPI:',
+                            error
+                        );
+
+                        $('#respOJS').html(
+                            '<b>No fue posible inicializar Google API.</b>'
+                        );
+
                         loading.end();
-                    }).catch(function(){
-                        location.reload();
                     });
-                }).catch(function(){
-                    location.reload();
-                });
+
+                } catch(error) {
+                    console.error(
+                        'ERROR OBTENIENDO TOKEN DE GOOGLE:',
+                        error
+                    );
+
+                    $('#respOJS').html(
+                        '<b>No fue posible obtener acceso a Google Sheets.</b>'
+                    );
+
+                    loading.end();
+                }
             });
         }
     },
+
     ready: function(){
         var anio = (new Date()).getFullYear();
         var anios='';
@@ -234,7 +319,7 @@ class_admin = {
             });
         });
         
-        $('#btn_ojs')
+		$('#btn_ojs')
         .off('click')
         .on('click', function(){
 
@@ -274,10 +359,9 @@ class_admin = {
                     }
                 }
             });
-
         });
         
-        $("#formXML").on("submit", function(event) {
+		$("#formXML").on("submit", function(event) {
             loading.start();
             class_admin.var.revista = class_utils.find_prop(class_admin.var.revistasJSON, 0, $('#select2-revista_sel-container').text());
             
@@ -327,8 +411,8 @@ class_admin = {
                 }
             });
         });
-        
-        $("#formZIP").on("submit", function(event) {
+		
+		$("#formZIP").on("submit", function(event) {
             loading.start();
             
             event.preventDefault();  // Prevenir el comportamiento por defecto del formulario
@@ -388,7 +472,7 @@ class_admin = {
         }else{
             issue = class_utils.filter_prop(issue, 'num', num);
         }
-        //CAMBIO
+		
         var issue_tmp = [];
         if (especial){
             issue_tmp = class_utils.filter_prop(issue, 'especial', 'especial');
@@ -413,7 +497,6 @@ class_admin = {
         var arr_id_pubs = [];
         //id's de las publicaciones
         $.each(publicaciones_vigentes, function(i,val){
-            //CAMBIO
             if(issue[0].num == val.numero.num && issue[0].vol == val.numero.vol && issue[0].especial == val.numero.especial){
 
                 //Revisión si es contenido indizable
@@ -518,7 +601,6 @@ class_admin = {
                 doc.volumen = (class_admin.cons.er.letra.test(vol.trim()))?'s/v':'V' + vol.trim();
             }
             doc.numero = (class_admin.cons.er.letra.test(num.trim()))?'s/n':'N' + num.trim();
-            //CAMBIO
             doc.parte = '';
             if(especial){
                 if (val.numero.especial.toUpperCase().indexOf('ESPECIAL') !== -1)
@@ -728,7 +810,7 @@ class_admin = {
         data['data'] = data_int;
         return data;
     },
-    mostrarProgresoOAI: function(resp){
+	mostrarProgresoOAI: function(resp){
 
         var progreso = parseInt(resp.progreso || 0);
         var etapa = resp.etapa || 'INICIANDO';
@@ -1227,6 +1309,3 @@ class_admin = {
 };
 
 $(class_admin.ready);
-
-
-
