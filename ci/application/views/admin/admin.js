@@ -139,6 +139,7 @@ class_admin = {
         registros:{},
 		oai_job_id: null,
         oai_poll_token: 0,
+        oai_resultado_existente: false,
     },
     initClient: function() {
         if (class_admin.var.init) {
@@ -197,17 +198,33 @@ class_admin = {
                                 $.each(
                                     class_admin.var.revistasJSON,
                                     function(i, val){
-                                        try {
-                                            options += class_admin.cons.option_oai
-                                                .replace('<revista>', val[0].trim())
-                                                .replace('<url>', val[9].trim());
-                                        } catch (error) {
-                                            console.error(
-                                                'Error procesando revista:',
-                                                val,
-                                                error
+
+                                        var nombre = (
+                                            val[0] !== undefined &&
+                                            val[0] !== null
+                                        )
+                                            ? String(val[0]).trim()
+                                            : '';
+
+                                        var oai = (
+                                            val[9] !== undefined &&
+                                            val[9] !== null
+                                        )
+                                            ? String(val[9]).trim()
+                                            : '';
+
+                                        // Si no tiene nombre u OAI, no se agrega al selector
+                                        if(nombre === '' || oai === ''){
+                                            console.log(
+                                                'Revista omitida por no tener URL OAI:',
+                                                nombre
                                             );
+                                            return;
                                         }
+
+                                        options += class_admin.cons.option_oai
+                                            .replace('<revista>', nombre)
+                                            .replace('<url>', oai);
                                     }
                                 );
 
@@ -288,6 +305,7 @@ class_admin = {
             anios += '<option value="'+i+'">'+i+'</option>';
         }
         $('#anio').html(anios);
+        $('#btn_actualizar_ojs').hide();
         loading.start();
         class_admin.initClient();
         class_admin.control();
@@ -297,12 +315,16 @@ class_admin = {
             $('#respBiblat').html('');
             $('#respOJS').html('');
             $('#mensajeFin').html('');
+            class_admin.var.oai_resultado_existente = false;
+            $('#btn_actualizar_ojs').hide();
         });
         
         $('#anio').off('change').on('change', function(){
             $('#respBiblat').html('');
             $('#respOJS').html('');
             $('#mensajeFin').html('');
+            class_admin.var.oai_resultado_existente = false;
+            $('#btn_actualizar_ojs').hide();
         });
         
         $('#btn_biblat').off('click').on('click', function(){
@@ -812,6 +834,8 @@ class_admin = {
     },
 	mostrarProgresoOAI: function(resp){
 
+        $('#btn_actualizar_ojs').hide();
+
         var progreso = parseInt(resp.progreso || 0);
         var etapa = resp.etapa || 'INICIANDO';
         var mensaje = resp.mensaje || '';
@@ -855,7 +879,9 @@ class_admin = {
             '</div>'
         );
     },
-    mostrarResultadoOAI: function(resp_ojs){
+    mostrarResultadoOAI: function(resp_ojs, info_cosecha){
+
+        info_cosecha = info_cosecha || {};
 
         if(resp_ojs.resp == 'Fail'){
             $('#respOJS').html('No se encontró el plugin');
@@ -864,6 +890,41 @@ class_admin = {
         }
 
         class_admin.var.data = resp_ojs;
+
+        var fecha_raw =
+            info_cosecha.fecha ||
+            info_cosecha.actualizado ||
+            null;
+
+        var fecha_mostrar = '';
+
+        if(fecha_raw){
+            var fecha_solo = String(fecha_raw).split('T')[0];
+            var partes_fecha = fecha_solo.split('-');
+
+            if(partes_fecha.length === 3){
+                fecha_mostrar =
+                    partes_fecha[2] + '/' +
+                    partes_fecha[1] + '/' +
+                    partes_fecha[0];
+            }else{
+                fecha_mostrar = fecha_solo;
+            }
+        }
+
+        var encabezado_ojs = '<b>Números en OJS:</b>';
+
+        if(fecha_mostrar !== ''){
+            encabezado_ojs +=
+                ' <span style="font-size:12px;color:#777;font-weight:normal;">' +
+                '<br>(cosecha realizada el ' +
+                $('<div>').text(fecha_mostrar).html() +
+                ')' +
+                '</span>';
+        }
+
+        class_admin.var.oai_resultado_existente = true;
+        $('#btn_actualizar_ojs').show();
 
         var ids_issue = '';
         var arr_ids_issue = [];
@@ -909,7 +970,7 @@ class_admin = {
         if(tabla !== ''){
 
             $('#respOJS').html(
-                '<b>Números en OJS:</b> ' +
+                encabezado_ojs + ' ' +
                 tabla
             );
 
@@ -987,7 +1048,7 @@ class_admin = {
         }else{
 
             $('#respOJS').html(
-                '<b>Números en OJS:</b> ' +
+                encabezado_ojs + ' ' +
                 'No se encontraron números en OJS'
             );
         }
@@ -1057,7 +1118,10 @@ class_admin = {
 
 
                 class_admin.mostrarResultadoOAI(
-                    resultado
+                    resultado,
+                    {
+                        actualizado: resp.actualizado || null
+                    }
                 );
 
                 return;
@@ -1156,6 +1220,7 @@ class_admin = {
 
         loading.start();
 
+        $('#btn_actualizar_ojs').hide();
         $('#mensajeFin').html('');
 
         $('#respOJS').html(
@@ -1220,7 +1285,11 @@ class_admin = {
                     resp.job_id || null;
 
                 class_admin.mostrarResultadoOAI(
-                    resp.resultado
+                    resp.resultado,
+                    {
+                        fecha: resp.fecha || null,
+                        actualizado: resp.actualizado || null
+                    }
                 );
 
                 return;
