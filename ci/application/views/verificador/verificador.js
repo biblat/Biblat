@@ -1525,6 +1525,14 @@ class_ver = {
         var url_en_impreso = '';
         $('#issn1').html('ISSN:');
         $('#issn2').html('ISSN:');
+		
+		// Limpiar datos del Portal ISSN de la revista anterior
+        $('#pais').html('');
+        $('#revistai').html('');
+        $('#revistae').html('');
+        $('#editorp').html('');
+        $('#url').html('');
+		
         if(issn !== 'No especificado' ){
             url = class_ver.cons.get_issn.replace('<issn>', issn);
             $.when(
@@ -1568,7 +1576,7 @@ class_ver = {
                     }
                 }
                 
-                if(eissn !== 'No espedificado'){
+                if(eissn !== 'No especificado'){
                     url = class_ver.cons.get_issn.replace('<issn>', eissn);
                     $.when(
                         class_utils.getResource(url)
