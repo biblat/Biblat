@@ -917,7 +917,7 @@ class_admin = {
         if(fecha_mostrar !== ''){
             encabezado_ojs +=
                 ' <span style="font-size:12px;color:#777;font-weight:normal;">' +
-                '<br>(cosecha realizada el ' +
+                '<br>(Última descarga: ' +
                 $('<div>').text(fecha_mostrar).html() +
                 ')' +
                 '</span>';
