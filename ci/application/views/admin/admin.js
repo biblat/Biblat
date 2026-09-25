@@ -758,7 +758,7 @@ class_admin = {
     data_inserta_article: function(){
         var data = {};
         var data_int = [];
-        var columns = ['revista', 'articulo', 'issn', 'doi', 'paisRevista', 'anioRevista', 'disciplinaRevista'];
+        var columns = ['revista', 'articulo', 'issn', 'doi', 'paisRevista', 'anioRevista', 'disciplinaRevista', 'descripcionBibliografica'];
         $.each(class_admin.var.registros.doc, function(i,val){
             var obj = {};
             var objDes = {};

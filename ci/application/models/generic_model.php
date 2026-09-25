@@ -443,14 +443,99 @@ class Generic_model extends CI_Model {
 				//Acomodo de nombre de campos where con su respectivo valor a buscar
 				foreach ($data as $x => $value){
                     
-					// IMPORTANTE: nuevo WHERE para cada artículo
-					$array = array();
-					
+                    // IMPORTANTE: nuevo WHERE para cada artículo
+                    $array = array();
+                    $volumen = '';
+                    $numero = '';
+    
                     foreach ($arr_where as $aw){
-                        if($value[$aw] !== '')
+
+                        /*
+                         * descripcionBibliografica requiere tratamiento especial.
+                         * Sólo utilizamos:
+                         *
+                         * a = volumen
+                         * b = número
+                         *
+                         * No usamos páginas, mes, suplemento, etc.
+                         */
+                        if ($aw === 'descripcionBibliografica') {
+
+                            if (
+                                isset($value[$aw]) &&
+                                $value[$aw] !== '' &&
+                                $value[$aw] !== null
+                            ) {
+
+                                $descripcion = json_decode($value[$aw], true);
+
+                                if (
+                                    json_last_error() === JSON_ERROR_NONE &&
+                                    is_array($descripcion)
+                                ) {
+
+                                    if (
+                                        isset($descripcion['a']) &&
+                                        $descripcion['a'] !== ''
+                                    ) {
+                                        $volumen = trim((string)$descripcion['a']);
+                                    }
+
+                                    if (
+                                        isset($descripcion['b']) &&
+                                        $descripcion['b'] !== ''
+                                    ) {
+                                        $numero = trim((string)$descripcion['b']);
+                                    }
+                                }
+                            }
+
+                            continue;
+                        }
+
+                        /*
+                         * Campos normales del WHERE
+                         */
+                        if (
+                            isset($value[$aw]) &&
+                            $value[$aw] !== '' &&
+                            $value[$aw] !== null
+                        ) {
                             $array[$aw] = $value[$aw];
+                        }
                     }
                     $this->db->where($array);
+                    
+                    /*
+                    * Comparación de volumen y número dentro del JSON
+                    *
+                    * descripcionBibliografica:
+                    * {
+                    *     "a": "V24",
+                    *     "b": "N2",
+                    *     "e": "P106-112"
+                    * }
+                    */
+                   if ($volumen !== '') {
+
+                       $this->db->where(
+                           "\"descripcionBibliografica\"->>'a' = " .
+                           $this->db->escape($volumen),
+                           null,
+                           false
+                       );
+                   }
+
+                   if ($numero !== '') {
+
+                       $this->db->where(
+                           "\"descripcionBibliografica\"->>'b' = " .
+                           $this->db->escape($numero),
+                           null,
+                           false
+                       );
+                   }
+				   
                     $q = $this->db->get($tabla);
                     
 			
