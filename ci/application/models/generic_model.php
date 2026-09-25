@@ -415,6 +415,10 @@ class Generic_model extends CI_Model {
 				$this->load->database();
 		//Acomodo de nombre de campos where con su respectivo valor a buscar
 		foreach ($data as $x => $value){
+                    
+			// IMPORTANTE: nuevo WHERE para cada artículo
+			$array = array();
+			
 			foreach ($arr_where as $aw){
 				$array[$aw] = $value[$aw];
 			}
@@ -436,8 +440,12 @@ class Generic_model extends CI_Model {
                 $sistema = $res[0]['sistema'];
             
                 $this->db->trans_start();
-		//Acomodo de nombre de campos where con su respectivo valor a buscar
-		foreach ($data as $x => $value){
+				//Acomodo de nombre de campos where con su respectivo valor a buscar
+				foreach ($data as $x => $value){
+                    
+					// IMPORTANTE: nuevo WHERE para cada artículo
+					$array = array();
+					
                     foreach ($arr_where as $aw){
                         if($value[$aw] !== '')
                             $array[$aw] = $value[$aw];
