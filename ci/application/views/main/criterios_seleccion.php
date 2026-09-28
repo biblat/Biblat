@@ -66,6 +66,12 @@
 
                         <li>{_('Metadatos de indización: En cada artículo publicado deben constar los metadatos necesarios: título, autor(es) con su afiliación institucional, resúmenes y palabras clave en al menos dos idiomas.')} <a href="{site_url('metametrics/simulador')}">{_('Este rubro se evalúa a través de la herramienta MetaMetrics.')}</a></li>
                 </ol><br><br>
+				
+		<p> 
+			<b>{_('Salvaguarda de la integridad académica.')}</b> {_('Además de los criterios editoriales, el Comité podrá revisar información adicional publicada en el sitio web de la revista, enlazada desde este o disponible en otros sitios web, cuando resulte pertinente para verificar la legitimidad de la revista y salvaguardar su integridad académica.')}
+			<br>{_('El presente criterio podrá aplicarse durante los procesos de evaluación y reevaluación, o en cualquier otro momento aún cuando una revista ya haya sido aceptada o se encuentre indizada y se identifiquen posibles faltas a la integridad académica.')}
+			<br>{_('El Comité documentará las evidencias que estime pertinentes y las remitirá a la revista junto con el dictamen de rechazo, en caso de que se encuentre en proceso de postulación, o con la notificación de suspensión del servicio de indización, cuando la revista haya sido aceptada o indizada previamente.')} 
+		</p><br><br>
                 
 		<div class="page_title">
             <hr/>
