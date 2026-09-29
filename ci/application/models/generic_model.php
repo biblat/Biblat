@@ -771,5 +771,534 @@ class Generic_model extends CI_Model {
 		$string = str_replace("'", "''", $string);
 		return $string;
 	}
+	
+	    /*
+        * ============================================================
+        * CORRECCIONES - Métodos para Generic_model.php
+        * ============================================================
+        */
+
+       private function corr_null($valor){
+           if($valor === null) return null;
+
+           if(is_string($valor)){
+               $valor = trim($valor);
+               return $valor === '' ? null : $valor;
+           }
+
+           return $valor;
+       }
+
+       private function corr_lista_limpia($lista){
+           $out = array();
+
+           foreach((array)$lista as $v){
+               if(is_array($v) || is_object($v)) continue;
+
+               $v = trim((string)$v);
+               if($v !== ''){
+                   $out[] = $v;
+               }
+           }
+
+           return array_values($out);
+       }
+
+       private function corr_idioma_codigo($idioma){
+           $mapa = array(
+               'español' => 'spa',
+               'ingles' => 'eng',
+               'inglés' => 'eng',
+               'portugues' => 'por',
+               'portugués' => 'por',
+               'frances' => 'fre',
+               'francés' => 'fre',
+               'italiano' => 'ita',
+               'aleman' => 'ger',
+               'alemán' => 'ger',
+               'ruso' => 'rus'
+           );
+
+           $idioma = trim((string)$idioma);
+           $llave = mb_strtolower($idioma, 'UTF-8');
+
+           return isset($mapa[$llave])
+               ? $mapa[$llave]
+               : $idioma;
+       }
+
+       public function guardar_correccion($payload, $usuario){
+           $db = $this->load->database('prueba', TRUE);
+
+           $sistema = isset($payload['sistema'])
+               ? trim((string)$payload['sistema'])
+               : '';
+
+           if($sistema === ''){
+               throw new Exception('Falta el número de sistema.');
+           }
+
+           $qActual = $db->query(
+               'SELECT * FROM article WHERE sistema = ? LIMIT 1',
+               array($sistema)
+           );
+
+           if(!$qActual || $qActual->num_rows() === 0){
+               throw new Exception('El artículo no existe.');
+           }
+
+           $actual = $qActual->row_array();
+
+           $entrada = (
+               isset($payload['article']) &&
+               is_array($payload['article'])
+           ) ? $payload['article'] : array();
+
+           /*
+            * Campos escalares que sí pueden corregirse.
+            * Deliberadamente NO se incluyen:
+            * sistema, estatus, asignado, fechaAsignado,
+            * estatusPC, asignadoPC, fechaAsignadoPC, fechaIngreso.
+            */
+           $permitidos = array(
+               'revista',
+               'articulo',
+               'issn',
+               'doi',
+               'paisRevista',
+               'idioma',
+               'ciudadEditora',
+               'institucionEditora',
+               'anioRevista',
+               'notaGeneral',
+               'idiomaResumen',
+               'disciplinaRevista',
+               'sistemaErrata',
+               'scieloid'
+           );
+
+           $article = array();
+
+           foreach($permitidos as $campo){
+               if(array_key_exists($campo, $entrada)){
+                   $article[$campo] = $this->corr_null($entrada[$campo]);
+               }
+           }
+
+           $dspace_set = false;
+            $dspace_valor = null;
+
+            if(array_key_exists('DSpace', $entrada)){
+                $dspace_set = true;
+
+                if($entrada['DSpace'] === '' || $entrada['DSpace'] === null){
+                    $dspace_valor = null;
+                }else{
+                    $dspace_valor = (
+                        $entrada['DSpace'] === true ||
+                        $entrada['DSpace'] === 1 ||
+                        $entrada['DSpace'] === '1' ||
+                        $entrada['DSpace'] === 'true' ||
+                        $entrada['DSpace'] === 't'
+                    );
+                }
+            }
+
+           /*
+            * =========================================================
+            * descripcionBibliografica
+            * No se expone JSON. Conservamos cualquier clave desconocida
+            * que ya existiera y sólo editamos a-e.
+            * =========================================================
+            */
+           $desc = json_decode(
+               isset($actual['descripcionBibliografica'])
+                   ? $actual['descripcionBibliografica']
+                   : '',
+               true
+           );
+           if(!is_array($desc)) $desc = array();
+
+           $mapDesc = array(
+               'volumen'=>'a',
+               'numero'=>'b',
+               'mes'=>'c',
+               'parte'=>'d',
+               'paginas'=>'e'
+           );
+
+           foreach($mapDesc as $campo=>$clave){
+               if(!array_key_exists($campo, $entrada)) continue;
+
+               $v = trim((string)$entrada[$campo]);
+
+               if($v === ''){
+                   unset($desc[$clave]);
+               }else{
+                   $desc[$clave] = $v;
+               }
+           }
+
+           $article['descripcionBibliografica'] =
+               count($desc) > 0
+               ? json_encode($desc, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+               : null;
+
+           /*
+            * =========================================================
+            * documento
+            * Conserva claves desconocidas, edita sólo a.
+            * =========================================================
+            */
+           $documento = json_decode(
+               isset($actual['documento']) ? $actual['documento'] : '',
+               true
+           );
+           if(!is_array($documento)) $documento = array();
+
+           if(array_key_exists('tipoDocumento', $entrada)){
+               $tipoDoc = trim((string)$entrada['tipoDocumento']);
+
+               if($tipoDoc === ''){
+                   unset($documento['a']);
+               }else{
+                   $documento['a'] = $tipoDoc;
+               }
+           }
+
+           $article['documento'] =
+               count($documento) > 0
+               ? json_encode($documento, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+               : null;
+
+           /*
+            * =========================================================
+            * resumen
+            * Conserva claves adicionales y actualiza a/i/p/o.
+            * =========================================================
+            */
+           $resumen = json_decode(
+               isset($actual['resumen']) ? $actual['resumen'] : '',
+               true
+           );
+           if(!is_array($resumen)) $resumen = array();
+
+           $mapResumen = array(
+               'resumenEspanol'=>'a',
+               'resumenIngles'=>'i',
+               'resumenPortugues'=>'p',
+               'resumenOtro'=>'o'
+           );
+
+           foreach($mapResumen as $campo=>$clave){
+               if(!array_key_exists($campo, $entrada)) continue;
+
+               $v = trim((string)$entrada[$campo]);
+
+               if($v === ''){
+                   unset($resumen[$clave]);
+               }else{
+                   $resumen[$clave] = $v;
+               }
+           }
+
+           $article['resumen'] =
+               count($resumen) > 0
+               ? json_encode($resumen, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+               : null;
+
+           /*
+            * Títulos traducidos.
+            */
+           $titulos = array();
+           foreach(
+               isset($payload['titulosTraducidos'])
+                   ? (array)$payload['titulosTraducidos']
+                   : array()
+               as $r
+           ){
+               if(!is_array($r)) continue;
+
+               $titulo = trim((string)(
+                   isset($r['titulo']) ? $r['titulo'] : ''
+               ));
+               $idioma = trim((string)(
+                   isset($r['idioma']) ? $r['idioma'] : ''
+               ));
+
+               if($titulo === '') continue;
+
+               $fila = array('a'=>$titulo);
+               if($idioma !== ''){
+                   $fila['y'] = $this->corr_idioma_codigo($idioma);
+               }
+
+               $titulos[] = $fila;
+           }
+
+           $article['articuloIdiomas'] =
+               count($titulos) > 0
+               ? json_encode($titulos, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+               : null;
+
+           /*
+            * Listas simples.
+            */
+           $disciplinas = $this->corr_lista_limpia(
+               isset($payload['disciplinas']) ? $payload['disciplinas'] : array()
+           );
+           $subdisciplinas = $this->corr_lista_limpia(
+               isset($payload['subdisciplinas']) ? $payload['subdisciplinas'] : array()
+           );
+           $palabras = $this->corr_lista_limpia(
+               isset($payload['palabrasClave']) ? $payload['palabrasClave'] : array()
+           );
+           $keywords = $this->corr_lista_limpia(
+               isset($payload['keywords']) ? $payload['keywords'] : array()
+           );
+
+           $article['disciplinas'] = count($disciplinas)
+               ? json_encode($disciplinas, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+               : null;
+
+           $article['subdisciplinas'] = count($subdisciplinas)
+               ? json_encode($subdisciplinas, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+               : null;
+
+           $article['palabraClave'] = count($palabras)
+               ? json_encode($palabras, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+               : null;
+
+           $article['keyword'] = count($keywords)
+               ? json_encode($keywords, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+               : null;
+
+           /*
+            * URLs. La descripción se conserva como texto libre porque en la base
+            * existen variantes como Texto completo, Fe de erratas, Original, etc.
+            */
+           $urls = array();
+
+           foreach(
+               isset($payload['urls'])
+                   ? (array)$payload['urls']
+                   : array()
+               as $r
+           ){
+               if(!is_array($r)) continue;
+
+               $url = trim((string)(
+                   isset($r['url']) ? $r['url'] : ''
+               ));
+               $tipo = trim((string)(
+                   isset($r['tipo']) ? $r['tipo'] : ''
+               ));
+
+               if($url === '') continue;
+
+               $fila = array('u'=>$url);
+               if($tipo !== ''){
+                   $fila['y'] = $tipo;
+               }
+
+               $urls[] = $fila;
+           }
+
+           $article['url'] = count($urls)
+               ? json_encode($urls, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+               : null;
+
+           /*
+            * Instituciones y autores.
+            */
+           $instituciones = (
+               isset($payload['instituciones']) &&
+               is_array($payload['instituciones'])
+           ) ? $payload['instituciones'] : array();
+
+           $autores = (
+               isset($payload['autores']) &&
+               is_array($payload['autores'])
+           ) ? $payload['autores'] : array();
+
+           $corporativo = !empty($payload['corporativo']);
+
+           $tiempo = isset($payload['tiempo'])
+               ? max(0, (int)$payload['tiempo'])
+               : 0;
+
+           $db->trans_begin();
+
+           try{
+               $db->set('fechaActualizado', 'NOW()', false);
+
+                /*
+                 * PostgreSQL requiere TRUE/FALSE reales para columnas boolean.
+                 * CodeIgniter convertiría un boolean PHP a 1/0 si se manda
+                 * dentro del arreglo $article.
+                 */
+                if($dspace_set){
+                    if($dspace_valor === null){
+                        $db->set('DSpace', 'NULL', false);
+                    }else{
+                        $db->set(
+                            'DSpace',
+                            $dspace_valor ? 'TRUE' : 'FALSE',
+                            false
+                        );
+                    }
+                }
+
+                $db->where('sistema', $sistema);
+
+                if(!$db->update('article', $article)){
+                    throw new Exception('No fue posible actualizar el artículo.');
+                }
+
+               $db->where('sistema', $sistema)->delete('author');
+               $db->where('sistema', $sistema)->delete('institution');
+               $db->where('sistema', $sistema)->delete('author_coorp');
+
+               if($corporativo){
+                   foreach($instituciones as $i=>$r){
+                       if(!is_array($r)) continue;
+
+                       $row = array(
+                           'sistema'=>$sistema,
+                           'id'=>isset($r['id']) && (int)$r['id'] > 0
+                               ? (int)$r['id']
+                               : ($i+1),
+                           'institucion'=>$this->corr_null(
+                               isset($r['institucion']) ? $r['institucion'] : null
+                           ),
+                           'dependencia'=>$this->corr_null(
+                               isset($r['dependencia']) ? $r['dependencia'] : null
+                           ),
+                           'pais'=>$this->corr_null(
+                               isset($r['pais']) ? $r['pais'] : null
+                           )
+                       );
+
+                       if(!$db->insert('author_coorp', $row)){
+                           throw new Exception(
+                               'No fue posible guardar el autor corporativo.'
+                           );
+                       }
+                   }
+
+                   $db->query(
+                       'UPDATE author_coorp
+                        SET slug = slug(institucion),
+                            "paisSlug" = slug(pais)
+                        WHERE sistema = ?',
+                       array($sistema)
+                   );
+               }else{
+                   foreach($instituciones as $i=>$r){
+                       if(!is_array($r)) continue;
+
+                       $row = array(
+                           'sistema'=>$sistema,
+                           'id'=>isset($r['id']) && (int)$r['id'] > 0
+                               ? (int)$r['id']
+                               : ($i+1),
+                           'institucion'=>$this->corr_null(
+                               isset($r['institucion']) ? $r['institucion'] : null
+                           ),
+                           'dependencia'=>$this->corr_null(
+                               isset($r['dependencia']) ? $r['dependencia'] : null
+                           ),
+                           'ciudad'=>$this->corr_null(
+                               isset($r['ciudad']) ? $r['ciudad'] : null
+                           ),
+                           'pais'=>$this->corr_null(
+                               isset($r['pais']) ? $r['pais'] : null
+                           )
+                       );
+
+                       if(!$db->insert('institution', $row)){
+                           throw new Exception(
+                               'No fue posible guardar una institución.'
+                           );
+                       }
+                   }
+
+                   $db->query(
+                       'UPDATE institution
+                        SET slug = slug(institucion),
+                            "paisInstitucionSlug" = slug(pais)
+                        WHERE sistema = ?',
+                       array($sistema)
+                   );
+
+                   foreach($autores as $i=>$r){
+                       if(!is_array($r)) continue;
+
+                       $iid = isset($r['institucionId'])
+                           ? trim((string)$r['institucionId'])
+                           : '';
+
+                       $row = array(
+                           'sistema'=>$sistema,
+                           'id'=>isset($r['id']) && (int)$r['id'] > 0
+                               ? (int)$r['id']
+                               : ($i+1),
+                           'nombre'=>$this->corr_null(
+                               isset($r['nombre']) ? $r['nombre'] : null
+                           ),
+                           'email'=>$this->corr_null(
+                               isset($r['email']) ? $r['email'] : null
+                           ),
+                           'institucionId'=>$iid === ''
+                               ? null
+                               : (int)$iid,
+                           'orcid'=>$this->corr_null(
+                               isset($r['orcid']) ? $r['orcid'] : null
+                           )
+                       );
+
+                       if(!$db->insert('author', $row)){
+                           throw new Exception(
+                               'No fue posible guardar un autor.'
+                           );
+                       }
+                   }
+
+                   $db->query(
+                       'UPDATE author SET slug = slug(nombre)
+                        WHERE sistema = ?',
+                       array($sistema)
+                   );
+               }
+
+               /*
+                * La corrección queda auditada sin tocar el flujo editorial.
+                */
+               $db->set('usuario', $usuario);
+               $db->set('sistema', $sistema);
+               $db->set('movimiento', 'Corrección');
+               $db->set('fecha', 'CURRENT_DATE', false);
+               $db->set('tiempo', $tiempo);
+
+               if(!$db->insert('bitacora')){
+                   throw new Exception(
+                       'No fue posible registrar la corrección en bitácora.'
+                   );
+               }
+
+               if($db->trans_status() === FALSE){
+                   throw new Exception(
+                       'La transacción no pudo completarse.'
+                   );
+               }
+
+               $db->trans_commit();
+               return array('sistema'=>$sistema);
+
+           }catch(Exception $e){
+               $db->trans_rollback();
+               throw $e;
+           }
+       }
 	   
 }

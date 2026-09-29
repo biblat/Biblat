@@ -1439,4 +1439,330 @@ class Datos extends REST_Controller {
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);  
         }
+		
+		/*
+        * ============================================================
+        * CORRECCIONES - Métodos para Datos.php
+        * ============================================================
+        */
+
+       private function correccion_json_decode($valor, $defecto = array()){
+           if(is_array($valor)){
+               return $valor;
+           }
+
+           if($valor === null || $valor === ''){
+               return $defecto;
+           }
+
+           $r = json_decode($valor, true);
+           return (json_last_error() === JSON_ERROR_NONE && is_array($r))
+               ? $r
+               : $defecto;
+       }
+
+       private function correccion_idioma_nombre($codigo){
+           $mapa = array(
+               'spa' => 'Español',
+               'eng' => 'Inglés',
+               'por' => 'Portugués',
+               'fre' => 'Francés',
+               'fra' => 'Francés',
+               'ita' => 'Italiano',
+               'ger' => 'Alemán',
+               'deu' => 'Alemán',
+               'rus' => 'Ruso'
+           );
+
+           $codigo = strtolower(trim((string)$codigo));
+           return isset($mapa[$codigo]) ? $mapa[$codigo] : $codigo;
+       }
+
+       public function correcciones_buscar_get(){
+           $usuario = trim((string)$this->session->userdata('usu_base'));
+           if($usuario === ''){
+               $this->response(array('resp'=>'session'), 401);
+               return;
+           }
+
+           $tipo = strtolower(trim((string)$this->get('tipo')));
+           $q = trim((string)$this->get('q'));
+
+           if(!in_array($tipo, array('sistema','titulo'), true)){
+               $this->response(array(
+                   'resp'=>'error',
+                   'mensaje'=>'Tipo de búsqueda no válido.'
+               ), 400);
+               return;
+           }
+
+           if($q === '' || mb_strlen($q, 'UTF-8') < 2){
+               $this->response(array(), 200);
+               return;
+           }
+
+           $db = $this->load->database('prueba', TRUE);
+
+           $select = '
+               SELECT
+                   a.sistema,
+                   a.articulo,
+                   a.revista,
+                   a.issn,
+                   a.doi,
+                   a."anioRevista",
+                   COALESCE(a."descripcionBibliografica"->>\'a\', \'\') AS volumen,
+                   COALESCE(a."descripcionBibliografica"->>\'b\', \'\') AS numero,
+                   COALESCE(a."descripcionBibliografica"->>\'e\', \'\') AS paginas,
+                   a.estatus,
+                   a."estatusPC"
+               FROM article a
+           ';
+
+           if($tipo === 'sistema'){
+               $sql = $select . '
+                   WHERE UPPER(a.sistema) = UPPER(?)
+                      OR UPPER(a.sistema) LIKE UPPER(?)
+                   ORDER BY
+                       CASE WHEN UPPER(a.sistema) = UPPER(?) THEN 0 ELSE 1 END,
+                       a.sistema
+                   LIMIT 100
+               ';
+
+               $query = $db->query($sql, array($q, $q.'%', $q));
+           }else{
+               $sql = $select . '
+                   WHERE slug(COALESCE(a.articulo, \'\'))
+                         LIKE \'%\' || slug(?) || \'%\'
+                   ORDER BY
+                       CASE
+                           WHEN LOWER(COALESCE(a.articulo, \'\')) = LOWER(?)
+                           THEN 0 ELSE 1
+                       END,
+                       a.articulo,
+                       a.sistema
+                   LIMIT 100
+               ';
+
+               $query = $db->query($sql, array($q, $q));
+           }
+
+           $this->response($query->result_array(), 200);
+       }
+
+       public function correccion_get($sistema){
+           $usuario = trim((string)$this->session->userdata('usu_base'));
+           if($usuario === ''){
+               $this->response(array('resp'=>'session'), 401);
+               return;
+           }
+
+           $sistema = trim((string)$sistema);
+           if($sistema === ''){
+               $this->response(array(
+                   'resp'=>'error',
+                   'mensaje'=>'Falta el número de sistema.'
+               ), 400);
+               return;
+           }
+
+           $db = $this->load->database('prueba', TRUE);
+
+           $q = $db->query(
+               'SELECT * FROM article WHERE sistema = ? LIMIT 1',
+               array($sistema)
+           );
+
+           if(!$q || $q->num_rows() === 0){
+               $this->response(array(
+                   'resp'=>'error',
+                   'mensaje'=>'No se encontró el artículo.'
+               ), 404);
+               return;
+           }
+
+           $a = $q->row_array();
+
+           /*
+            * Desarmamos TODOS los JSON conocidos de article.
+            * El navegador recibe campos entendibles, nunca JSON.
+            */
+           $desc = $this->correccion_json_decode(
+               isset($a['descripcionBibliografica'])
+                   ? $a['descripcionBibliografica']
+                   : null,
+               array()
+           );
+
+           $titulos = $this->correccion_json_decode(
+               isset($a['articuloIdiomas']) ? $a['articuloIdiomas'] : null,
+               array()
+           );
+
+           $resumen = $this->correccion_json_decode(
+               isset($a['resumen']) ? $a['resumen'] : null,
+               array()
+           );
+
+           $documento = $this->correccion_json_decode(
+               isset($a['documento']) ? $a['documento'] : null,
+               array()
+           );
+
+           $disciplinas = $this->correccion_json_decode(
+               isset($a['disciplinas']) ? $a['disciplinas'] : null,
+               array()
+           );
+
+           $subdisciplinas = $this->correccion_json_decode(
+               isset($a['subdisciplinas']) ? $a['subdisciplinas'] : null,
+               array()
+           );
+
+           $palabras = $this->correccion_json_decode(
+               isset($a['palabraClave']) ? $a['palabraClave'] : null,
+               array()
+           );
+
+           $keywords = $this->correccion_json_decode(
+               isset($a['keyword']) ? $a['keyword'] : null,
+               array()
+           );
+
+           $urlsRaw = $this->correccion_json_decode(
+               isset($a['url']) ? $a['url'] : null,
+               array()
+           );
+
+           $titulosOut = array();
+           foreach($titulos as $r){
+               if(!is_array($r)) continue;
+
+               $titulosOut[] = array(
+                   'titulo' => isset($r['a']) ? $r['a'] : '',
+                   'idioma' => isset($r['y'])
+                       ? $this->correccion_idioma_nombre($r['y'])
+                       : ''
+               );
+           }
+
+           $urls = array();
+           foreach($urlsRaw as $r){
+               if(!is_array($r)) continue;
+
+               $urls[] = array(
+                   'url' => isset($r['u']) ? $r['u'] : '',
+                   'tipo' => isset($r['y']) ? $r['y'] : ''
+               );
+           }
+
+           /*
+            * Los escalares de control se devuelven para consulta, pero el endpoint
+            * de guardado NO permitirá modificarlos.
+            */
+           $article = array(
+               'sistema' => $a['sistema'],
+               'revista' => $a['revista'],
+               'articulo' => $a['articulo'],
+               'issn' => $a['issn'],
+               'doi' => $a['doi'],
+               'paisRevista' => $a['paisRevista'],
+               'fechaIngreso' => $a['fechaIngreso'],
+               'idioma' => $a['idioma'],
+               'ciudadEditora' => $a['ciudadEditora'],
+               'institucionEditora' => $a['institucionEditora'],
+               'anioRevista' => $a['anioRevista'],
+               'notaGeneral' => $a['notaGeneral'],
+               'idiomaResumen' => $a['idiomaResumen'],
+               'disciplinaRevista' => $a['disciplinaRevista'],
+               'sistemaErrata' => $a['sistemaErrata'],
+               'scieloid' => $a['scieloid'],
+               'DSpace' => $a['DSpace'],
+
+               'estatus' => $a['estatus'],
+               'asignado' => $a['asignado'],
+               'fechaAsignado' => $a['fechaAsignado'],
+               'estatusPC' => $a['estatusPC'],
+               'asignadoPC' => $a['asignadoPC'],
+               'fechaAsignadoPC' => $a['fechaAsignadoPC'],
+               'fechaActualizado' => $a['fechaActualizado'],
+
+               /*
+                * descripcionBibliografica
+                * a = volumen
+                * b = número
+                * c = mes
+                * d = parte
+                * e = páginas
+                */
+               'volumen' => isset($desc['a']) ? $desc['a'] : '',
+               'numero' => isset($desc['b']) ? $desc['b'] : '',
+               'mes' => isset($desc['c']) ? $desc['c'] : '',
+               'parte' => isset($desc['d']) ? $desc['d'] : '',
+               'paginas' => isset($desc['e']) ? $desc['e'] : '',
+
+               /* documento->a */
+               'tipoDocumento' => isset($documento['a'])
+                   ? $documento['a']
+                   : '',
+
+               /* resumen */
+               'resumenEspanol' => isset($resumen['a'])
+                   ? $resumen['a']
+                   : '',
+               'resumenIngles' => isset($resumen['i'])
+                   ? $resumen['i']
+                   : '',
+               'resumenPortugues' => isset($resumen['p'])
+                   ? $resumen['p']
+                   : '',
+               'resumenOtro' => isset($resumen['o'])
+                   ? $resumen['o']
+                   : '',
+
+               'titulosTraducidos' => $titulosOut,
+               'disciplinas' => array_values($disciplinas),
+               'subdisciplinas' => array_values($subdisciplinas),
+               'palabrasClave' => array_values($palabras),
+               'keywords' => array_values($keywords),
+               'urls' => $urls
+           );
+
+           $qIns = $db->query(
+               'SELECT sistema,id,institucion,dependencia,ciudad,pais,0 AS corporativo
+                FROM institution
+                WHERE sistema = ?
+                ORDER BY id',
+               array($sistema)
+           );
+
+           $qCorp = $db->query(
+               'SELECT sistema,id,institucion,dependencia,\'\' AS ciudad,pais,1 AS corporativo
+                FROM author_coorp
+                WHERE sistema = ?
+                ORDER BY id',
+               array($sistema)
+           );
+
+           $qAut = $db->query(
+               'SELECT sistema,id,nombre,email,"institucionId",orcid
+                FROM author
+                WHERE sistema = ?
+                ORDER BY id',
+               array($sistema)
+           );
+
+           $corporativos = $qCorp ? $qCorp->result_array() : array();
+           $esCorporativo = count($corporativos) > 0;
+
+           $this->response(array(
+               'resp'=>'success',
+               'article'=>$article,
+               'instituciones'=>$esCorporativo
+                   ? $corporativos
+                   : ($qIns ? $qIns->result_array() : array()),
+               'autores'=>$qAut ? $qAut->result_array() : array(),
+               'corporativo'=>$esCorporativo ? 1 : 0
+           ), 200);
+       }
 }

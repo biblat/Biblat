@@ -2687,4 +2687,55 @@ class Metametrics extends CI_Controller {
         echo json_encode($obj, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         exit;
     }
+	
+	    /*
+    * ============================================================
+    * CORRECCIONES - Método para Metametrics.php
+    * ============================================================
+    */
+   public function ws_guardar_correccion(){
+	   $this->output->enable_profiler(false);
+	   $this->output->set_content_type('application/json');
+
+	   $usuario = trim((string)$this->session->userdata('usu_base'));
+	   if($usuario === ''){
+		   $this->output
+			   ->set_status_header(401)
+			   ->set_output(json_encode(array('resp'=>'session')));
+		   return;
+	   }
+
+	   $payload = json_decode(file_get_contents('php://input'), true);
+
+	   if(!is_array($payload)){
+		   $this->output
+			   ->set_status_header(400)
+			   ->set_output(json_encode(array(
+				   'resp'=>'error',
+				   'mensaje'=>'La solicitud no es válida.'
+			   )));
+		   return;
+	   }
+
+	   $this->load->model('generic_model');
+
+	   try{
+		   $resultado = $this->generic_model->guardar_correccion(
+			   $payload,
+			   $usuario
+		   );
+
+		   $this->output->set_output(json_encode(array(
+			   'resp'=>'success',
+			   'sistema'=>$resultado['sistema']
+		   ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+	   }catch(Exception $e){
+		   $this->output
+			   ->set_status_header(400)
+			   ->set_output(json_encode(array(
+				   'resp'=>'error',
+				   'mensaje'=>$e->getMessage()
+			   ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+	   }
+   }
 }
