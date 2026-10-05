@@ -372,6 +372,10 @@ class Datos extends REST_Controller {
             }else{
                 $txtAnio = 'extract(year from c.fecha) = ' . $anio;
             }
+			
+			$txtAnioC  = $txtAnio;
+            $txtAnioPH = str_replace('c.fecha', 'ph.fecha', $txtAnio);
+            $txtAnioR  = str_replace('c.fecha', 'r.fecha', $txtAnio);
             
             $query = "
                     with registros as (
@@ -432,6 +436,323 @@ class Datos extends REST_Controller {
                     from registros r
                     group by r.asignado
                     ";
+					
+					$query='
+
+                    WITH catalogador_humano AS (
+
+                    /* =========================================================
+                     * PRIMER CATALOGADOR HUMANO
+                     *
+                     * OJS / SciELO / EDITOR pueden aparecer una o varias veces
+                     * antes de que una persona trabaje el registro.
+                     * ========================================================= */
+                    SELECT
+                        c.sistema,
+                        c.nombre,
+                        c.fecha,
+                        c.id,
+
+                        ROW_NUMBER() OVER (
+                            PARTITION BY c.sistema
+                            ORDER BY c.fecha, c.id
+                        ) AS orden
+
+                    FROM catalogador c
+
+                    WHERE c.nombre NOT IN (\'OJS\', \'SciELO\', \'EDITOR\')
+                ),
+
+                primer_humano AS (
+
+                    SELECT
+                        sistema,
+                        nombre,
+                        fecha
+                    FROM catalogador_humano
+                    WHERE orden = 1
+                ),
+
+                normal AS (
+
+                    SELECT DISTINCT
+                        a.sistema,
+
+                        /* =====================================================
+                         * ANALISTA
+                         * ===================================================== */
+                        CASE
+
+                            /* Proceso actual:
+                             * si article.asignado existe, ése es el responsable.
+                             */
+                            WHEN a.asignado IS NOT NULL
+                                THEN a.asignado
+
+                            /* Procesados / históricos:
+                             * usar primer catalogador humano.
+                             */
+                            WHEN a.estatus IN (\'P\', \'C\', \'B\')
+                                 OR a.estatus IS NULL
+                                THEN ph.nombre
+
+                            /* A/R sin asignado:
+                             * conserva la lógica anterior.
+                             */
+                            ELSE c.nombre
+
+                        END AS analista,
+
+                        CASE
+                            WHEN a.estatus IN (\'P\', \'C\', \'B\')
+                                 OR a.estatus IS NULL
+                                THEN ph.nombre
+                            ELSE c.nombre
+                        END AS nombre,
+
+                        a.estatus,
+                        a."estatusPC",
+                        a."fechaAsignado",
+                        a."fechaAsignadoPC",
+
+                        true AS es_normal,
+                        false AS es_pc
+
+                    FROM article a
+
+                    INNER JOIN catalogador c
+                        ON c.sistema = a.sistema
+
+                    /*
+                     * LEFT JOIN porque un registro A/R recién cosechado
+                     * puede todavía no tener catalogador humano.
+                     */
+                    LEFT JOIN primer_humano ph
+                        ON ph.sistema = a.sistema
+
+                    WHERE
+                    (
+                        /* =====================================================
+                         * REGISTROS EN ANÁLISIS NORMAL
+                         * ===================================================== */
+                        (
+                            c.nombre IN (\'OJS\', \'SciELO\', \'EDITOR\')
+
+                            AND a.estatus IN (\'A\', \'R\') AND
+
+                            '.$txtAnioPH.'
+                        )
+
+                        OR
+
+                        /* =====================================================
+                         * ANALIZADOS / PENDIENTES PC / NO INDIZABLES
+                         *
+                         * El año se determina con la fecha del PRIMER
+                         * catalogador humano.
+                         * ===================================================== */
+                        (
+                            a.estatus IN (\'P\', \'C\', \'B\')
+
+                            AND ph.nombre IS NOT NULL AND
+
+                            '.$txtAnioPH.'
+
+                            /*
+                             * Si alguna vez fue "Para corrección",
+                             * no se contabiliza como producción normal.
+                             */
+                            AND NOT EXISTS (
+                                SELECT 1
+                                FROM bitacora b
+                                WHERE b.sistema = a.sistema
+                                  AND b.movimiento = \'Para corrección\'
+                            )
+                        )
+
+                        OR
+
+                        /* =====================================================
+                         * REGISTROS HISTÓRICOS
+                         *
+                         * Antes no se actualizaban estatus ni asignado.
+                         * Se atribuyen al primer catalogador humano.
+                         * ===================================================== */
+                        (
+                            a.estatus IS NULL
+
+                            AND a.asignado IS NULL
+
+                            AND ph.nombre IS NOT NULL AND
+
+                            '.$txtAnioPH.'
+
+                            /*
+                             * La misma regla de correcciones también debe
+                             * aplicarse a los completados históricos.
+                             */
+                            AND NOT EXISTS (
+                                SELECT 1
+                                FROM bitacora b
+                                WHERE b.sistema = a.sistema
+                                  AND b.movimiento = \'Para corrección\'
+                            )
+                        )
+                    )
+                ),
+
+                pc AS (
+
+                    /*
+                     * =========================================================
+                     * ASIGNACIONES DE PALABRAS CLAVE
+                     *
+                     * No hacemos JOIN con catalogador.
+                     * Un artículo histórico puede asignarse posteriormente
+                     * exclusivamente para PC.
+                     * ========================================================= */
+                    SELECT
+                        a.sistema,
+                        a."asignadoPC" AS analista,
+                        a."asignadoPC" AS nombre,
+                        a.estatus,
+                        a."estatusPC",
+                        a."fechaAsignado",
+                        a."fechaAsignadoPC",
+
+                        false AS es_normal,
+                        true AS es_pc
+
+                    FROM article a
+
+                    WHERE
+                        a."asignadoPC" IS NOT NULL
+                        AND a."estatusPC" IN (\'A\', \'R\', \'C\')
+                ),
+
+                asignaciones AS (
+
+                    SELECT * FROM normal
+
+                    UNION ALL
+
+                    SELECT * FROM pc
+                ),
+
+                registros AS (
+
+                    /*
+                     * Si el mismo analista tiene el análisis normal y PC
+                     * del mismo artículo, TOTAL lo cuenta una sola vez.
+                     */
+                    SELECT
+                        sistema,
+                        analista,
+
+                        MAX(nombre) AS nombre,
+                        MAX(estatus) AS estatus,
+                        MAX("estatusPC") AS "estatusPC",
+
+                        MAX("fechaAsignado") AS "fechaAsignado",
+                        MAX("fechaAsignadoPC") AS "fechaAsignadoPC",
+
+                        BOOL_OR(es_normal) AS es_normal,
+                        BOOL_OR(es_pc) AS es_pc
+
+                    FROM asignaciones
+
+                    WHERE analista IS NOT NULL
+
+                    GROUP BY
+                        sistema,
+                        analista
+                )
+
+                SELECT
+                    r.analista,
+                    MAX(r.nombre) AS nombre,
+
+                    /* =========================================================
+                     * TOTAL DE ARTÍCULOS ASIGNADOS
+                     * ========================================================= */
+                    COUNT(*) AS total,
+
+                    /* =========================================================
+                     * EN REVISIÓN
+                     * ========================================================= */
+                    COUNT(*) FILTER (
+                        WHERE r.es_normal
+                          AND r.estatus = \'R\'
+                    ) AS revision,
+
+                    /* =========================================================
+                     * PENDIENTE PALABRAS CLAVE
+                     *
+                     * P = análisis normal terminado pero PC pendiente.
+                     * A/R en PC = asignación PC todavía pendiente/en revisión.
+                     * ========================================================= */
+                    COUNT(*) FILTER (
+                        WHERE
+                            (
+                                r.es_normal
+                                AND r.estatus = \'P\'
+                            )
+                            OR
+                            (
+                                r.es_pc
+                                AND r."estatusPC" IN (\'A\', \'R\')
+                            )
+                    ) AS pendiente_pc,
+
+                    /* =========================================================
+                     * COMPLETADOS - PROCESO ACTUAL
+                     *
+                     * fechaAsignado existe.
+                     * ========================================================= */
+                    COUNT(*) FILTER (
+                        WHERE r.es_normal
+                          AND (
+                                r.estatus = \'C\'
+                                OR r.estatus IS NULL
+                              )
+                          AND r."fechaAsignado" IS NOT NULL
+                    ) AS completados,
+
+                    /* =========================================================
+                     * COMPLETADOS HISTÓRICOS / MANUALES
+                     *
+                     * fechaAsignado no existía en el proceso anterior.
+                     * ========================================================= */
+                    COUNT(*) FILTER (
+                        WHERE r.es_normal
+                          AND (
+                                r.estatus = \'C\'
+                                OR r.estatus IS NULL
+                              )
+                          AND r."fechaAsignado" IS NULL
+                    ) AS completados_manual,
+
+                    /* =========================================================
+                     * NO INDIZABLES
+                     * ========================================================= */
+                    COUNT(*) FILTER (
+                        WHERE r.es_normal
+                          AND r.estatus = \'B\'
+                    ) AS borrados,
+
+                    /* =========================================================
+                     * PRODUCCIÓN DE PALABRAS CLAVE
+                     * ========================================================= */
+                    COUNT(*) FILTER (
+                        WHERE r.es_pc
+                          AND r."estatusPC" = \'C\'
+                    ) AS completados_pc
+
+                FROM registros r
+
+                GROUP BY r.analista
+
+                    ';
             
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);
@@ -492,6 +813,10 @@ class Datos extends REST_Controller {
             }else{
                 $txtAnio = 'extract(year from c.fecha) = ' . $anio;
             }
+			
+			$txtAnioC  = $txtAnio;
+            $txtAnioPH = str_replace('c.fecha', 'ph.fecha', $txtAnio);
+            $txtAnioR  = str_replace('c.fecha', 'r.fecha', $txtAnio);
             
             $query = "
                     with primer_registro as (
@@ -516,6 +841,78 @@ class Datos extends REST_Controller {
                     group by extract(month from p.primera_fecha)
                     order by mes
                 ";
+				
+			$query = "
+                        WITH catalogador_humano AS (
+                            SELECT
+                                c.sistema,
+                                c.nombre,
+                                c.fecha,
+                                c.id,
+                                ROW_NUMBER() OVER (
+                                    PARTITION BY c.sistema
+                                    ORDER BY c.fecha, c.id
+                                ) AS orden
+                            FROM catalogador c
+                            WHERE c.nombre NOT IN ('OJS', 'SciELO', 'EDITOR')
+                        ),
+
+                        responsable AS (
+                            SELECT
+                                sistema,
+                                nombre,
+                                fecha
+                            FROM catalogador_humano
+                            WHERE orden = 1
+                        ),
+
+                        registros_validos AS (
+                            SELECT
+                                r.sistema,
+                                r.nombre,
+                                r.fecha
+                            FROM responsable r
+
+                            INNER JOIN article a
+                                ON a.sistema = r.sistema
+
+                            WHERE ".$txtAnioR."
+
+                              /* =====================================================
+                               * COMPLETADOS DEL PROCESO ACTUAL
+                               * O REGISTROS HISTÓRICOS
+                               * ===================================================== */
+                              AND (
+                                    a.estatus = 'C'
+
+                                    OR
+
+                                    (
+                                        a.estatus IS NULL
+                                        AND a.asignado IS NULL
+                                    )
+                                  )
+
+                              /* =====================================================
+                               * NO CONTABILIZAR SI EN ALGÚN MOMENTO
+                               * FUE ENVIADO PARA CORRECCIÓN
+                               * ===================================================== */
+                              AND NOT EXISTS (
+                                  SELECT 1
+                                  FROM bitacora b
+                                  WHERE b.sistema = r.sistema
+                                    AND b.movimiento = 'Para corrección'
+                              )
+                        )
+
+                        SELECT
+                            EXTRACT(MONTH FROM fecha) AS mes,
+                            COUNT(*) AS total
+                        FROM registros_validos
+                        GROUP BY EXTRACT(MONTH FROM fecha)
+                        ORDER BY mes
+
+                    ";
             
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);
@@ -1094,6 +1491,179 @@ class Datos extends REST_Controller {
                             group by nombre
                             order by nombre
             ";
+			
+			$query = "
+                        WITH produccion AS (
+
+                            /* =====================================================
+                             * PROCESO ACTUAL
+                             * ===================================================== */
+                            SELECT
+                                a.sistema,
+
+                                CASE
+                                    WHEN origen.nombre IN ('OJS', 'SciELO', 'EDITOR')
+                                        THEN a.asignado || ',' || origen.nombre
+                                    ELSE a.asignado
+                                END AS nombre,
+
+                                fin.fecha
+
+                            FROM article a
+
+                            /*
+                             * Buscar únicamente el último registro del usuario
+                             * que tiene actualmente asignado el artículo.
+                             *
+                             * No recorremos todo catalogador.
+                             */
+                            INNER JOIN LATERAL (
+                                SELECT
+                                    c.fecha
+                                FROM catalogador c
+                                WHERE c.sistema = a.sistema
+                                  AND c.nombre = a.asignado
+                                  AND c.nombre NOT IN ('OJS', 'SciELO', 'EDITOR')
+                                ORDER BY
+                                    c.fecha DESC,
+                                    c.id DESC
+                                LIMIT 1
+                            ) fin ON TRUE
+
+                            /*
+                             * Primer registro de catalogador:
+                             * solamente para saber si vino de
+                             * OJS / SciELO / EDITOR.
+                             */
+                            INNER JOIN LATERAL (
+                                SELECT
+                                    c.nombre
+                                FROM catalogador c
+                                WHERE c.sistema = a.sistema
+                                ORDER BY
+                                    c.fecha,
+                                    c.id
+                                LIMIT 1
+                            ) origen ON TRUE
+
+                            WHERE
+                                a.estatus = 'C'
+                                AND a.asignado IS NOT NULL
+
+                                /*
+                                 * No procesar sistemas que no terminarán
+                                 * contabilizándose en CLASE/PERIÓDICA.
+                                 */
+                                AND (
+                                    a.sistema LIKE 'CLA%'
+                                    OR a.sistema LIKE 'PER%'
+                                )
+
+                                /*
+                                 * La fecha corresponde al completado:
+                                 * último catalogador del usuario asignado.
+                                 */
+                                AND EXTRACT(MONTH FROM fin.fecha) IN (".$mes.")
+                                AND EXTRACT(YEAR FROM fin.fecha) = ".$anio."
+
+                                /*
+                                 * No acreditar registros que alguna vez
+                                 * fueron enviados Para corrección.
+                                 */
+                                AND NOT EXISTS (
+                                    SELECT 1
+                                    FROM bitacora b
+                                    WHERE b.sistema = a.sistema
+                                      AND b.movimiento = 'Para corrección'
+                                )
+
+
+                            UNION ALL
+
+
+                            /* =====================================================
+                             * PROCESO HISTÓRICO / ALEPH
+                             * ===================================================== */
+                            SELECT
+                                a.sistema,
+
+                                CASE
+                                    WHEN origen.nombre IN ('OJS', 'SciELO', 'EDITOR')
+                                        THEN humano.nombre || ',' || origen.nombre
+                                    ELSE humano.nombre || ',ALEPH'
+                                END AS nombre,
+
+                                humano.fecha
+
+                            FROM article a
+
+                            /*
+                             * Primer catalogador humano del registro histórico.
+                             */
+                            INNER JOIN LATERAL (
+                                SELECT
+                                    c.nombre,
+                                    c.fecha
+                                FROM catalogador c
+                                WHERE c.sistema = a.sistema
+                                  AND c.nombre NOT IN ('OJS', 'SciELO', 'EDITOR')
+                                ORDER BY
+                                    c.fecha,
+                                    c.id
+                                LIMIT 1
+                            ) humano ON TRUE
+
+                            /*
+                             * Primer registro general para determinar origen.
+                             */
+                            INNER JOIN LATERAL (
+                                SELECT
+                                    c.nombre
+                                FROM catalogador c
+                                WHERE c.sistema = a.sistema
+                                ORDER BY
+                                    c.fecha,
+                                    c.id
+                                LIMIT 1
+                            ) origen ON TRUE
+
+                            WHERE
+                                a.estatus IS NULL
+                                AND a.asignado IS NULL
+
+                                AND (
+                                    a.sistema LIKE 'CLA%'
+                                    OR a.sistema LIKE 'PER%'
+                                )
+
+                                AND EXTRACT(MONTH FROM humano.fecha) IN (".$mes.")
+                                AND EXTRACT(YEAR FROM humano.fecha) = ".$anio."
+
+                                AND NOT EXISTS (
+                                    SELECT 1
+                                    FROM bitacora b
+                                    WHERE b.sistema = a.sistema
+                                      AND b.movimiento = 'Para corrección'
+                                )
+                        )
+
+                        SELECT
+                            nombre,
+
+                            COUNT(*) FILTER (
+                                WHERE sistema LIKE 'CLA%'
+                            ) AS clase,
+
+                            COUNT(*) FILTER (
+                                WHERE sistema LIKE 'PER%'
+                            ) AS periodica
+
+                        FROM produccion
+
+                        GROUP BY nombre
+
+                        ORDER BY nombre
+                    ";
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);  
         }
@@ -1148,6 +1718,134 @@ class Datos extends REST_Controller {
                             group by nombre
                             order by nombre
             ";
+			
+			$query = "
+                        WITH produccion AS (
+
+                            /* =====================================================
+                             * PROCESO ACTUAL - BIBLAT CENTRAL
+                             * ===================================================== */
+                            SELECT
+                                a.sistema,
+
+                                a.asignado || ' - BIBLAT CENTRAL' AS nombre,
+
+                                fin.fecha
+
+                            FROM article a
+
+                            /*
+                             * Buscar el registro correspondiente al completado
+                             * del usuario que tenía asignado el artículo.
+                             */
+                            INNER JOIN LATERAL (
+                                SELECT
+                                    c.fecha
+                                FROM catalogador c
+                                WHERE c.sistema = a.sistema
+                                  AND c.nombre = a.asignado
+                                  AND c.nombre NOT IN ('OJS', 'SciELO', 'EDITOR')
+                                ORDER BY
+                                    c.fecha DESC,
+                                    c.id DESC
+                                LIMIT 1
+                            ) fin ON TRUE
+
+                            WHERE
+                                a.estatus = 'C'
+                                AND a.asignado IS NOT NULL
+
+                                /*
+                                 * El mes/año corresponde al COMPLETADO.
+                                 */
+                                AND EXTRACT(MONTH FROM fin.fecha) IN (".$mes.")
+                                AND EXTRACT(YEAR FROM fin.fecha) = ".$anio."
+
+                                /*
+                                 * No contabilizar producción normal
+                                 * si el registro alguna vez fue Para corrección.
+                                 */
+                                AND NOT EXISTS (
+                                    SELECT 1
+                                    FROM bitacora b
+                                    WHERE b.sistema = a.sistema
+                                      AND b.movimiento = 'Para corrección'
+                                )
+
+
+                            UNION ALL
+
+
+                            /* =====================================================
+                             * PROCESO HISTÓRICO - ALEPH
+                             * ===================================================== */
+                            SELECT
+                                a.sistema,
+
+                                humano.nombre || ' - ALEPH' AS nombre,
+
+                                humano.fecha
+
+                            FROM article a
+
+                            /*
+                             * Primer catalogador humano.
+                             * Ya no dependemos de que sea id = 1.
+                             */
+                            INNER JOIN LATERAL (
+                                SELECT
+                                    c.nombre,
+                                    c.fecha
+                                FROM catalogador c
+                                WHERE c.sistema = a.sistema
+                                  AND c.nombre NOT IN ('OJS', 'SciELO', 'EDITOR')
+                                ORDER BY
+                                    c.fecha,
+                                    c.id
+                                LIMIT 1
+                            ) humano ON TRUE
+
+                            WHERE
+                                a.estatus IS NULL
+                                AND a.asignado IS NULL
+
+                                AND EXTRACT(MONTH FROM humano.fecha) IN (".$mes.")
+                                AND EXTRACT(YEAR FROM humano.fecha) = ".$anio."
+
+                                AND NOT EXISTS (
+                                    SELECT 1
+                                    FROM bitacora b
+                                    WHERE b.sistema = a.sistema
+                                      AND b.movimiento = 'Para corrección'
+                                )
+                        )
+
+                        SELECT
+                            nombre,
+
+                            COUNT(*) FILTER (
+                                WHERE sistema LIKE 'CLA%'
+                            ) AS clase,
+
+                            COUNT(*) FILTER (
+                                WHERE sistema LIKE 'PER%'
+                            ) AS periodica,
+
+                            COUNT(*) FILTER (
+                                WHERE sistema LIKE 'CLA%'
+                            )
+                            +
+                            COUNT(*) FILTER (
+                                WHERE sistema LIKE 'PER%'
+                            ) AS total
+
+                        FROM produccion
+
+                        GROUP BY nombre
+
+                        ORDER BY nombre
+                    ";
+			
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);  
         }
@@ -1206,6 +1904,79 @@ class Datos extends REST_Controller {
                         
                         order by 3,2,4
                     ";
+					
+			$query = "
+                        WITH catalogador_humano AS (
+                            SELECT
+                                c.sistema,
+                                c.nombre,
+                                c.fecha,
+                                c.id,
+                                ROW_NUMBER() OVER (
+                                    PARTITION BY c.sistema
+                                    ORDER BY c.fecha, c.id
+                                ) AS orden
+                            FROM catalogador c
+                            WHERE c.nombre NOT IN ('OJS', 'SciELO', 'EDITOR')
+                        ),
+
+                        primer_humano AS (
+                            SELECT
+                                sistema,
+                                nombre,
+                                fecha
+                            FROM catalogador_humano
+                            WHERE orden = 1
+                        )
+
+                        /* =====================================================
+                         * REGISTROS CON BITÁCORA DE TIEMPOS
+                         * ===================================================== */
+                        SELECT
+                            b.sistema,
+                            MAX(b.usuario) AS usuario,
+                            MAX(b.fecha) AS fecha,
+                            SUM(b.tiempo) AS tiempo
+
+                        FROM bitacora b
+
+                        WHERE
+                            b.movimiento <> 'Recarga'
+                            AND b.movimiento !~ 'PC$'
+
+                            AND EXTRACT(MONTH FROM b.fecha) = ".$mes."
+                            AND EXTRACT(YEAR FROM b.fecha) = ".$anio."
+
+                        GROUP BY b.sistema
+
+                        UNION
+
+                        /* =====================================================
+                         * REGISTROS HISTÓRICOS SIN BITÁCORA DE TIEMPOS
+                         * ===================================================== */
+                        SELECT
+                            ph.sistema,
+                            ph.nombre AS usuario,
+                            ph.fecha AS fecha,
+                            300000 AS tiempo
+
+                        FROM primer_humano ph
+
+                        INNER JOIN article a
+                            ON a.sistema = ph.sistema
+
+                        WHERE
+                            EXTRACT(MONTH FROM ph.fecha) = ".$mes."
+                            AND EXTRACT(YEAR FROM ph.fecha) = ".$anio."
+
+                            AND ph.sistema ~ '^(CLA|PER)01.*'
+
+                            AND a.estatus IS NULL
+                            AND a.asignado IS NULL
+
+                        ORDER BY 3, 2, 4
+                    ";
+			
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);  
         }

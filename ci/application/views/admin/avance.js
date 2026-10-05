@@ -690,6 +690,57 @@ class_av = {
         class_utils.setTabla('tbl_produccion', op);
         
     },
+	setTablaProdAnalista: function(data){
+        var tbody = '';
+        
+        $.each(data, function(i, val){            
+            if (val['nombre'].indexOf('EDITOR') < 0){
+                var tr = class_av.var.tr_prod_analista.replace('<usuario>', val['nombre'])
+                                .replace('<cla>', val['clase'])
+                                .replace('<per>', val['periodica'])
+                                .replace('<total>', val['total'] );
+                tbody += tr;
+            }
+        });
+                
+        var tabla = class_av.var.tabla_prod_analista
+                .replace('<body>', tbody);
+        
+        $('#div_tabla').html(tabla);
+        
+        var op = {
+                        dom: 'Bfrtip',
+                        buttons: [
+                            {
+                                extend: 'csvHtml5',
+                                text: 'Exportar CSV',
+                                exportOptions: {
+                                    columns: [0,1,2,3]
+                                }
+                            }
+                        ],
+                        order: [[ 0, 'asc' ]],
+                        bLengthChange: false,
+                        paging: false,
+                        pagingType: 'input',
+                        autoWidth: true,
+                        columnDefs: [
+                            {
+                                render: function (data, type, full, meta) {
+                                    //Sustituye el valor de la celda por esto agregando un div para que se mantenga dentro del tamaño definido
+                                    return '<div style="width: 100%; text-align: left; white-space: normal;">' + data + '</div>';
+                                },
+                                targets: [0,1,2,3]
+                            }
+                        ],
+                        //Reajusta el ancho de las columnas
+                        drawCallback: function( settings ) {
+                            $(this).DataTable().columns.adjust();
+                        }
+                    }; 
+        class_utils.setTabla('tbl_produccion', op);
+        
+    },
 	setTablaProdPC: function(data){
         var tbody = '';
         var categorias = class_utils.unique_obj(class_av.var.tproduccionpc,'fecha').map(fechas => fechas.fecha);
