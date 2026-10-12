@@ -976,6 +976,122 @@ class Datos extends REST_Controller {
                         and ( asignado = \''.$usuario.'\' or "asignadoPC" = \''.$usuario.'\' )
                         order by 1
                     ';
+			$query = '
+                select
+                    distinct
+                    a.sistema,
+                    revista,
+                    "anioRevista"
+                    || coalesce("descripcionBibliografica"->>\'a\', \'\')
+                    || coalesce("descripcionBibliografica"->>\'b\', \'\')
+                    || coalesce(\' - \' || ("descripcionBibliografica"->>\'d\')::text, \'\') numero,
+                    issn,
+                    coalesce(articulo, \'SIN TÍTULO\') as articulo,
+                    url->0->>\'u\' url1,
+                    url->1->>\'u\' url2,
+                    estatus,
+
+                    case
+                        when "asignadoPC" <> \''.$usuario.'\' then null
+                        else "estatusPC"
+                    end as "estatusPC",
+
+                    "fechaAsignado",
+
+                    case
+                        when "asignadoPC" <> \''.$usuario.'\' then null
+                        else "fechaAsignadoPC"
+                    end as "fechaAsignadoPC",
+
+                    case
+                        when estatus in (\'P\', \'C\', \'B\')
+                        then extract(month from c.fecha)
+                    end as mes,
+
+                    case
+                        when "estatusPC" = \'C\'
+                         and "asignadoPC" = \''.$usuario.'\'
+                        then extract(month from c.fecha)
+                        else null
+                    end as "mesPC",
+
+                    c.fecha
+
+                from article a
+
+                inner join catalogador c
+                    on a.sistema = c.sistema
+
+                where
+                    c.id = (
+                        select max(c2.id)
+                        from catalogador c2
+                        where c2.sistema = a.sistema
+                    )
+
+                    and
+                    (
+                        /* =====================================================
+                         * TRABAJO NORMAL DEL ANALISTA
+                         * ===================================================== */
+                        (
+                            a.asignado = \''.$usuario.'\'
+
+                            and
+                            (
+                                /* =============================================
+                                 * PENDIENTES / EN PROCESO
+                                 *
+                                 * Se muestran sin importar en qué año
+                                 * fueron asignados.
+                                 * ============================================= */
+                                (
+                                    a.estatus in (\'A\', \'R\', \'D\')
+                                )
+
+                                or
+
+                                /* =============================================
+                                 * TRABAJO NORMAL YA FINALIZADO
+                                 *
+                                 * P = terminó análisis normal / pendiente PC
+                                 * C = completado
+                                 * B = no indizable / bloqueado
+                                 *
+                                 * Sólo se muestran si finalizaron
+                                 * durante el año actual.
+                                 * ============================================= */
+                                (
+                                    a.estatus in (\'P\', \'C\', \'B\')
+
+                                    and c.nombre not in (
+                                        \'OJS\',
+                                        \'SciELO\',
+                                        \'EDITOR\'
+                                    )
+
+                                    and extract(year from c.fecha) =
+                                        extract(year from CURRENT_DATE)
+                                )
+                            )
+                        )
+
+                        or
+
+                        /* =====================================================
+                         * TRABAJO DE PALABRAS CLAVE
+                         *
+                         * Puede tratarse de un artículo histórico, así que NO
+                         * dependemos del año de catalogador.
+                         * ===================================================== */
+                        (
+                            a."asignadoPC" = \''.$usuario.'\'
+                            and a."estatusPC" in (\'A\', \'R\', \'C\')
+                        )
+                    )
+
+                order by 1
+            ';
             
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);
