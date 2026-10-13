@@ -2327,6 +2327,198 @@ class Datos extends REST_Controller {
             $this->response($query->result_array(), 200);  
         }
 		
+		/*** AJUSTES PALABRAS CLAVE ***/
+        
+        private function catalogo_pc_buscar($vista){
+            $this->load->database();
+
+            $q = trim((string)$this->get('q'));
+            $limit = (int)$this->get('limit');
+            if($limit <= 0) $limit = 30;
+            $limit = max(1, min($limit, 50));
+
+            if(mb_strlen($q, 'UTF-8') < 2){
+                $this->response(array(), 200);
+                return;
+            }
+
+            /*
+             * Prioridad:
+             *   0 = coincidencia exacta
+             *   1 = comienza con lo escrito
+             *   2 = contiene lo escrito
+             * Dentro de cada grupo: mayor frecuencia primero.
+             *
+             * LOWER se mantiene indexable mediante pg_trgm/lower(valor). Si más
+             * adelante necesita búsqueda sin acentos, conviene una columna normalizada
+             * indexada en lugar de envolver la columna con unaccent() en cada consulta.
+             */
+            $sql = "
+                SELECT valor, num
+                FROM {$vista}
+                WHERE lower(valor) LIKE '%' || lower(?) || '%'
+                ORDER BY
+                    CASE
+                        WHEN lower(valor) = lower(?) THEN 0
+                        WHEN lower(valor) LIKE lower(?) || '%' THEN 1
+                        ELSE 2
+                    END,
+                    num DESC NULLS LAST,
+                    valor ASC
+                LIMIT {$limit}
+            ";
+
+            $query = $this->db->query($sql, array($q, $q, $q));
+            $this->response($query->result_array(), 200);
+        }
+
+        private function catalogo_pc_resolver($vista){
+            $this->load->database();
+
+            $raw = $this->input->post('terminos');
+            $terminos = is_array($raw) ? $raw : json_decode((string)$raw, true);
+            if(!is_array($terminos)) $terminos = array();
+
+            $limpios = array();
+            $vistos = array();
+            foreach($terminos as $t){
+                if(!is_scalar($t)) continue;
+                $t = trim((string)$t);
+                if($t === '') continue;
+                $k = mb_strtolower($t, 'UTF-8');
+                if(isset($vistos[$k])) continue;
+                $vistos[$k] = true;
+                $limpios[] = $t;
+                if(count($limpios) >= 250) break;
+            }
+
+            if(count($limpios) === 0){
+                $this->response(array(), 200);
+                return;
+            }
+
+            $placeholders = implode(',', array_fill(0, count($limpios), 'lower(?)'));
+            $sql = "
+                SELECT valor, num
+                FROM {$vista}
+                WHERE lower(valor) IN ({$placeholders})
+                ORDER BY num DESC NULLS LAST, valor ASC
+            ";
+            $query = $this->db->query($sql, $limpios);
+            $this->response($query->result_array(), 200);
+        }
+
+        private function catalogo_pc_pagina($vista){
+            $this->load->database();
+
+            $offset = max(0, (int)$this->get('offset'));
+            $limit = (int)$this->get('limit');
+            if($limit <= 0) $limit = 10000;
+            $limit = max(1000, min($limit, 20000));
+
+            $sql = "
+                SELECT valor, num
+                FROM {$vista}
+                ORDER BY valor ASC
+                LIMIT {$limit} OFFSET {$offset}
+            ";
+            $query = $this->db->query($sql);
+            $this->response($query->result_array(), 200);
+        }
+
+        public function palabras_buscar_get(){
+            $this->catalogo_pc_buscar('mvpalabrasclave');
+        }
+
+        public function keywords_buscar_get(){
+            $this->catalogo_pc_buscar('mvkeywords');
+        }
+
+        public function palabras_resolver_post(){
+            $this->catalogo_pc_resolver('mvpalabrasclave');
+        }
+
+        public function keywords_resolver_post(){
+            $this->catalogo_pc_resolver('mvkeywords');
+        }
+
+        public function palabras_pagina_get(){
+            $this->catalogo_pc_pagina('mvpalabrasclave');
+        }
+
+        public function keywords_pagina_get(){
+            $this->catalogo_pc_pagina('mvkeywords');
+        }
+        
+        public function palabras_ia_sistemas_post(){
+            $this->load->database();
+
+            if(!$this->session->userdata('usu_base')){
+                $this->response(array(), 401);
+                return;
+            }
+
+            $raw = $this->input->post('sistemas');
+            $sistemas = is_array($raw) ? $raw : json_decode((string)$raw, true);
+            if(!is_array($sistemas)) $sistemas = array();
+
+            $limpios = array();
+            $vistos = array();
+            foreach($sistemas as $sistema){
+                if(!is_scalar($sistema)) continue;
+                $sistema = trim((string)$sistema);
+                if($sistema === '' || isset($vistos[$sistema])) continue;
+                $vistos[$sistema] = true;
+                $limpios[] = $sistema;
+                if(count($limpios) >= 20000) break;
+            }
+
+            if(count($limpios) === 0){
+                $this->response(array(), 200);
+                return;
+            }
+
+            $salida = array();
+            $salida_vista = array();
+
+            /*
+             * Se consulta por bloques para no construir una sentencia gigantesca si
+             * un Administrador tiene miles de artículos en su listado.
+             *
+             * [] cuenta como "generado": el proceso pudo terminar sin encontrar una
+             * coincidencia utilizable. Sólo se excluyen NULL/vacío/SIN RESULTADO.
+             */
+            foreach(array_chunk($limpios, 1500) as $bloque){
+                $placeholders = implode(',', array_fill(0, count($bloque), '?'));
+                $sql = '
+                    SELECT DISTINCT sistema
+                    FROM claper_kw_fdw."genera_pc_tmp"
+                    WHERE sistema IN ('.$placeholders.')
+                      AND (
+                            ("biblat_exactas" IS NOT NULL
+                             AND lower(btrim("biblat_exactas"::text)) NOT IN (\'\', \'null\', \'"sin resultado"\', \'sin resultado\'))
+                         OR ("biblat_sugerencias" IS NOT NULL
+                             AND lower(btrim("biblat_sugerencias"::text)) NOT IN (\'\', \'null\', \'"sin resultado"\', \'sin resultado\'))
+                         OR ("biblat_exactas_en" IS NOT NULL
+                             AND lower(btrim("biblat_exactas_en"::text)) NOT IN (\'\', \'null\', \'"sin resultado"\', \'sin resultado\'))
+                         OR ("biblat_sugerencias_en" IS NOT NULL
+                             AND lower(btrim("biblat_sugerencias_en"::text)) NOT IN (\'\', \'null\', \'"sin resultado"\', \'sin resultado\'))
+                      )
+                ';
+
+                $query = $this->db->query($sql, $bloque);
+                foreach($query->result_array() as $row){
+                    $sistema = isset($row['sistema']) ? (string)$row['sistema'] : '';
+                    if($sistema !== '' && !isset($salida_vista[$sistema])){
+                        $salida_vista[$sistema] = true;
+                        $salida[] = array('sistema' => $sistema);
+                    }
+                }
+            }
+
+            $this->response($salida, 200);
+        }
+		
 		/*
         * ============================================================
         * CORRECCIONES - Métodos para Datos.php

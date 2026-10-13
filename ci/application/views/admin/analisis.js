@@ -13,6 +13,7 @@ class_av = {
         estatus:{
             A: 'Sin movimiento',
             R: 'En revisión',
+            P: 'Completado - S/P',
             C: 'Completado',
             B: 'No indizable',
 			D: 'Corrección',
@@ -27,6 +28,7 @@ class_av = {
         },
         color_estatus:{
             R: 'goldenrod',
+            P: '#d96d00',
             C: 'darkgreen',
             B: 'darkred'
         },
@@ -88,11 +90,14 @@ class_av = {
         revistas: '',
         revistasAsignadas: [],
         palabras_clave: [],
-        palabras_clave0: null,
+        // Catálogo ONLINE: sólo conserva términos relevantes del artículo actual.
+        // El catálogo completo se descarga por páginas únicamente al exportar portátil.
+        palabras_clave0: [],
+        catalogo_pc_sistema: null,
         palabras_clave_n: [],
 		palabras_sustituye: [],
         keywords: [],
-        keywords0: null,
+        keywords0: [],
         keywords_n: [],
         count_palabras_clave: 0,
         count_keywords: 0,
@@ -114,12 +119,15 @@ class_av = {
         // Cache del indicador IA para no consultar dos veces el mismo sistema al paginar.
         ia_status_cache: {},
         ia_status_pendientes: {},
+        // Estado masivo para el filtro "Palabras clave" (insignia IA).
+        ia_status_masivo_cargado: false,
+        ia_status_masivo_peticion: null,
 		selectedData: '',
 		termino_busqueda_catalogo: '',
         // Preferencia global para Ciudad, Institución y Dependencia.
         // Se conserva en localStorage y puede cambiarse en cualquier momento.
         orden_catalogos_institucionales: 'frecuencia',
-        tabla: '<table id="tbl_articulos" class="display responsive nowrap" style="width:100%;font-size:11px">' +
+        tabla: '<table id="tbl_articulos" class="display responsive nowrap" style="width:100%;font-size:11px;table-layout:fixed">' +
                             '<thead>' +
                                 '<tr>' +
                                     '<th rowspan="1" style="max-width:150px">Revista</th>' +
@@ -142,7 +150,7 @@ class_av = {
             <td><a href="<url2>" target="_blank"><texto2></a></td>\n\
             <td><fecha></td>\n\
             <td><fecha_c></td>\n\
-            <td><span id="estatus-<id_estatus>" style="background-color:<color>" class="badge"><estatus></span><span class="ia-status-slot" data-sistema="<sistema_ia>"></span><span class="consulta-status-slot" data-sistema="<sistema_consulta>"><consulta></span><span class="reabrir-status-slot" data-sistema="<sistema_reabrir>"><reabrir></span></td>',
+            <td><div class="estatus-cell" style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;white-space:normal;min-width:0"><span id="estatus-<id_estatus>" style="background-color:<color>" class="badge"><estatus></span><span id="pc-status-<sistema_pc>" class="pc-status-slot"><pc_status></span><span class="ia-status-slot" data-sistema="<sistema_ia>"></span><span class="consulta-status-slot" data-sistema="<sistema_consulta>"><consulta></span><span class="reabrir-status-slot" data-sistema="<sistema_reabrir>"><reabrir></span></div></td>',
         barra_avance:   '<div class="progress-bar progress-bar-warning progress-bar-striped" role="progressbar" aria-valuenow="<avance>" aria-valuemin="0" aria-valuemax="100" style="width: <avance>%">' +
                         '<span style="color:black"><b><avance> %</b></span>' +
                         '</div>',
@@ -328,6 +336,7 @@ class_av = {
         sistema: '',
         cambios_de_inicio: true,
         cambios_documento: false,
+        cambios_pc: false,
         cambios_autor: false,
         cambios_institucion: false
     },
@@ -492,196 +501,287 @@ class_av = {
     },
 
     initClient: function() {
-        $.when(class_utils.getResource('/datos/articulos/'),
-        class_utils.getResource('/datos/tabla_by_user/usuario_institution_dic')
-        ) 
-        .then(function(resp_articulos, resp_institucion_dict){
-			
-			/*Trae catálogos de palabras clave*/
-            if( cons.pal_cla.val == '1'){
-                $.when(
-                    class_utils.getResource('/datos/palabras'),
-                    class_utils.getResource('/datos/keywords')
-                ) 
-                .then(function(resp_palabras, resp_keywords){
-                    class_av.var.palabras_clave0 = resp_palabras[0];
-                    class_av.var.keywords0 = resp_keywords[0];
-                });
+        /*
+         * Carga inicial robusta.
+         *
+         * Antes el overlay global sólo terminaba después de leer Google Sheets.
+         * Si fallaba GetAccessTokenFromServiceAccount(), gapi o la petición a
+         * Sheets, la promesa podía quedar rechazada fuera de los .catch() y el
+         * usuario veía "Espere un momento..." indefinidamente.
+         *
+         * Esta función centraliza el cierre del loading y evita recargas en bucle.
+         */
+        var cargaInicialTerminada = false;
+        var watchdogCarga = null;
+
+        var finalizarCargaInicial = function(mensaje){
+            if(cargaInicialTerminada){
+                return;
             }
-			
+            cargaInicialTerminada = true;
+
+            if(watchdogCarga){
+                clearTimeout(watchdogCarga);
+                watchdogCarga = null;
+            }
+
+            loading.end();
+
+            if(mensaje){
+                class_av.mensaje(mensaje);
+            }
+        };
+
+        /*
+         * No dejamos el bloqueo visual infinito. Si Google tarda demasiado,
+         * liberamos la pantalla y avisamos. La petición puede todavía terminar
+         * después; en ese caso los catálogos se inicializan normalmente.
+         */
+        watchdogCarga = setTimeout(function(){
+            finalizarCargaInicial(
+                'La carga de los catálogos está tardando más de lo esperado. ' +
+                'La pantalla fue liberada; si los campos de catálogos no aparecen, recargue la página.'
+            );
+        }, 20000);
+
+        $.when(
+            class_utils.getResource('/datos/articulos/'),
+            class_utils.getResource('/datos/tabla_by_user/usuario_institution_dic')
+        )
+        .then(function(resp_articulos, resp_institucion_dict){
+
+            /*
+             * Los catálogos de palabras clave ya NO se descargan completos al iniciar.
+             */
+            class_av.var.palabras_clave0 = [];
+            class_av.var.keywords0 = [];
+            class_av.var.catalogo_pc_sistema = null;
+
             class_av.var.articulosJSON = resp_articulos[0];
             if(resp_institucion_dict[0].length !== 0){
-                    if( resp_institucion_dict[0][0].instituciones ){
-                        class_av.var.institucion_diccionario = JSON.parse(resp_institucion_dict[0][0].instituciones);
-                    }
+                if(resp_institucion_dict[0][0].instituciones){
+                    class_av.var.institucion_diccionario = JSON.parse(resp_institucion_dict[0][0].instituciones);
+                }
             }
+
+            /* La tabla puede mostrarse aun mientras terminan de cargar los catálogos. */
             class_av.setTabla(class_av.var.articulosJSON);
+
             var object = {
                 private_key: env.P_K,
                 client_email: b(env.C_E),
                 scopes: class_av.cons.SCOPES,
             };
-            
-            gapi.load("client", async function(){
-                    gapi.auth.setToken(await GetAccessTokenFromServiceAccount.do(object));
-                    gapi.client.init({
+
+            if(typeof gapi === 'undefined' || typeof gapi.load !== 'function'){
+                finalizarCargaInicial(
+                    'No fue posible cargar el servicio de catálogos de Google. ' +
+                    'Revise la conexión y recargue la página.'
+                );
+                return;
+            }
+
+            gapi.load('client', function(){
+                /*
+                 * Importante: el callback ya no es async sin protección.
+                 * Encadenamos explícitamente el token para poder capturar cualquier
+                 * rechazo y cerrar siempre el overlay.
+                 */
+                Promise.resolve()
+                .then(function(){
+                    return GetAccessTokenFromServiceAccount.do(object);
+                })
+                .then(function(token){
+                    gapi.auth.setToken(token);
+                    return gapi.client.init({
                         discoveryDocs: class_av.cons.DISCOVERY_DOCS,
-                    }).then(function () {
-                        //Lectura de hoja de cálculo, se requiere el ID y la hoja de la que leerá
-                        gapi.client.sheets.spreadsheets.values.get({
-                            spreadsheetId: b(env.sId),
-                            range: "Catálogos",
-                        }).then(function(response) {
-                            var catalogos = response.result.values;
-                            var options = '';
-                            		
-                            var id_tipo_documento = catalogos[0].indexOf('Tipo de documento');
-                            var id_disciplina = catalogos[0].indexOf('Disciplina');
-                            var id_disciplina_eng = catalogos[0].indexOf('Discipline');
-                            var id_pais = catalogos[0].indexOf('País');
-                            $.each(catalogos, function(i, val){
-                                if(i>0){
-                                    if(val[id_tipo_documento].trim() != ''){
-                                        class_av.var.catalogos['tipo_documento'].push(val[id_tipo_documento].trim());
-                                    }
-                                    if(val[id_disciplina].trim() != ''){
-                                        var arr_disc = val[id_disciplina].split(';');
-                                        var disc = arr_disc[0].trim();
-                                        class_av.var.catalogos['disciplina'].push(disc);
-                                        class_av.var.catalogos[disc] = arr_disc.splice(1);
-                                    }
-                                    if(val[id_disciplina_eng].trim() != ''){
-                                        var arr_disc = val[id_disciplina_eng].split(';');
-                                        var disc = arr_disc[0].trim();
-                                        class_av.var.catalogos['disciplina_eng'].push(disc);
-                                        class_av.var.catalogos[disc] = arr_disc.splice(1);
-                                    }
-                                    if(val[id_pais].trim() != ''){
-                                        class_av.var.catalogos['pais'].push(val[id_pais].trim());
-                                    }
-                                }
-                            });
-                            
-                            /**************************************************/
-                            var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
-                            $.each(class_av.var.catalogos['tipo_documento'], function(i, val){
-                                options += class_av.cons.option.replace('<valor>', val).replace('<opcion>', val);
-                            });
-                            $('#tipo_documento').html(options);
-                            $('#tipo_documento').on('change', function(){
-                                class_av.var.cambios_documento = (true && !class_av.var.cambios_de_inicio);
-								
-								if( $('#tipo_documento').val() == 'Errata' ){
-                                    $('#div_busca_original').show();
-                                }else{
-                                    $('#sistema_original').text('');
-                                    $('#titulo_original').text('');
-                                    $('#div_busca_original').hide();
-                                }
-                                
-                                if( $('#tipo_documento').val() == 'Documento retractado' || $('#tipo_documento').val() == 'Errata'){
-                                    $('#row_errata').css('border-top', 'solid');
-                                    $('#row_errata').css('border-bottom', 'solid');
-                                    $('#row_errata').css('border-color', 'lightgrey');
-                                    $('#row_errata').css('border-width', '1px');
-                                    $('#div_nota_general').show();
-                                    $('#nota_general').val('');
-									if( $('#tipo_documento').val() == 'Documento retractado')
-                                        $('#txt_nota_general').html('<b>Nota general:</b>');
-                                    else
-                                        $('#txt_nota_general').html('<b>Nota general (Documento original):</b>');
-                                }else{
-                                    $('#row_errata').css('border-top', '');
-                                    $('#row_errata').css('border-bottom', '');
-                                    $('#row_errata').css('border-color', '');
-                                    $('#row_errata').css('border-width', '');
-                                    $('#nota_general').val('');
-                                    $('#div_nota_general').hide();
-                                }
-                            });
-                            $('#tipo_documento').select2({ tags: false, placeholder: "Seleccione un tipo de documento", allowClear: true});
-                            
-                            /**************************************************/
-                            options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
-                            $.each(class_av.var.catalogos['pais'], function(i, val){
-                                options += class_av.cons.option.replace('<valor>', val).replace('<opcion>', val);
-                                
-                                //Catálogo para usar más adelante
-                                class_av.var.catalogos['pais_slug'].push(class_utils.slug(val));
-                                
-                                //Máximo de palabras en catálogo de países, se usa más adelante
-                                if( val.split(' ').length > class_av.var.max_largo_pais ){
-                                    class_av.var.max_largo_pais = val.split(' ').length;
-                                }
-                            });
-                            class_av.var.opciones_paises = options;
-                            
-                            /**************************************************/
-                            options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
-                            $.each(class_av.var.catalogos['disciplina'], function(i, val){
-                                options += class_av.cons.option.replace('<valor>', val).replace('<opcion>', val);
-                            });
-                            
-                            $('#disciplina1').html(options);
-                            $('#disciplina2').html(options);
-                            $('#disciplina3').html(options);
-                            
-                            $('.disciplina').off('change').on('change', function(e){
-                                var id_dis = this.id.slice(-1);
-                                var disc = $('#disciplina'+id_dis).val();
-
-                                /*
-                                 * Al cambiar la disciplina se reevalúa tanto
-                                 * su sustento como el de la subdisciplina.
-                                 */
-                                class_av.actualiza_evidencia_clasificacion('disciplina', id_dis);
-                                class_av.actualiza_evidencia_clasificacion('subdisciplina', id_dis);
-                                
-                                
-                                if(disc == null || disc == ''){
-                                    $('#divSubdisciplina'+id_dis).hide();
-                                    $('#subdisciplina'+id_dis).val(null).trigger('change');
-                                    return false;
-                                }
-                                
-                                //Si disciplina está en blanco o se selecciona una que no está en catálogo
-                                if(disc == '' || !class_av.var.catalogos.hasOwnProperty(disc)){
-                                    $('#divSubdisciplina'+id_dis).hide();
-                                    $('#subdisciplina'+id_dis).val(null).trigger('change');
-                                    $('#disciplina'+id_dis).val(null).trigger('change');
-                                }else{
-                                    $('#divSubdisciplina'+id_dis).show();
-
-                                    var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
-                                    $.each(class_av.var.catalogos[disc], function(i, val){
-                                        options += class_av.cons.option.replace('<valor>', val).replace('<opcion>', val);
-                                    });
-
-                                    $('#subdisciplina'+id_dis).html(options);
-                                    $('#subdisciplina'+id_dis)
-                                        .off('change.clasificacionIA')
-                                        .on('change.clasificacionIA', function(){
-                                            class_av.actualiza_evidencia_clasificacion('subdisciplina', id_dis);
-                                            class_av.var.cambios_documento = (true && !class_av.var.cambios_de_inicio);
-                                        });
-                                    $('#subdisciplina'+id_dis).select2({ tags: false, placeholder: "Seleccione una subdisciplina", allowClear: true});
-                                }
-                                
-                                class_av.var.cambios_documento = (true && !class_av.var.cambios_de_inicio);
-                            });
-                            
-                            $('.disciplina').select2({ tags: false, placeholder: "Seleccione una disciplina", allowClear: true});
-                            
-                            loading.end();
-                        }).catch(function(){
-                            location.reload();
-                        });
-                    }).catch(function(){
-                        location.reload();
                     });
+                })
+                .then(function(){
+                    return gapi.client.sheets.spreadsheets.values.get({
+                        spreadsheetId: b(env.sId),
+                        range: 'Catálogos',
+                    });
+                })
+                .then(function(response){
+                    var catalogos = response.result.values || [];
+
+                    if(!catalogos.length || !catalogos[0]){
+                        throw new Error('La hoja Catálogos no devolvió información.');
+                    }
+
+                    /* Reinicia estos arreglos por si initClient llega a ejecutarse de nuevo. */
+                    class_av.var.catalogos['tipo_documento'] = [];
+                    class_av.var.catalogos['disciplina'] = [];
+                    class_av.var.catalogos['disciplina_eng'] = [];
+                    class_av.var.catalogos['pais'] = [];
+                    class_av.var.catalogos['pais_slug'] = [];
+                    class_av.var.max_largo_pais = 0;
+
+                    var id_tipo_documento = catalogos[0].indexOf('Tipo de documento');
+                    var id_disciplina = catalogos[0].indexOf('Disciplina');
+                    var id_disciplina_eng = catalogos[0].indexOf('Discipline');
+                    var id_pais = catalogos[0].indexOf('País');
+
+                    if(id_tipo_documento < 0 || id_disciplina < 0 || id_disciplina_eng < 0 || id_pais < 0){
+                        throw new Error('La hoja Catálogos no contiene todas las columnas esperadas.');
+                    }
+
+                    $.each(catalogos, function(i, val){
+                        if(i <= 0){
+                            return;
+                        }
+
+                        var tipo = (val[id_tipo_documento] == null ? '' : String(val[id_tipo_documento])).trim();
+                        var disciplina = (val[id_disciplina] == null ? '' : String(val[id_disciplina])).trim();
+                        var disciplinaEng = (val[id_disciplina_eng] == null ? '' : String(val[id_disciplina_eng])).trim();
+                        var pais = (val[id_pais] == null ? '' : String(val[id_pais])).trim();
+
+                        if(tipo !== ''){
+                            class_av.var.catalogos['tipo_documento'].push(tipo);
+                        }
+
+                        if(disciplina !== ''){
+                            var arr_disc = disciplina.split(';');
+                            var disc = arr_disc[0].trim();
+                            class_av.var.catalogos['disciplina'].push(disc);
+                            class_av.var.catalogos[disc] = arr_disc.splice(1);
+                        }
+
+                        if(disciplinaEng !== ''){
+                            var arr_disc_eng = disciplinaEng.split(';');
+                            var disc_eng = arr_disc_eng[0].trim();
+                            class_av.var.catalogos['disciplina_eng'].push(disc_eng);
+                            class_av.var.catalogos[disc_eng] = arr_disc_eng.splice(1);
+                        }
+
+                        if(pais !== ''){
+                            class_av.var.catalogos['pais'].push(pais);
+                        }
+                    });
+
+                    /**************************************************/
+                    var options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                    $.each(class_av.var.catalogos['tipo_documento'], function(i, val){
+                        options += class_av.cons.option.replace('<valor>', val).replace('<opcion>', val);
+                    });
+
+                    $('#tipo_documento').html(options);
+                    $('#tipo_documento').off('change.catalogos').on('change.catalogos', function(){
+                        class_av.var.cambios_documento = (true && !class_av.var.cambios_de_inicio);
+
+                        if($('#tipo_documento').val() == 'Errata'){
+                            $('#div_busca_original').show();
+                        }else{
+                            $('#sistema_original').text('');
+                            $('#titulo_original').text('');
+                            $('#div_busca_original').hide();
+                        }
+
+                        if($('#tipo_documento').val() == 'Documento retractado' || $('#tipo_documento').val() == 'Errata'){
+                            $('#row_errata').css('border-top', 'solid');
+                            $('#row_errata').css('border-bottom', 'solid');
+                            $('#row_errata').css('border-color', 'lightgrey');
+                            $('#row_errata').css('border-width', '1px');
+                            $('#div_nota_general').show();
+                            $('#nota_general').val('');
+                            if($('#tipo_documento').val() == 'Documento retractado'){
+                                $('#txt_nota_general').html('<b>Nota general:</b>');
+                            }else{
+                                $('#txt_nota_general').html('<b>Nota general (Documento original):</b>');
+                            }
+                        }else{
+                            $('#row_errata').css('border-top', '');
+                            $('#row_errata').css('border-bottom', '');
+                            $('#row_errata').css('border-color', '');
+                            $('#row_errata').css('border-width', '');
+                            $('#nota_general').val('');
+                            $('#div_nota_general').hide();
+                        }
+                    });
+                    $('#tipo_documento').select2({tags: false, placeholder: 'Seleccione un tipo de documento', allowClear: true});
+
+                    /**************************************************/
+                    options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                    $.each(class_av.var.catalogos['pais'], function(i, val){
+                        options += class_av.cons.option.replace('<valor>', val).replace('<opcion>', val);
+                        class_av.var.catalogos['pais_slug'].push(class_utils.slug(val));
+                        if(val.split(' ').length > class_av.var.max_largo_pais){
+                            class_av.var.max_largo_pais = val.split(' ').length;
+                        }
+                    });
+                    class_av.var.opciones_paises = options;
+
+                    /**************************************************/
+                    options = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                    $.each(class_av.var.catalogos['disciplina'], function(i, val){
+                        options += class_av.cons.option.replace('<valor>', val).replace('<opcion>', val);
+                    });
+
+                    $('#disciplina1').html(options);
+                    $('#disciplina2').html(options);
+                    $('#disciplina3').html(options);
+
+                    $('.disciplina').off('change').on('change', function(){
+                        var id_dis = this.id.slice(-1);
+                        var disc = $('#disciplina'+id_dis).val();
+
+                        class_av.actualiza_evidencia_clasificacion('disciplina', id_dis);
+                        class_av.actualiza_evidencia_clasificacion('subdisciplina', id_dis);
+
+                        if(disc == null || disc == ''){
+                            $('#divSubdisciplina'+id_dis).hide();
+                            $('#subdisciplina'+id_dis).val(null).trigger('change');
+                            return false;
+                        }
+
+                        if(disc == '' || !class_av.var.catalogos.hasOwnProperty(disc)){
+                            $('#divSubdisciplina'+id_dis).hide();
+                            $('#subdisciplina'+id_dis).val(null).trigger('change');
+                            $('#disciplina'+id_dis).val(null).trigger('change');
+                        }else{
+                            $('#divSubdisciplina'+id_dis).show();
+
+                            var subOptions = class_av.cons.option.replace('<valor>', '').replace('<opcion>', '');
+                            $.each(class_av.var.catalogos[disc], function(i, val){
+                                subOptions += class_av.cons.option.replace('<valor>', val).replace('<opcion>', val);
+                            });
+
+                            $('#subdisciplina'+id_dis).html(subOptions);
+                            $('#subdisciplina'+id_dis)
+                                .off('change.clasificacionIA')
+                                .on('change.clasificacionIA', function(){
+                                    class_av.actualiza_evidencia_clasificacion('subdisciplina', id_dis);
+                                    class_av.var.cambios_documento = (true && !class_av.var.cambios_de_inicio);
+                                });
+                            $('#subdisciplina'+id_dis).select2({tags: false, placeholder: 'Seleccione una subdisciplina', allowClear: true});
+                        }
+
+                        class_av.var.cambios_documento = (true && !class_av.var.cambios_de_inicio);
+                    });
+
+                    $('.disciplina').select2({tags: false, placeholder: 'Seleccione una disciplina', allowClear: true});
+
+                    finalizarCargaInicial();
+                })
+                .catch(function(error){
+                    console.error('Error al cargar catálogos iniciales:', error);
+                    finalizarCargaInicial(
+                        'No fue posible terminar de cargar los catálogos. ' +
+                        'Revise la conexión e intente recargar la página.'
+                    );
                 });
+            });
+        })
+        .fail(function(xhr){
+            console.error('Error al cargar datos iniciales:', xhr);
+            finalizarCargaInicial(
+                'No fue posible cargar los datos iniciales. ' +
+                'Si su sesión expiró, recargue la página para iniciar sesión nuevamente.'
+            );
         });
     },
+
     initRevistas: function() {
         if (class_av.var.init){
             class_av.var.init = false;
@@ -929,7 +1029,7 @@ class_av = {
         xhr.open('POST', "<?=site_url('metametrics/portatil_importar_v110');?>", true);
         xhr.responseType = 'text';
 
-        xhr.onload = function(){
+        xhr.onload = async function(){
             loading.end();
             $btn.prop('disabled', false);
             $btn.find('span').text(' Importar');
@@ -1019,6 +1119,354 @@ class_av = {
             }
         });
     },
+    catalogo_pc_normaliza: function(valor){
+        return String(valor || '').trim().toLowerCase()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    },
+
+    /*
+     * Regla de presentación de palabras clave:
+     * siempre conservar la primera letra en mayúscula, sin modificar
+     * el resto del término.
+     *
+     * Ejemplos:
+     *   méxico              -> México
+     *   educación superior  -> Educación superior
+     *   COVID-19            -> COVID-19
+     */
+    catalogo_pc_mayuscula_inicial: function(valor){
+        var texto = String(valor == null ? '' : valor).trim();
+        if(texto === ''){
+            return '';
+        }
+        return texto.charAt(0).toUpperCase() + texto.slice(1);
+    },
+
+    /*
+     * La caché NO debe fusionar términos sólo porque coinciden al ignorar
+     * mayúsculas/acentos. En el catálogo pueden coexistir, por ejemplo:
+     *
+     *   méxico  -> 5
+     *   México  -> 159652
+     *
+     * Si se usa catalogo_pc_normaliza() como llave de la caché, una variante
+     * pisa a la otra y el contador termina dependiendo del orden de respuesta.
+     * Por eso aquí sólo se sustituye una fila cuando la grafía es exactamente
+     * la misma (normalizada únicamente a NFC).
+     */
+    catalogo_pc_agrega_cache: function(idioma, filas){
+        var destino = (idioma === 'eng') ? class_av.var.keywords0 : class_av.var.palabras_clave0;
+        if(!Array.isArray(destino)){
+            destino = [];
+            if(idioma === 'eng') class_av.var.keywords0 = destino;
+            else class_av.var.palabras_clave0 = destino;
+        }
+
+        var claveExacta = function(valor){
+            return String(valor == null ? '' : valor).trim().normalize('NFC');
+        };
+
+        var indices = {};
+        $.each(destino, function(i,val){
+            var key = claveExacta(val && val.valor);
+            if(key !== ''){
+                indices[key] = i;
+            }
+        });
+
+        $.each(filas || [], function(i,val){
+            if(!val || val.valor === undefined || val.valor === null) return;
+
+            var valor = String(val.valor).trim();
+            var key = claveExacta(valor);
+            if(key === '') return;
+
+            var fila = {
+                valor: valor,
+                num: Number(val.num || 0)
+            };
+
+            if(indices[key] === undefined){
+                indices[key] = destino.length;
+                destino.push(fila);
+            }else{
+                destino[indices[key]] = fila;
+            }
+        });
+    },
+
+    /*
+     * Búsqueda de catálogo:
+     * 1) preferir la grafía con mayúscula inicial;
+     * 2) si no existe, respetar una coincidencia exacta del texto recibido;
+     * 3) como compatibilidad, aceptar una coincidencia normalizada, prefiriendo
+     *    una variante que ya tenga mayúscula inicial y, en empate, la de mayor
+     *    frecuencia.
+     *
+     * Así, si existen "méxico"=5 y "México"=159652, buscar "méxico" devuelve
+     * "México"=159652.
+     */
+    catalogo_pc_buscar: function(termino, idioma){
+        var catalogo = (idioma === 'eng') ? class_av.var.keywords0 : class_av.var.palabras_clave0;
+        var original = String(termino == null ? '' : termino).trim();
+        if(original === ''){
+            return undefined;
+        }
+
+        var preferido = class_av.catalogo_pc_mayuscula_inicial(original);
+        var exactoPreferido;
+        var exactoOriginal;
+        var candidatos = [];
+        var key = class_av.catalogo_pc_normaliza(preferido);
+
+        $.each(catalogo || [], function(i,val){
+            if(!val || val.valor === undefined || val.valor === null){
+                return;
+            }
+
+            var valor = String(val.valor).trim();
+
+            if(valor === preferido){
+                exactoPreferido = val;
+                return false;
+            }
+
+            if(exactoOriginal === undefined && valor === original){
+                exactoOriginal = val;
+            }
+
+            if(class_av.catalogo_pc_normaliza(valor) === key){
+                candidatos.push(val);
+            }
+        });
+
+        if(exactoPreferido !== undefined){
+            return exactoPreferido;
+        }
+
+        /*
+         * Si el usuario escribió la versión en minúscula pero existe una variante
+         * equivalente con mayúscula inicial, se prefiere esa variante antes de
+         * devolver la coincidencia exacta en minúscula.
+         */
+        var candidatosMayuscula = candidatos.filter(function(val){
+            var valor = String((val && val.valor) || '').trim();
+            return valor !== '' &&
+                   valor.charAt(0) === valor.charAt(0).toUpperCase() &&
+                   valor.charAt(0) !== valor.charAt(0).toLowerCase();
+        });
+
+        if(candidatosMayuscula.length){
+            candidatosMayuscula.sort(function(a,b){
+                return Number((b && b.num) || 0) - Number((a && a.num) || 0);
+            });
+            return candidatosMayuscula[0];
+        }
+
+        if(exactoOriginal !== undefined){
+            return exactoOriginal;
+        }
+
+        if(candidatos.length){
+            candidatos.sort(function(a,b){
+                return Number((b && b.num) || 0) - Number((a && a.num) || 0);
+            });
+            return candidatos[0];
+        }
+
+        return undefined;
+    },
+    catalogo_pc_extrae_terminos: function(valor){
+        var salida = [];
+        var vistos = {};
+        var agrega = function(v){
+            var t = String(v == null ? '' : v).trim();
+            if(!t || /^sin resultado$/i.test(t)) return;
+            var k = class_av.catalogo_pc_normaliza(t);
+            if(k && !vistos[k]){ vistos[k] = true; salida.push(t); }
+        };
+        var recorre = function(v){
+            if(v == null) return;
+            if(typeof v === 'string'){
+                var t=v.trim();
+                if(!t) return;
+                if((t.charAt(0)==='[' || t.charAt(0)==='{')){
+                    try{ recorre(JSON.parse(t)); return; }catch(e){}
+                }
+                // Sólo se usa para los cuatro campos de palabras IA/almacenadas.
+                agrega(t);
+                return;
+            }
+            if(Array.isArray(v)){ $.each(v,function(i,x){ recorre(x); }); return; }
+            if(typeof v === 'object'){
+                if(v.palabra !== undefined) agrega(v.palabra);
+                if(v.aproximaciones !== undefined) recorre(v.aproximaciones);
+            }
+        };
+        recorre(valor);
+        return salida;
+    },
+    catalogo_pc_resolver: function(registro_pc){
+        var dfd = $.Deferred();
+        var esp = [], eng = [];
+        var agregaUnicos = function(destino, lista){
+            var vistos={};
+            $.each(destino,function(i,t){ vistos[class_av.catalogo_pc_normaliza(t)] = true; });
+            $.each(lista || [], function(i,t){
+                var k=class_av.catalogo_pc_normaliza(t);
+                if(k && !vistos[k]){ vistos[k]=true; destino.push(String(t).trim()); }
+            });
+        };
+        if(registro_pc){
+            agregaUnicos(esp, class_av.catalogo_pc_extrae_terminos(registro_pc.biblat_exactas));
+            agregaUnicos(esp, class_av.catalogo_pc_extrae_terminos(registro_pc.biblat_sugerencias));
+            agregaUnicos(eng, class_av.catalogo_pc_extrae_terminos(registro_pc.biblat_exactas_en));
+            agregaUnicos(eng, class_av.catalogo_pc_extrae_terminos(registro_pc.biblat_sugerencias_en));
+        }
+        if(class_av.var.documentoJSON && class_av.var.documentoJSON[0]){
+            agregaUnicos(esp, class_av.catalogo_pc_extrae_terminos(class_av.var.documentoJSON[0].palabraClave));
+            agregaUnicos(eng, class_av.catalogo_pc_extrae_terminos(class_av.var.documentoJSON[0].keyword));
+        }
+        var peticiones=[];
+        if(esp.length){
+            peticiones.push($.ajax({type:'POST',url:"<?=site_url('datos/palabras_resolver');?>",data:{terminos:JSON.stringify(esp)},dataType:'json'})
+                .done(function(rows){ class_av.catalogo_pc_agrega_cache('esp', rows || []); }));
+        }
+        if(eng.length){
+            peticiones.push($.ajax({type:'POST',url:"<?=site_url('datos/keywords_resolver');?>",data:{terminos:JSON.stringify(eng)},dataType:'json'})
+                .done(function(rows){ class_av.catalogo_pc_agrega_cache('eng', rows || []); }));
+        }
+        if(!peticiones.length){ dfd.resolve(); return dfd.promise(); }
+        $.when.apply($, peticiones)
+            .done(function(){ dfd.resolve(); })
+            .fail(function(xhr){
+                console.error('No fue posible resolver el catálogo de palabras del artículo.', xhr && xhr.responseText);
+                dfd.resolve(); // La UI puede continuar; términos no resueltos quedan con frecuencia 0.
+            });
+        return dfd.promise();
+    },
+    catalogo_pc_select2_ajax: function(idioma){
+        return {
+            url: (idioma === 'eng') ? "<?=site_url('datos/keywords_buscar');?>" : "<?=site_url('datos/palabras_buscar');?>",
+            dataType: 'json',
+            delay: 300,
+            cache: true,
+            data: function(params){ return {q: params.term || '', limit: 100}; },
+            processResults: function(data){
+                var filas = Array.isArray(data) ? data : [];
+                class_av.catalogo_pc_agrega_cache(idioma, filas);
+                return {results: filas.map(function(item){
+                    return {id:item.valor, text:item.valor, num:Number(item.num || 0)};
+                })};
+            }
+        };
+    },
+    portatil_descarga_catalogo_paginado: async function(tipo){
+        var endpoint = (tipo === 'eng') ? "<?=site_url('datos/keywords_pagina');?>" : "<?=site_url('datos/palabras_pagina');?>";
+        var nombreCatalogo = (tipo === 'eng') ? 'keywords' : 'palabras clave';
+        var limit = 10000;
+        var offset = 0;
+        var total = [];
+
+        while(true){
+            var url = endpoint + '?offset=' + offset + '&limit=' + limit;
+            var resp;
+
+            try{
+                resp = await fetch(url, {
+                    credentials: 'same-origin',
+                    cache: 'no-store',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+            }catch(e){
+                throw new Error('No fue posible conectar con el catálogo de ' + nombreCatalogo + ': ' + (e.message || e));
+            }
+
+            var texto = '';
+            try{
+                texto = await resp.text();
+            }catch(e){
+                throw new Error('No fue posible leer la respuesta de ' + url + ': ' + (e.message || e));
+            }
+
+            /*
+             * fetch sigue redirecciones automáticamente. Si la sesión expiró,
+             * CodeIgniter/Apache puede devolver la pantalla de acceso con HTTP 200;
+             * por eso no basta con comprobar resp.ok antes de llamar a JSON.parse.
+             */
+            if(resp.status === 401 || resp.status === 403){
+                throw new Error('La sesión expiró al descargar el catálogo de ' + nombreCatalogo + '. Recargue la página e inicie sesión nuevamente.');
+            }
+
+            if(!resp.ok){
+                var inicioHttp = String(texto || '').substring(0, 220).replace(/\s+/g, ' ');
+                throw new Error(
+                    'HTTP ' + resp.status + ' al descargar ' + nombreCatalogo +
+                    ' (' + url + ').' + (inicioHttp ? ' Respuesta: ' + inicioHttp : '')
+                );
+            }
+
+            var contentType = String(resp.headers.get('content-type') || '').toLowerCase();
+            var pareceHtml = /^\s*</.test(texto);
+
+            if(resp.redirected || pareceHtml || (contentType && contentType.indexOf('json') === -1)){
+                var inicioHtml = String(texto || '').substring(0, 260).replace(/\s+/g, ' ');
+                var detalle = resp.redirected
+                    ? ' La petición fue redirigida a ' + String(resp.url || '(URL desconocida)') + '.'
+                    : '';
+                throw new Error(
+                    'El endpoint de ' + nombreCatalogo + ' devolvió HTML/no JSON.' +
+                    detalle +
+                    ' Revise que exista ' + endpoint + ' y que la sesión continúe activa.' +
+                    (inicioHtml ? ' Inicio de respuesta: ' + inicioHtml : '')
+                );
+            }
+
+            var filas;
+            try{
+                filas = JSON.parse(texto);
+            }catch(e){
+                var inicioJson = String(texto || '').substring(0, 260).replace(/\s+/g, ' ');
+                throw new Error(
+                    'JSON inválido en ' + nombreCatalogo + ' (offset ' + offset + '): ' +
+                    (e.message || e) +
+                    (inicioJson ? '. Inicio de respuesta: ' + inicioJson : '')
+                );
+            }
+
+            if(!Array.isArray(filas)){
+                throw new Error('Respuesta inválida de ' + endpoint + ': se esperaba un arreglo JSON.');
+            }
+
+            /*
+             * En el paquete portátil se usa [valor,num] en vez de
+             * {valor:...,num:...}; con cientos de miles de filas evita repetir
+             * los nombres de las propiedades y reduce mucho el JSON final.
+             */
+            $.each(filas, function(i, r){
+                total.push([
+                    String((r && r.valor) || ''),
+                    Number((r && r.num) || 0)
+                ]);
+            });
+
+            if(filas.length < limit){
+                break;
+            }
+
+            offset += filas.length;
+        }
+
+        return total;
+    },
+    portatil_carga_catalogos_completos: async function(){
+        if(cons.pal_cla.val !== '1') return {palabras:[], keywords:[]};
+        var palabras = await class_av.portatil_descarga_catalogo_paginado('esp');
+        var keywords = await class_av.portatil_descarga_catalogo_paginado('eng');
+        return {palabras:palabras, keywords:keywords};
+    },
     portatil_exportar: function(){
         /*
          * El flujo portátil no forma parte de las funciones del Editor.
@@ -1057,9 +1505,10 @@ class_av = {
         var articulosExportables = class_av.var.articulosJSON.filter(function(a){
             var estatus = String(a.estatus == null ? '' : a.estatus);
             var estatusPC = String(a.estatusPC == null ? '' : a.estatusPC);
-            var analisisNormalActivo = ['C','B'].indexOf(estatus) === -1;
+            var analisisNormalActivo = ['P','C','B'].indexOf(estatus) === -1;
+            var pendientePCNuevo = (estatus === 'P' && estatusPC !== 'C');
             var revisionPCActiva = ['A','R'].indexOf(estatusPC) !== -1;
-            return analisisNormalActivo || revisionPCActiva;
+            return analisisNormalActivo || pendientePCNuevo || revisionPCActiva;
         });
         var omitidosFinalizados = Math.max(0, class_av.var.articulosJSON.length - articulosExportables.length);
         var sistemas = articulosExportables
@@ -1068,15 +1517,6 @@ class_av = {
 
         if(sistemas.length === 0){
             class_av.mensaje('No hay artículos pendientes para exportar. Los registros ya completados o no indizables no se incluyen en el paquete portátil.');
-            return false;
-        }
-
-        /* Los catálogos grandes de palabras ya están cargados en el navegador.
-         * No los mandamos a PHP ni PHP los vuelve a consultar: se incorporan al
-         * paquete justo antes de construir el ZIP. */
-        if(cons.pal_cla.val === '1' &&
-           (class_av.var.palabras_clave0 === null || class_av.var.keywords0 === null)){
-            class_av.mensaje('Los catálogos de palabras clave todavía están cargando. Espere unos segundos e intente Exportar nuevamente.');
             return false;
         }
 
@@ -1097,7 +1537,7 @@ class_av = {
         xhr.responseType = 'text';
         xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 
-        xhr.onload = function(){
+        xhr.onload = async function(){
             loading.end();
             $btn.prop('disabled', false);
             $btn.find('span').text(' Exportar');
@@ -1173,8 +1613,11 @@ class_av = {
                 $.each(class_av.var.catalogos || {}, function(k, v){
                     obj.paquete.catalogos[k] = v;
                 });
-                obj.paquete.catalogos.palabras = class_av.var.palabras_clave0 || [];
-                obj.paquete.catalogos.keywords = class_av.var.keywords0 || [];
+                /* El catálogo completo sólo se descarga aquí, paginado y secuencialmente. */
+                $btn.find('span').text(' Descargando catálogo de palabras ...');
+                var catalogosPC = await class_av.portatil_carga_catalogos_completos();
+                obj.paquete.catalogos.palabras = catalogosPC.palabras || [];
+                obj.paquete.catalogos.keywords = catalogosPC.keywords || [];
 
                 var paqueteJson = JSON.stringify(obj.paquete);
                 var manifestJson = JSON.stringify(obj.manifest || {}, null, 2);
@@ -1233,6 +1676,19 @@ class_av = {
         $('#btn_exportar_portatil, #btn_importar_portatil').prop('disabled', !portatilActivo);
         // Se mostrará artículo por artículo sólo si existe sugerencia IA real.
         $('#clasificacion_ayuda_ia').hide();
+        /*
+         * Interruptor maestro del nuevo flujo PC. Durante pruebas queda visible
+         * sólo para Administradores; al liberarlo basta cambiar el switch en la vista.
+         */
+        var flujoPCVisible =
+            (features.mostrar_flujo_palabras_clave === true) &&
+            (cons.pal_cla.val === '1') &&
+            (cons.rol.val !== 'Editor');
+
+        $('#panelPalabrasClave').toggle(flujoPCVisible);
+        $('#filtro-estatus-pc').toggle(flujoPCVisible);
+        // El filtro de generación IA también forma parte de la liberación del flujo PC.
+        $('#filtro-palabras-ia').toggle(flujoPCVisible && features.mostrar_indicador_ia === true);
 
         class_av.initClient();
         class_av.filtro();
@@ -1251,9 +1707,10 @@ class_av = {
             // Algunos select2 disparan eventos change durante la carga inicial, por lo
             // que limpiamos explícitamente las banderas al entrar en sólo lectura.
             class_av.var.cambios_documento = false;
+            class_av.var.cambios_pc = false;
             class_av.var.cambios_institucion = false;
             class_av.var.cambios_autor = false;
-            $('#save-no-indizable, #save-full, #save-full-pc, #acciones-finales-bottom, #save-article, #save-article-bottom, #save-pc, #save-instituciones, #save-instituciones-bottom, #save-autores, #save-autores-bottom, #agrega-institucion, #agrega-autor, #add-palabra, #add-keyword, #import-ai, #add-errata, #importar_original').hide();
+            $('#save-no-indizable, #save-full, #save-full-pc, #save-full-pc-bottom, #acciones-finales-bottom, #save-article, #save-article-bottom, #save-pc, #save-pc-bottom, #save-instituciones, #save-instituciones-bottom, #save-autores, #save-autores-bottom, #agrega-institucion, #agrega-autor, #add-palabra, #add-keyword, #import-ai, #add-errata, #importar_original').hide();
             $('#accordion').find('input, select, textarea').prop('disabled', true);
         }else{
             $('#accordion').removeClass('modo-solo-lectura');
@@ -1263,6 +1720,203 @@ class_av = {
             $('#save-instituciones, #save-instituciones-bottom, #save-autores, #save-autores-bottom, #agrega-institucion, #agrega-autor').show();
         }
     },
+
+    render_instituciones_solo_lectura: function(instituciones){
+        instituciones = Array.isArray(instituciones) ? instituciones : [];
+        $('#div-instituciones').empty();
+
+        var ponerValor = function(selector, valor){
+            var $sel = $(selector);
+            if(!$sel.length) return;
+            var txt = (valor === undefined || valor === null) ? '' : String(valor);
+            $sel.empty();
+            if(txt !== ''){
+                $sel.append($('<option>', {value: txt, text: txt, selected: true}));
+            }else{
+                $sel.append($('<option>', {value: '', text: '', selected: true}));
+            }
+            $sel.val(txt);
+        };
+
+        instituciones.forEach(function(val, idx){
+            var id = String(val.id !== undefined && val.id !== null ? val.id : (idx + 1));
+            var html = class_av.var.html_institucion.replaceAll('<id>', id);
+            $('#div-instituciones').append(html);
+
+            ponerValor('#pais-'+id, val.pais);
+            ponerValor('#ciudad-'+id, val.ciudad);
+            ponerValor('#institucion-'+id, val.institucion);
+            ponerValor('#dependencia-'+id, val.dependencia);
+
+            $('#borra-institucion-'+id).hide();
+            $('#check-ins-'+id+', #check-ins-bib-'+id+', #div-valor-anterior-'+id).hide();
+        });
+
+        $('#accordionInstituciones').html('Instituciones').prop('href', '#instituciones');
+    },
+
+    render_autores_solo_lectura: function(autores, instituciones){
+        autores = Array.isArray(autores) ? autores : [];
+        instituciones = Array.isArray(instituciones) ? instituciones : [];
+        $('#div-autores').empty();
+
+        var institucionPorId = {};
+        instituciones.forEach(function(inst){
+            institucionPorId[String(inst.id)] = String(inst.institucion || '');
+        });
+
+        autores.forEach(function(val, idx){
+            var id = String(val.id !== undefined && val.id !== null ? val.id : (idx + 1));
+            var html = class_av.var.html_autor.replaceAll('<id>', id);
+            $('#div-autores').append(html);
+
+            $('#nombre-'+id).val(val.nombre || '');
+            $('#orcid-'+id).val(val.orcid || '');
+
+            var instId = (val.institucionId === undefined || val.institucionId === null) ? '' : String(val.institucionId);
+            var instTexto = institucionPorId[instId] || '';
+            var $sel = $('#a-institucion-'+id);
+            $sel.empty();
+            if(instTexto !== ''){
+                $sel.append($('<option>', {value: instId, text: instTexto, selected: true}));
+                $sel.val(instId);
+            }else{
+                $sel.append($('<option>', {value: '', text: '', selected: true}));
+                $sel.val('');
+            }
+
+            $('#borra-autor-'+id).hide();
+            $('#check-nombre-pdf-'+id+', #check-nombre-bib-'+id+', #check-nombre-'+id+', #check-orcid-pdf-'+id+', #check-orcid-'+id).hide();
+        });
+
+        $('#accordionAutores').html('Autores').prop('href', '#autores');
+    },
+
+    normaliza_fecha_asignacion: function(valor){
+        if(valor === undefined || valor === null) return '';
+        var s = String(valor).trim();
+        if(s === '') return '';
+        // fechaAsignado normalmente llega YYYY-MM-DD; si incluye hora conservamos sólo la fecha.
+        return s.substring(0, 10);
+    },
+
+    /*
+     * Determina si la asignación actual corresponde exclusivamente a palabras clave.
+     *
+     * REGLA DE COMPATIBILIDAD / TRANSICIÓN:
+     * 1) Si asignadoPC todavía está vacío, el registro se considera una asignación
+     *    integrada heredada: PC pertenece por defecto al mismo analista de `asignado`.
+     *    fechaAsignadoPC efectiva = fechaAsignado.
+     * 2) Si asignadoPC != asignado, es una asignación exclusiva de PC.
+     * 3) Si asignadoPC == asignado:
+     *      - fechaAsignadoPC vacía => legado integrado (se toma fechaAsignado);
+     *      - mismas fechas          => integrado;
+     *      - fechas distintas       => PC fue asignada posteriormente, aun al mismo
+     *        analista, por lo que sólo se reabre PC.
+     *      - fechaAsignado vacía y fechaAsignadoPC informada => asignación PC posterior.
+     *
+     * Esto permite convivir con registros actuales sin asignadoPC/fechaAsignadoPC y,
+     * al mismo tiempo, distinguir futuras campañas históricas asignadas después.
+     */
+    /*
+     * Captura manual heredada mientras el nuevo flujo PC permanece oculto.
+     *
+     * Los artículos ingresados manualmente se reconocen, como ya hace el resto
+     * de esta pantalla, porque fechaAsignado no existe. En estos registros la
+     * sección Palabras clave debe seguir disponible aunque el switch maestro PC
+     * esté apagado. Sin embargo, esto NO abre el flujo PC: no se modifican
+     * asignadoPC, fechaAsignadoPC ni estatusPC. Las palabras se guardan junto
+     * con Guardar artículo, preservando el comportamiento anterior.
+     */
+    es_captura_manual_pc_legacy: function(articulo){
+        articulo = articulo || {};
+        var features = (typeof cons !== 'undefined' && cons.features) ? cons.features : {};
+        var flujoPCActivo = (
+            features.mostrar_flujo_palabras_clave === true &&
+            cons.pal_cla.val === '1' &&
+            cons.rol.val !== 'Editor'
+        );
+
+        if(flujoPCActivo || cons.pal_cla.val !== '1' || cons.rol.val === 'Editor'){
+            return false;
+        }
+
+        return (articulo.fechaAsignado === null || articulo.fechaAsignado === undefined || String(articulo.fechaAsignado).trim() === '');
+    },
+
+    es_asignacion_pc_exclusiva: function(articulo){
+        articulo = articulo || {};
+        var asignado = String(articulo.asignado || '').trim();
+        var asignadoPC = String(articulo.asignadoPC || '').trim();
+        var fecha = class_av.normaliza_fecha_asignacion(articulo.fechaAsignado);
+        var fechaPC = class_av.normaliza_fecha_asignacion(articulo.fechaAsignadoPC);
+        var estatus = String(articulo.estatus || '').trim();
+
+        // Legado/transición: sin asignadoPC explícito, PC pertenece al análisis normal.
+        if(asignadoPC === ''){
+            return false;
+        }
+
+        if(asignado !== ''){
+            // Otro responsable: PC separada sin importar las fechas.
+            if(asignadoPC !== asignado){
+                return true;
+            }
+
+            // Mismo responsable pero sin fecha PC: dato legado. Por defecto integrado.
+            if(fechaPC === ''){
+                return false;
+            }
+
+            // Si el normal no tenía fecha y PC sí, PC fue asignada posteriormente.
+            if(fecha === ''){
+                return true;
+            }
+
+            // Mismo analista + misma fecha = asignación integrada.
+            // Mismo analista + fecha distinta = asignación posterior exclusiva de PC.
+            return (fechaPC !== fecha);
+        }
+
+        // Sin responsable normal conservado: una PC explícita sobre un registro ya
+        // cerrado se trata como revisión exclusiva.
+        if(fechaPC !== '' && ['C','P','B'].indexOf(estatus) !== -1){
+            return true;
+        }
+        if(fecha !== '' && fechaPC !== '' && fecha !== fechaPC){
+            return true;
+        }
+
+        return false;
+    },
+
+    /*
+     * Un solo botón Reabrir. El alcance se deduce del tipo de asignación:
+     * - PC exclusiva: sólo aparece si PC está C y sólo reabre estatusPC.
+     * - Asignación integrada: si alguna de las dos partes está cerrada, el mismo
+     *   botón reabre todas las partes cerradas para volver a trabajar el registro.
+     */
+    alcance_reabrir_articulo: function(articulo){
+        articulo = articulo || {};
+        var estatus = String(articulo.estatus || '');
+        var estatusPC = String(articulo.estatusPC || '');
+        var normalCerrado = ['P','C','B'].indexOf(estatus) !== -1;
+        var pcCerrado = (estatusPC === 'C');
+
+        if(class_av.es_asignacion_pc_exclusiva(articulo)) {
+            return pcCerrado ? 'pc' : '';
+        }
+
+        return (normalCerrado || pcCerrado) ? 'integrado' : '';
+    },
+
+    texto_reabrir_contextual: function(articulo, alcance){
+        if(alcance === 'pc') {
+            return 'Esta asignación corresponde únicamente a <b>Palabras clave</b>. Se reabrirá esa sección y Artículo, Instituciones y Autores permanecerán bloqueados.';
+        }
+        return 'Se habilitarán <b>todas</b> las partes completadas de este registro.';
+    },
+
     control: function(){
         document.addEventListener('mousemove', function(event) {
             if(class_av.var.solo_lectura){
@@ -1287,19 +1941,20 @@ class_av = {
 
             var $btn = $(this);
             var sistema = String($btn.data('sistema') || '');
-            var tipo = String($btn.data('tipo') || 'normal');
-
             if(sistema === '' || cons.features.mostrar_reabrir_finalizados !== true){
                 return false;
             }
 
-            var texto = (tipo === 'pc')
-                ? 'El registro volverá a <b>En revisión PC</b> y podrá editar sus palabras clave nuevamente.'
-                : 'El registro volverá a <b>En revisión</b> y podrá editarse nuevamente.';
+            var articulo = class_utils.find_prop(class_av.var.articulosJSON, 'sistema', sistema);
+            var alcance = class_av.alcance_reabrir_articulo(articulo);
+            if(!articulo || alcance === ''){
+                class_av.pinta_icono_reabrir(sistema, false);
+                return false;
+            }
 
             $.confirm({
                 title: 'Reabrir registro',
-                content: texto,
+                content: class_av.texto_reabrir_contextual(articulo, alcance),
                 buttons: {
                     cancelar: {
                         text: 'Cancelar',
@@ -1309,7 +1964,7 @@ class_av = {
                         text: 'Reabrir',
                         btnClass: 'btn-warning',
                         action: function(){
-                            class_av.reabrir_registro(sistema, tipo);
+                            class_av.reabrir_registro(sistema);
                         }
                     }
                 }
@@ -1372,6 +2027,7 @@ class_av = {
             
             class_av.var.cambios_autor = false;
             class_av.var.cambios_documento = false;
+            class_av.var.cambios_pc = false;
             class_av.var.cambios_institucion = false;
             class_av.var.cambios_de_inicio = true;
             class_av.var.count_palabras_clave = 0;
@@ -1405,11 +2061,13 @@ class_av = {
             var articulo = _id.split('__')[2];
             
             $('#articulo').collapse('hide');
+            $('#palabras-clave').collapse('hide');
             $('#instituciones').collapse('hide');
             $('#autores').collapse('hide');
             
             setTimeout(function(){
                 $('#articulo').collapse('hide');
+                $('#palabras-clave').collapse('hide');
                 $('#instituciones').collapse('hide');
                 $('#autores').collapse('hide');
                 setTimeout(function(){
@@ -1424,24 +2082,87 @@ class_av = {
             ) 
             .then(function(resp_documento, resp_autores, resp_instituciones){
                 class_av.var.documentoJSON = resp_documento[0];
-                var revision_pc = ['A', 'R'].indexOf(class_av.var.documentoJSON[0].estatusPC) !== -1;
-        
-                if(revision_pc){
-                    $('#save-no-indizable, #panelInstituciones, #panelAutores, #save-article, #save-article-bottom, #save-full, #acciones-finales-bottom').hide();
-                    $('#save-pc, #save-full-pc').show();
-                    $('#idiomaDocumento, #titulo, #idioma, #titulo2, #idioma2, #titulo3, #idioma3, #tipo_documento, \n\
-                        #disciplina1, #disciplina2, #disciplina3, #subdisciplina1, #subdisciplina2, #subdisciplina3, \n\
-                        #url1, #url2, #tipourl1, #tipourl2').prop("disabled", true);
+                var estatus_normal = String(class_av.var.documentoJSON[0].estatus || '');
+                var estatus_pc = String(class_av.var.documentoJSON[0].estatusPC || '');
+                /*
+                 * PC exclusiva: el análisis normal ya terminó (C histórico o P nuevo)
+                 * y únicamente queda la revisión de palabras clave. Si el análisis
+                 * normal sigue A/R, Artículo + PC pueden trabajarse en paralelo.
+                 */
+                var normal_cerrado = ['P','C','B'].indexOf(estatus_normal) !== -1;
+                var asignacion_pc_exclusiva = class_av.es_asignacion_pc_exclusiva(class_av.var.documentoJSON[0]);
+                var normal_bloqueado = normal_cerrado || asignacion_pc_exclusiva;
+                var revision_pc_exclusiva =
+                    asignacion_pc_exclusiva ||
+                    (['C','P'].indexOf(estatus_normal) !== -1 && ['A','R'].indexOf(estatus_pc) !== -1);
+                var revision_pc = revision_pc_exclusiva; // compatibilidad con revisiones PDF existentes.
+                var features = (typeof cons !== 'undefined' && cons.features) ? cons.features : {};
+                var flujoPCActivo = (
+                    cons.pal_cla.val === '1' &&
+                    cons.rol.val !== 'Editor' &&
+                    features.mostrar_flujo_palabras_clave === true
+                );
+                var capturaManualLegacyPC = class_av.es_captura_manual_pc_legacy(class_av.var.documentoJSON[0]);
+                var mostrarPC = flujoPCActivo || capturaManualLegacyPC;
+                var presentacionPCLegacy = capturaManualLegacyPC && !flujoPCActivo;
+
+                /*
+                 * Mientras el nuevo flujo PC siga oculto, los artículos de captura
+                 * manual conservan Palabras clave, pero con la presentación anterior:
+                 * sin distinguir visualmente exactas (verde) y aproximaciones (naranja).
+                 */
+                $('#panelPalabrasClave').toggleClass('pc-presentacion-legacy', presentacionPCLegacy);
+                // estatusPC sólo bloquea la sección cuando el flujo PC está realmente liberado.
+                var pc_cerrado = flujoPCActivo && (estatus_pc === 'C');
+
+                $('#panelPalabrasClave').toggle(mostrarPC);
+                // En captura manual heredada las palabras se guardan con Guardar artículo;
+                // no mostramos acciones que puedan cambiar estatusPC/asignadoPC.
+                $('#save-pc, #save-pc-bottom, #save-full-pc, #save-full-pc-bottom').toggle(flujoPCActivo && !pc_cerrado);
+                $('#palabras-clave').toggleClass('pc-solo-lectura', pc_cerrado);
+
+                if(capturaManualLegacyPC){
+                    $('#panelPalabrasClave .notice-pc').html(
+                        'Captura manual: puede agregar y editar palabras clave normalmente. ' +
+                        'Mientras el nuevo flujo de palabras clave no esté habilitado para su perfil, ' +
+                        'estas palabras se guardan con <b>Guardar artículo</b> y no modifican ' +
+                        '<b>asignadoPC</b>, <b>fechaAsignadoPC</b> ni <b>estatusPC</b>.'
+                    );
                 }else{
-                    $('#save-no-indizable, #panelInstituciones, #panelAutores, #save-article, #save-article-bottom, #save-full, #acciones-finales-bottom').show();
-                    $('#save-pc, #save-full-pc').hide();
+                    $('#panelPalabrasClave .notice-pc').html(
+                        'Esta sección tiene guardado y finalización independientes. Puede revisar las sugerencias IA o capturar palabras manualmente. ' +
+                        'El artículo sólo pasa a <b>Completado</b> cuando también termina esta revisión.'
+                    );
+                }
+
+                /*
+                 * P significa que Artículo/Instituciones/Autores ya quedaron
+                 * formalmente cerrados, aun cuando el flujo PC todavía no se
+                 * haya abierto (estatusPC NULL/A). Sólo Palabras clave sigue
+                 * editable. C histórico + PC A/R se comporta igual.
+                 */
+                /*
+                 * El bloqueo normal (P/C/B o PC exclusiva) sirve para decidir qué
+                 * puede EDITARSE. No debe ocultar información cuando el registro se
+                 * abrió desde el ojo: en modo consulta se muestran también
+                 * Instituciones y Autores, pero quedan deshabilitados.
+                 */
+                if(normal_bloqueado && !soloLectura){
+                    $('#save-no-indizable, #panelInstituciones, #panelAutores, #save-article, #save-article-bottom, #save-full, #acciones-finales-bottom').hide();
                     $('#idiomaDocumento, #titulo, #idioma, #titulo2, #idioma2, #titulo3, #idioma3, #tipo_documento, \n\
                         #disciplina1, #disciplina2, #disciplina3, #subdisciplina1, #subdisciplina2, #subdisciplina3, \n\
-                        #url1, #url2, #tipourl1, #tipourl2').prop("disabled", false);
+                        #url1, #url2, #tipourl1, #tipourl2').prop('disabled', true);
+                }else{
+                    $('#panelInstituciones, #panelAutores').show();
+                    if(!soloLectura){
+                        $('#save-no-indizable, #save-article, #save-article-bottom, #save-full, #acciones-finales-bottom').show();
+                    }
+                    $('#idiomaDocumento, #titulo, #idioma, #titulo2, #idioma2, #titulo3, #idioma3, #tipo_documento, \n\
+                        #disciplina1, #disciplina2, #disciplina3, #subdisciplina1, #subdisciplina2, #subdisciplina3, \n\
+                        #url1, #url2, #tipourl1, #tipourl2').prop('disabled', soloLectura ? true : false);
                 }
-               
-                
-                if(!revision_pc){
+
+                if(!normal_bloqueado || soloLectura){
                     class_av.var.autoresJSON = resp_autores[0].map(function(item){
                                                                         return {
                                                                                 ...item, // Copiar todas las propiedades del elemento original
@@ -1479,7 +2200,7 @@ class_av = {
                     url_pdf = class_av.var.documentoJSON[0].url2;
                 }
                 
-                if(!revision_pc){
+                if(!revision_pc || soloLectura){
                     if(class_av.var.corporativo == 1){
                         $('#es-corporativo')[0].checked = true;
                     }else{
@@ -2297,7 +3018,9 @@ class_av = {
                             }
                         };//);
                         
-                        if(!revision_pc){
+                        if(soloLectura){
+                            class_av.render_instituciones_solo_lectura(class_av.var.institucionesJSON);
+                        }else if(!revision_pc){
                             recorrido_instituciones(class_av.var.institucionesJSON);
                         }
 
@@ -2385,7 +3108,9 @@ class_av = {
                             });
                         };//});
                         
-                        if(!revision_pc){
+                        if(soloLectura){
+                            class_av.render_autores_solo_lectura(class_av.var.autoresJSON, class_av.var.institucionesJSON);
+                        }else if(!revision_pc){
                             recorrido_autores(class_av.var.autoresJSON);
                         }
 
@@ -2509,27 +3234,27 @@ class_av = {
          *
          * - Modo editable: conserva el flujo normal de sugerencias/catálogos.
          */
-        if(class_av.var.solo_lectura === true){
+        var featuresPC = (typeof cons !== 'undefined' && cons.features) ? cons.features : {};
+        var flujoPCVisible = (
+            featuresPC.mostrar_flujo_palabras_clave === true &&
+            cons.pal_cla.val == "1" &&
+            cons.rol.val !== 'Editor'
+        );
+        var capturaManualLegacyPC = class_av.es_captura_manual_pc_legacy(
+            class_av.var.documentoJSON && class_av.var.documentoJSON.length ? class_av.var.documentoJSON[0] : {}
+        );
+        $('#panelPalabrasClave').toggleClass(
+            'pc-presentacion-legacy',
+            capturaManualLegacyPC && !flujoPCVisible
+        );
+
+        if(!flujoPCVisible && !capturaManualLegacyPC){
+            $('#panelPalabrasClave, #div_palabras_clave_texto, #div_keywords_texto, #div_cargando_pc').hide();
+        }else if(class_av.var.solo_lectura === true){
             class_av.palabras_clave_almacenadas();
-        }else if(cons.pal_cla.val == "1"){
-            function checkPC() {
-                const interval = setInterval(() => {
-                    if (class_av.var.palabras_clave0 !== null && class_av.var.keywords0 !== null) {
-                        clearInterval(interval);
-                        class_av.palabras_clave();
-                    }else{
-                        var features = (typeof cons !== 'undefined' && cons.features) ? cons.features : {};
-                        if(features.mostrar_ia_palabras_clave === true){
-                            $('#div_cargando_pc').show();
-                        }else{
-                            $('#div_palabras_clave_texto, #div_cargando_pc').hide();
-                        }
-                    }
-                }, 500);
-            }
-            checkPC();
         }else{
-            $('#div_palabras_clave_texto, #div_cargando_pc').hide();
+            // El catálogo ONLINE se resuelve por lote dentro de palabras_clave().
+            class_av.palabras_clave();
         }
     },
     control_na: function(){
@@ -3529,26 +4254,11 @@ class_av = {
             return true;
         });
 
-        var disciplinas = registro.disciplinas;
-        if(typeof disciplinas === 'string'){
-            try{
-                disciplinas = JSON.parse(disciplinas);
-            }catch(e){
-                disciplinas = {};
-            }
-        }
-
-        var tieneDisciplina = false;
-        if(disciplinas && typeof disciplinas === 'object' && !Array.isArray(disciplinas)){
-            $.each([1,2,3], function(i,n){
-                if(class_av.ia_tiene_contenido(disciplinas['disciplina'+n])){
-                    tieneDisciplina = true;
-                    return false;
-                }
-            });
-        }
-
-        return tienePalabras && tieneDisciplina;
+        // La insignia IA de la tabla representa específicamente que el proceso
+        // de PALABRAS CLAVE ya terminó. No depende de que las disciplinas hayan
+        // sido generadas también. Esto permite usar exactamente la misma regla
+        // para el filtro "Palabras clave".
+        return tienePalabras;
     },
     pinta_indicador_ia: function(sistema, trabajado){
         $('.ia-status-slot').filter(function(){
@@ -3556,7 +4266,7 @@ class_av = {
         }).each(function(){
             if(trabajado){
                 $(this).html(
-                    '<span class="ia-status-chip" title="Palabras clave y clasificación temática generadas por IA">' +
+                    '<span class="ia-status-chip" title="Palabras clave generadas por IA">' +
                     '<i class="fa fa-magic" aria-hidden="true"></i> IA</span>'
                 );
             }else{
@@ -3564,6 +4274,64 @@ class_av = {
             }
         });
     },
+    carga_estados_ia_palabras: function(){
+        if(class_av.var.ia_status_masivo_cargado === true){
+            return $.Deferred().resolve().promise();
+        }
+
+        if(class_av.var.ia_status_masivo_peticion){
+            return class_av.var.ia_status_masivo_peticion;
+        }
+
+        var deferred = $.Deferred();
+        class_av.var.ia_status_masivo_peticion = deferred.promise();
+
+        var sistemas = [];
+        var vistos = {};
+        $.each(class_av.var.articulosJSON || [], function(i, articulo){
+            var sistema = String((articulo || {}).sistema || '').trim();
+            if(sistema !== '' && !vistos[sistema]){
+                vistos[sistema] = true;
+                sistemas.push(sistema);
+            }
+        });
+
+        if(sistemas.length === 0){
+            class_av.var.ia_status_masivo_cargado = true;
+            class_av.var.ia_status_masivo_peticion = null;
+            deferred.resolve();
+            return deferred.promise();
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: "<?=site_url('datos/palabras_ia_sistemas');?>",
+            dataType: 'json',
+            data: {sistemas: JSON.stringify(sistemas)}
+        }).done(function(registros){
+            var generados = {};
+            $.each(registros || [], function(i, registro){
+                var sistema = String((registro || {}).sistema || '').trim();
+                if(sistema !== ''){
+                    generados[sistema] = true;
+                }
+            });
+
+            $.each(sistemas, function(i, sistema){
+                class_av.var.ia_status_cache[sistema] = (generados[sistema] === true);
+            });
+
+            class_av.var.ia_status_masivo_cargado = true;
+            deferred.resolve();
+        }).fail(function(xhr){
+            deferred.reject(xhr);
+        }).always(function(){
+            class_av.var.ia_status_masivo_peticion = null;
+        });
+
+        return deferred.promise();
+    },
+
     actualiza_indicadores_ia: function(){
         var features = (typeof cons !== 'undefined' && cons.features) ? cons.features : {};
         if(features.mostrar_indicador_ia !== true){
@@ -3634,15 +4402,18 @@ class_av = {
         );
     },
 
-    pinta_icono_reabrir: function(sistema, mostrar, tipo){
+    pinta_icono_reabrir: function(sistema, mostrar, alcance){
         var $slot = $('.reabrir-status-slot[data-sistema="' + sistema + '"]');
 
         if(!$slot.length){
             return;
         }
 
+        var articulo = class_utils.find_prop(class_av.var.articulosJSON, 'sistema', sistema);
+        alcance = alcance || class_av.alcance_reabrir_articulo(articulo);
         mostrar =
             (mostrar === true) &&
+            alcance !== '' &&
             (cons.features.mostrar_reabrir_finalizados === true) &&
             (cons.rol.val === 'Analista' || cons.rol.val === 'Administrador');
 
@@ -3651,11 +4422,9 @@ class_av = {
             return;
         }
 
-        tipo = (tipo === 'pc') ? 'pc' : 'normal';
-
         $slot.html(
             '<button type="button" class="reabrir-status-btn" ' +
-                    'data-sistema="' + sistema + '" data-tipo="' + tipo + '" ' +
+                    'data-sistema="' + sistema + '" data-alcance="' + alcance + '" ' +
                     'title="Reabrir para edición" aria-label="Reabrir para edición">' +
                 '<i class="fa fa-unlock-alt" aria-hidden="true"></i>' +
             '</button>'
@@ -3663,9 +4432,9 @@ class_av = {
     },
 
     /*
-     * El clic de reabrir nace en el listado, por lo que no usamos set_bitacora():
-     * esa función depende de class_av.var.sistema y podría registrar el movimiento
-     * sobre otro artículo que estuviera cargado. Aquí se envía el sistema explícito.
+     * Reabrir se dispara desde el listado y puede no coincidir con
+     * class_av.var.sistema. Por eso la bitácora recibe el sistema explícito.
+     * tiempo=0: es un movimiento administrativo y no debe sumar tiempo de producción.
      */
     set_bitacora_sistema: function(movimiento, sistema, tiempo){
         tiempo = (tiempo === undefined || tiempo === null) ? 0 : tiempo;
@@ -3681,9 +4450,15 @@ class_av = {
         });
     },
 
-    reabrir_registro: function(sistema, tipo){
+    /*
+     * Reapertura contextual y segura.
+     * El servidor vuelve a calcular el alcance con asignado/asignadoPC y
+     * fechaAsignado/fechaAsignadoPC; el navegador no decide qué columnas puede
+     * reabrir. Esto evita que un analista con asignación exclusiva PC pueda
+     * reabrir el análisis normal manipulando el DOM.
+     */
+    reabrir_registro: function(sistema){
         sistema = String(sistema || '');
-        tipo = (tipo === 'pc') ? 'pc' : 'normal';
 
         if(
             sistema === '' ||
@@ -3694,51 +4469,23 @@ class_av = {
         }
 
         var articulo = class_utils.find_prop(class_av.var.articulosJSON, 'sistema', sistema);
-
         if(!articulo){
             class_av.mensaje('No fue posible localizar el registro en el listado.');
             return false;
         }
 
-        /*
-         * Impide reabrir desde un icono viejo si el estatus ya cambió.
-         */
-        if(tipo === 'pc'){
-            if(String(articulo.estatusPC || '') !== 'C'){
-                class_av.pinta_icono_reabrir(sistema, false, 'pc');
-                return false;
-            }
-        }else{
-            if(['C','B'].indexOf(String(articulo.estatus || '')) === -1){
-                class_av.pinta_icono_reabrir(sistema, false, 'normal');
-                return false;
-            }
-        }
-
-        var data = {};
-        data['tabla'] = 'article';
-        data['where'] = ['sistema'];
-
-        if(tipo === 'pc'){
-            data['data'] = [{
-                estatusPC: 'R',
-                sistema: sistema,
-                usuario: 'sesion'
-            }];
-        }else{
-            data['data'] = [{
-                estatus: 'R',
-                sistema: sistema,
-                usuario: 'sesion'
-            }];
+        if(class_av.alcance_reabrir_articulo(articulo) === ''){
+            class_av.pinta_icono_reabrir(sistema, false);
+            return false;
         }
 
         loading.start();
 
         $.ajax({
             type: 'POST',
-            url: "<?=site_url('metametrics/ws_update_estatus');?>",
-            data: data
+            url: "<?=site_url('metametrics/ws_reabrir_contextual');?>",
+            dataType: 'json',
+            data: {sistema: sistema}
         }).done(function(resp){
             if(resp && resp.resp === 'session'){
                 loading.end();
@@ -3751,61 +4498,142 @@ class_av = {
 
             if(!resp || resp.resp !== 'success'){
                 loading.end();
-                class_av.mensaje('No fue posible reabrir el registro. Intente nuevamente.');
+                class_av.mensaje((resp && resp.mensaje) ? resp.mensaje : 'No fue posible reabrir el registro. Intente nuevamente.');
                 return;
             }
 
-            if(tipo === 'pc'){
-                articulo.estatusPC = 'R';
-                class_av.cambio_estatus_pc(sistema, 'R');
-            }else{
-                articulo.estatus = 'R';
-                class_av.cambio_estatus(sistema, 'R');
+            if(resp.estatus !== undefined){
+                articulo.estatus = resp.estatus;
+            }
+            if(resp.estatusPC !== undefined){
+                articulo.estatusPC = resp.estatusPC;
             }
 
-            /*
-             * El título vuelve al flujo normal: el analista hace clic y abre la ficha
-             * editable como cualquier otro registro En revisión.
-             */
-            $('.' + sistema)
-                .removeClass('cerrado')
-                .addClass('sistema')
-                .css('cursor', 'pointer')
-                .css('color', '#ff8000');
+            // El endpoint ya aplicó el alcance correcto. Actualizamos la fila completa.
+            class_av.refresca_estado_registro(sistema);
 
-            class_av.pinta_icono_consulta(sistema, false);
-            class_av.pinta_icono_reabrir(sistema, false, tipo);
-
-            /*
-             * Si estaba abierta la misma ficha mediante el ojo, se cierra para evitar
-             * dejar en pantalla un formulario todavía bloqueado. El siguiente acceso
-             * debe hacerse desde el título, ya en modo edición.
-             */
-            if(String(class_av.var.sistema || '') === sistema && class_av.var.solo_lectura === true){
+            if(String(class_av.var.sistema || '') === sistema){
+                // Si estaba abierto mediante ojo, cerramos la ficha; al volver a entrar
+                // se reconstruyen exactamente los controles que quedaron reabiertos.
                 class_av.aplicar_modo_solo_lectura(false);
                 $('#accordion').hide();
             }
 
-            var movimiento = (tipo === 'pc') ? 'Reabierto PC' : 'Reabierto';
-
+            var movimiento = (String(resp.alcance || '') === 'pc') ? 'Reabierto PC' : 'Reabierto';
             class_av.set_bitacora_sistema(movimiento, sistema, 0)
                 .fail(function(){
                     console.warn('El registro fue reabierto, pero no fue posible registrar la bitácora.');
                 });
 
             loading.end();
-
-            class_av.mensaje(
-                (tipo === 'pc')
-                    ? 'Registro reabierto. Ahora está <b>En revisión PC</b>.'
-                    : 'Registro reabierto. Ahora está <b>En revisión</b>.'
-            );
+            class_av.mensaje(resp.mensaje || 'Registro reabierto correctamente.');
         }).fail(function(){
             loading.end();
             class_av.mensaje('No fue posible reabrir el registro. Intente nuevamente.');
         });
 
         return false;
+    },
+
+    pc_status_info: function(articulo){
+        articulo = articulo || {};
+        var features = (typeof cons !== 'undefined' && cons.features) ? cons.features : {};
+        if(features.mostrar_flujo_palabras_clave !== true){
+            return null;
+        }
+        var estatusPC = String(articulo.estatusPC == null ? '' : articulo.estatusPC).trim().toUpperCase();
+        var asignadoPC = String(articulo.asignadoPC == null ? '' : articulo.asignadoPC).trim();
+
+        // No mostrar un estado PC en registros que nunca han entrado al flujo de palabras clave.
+        if(estatusPC === '' && asignadoPC === ''){
+            return null;
+        }
+
+        if(estatusPC === 'C'){
+            return {
+                clase: 'pc-status-completo',
+                texto: '<i class="fa fa-check" aria-hidden="true"></i> PC',
+                titulo: 'Palabras clave completadas'
+            };
+        }
+        if(estatusPC === 'R'){
+            return {
+                clase: 'pc-status-revision',
+                texto: 'PC: En revisión',
+                titulo: 'Revisión de palabras clave en curso'
+            };
+        }
+
+        // A o una asignación PC existente sin estado explícito equivalen a pendiente.
+        return {
+            clase: 'pc-status-pendiente',
+            texto: 'PC: Pendiente',
+            titulo: 'Palabras clave asignadas, aún sin completar'
+        };
+    },
+
+    pc_status_html: function(articulo){
+        var info = class_av.pc_status_info(articulo);
+        if(!info) return '';
+        return '<span class="pc-status-chip ' + info.clase + '" title="' + info.titulo + '">' + info.texto + '</span>';
+    },
+
+    pinta_estado_pc: function(sistema){
+        var articulo = class_utils.find_prop(class_av.var.articulosJSON, 'sistema', sistema);
+        if(!articulo) return;
+        $('#pc-status-' + sistema).html(class_av.pc_status_html(articulo));
+    },
+
+    refresca_estado_registro: function(sistema){
+        var articulo = class_utils.find_prop(class_av.var.articulosJSON, 'sistema', sistema);
+        if(!articulo) return;
+
+        var features = (typeof cons !== 'undefined' && cons.features) ? cons.features : {};
+        var flujoPCActivo = (
+            cons.pal_cla.val === '1' &&
+            cons.rol.val !== 'Editor' &&
+            features.mostrar_flujo_palabras_clave === true
+        );
+
+        var estatusNormal = String(articulo.estatus || '');
+        var estatusPC = String(articulo.estatusPC || '');
+        var estatusTexto = class_av.cons.estatus[estatusNormal] || '';
+        var estatusColor = class_av.cons.color_estatus[estatusNormal] || 'gray';
+
+        $('#estatus-'+sistema).html(estatusTexto).css('background-color', estatusColor);
+        class_av.pinta_estado_pc(sistema);
+
+        /*
+         * Con el flujo PC oculto se conserva exactamente el comportamiento
+         * anterior: estatusPC NO mantiene abierto un artículo ya completado.
+         * Cuando el flujo está liberado, una revisión PC A/R sí permite entrar.
+         */
+        var tituloAbierto = flujoPCActivo
+            ? ((['A','R'].indexOf(estatusPC) !== -1) || (['C','B'].indexOf(estatusNormal) === -1))
+            : (['C','B'].indexOf(estatusNormal) === -1);
+
+        var $titulo = $('.' + sistema).first();
+        if($titulo.length){
+            $titulo.toggleClass('cerrado', !tituloAbierto)
+                   .addClass('sistema')
+                   .css('cursor', tituloAbierto ? 'pointer' : 'default')
+                   .css('color', tituloAbierto ? '#ff8000' : '#777777');
+        }
+
+        /* La fecha de esta columna corresponde al completado NORMAL. */
+        var fechaCompletado = (estatusNormal === 'C') ? String(articulo.fecha || '') : '';
+        var $fila = $('#estatus-'+sistema).closest('tr');
+        if($fila.length){
+            $fila.children('td').eq(7).text(fechaCompletado);
+        }
+
+        class_av.pinta_icono_consulta(
+            sistema,
+            cons.features.mostrar_consulta_finalizados === true && !tituloAbierto
+        );
+
+        var alcance = class_av.alcance_reabrir_articulo(articulo);
+        class_av.pinta_icono_reabrir(sistema, alcance !== '', alcance);
     },
 
     setTabla: function(data){
@@ -3817,13 +4645,30 @@ class_av = {
             var texto2 = (val['url2'] == null)?'':'Ver artículo';
             var art_class = '';
             var art_style = '';
-            if( ['A','R'].indexOf(val['estatusPC']) !== -1 ){
+            var estatusNormal = String(val['estatus'] || '');
+            var estatusPC = String(val['estatusPC'] || '');
+            var estatusTexto = class_av.cons.estatus[estatusNormal] || '';
+            var estatusColor = class_av.cons.color_estatus[estatusNormal] || 'gray';
+            var pcStatusHtml = class_av.pc_status_html(val);
+            var features = (typeof cons !== 'undefined' && cons.features) ? cons.features : {};
+            var flujoPCActivo = (
+                cons.pal_cla.val === '1' &&
+                cons.rol.val !== 'Editor' &&
+                features.mostrar_flujo_palabras_clave === true
+            );
+
+            /*
+             * Mientras el flujo PC esté oculto, la tabla se comporta como la
+             * versión histórica: sólo estatus normal decide si puede abrirse.
+             */
+            if(flujoPCActivo && ['A','R'].indexOf(estatusPC) !== -1){
                 art_class = 'sistema';
-                art_style = 'cursor:pointer;color:#ff8000'
+                art_style = 'cursor:pointer;color:#ff8000';
             }else{
-                art_class = ( ['C','B'].indexOf(val['estatus']) == -1 )?'sistema':'sistema cerrado';
-                // Los finalizados ya no son navegables desde el título.
-                art_style = ( ['C','B'].indexOf(val['estatus']) == -1 )?'cursor:pointer;color:#ff8000':'cursor:default;color:#777777';
+                art_class = (['C','B'].indexOf(estatusNormal) === -1) ? 'sistema' : 'sistema cerrado';
+                art_style = (['C','B'].indexOf(estatusNormal) === -1)
+                    ? 'cursor:pointer;color:#ff8000'
+                    : 'cursor:default;color:#777777';
             }
             //var art_class = 'sistema';
             //var art_style = 'cursor:pointer;color:#ff8000';
@@ -3835,22 +4680,18 @@ class_av = {
                 : '';
 
             /*
-             * Si el flujo PC está completado se reabre estatusPC; en caso contrario,
-             * los cerrados C/B del flujo normal se reabren sobre estatus.
+             * Un solo Reabrir. Para asignaciones PC exclusivas sólo aparece cuando
+             * estatusPC=C; para asignaciones integradas aparece cuando alguna parte
+             * está cerrada. El endpoint vuelve a validar el alcance en servidor.
              */
-            var reabrir_tipo = (String(val['estatusPC'] || '') === 'C') ? 'pc' : 'normal';
-            var reabrir_cerrado =
-                (reabrir_tipo === 'pc')
-                    ? true
-                    : (['C','B'].indexOf(String(val['estatus'] || '')) !== -1);
-
+            var reabrir_alcance = class_av.alcance_reabrir_articulo(val);
             var mostrar_reabrir =
                 cons.features.mostrar_reabrir_finalizados === true &&
                 (cons.rol.val === 'Analista' || cons.rol.val === 'Administrador') &&
-                reabrir_cerrado;
+                reabrir_alcance !== '';
 
             var reabrir_html = mostrar_reabrir
-                ? '<button type="button" class="reabrir-status-btn" data-sistema="' + val['sistema'] + '" data-tipo="' + reabrir_tipo + '" title="Reabrir para edición" aria-label="Reabrir para edición"><i class="fa fa-unlock-alt" aria-hidden="true"></i></button>'
+                ? '<button type="button" class="reabrir-status-btn" data-sistema="' + val['sistema'] + '" data-alcance="' + reabrir_alcance + '" title="Reabrir para edición" aria-label="Reabrir para edición"><i class="fa fa-unlock-alt" aria-hidden="true"></i></button>'
                 : '';
 
             val['articulo'] = val['articulo'].replace(/<[^>]+>/g, '');
@@ -3860,6 +4701,8 @@ class_av = {
                             .replace('<id>', val['sistema'] + '__' + val['revista'] + '__' + val['articulo'])
                             .replace('<sistema>', val['sistema'])
                             .replace('<sistema_ia>', val['sistema'])
+                            .replace('<sistema_pc>', val['sistema'])
+                            .replace('<pc_status>', pcStatusHtml)
                             .replace('<sistema_consulta>', val['sistema'])
                             .replace('<consulta>', consulta_html)
                             .replace('<sistema_reabrir>', val['sistema'])
@@ -3870,26 +4713,12 @@ class_av = {
                             .replace('<url2>', val['url2'])
                             .replace('<texto1>', texto1)
                             .replace('<texto2>', texto2)
-                            .replace('<fecha>', ((['C','R','A'].indexOf(val['estatusPC'])==-1)?'<fecha>':val['fechaAsignadoPC']))
+                            .replace('<fecha>', ((flujoPCActivo && ['C','R','A'].indexOf(estatusPC)!==-1)?val['fechaAsignadoPC']:'<fecha>'))
                             .replace('<fecha>', ((val['fechaAsignado']==null)?'':val['fechaAsignado']))
-                            .replace('<fecha_c>', ((['C','R','A'].indexOf(val['estatusPC'])!==-1)?val['fechaPC']:'<fecha_c>'))
-                            .replace('<fecha_c>', ((val['estatus']=='C')?val['fecha']:''))
-                            .replace('<estatus>', ((val['estatusPC']==null)?'<estatus>':'<estatus_pc>'+val['estatusPC']))
-                            .replace('<estatus>', '<estatus>'+val['estatus'])
-                            .replace('<color>', ((val['estatusPC']==null)?'<color>':'<color>'+val['estatusPC']))
-                            .replace('<color>', ((val['estatusPC']==null)?'<color>'+val['estatus']:'<color>'))
-                            .replace('<estatus>R', 'En revisión')
-                            .replace('<estatus>C', 'Completado')
-                            .replace('<estatus>B', 'No indizable')
-                            .replace('<estatus>A', 'Sin movimiento')
-							.replace('<estatus>D', 'Corrección')
-                            .replace('<estatus_pc>R', 'En revisión PC')
-                            .replace('<estatus_pc>C', 'Completado PC')
-                            .replace('<estatus_pc>A', 'Sin movimiento PC')
-                            .replace('<color>R', 'goldenrod')
-                            .replace('<color>C', 'darkgreen')
-                            .replace('<color>B', 'darkred')
-							.replace('<color>D', 'darkblue')
+                            /* La fecha de completado de esta tabla siempre es la normal. */
+                            .replace('<fecha_c>', ((estatusNormal==='C')?(val['fecha'] || ''):''))
+                            .replace('<estatus>', estatusTexto)
+                            .replace('<color>', estatusColor)
                             .replace('<style>', art_style)
                             .replace('<class>', art_class)
                             .replaceAll('undefined', '');
@@ -3924,20 +4753,33 @@ class_av = {
                         // no aparezca innecesariamente la barra de desplazamiento interna.
                         scrollY: '70vh',
                         scrollCollapse: false,
-                        autoWidth: true,
+                        autoWidth: false,
                         columnDefs: [
                             oculta,
                             {
                                 render: function (data, type, full, meta) {
                                     //Sustituye el valor de la celda por esto agregando un div para que se mantenga dentro del tamaño definido
-                                    return '<div style="width: 100%; text-align: left; white-space: normal;">' + data + '</div>';
+                                    return '<div style="width: 100%; text-align: left; white-space: normal; overflow-wrap:anywhere;">' + data + '</div>';
                                 },
                                 targets: targets
-                            }
+                            },
+                            { targets: 0, width: '15%' },
+                            { targets: 1, width: '7%'  },
+                            { targets: 2, width: '8%'  },
+                            { targets: 3, width: '24%' },
+                            { targets: 4, width: '7%'  },
+                            { targets: 5, width: '7%'  },
+                            { targets: 6, width: '9%'  },
+                            { targets: 7, width: '9%'  },
+                            { targets: 8, width: '14%' }
                         ],
-                        //Reajusta el ancho de las columnas
+                        /*
+                         * No llamar columns.adjust() en cada página: DataTables vuelve a medir
+                         * sólo las filas visibles y una página con PC + IA + candado ensancha
+                         * Estatus, mientras otra página sin esos indicadores lo vuelve a estrechar.
+                         * Los anchos quedan fijos y el contenido de Estatus se envuelve.
+                         */
                         drawCallback: function( settings ) {
-                            $(this).DataTable().columns.adjust();
                             //Evento para ocultar o mostrar la paginación si existen o no registros después de una búsqueda
                             if ($(this).DataTable().page.info().recordsDisplay > 0) {
                                 $('.dataTables_paginate').show();
@@ -4569,85 +5411,64 @@ class_av = {
             
             obj['disciplinas'] = JSON.stringify(arrDisc);
             
-            var palabras_clave = JSON.parse(class_av.var.documentoJSON[0].palabraClave);
-            if(palabras_clave == null || cons.pal_cla.val == "1"){
-                palabras_clave = [];
-            }
-            
-            var keywords = JSON.parse(class_av.var.documentoJSON[0].keyword);
-            if(keywords == null || cons.pal_cla.val == "1"){
-                keywords = [];
-            }
-            
             var subdisciplina1 = $('#subdisciplina1').val();
             subdisciplina1 = class_av.limpia(subdisciplina1);
             if(subdisciplina1){
                 arrSubdisc.push(subdisciplina1);
-                
-                //Revisión de subdisciplinas anteriores y actualización de palabras clave
-                if( class_av.var.documentoJSON[0].subdisciplina1 !== null){
-                    var idx = palabras_clave.indexOf(class_av.var.documentoJSON[0].subdisciplina1);
-                    if( idx !== -1){
-                        //Elimina la subdisciplina de las palabras clave
-                        palabras_clave = palabras_clave.splice(idx, 1);
-                    }
-                }
-                if(palabras_clave.indexOf(subdisciplina1) == -1){
-                    palabras_clave.push(subdisciplina1);
-                }
-                var disc_eng = class_av.var.catalogos['disciplina_eng'][busca_idx1];
-                var idx_sub = class_av.var.catalogos[disciplina1].indexOf(subdisciplina1);
-                keywords.push( class_av.var.catalogos[disc_eng][idx_sub] );
-                keywords = [...new Set(keywords)];
             }
             
             var subdisciplina2 = $('#subdisciplina2').val();
             subdisciplina2 = class_av.limpia(subdisciplina2);
             if(subdisciplina2){
                 arrSubdisc.push(subdisciplina2);
-                
-                //Revisión de subdisciplinas anteriores y actualización de palabras clave
-                if( class_av.var.documentoJSON[0].subdisciplina2 !== null){
-                    var idx = palabras_clave.indexOf(class_av.var.documentoJSON[0].subdisciplina2);
-                    if( idx !== -1){
-                        //Elimina la subdisciplina de las palabras clave
-                        palabras_clave = palabras_clave.splice(idx, 1);
-                    }
-                }
-                if(palabras_clave.indexOf(subdisciplina2) == -1){
-                    palabras_clave.push(subdisciplina2);
-                }
-                var disc_eng = class_av.var.catalogos['disciplina_eng'][busca_idx2];
-                var idx_sub = class_av.var.catalogos[disciplina2].indexOf(subdisciplina2);
-                keywords.push( class_av.var.catalogos[disc_eng][idx_sub] );
-                keywords = [...new Set(keywords)];
             }
             
             var subdisciplina3 = $('#subdisciplina3').val();
             subdisciplina3 = class_av.limpia(subdisciplina3);
             if(subdisciplina3){
                 arrSubdisc.push(subdisciplina3);
-                
-                //Revisión de subdisciplinas anteriores y actualización de palabras clave
-                if( class_av.var.documentoJSON[0].subdisciplina3 !== null){
-                    var idx = palabras_clave.indexOf(class_av.var.documentoJSON[0].subdisciplina3);
-                    if( idx !== -1){
-                        //Elimina la subdisciplina de las palabras clave
-                        palabras_clave = palabras_clave.splice(idx, 1);
-                    }
-                }
-                if(palabras_clave.indexOf(subdisciplina3) == -1){
-                    palabras_clave.push(subdisciplina3);
-                }
-                var disc_eng = class_av.var.catalogos['disciplina_eng'][busca_idx3];
-                var idx_sub = class_av.var.catalogos[disciplina3].indexOf(subdisciplina3);
-                keywords.push( class_av.var.catalogos[disc_eng][idx_sub] );
-                keywords = [...new Set(keywords)];
             }
             
             obj['subdisciplinas'] = JSON.stringify(arrSubdisc);
-            //obj['palabraClave'] = JSON.stringify(palabras_clave);
-            //class_av.var.documentoJSON[0].palabraClave = JSON.stringify(palabras_clave);
+
+            /*
+             * Compatibilidad con captura manual completa mientras el nuevo flujo
+             * PC está oculto. Antes de separar secciones, palabraClave/keyword se
+             * guardaban junto con Artículo. Conservamos exactamente ese efecto
+             * sólo para estos registros y SIN escribir estatusPC/asignadoPC.
+             */
+            if(class_av.es_captura_manual_pc_legacy(class_av.var.documentoJSON[0])){
+                var palabrasLegacy = [];
+                $('.esp.palabra_clave.badge-warning').each(function(){
+                    var palabra = $(this).html();
+                    var sustituye = '';
+                    if(palabra.indexOf('fa-arrow-down') !== -1){
+                        sustituye = palabra.split('<br>')[2].split('<span')[0].trim();
+                    }
+                    palabra = palabra.split('<span')[0].trim();
+                    if(sustituye !== '') palabra = palabra + '-sustituye-' + sustituye;
+                    palabrasLegacy.push(palabra);
+                });
+
+                var keywordsLegacy = [];
+                $('.keyword.palabra_clave.badge-warning').each(function(){
+                    var palabra = $(this).html();
+                    var sustituye = '';
+                    if(palabra.indexOf('fa-arrow-down') !== -1){
+                        sustituye = palabra.split('<br>')[2].split('<span')[0].trim();
+                    }
+                    palabra = palabra.split('<span')[0].trim();
+                    if(sustituye !== '') palabra = palabra + '-sustituye-' + sustituye;
+                    keywordsLegacy.push(palabra);
+                });
+
+                palabrasLegacy = [...new Set(palabrasLegacy)];
+                keywordsLegacy = [...new Set(keywordsLegacy)];
+                obj['palabraClave'] = JSON.stringify(palabrasLegacy);
+                obj['keyword'] = JSON.stringify(keywordsLegacy);
+                class_av.var.documentoJSON[0].palabraClave = JSON.stringify(palabrasLegacy);
+                class_av.var.documentoJSON[0].keyword = JSON.stringify(keywordsLegacy);
+            }
 
             var url1 = $('#url1').val();
             var tipourl1 = $('#tipourl1').val();
@@ -4741,55 +5562,7 @@ class_av = {
             }
             
             obj['url'] = JSON.stringify(arrURL);
-            
-            if(cons.pal_cla.val == "1"){
-                arr_palabras_clave = [];
-                $('.esp.palabra_clave.badge-warning').each(function() {
-                    var palabra = $(this).html(); // Obtener el texto dentro del botón actual
-                    var palabra_sustituye = '';
-                    //busca si hay sustitución de palabra
-                    if( palabra.indexOf('fa-arrow-down') !== -1 ){
-                        palabra_sustituye = palabra.split('<br>')[2].split('<span')[0].trim();
-                    }
-                    palabra = palabra.split('<span')[0].trim();
-                    if(palabra_sustituye !== ''){
-                        palabra = palabra + '-sustituye-' + palabra_sustituye;
-                    }
-                    arr_palabras_clave.push(palabra);
-                });
-                
-                arr_keywords = [];
-                $('.keyword.palabra_clave.badge-warning').each(function() {
-                    var palabra = $(this).html(); // Obtener el texto dentro del botón actual
-                    var palabra_sustituye = '';
-                    //busca si hay sustitución de palabra
-                    if( palabra.indexOf('fa-arrow-down') !== -1 ){
-                        palabra_sustituye = palabra.split('<br>')[2].split('<span')[0].trim();
-                    }
-                    palabra = palabra.split('<span')[0].trim();
-                    if(palabra_sustituye !== ''){
-                        palabra = palabra + '-sustituye-' + palabra_sustituye;
-                    }
-                    arr_keywords.push(palabra);
-                });
-                
-                arr_palabras_clave = arr_palabras_clave.concat(palabras_clave);
-                arr_keywords = arr_keywords.concat(keywords);
-                
-                arr_palabras_clave = [...new Set(arr_palabras_clave)];
-                arr_keywords = [...new Set(arr_keywords)];
-                
-                obj['palabraClave'] = JSON.stringify(arr_palabras_clave);
-                class_av.var.documentoJSON[0].palabraClave = JSON.stringify(arr_palabras_clave);
-                obj['keyword'] = JSON.stringify(arr_keywords);
-                class_av.var.documentoJSON[0].keyword = JSON.stringify(arr_keywords);
-            }else{
-                obj['palabraClave'] = JSON.stringify(palabras_clave);
-                obj['keyword'] = JSON.stringify(keywords);
-                class_av.var.documentoJSON[0].palabraClave = JSON.stringify(palabras_clave);
-                class_av.var.documentoJSON[0].keyword = JSON.stringify(keywords);
-            }
-            
+            // Palabras clave se guardan exclusivamente desde data_update_pc().
             obj['estatus'] = 'R';
             
             data_int.push(obj);
@@ -5119,69 +5892,52 @@ class_av = {
         class_av.change_orcid();
     },
     cambio_estatus: function(sistema, estatus){
-        $('#estatus-'+sistema).html(class_av.cons.estatus[estatus]);
-        $('#estatus-'+sistema).css('background-color',class_av.cons.color_estatus[estatus]);
-
-        var cerrado = ['C','B'].indexOf(estatus) !== -1;
-        class_av.pinta_icono_consulta(sistema, cerrado);
-        class_av.pinta_icono_reabrir(sistema, cerrado, 'normal');
+        var articulo = class_utils.find_prop(class_av.var.articulosJSON, 'sistema', sistema);
+        if(articulo) articulo.estatus = estatus;
+        class_av.refresca_estado_registro(sistema);
     },
     cambio_estatus_pc: function(sistema, estatus){
-        $('#estatus-'+sistema).html(class_av.cons.estatus[estatus+'PC']);
-        $('#estatus-'+sistema).css('background-color',class_av.cons.color_estatus[estatus]);
-
-        var cerrado = (estatus === 'C');
-        class_av.pinta_icono_consulta(sistema, cerrado);
-        class_av.pinta_icono_reabrir(sistema, cerrado, 'pc');
+        var articulo = class_utils.find_prop(class_av.var.articulosJSON, 'sistema', sistema);
+        if(articulo) articulo.estatusPC = estatus;
+        class_av.refresca_estado_registro(sistema);
     },
-    cambios_sin_guardar: function(evento = null, elemento = null){
-        // En modo consulta todos los controles están deshabilitados. Aunque algún
-        // componente haya disparado un change durante la carga, nunca se considera
-        // un cambio real del usuario.
+    cambios_sin_guardar: function(evento = null, elemento = null, alcance = 'todo'){
         if(class_av.var.solo_lectura === true){
             class_av.var.cambios_documento = false;
+            class_av.var.cambios_pc = false;
             class_av.var.cambios_institucion = false;
             class_av.var.cambios_autor = false;
             return false;
         }
 
-        if( class_av.var.cambios_documento || class_av.var.cambios_institucion || class_av.var.cambios_autor){
-            if(class_av.var.cambios_documento){
-                var texto = 'Existen cambios sin guardar <b>Artículo</b>';
-            }else if(class_av.var.cambios_institucion){
-                var texto = 'Existen cambios sin guardar en <b>Instituciones</b>';
-            }else if(class_av.var.cambios_autor){
-                var texto = 'Existen cambios sin guardar en <b>Autores</b>';
-            }
-            $.confirm({
-                title: '',
-                content: texto,
-                buttons: {
-                    cancelar: {
-                            text: 'Descartar Cambios',
-                            //btnClass: 'btn-red',
-                            action: function(){
-                                class_av.var.cambios_documento = false;
-                                class_av.var.cambios_institucion = false;
-                                class_av.var.cambios_autor = false;
-                                if(evento == 'sistema'){
-                                    $(elemento).click();
-                                }
-                            }
-                    },
-                    aceptar: {
-                            text: 'Regresar',
-                            btnClass: 'btn-warning',
-                            action: function(){
-                                return true;
-                            }
+        var pendientes = [];
+        var pcFormaParteDelGuardadoNormal = class_av.es_captura_manual_pc_legacy(
+            class_av.var.documentoJSON && class_av.var.documentoJSON.length ? class_av.var.documentoJSON[0] : {}
+        );
+        if(class_av.var.cambios_documento) pendientes.push('Artículo');
+        if((alcance !== 'normal' || pcFormaParteDelGuardadoNormal) && class_av.var.cambios_pc) pendientes.push('Palabras clave');
+        if(class_av.var.cambios_institucion) pendientes.push('Instituciones');
+        if(class_av.var.cambios_autor) pendientes.push('Autores');
+        if(!pendientes.length) return false;
+
+        $.confirm({
+            title: '',
+            content: 'Existen cambios sin guardar en <b>'+pendientes.join(', ')+'</b>',
+            buttons: {
+                cancelar: {
+                    text: 'Descartar Cambios',
+                    action: function(){
+                        if(alcance !== 'normal' || pcFormaParteDelGuardadoNormal) class_av.var.cambios_pc = false;
+                        class_av.var.cambios_documento = false;
+                        class_av.var.cambios_institucion = false;
+                        class_av.var.cambios_autor = false;
+                        if(evento == 'sistema') $(elemento).click();
                     }
-                }
-            });
-            return true;
-        }else{
-            return false;
-        }
+                },
+                aceptar: {text:'Regresar', btnClass:'btn-warning', action:function(){ return true; }}
+            }
+        });
+        return true;
     },
     mensaje:function(texto, fn=null){
         $.confirm({
@@ -5287,8 +6043,8 @@ class_av = {
                                 }
                                 return false;
                             }else{
-                                var num = class_utils.find_prop(class_av.var.palabras_clave0,'valor',name);
-                                if(num == undefined){num=0;}else{num=num.num;}
+                                var infoNum = class_av.catalogo_pc_buscar(name, idioma);
+                                var num = infoNum ? Number(infoNum.num || 0) : 0;
                                 $('#'+id_s).html(class_av.cons.palabra_clave_sustituye.replaceAll('<palabra>', name).replaceAll('<num>', num));
                                 if(sustituye !== undefined){
                                     class_av.mensaje('Se encontró una palabra que fue considerada más adecuada:<br><br>\n\
@@ -5327,39 +6083,7 @@ class_av = {
                         tags: true,
                         allowClear: true,
                         placeholder: "Selecciona o escribe otra palabra clave",
-                        ajax: {
-                          url: '/datos/vacio',
-                          dataType: 'json',
-                          delay: 1000,
-                          data: (params) => {
-                            return {
-                              q: params.term,
-                            }
-                          },
-                          processResults: (data, params) => {
-                            var arr_busca = class_av.var.palabras_clave0;
-                            if(idioma == 'eng'){
-                                arr_busca = class_av.var.keywords0;
-                            }
-                            const results = class_utils.filter_prop_er(arr_busca,'valor',new RegExp("^" + params.term + ".*", "i")).map(item => {
-                              return {
-                                id: item.valor,
-                                text: item.valor,
-                                num: item.num
-                              };
-                            });
-                            
-                            //Cambio al seleccionar una opción
-                            $('#palabra_clave_sel').on('select2:closing', function(){
-                                if ($('#palabra_clave_sel').val() !== '' && $('#palabra_clave_sel').val() !== null)
-                                    $('#palabra_sugerida_sel').val(null).trigger('change.select2');
-                             });
-                            
-                            return {
-                              results: results,
-                            }
-                          }
-                        },
+                        ajax: class_av.catalogo_pc_select2_ajax(idioma),
                         language: {
                                     inputTooShort: function () {
                                     return "";
@@ -5444,23 +6168,15 @@ class_av = {
                         var name = String(this.$content.find('.name').val() || '').trim();
                         var clase = (idioma == 'eng') ? '.keyword.palabra_clave' : '.esp.palabra_clave';
                         var var_palabras_clave = (idioma == 'eng') ? class_av.var.keywords_n : class_av.var.palabras_clave_n;
-                        var catalogo = (idioma == 'eng') ? class_av.var.keywords0 : class_av.var.palabras_clave0;
                         var normalizaLocal = function(v){ return String(v || '').trim().toLowerCase(); };
-						var mayusculaInicial = function(v){
-							v = String(v || '').trim();
 
-							if(v === ''){
-								return v;
-							}
-
-							return v.charAt(0).toUpperCase() + v.slice(1);
-						};
-						
-						
                         if(name === ''){
                             $.alert('No es una palabra válida');
                             return false;
                         }
+
+                        // Toda palabra agregada se conserva con mayúscula inicial.
+                        name = class_av.catalogo_pc_mayuscula_inicial(name);
 
                         var llave = normalizaLocal(name);
                         var duplicada = false;
@@ -5500,43 +6216,19 @@ class_av = {
                             return false;
                         }
 
-                        // La forma que queremos conservar
-						name = mayusculaInicial(name);
-						var llave = normalizaLocal(name);
+                        /*
+                         * La búsqueda centralizada prefiere la variante cuya grafía
+                         * coincide con la regla de mayúscula inicial. De esta forma
+                         * "méxico" no toma el contador de "méxico" si también existe
+                         * "México" en el catálogo.
+                         */
+                        var encontrado = class_av.catalogo_pc_buscar(name, idioma);
 
-						var encontrado = null;
-						var encontradoAlterno = null;
-
-						$.each(catalogo || [], function(i, val){
-							var valorCatalogo = String(val.valor || '').trim();
-
-							if(normalizaLocal(valorCatalogo) === llave){
-
-								// Prioridad absoluta: misma grafía que queremos mostrar.
-								// Ejemplo: México === México
-								if(valorCatalogo === name){
-									encontrado = val;
-									return false;
-								}
-
-								// Guardamos una coincidencia alternativa por si no existe
-								// exactamente con esa capitalización.
-								if(encontradoAlterno === null){
-									encontradoAlterno = val;
-								}
-							}
-						});
-
-						if(encontrado === null){
-							encontrado = encontradoAlterno;
-						}
-
-						var exacta = (encontrado !== null);
-						var num = exacta ? Number(encontrado.num || 0) : 0;
-
-						// Independientemente de cómo esté el catálogo,
-						// siempre conservar mayúscula inicial.
-						var terminoMostrar = mayusculaInicial(name);
+                        var exacta = (encontrado !== undefined);
+                        var num = exacta ? Number(encontrado.num || 0) : 0;
+                        var terminoMostrar = class_av.catalogo_pc_mayuscula_inicial(
+                            exacta ? String(encontrado.valor || name) : name
+                        );
                         var tipoClase = exacta ? 'pc-exacta' : 'pc-aprox';
                         var claseNueva = (idioma == 'eng') ? 'new_k keyword' : 'new_p esp';
                         var selectorIdioma = (idioma == 'eng') ? '.keyword.palabra_clave' : '.esp.palabra_clave';
@@ -5620,7 +6312,7 @@ class_av = {
                             class_av.mensaje('<b>'+ terminoMostrar +'</b> ha sido agregada correctamente');
                         }
 
-                        class_av.var.cambios_documento = true;
+                        class_av.var.cambios_pc = true;
                     }
                 },
             },
@@ -5629,21 +6321,7 @@ class_av = {
                     tags: true,
                     allowClear: true,
                     placeholder: "Selecciona o escribe una palabra clave",
-                    ajax: {
-                      url: '/datos/vacio',
-                      dataType: 'json',
-                      delay: 1000,
-                      data: (params) => {
-                        return { q: params.term }
-                      },
-                      processResults: (data, params) => {
-                        var arr_busca = (idioma == 'eng') ? class_av.var.keywords0 : class_av.var.palabras_clave0;
-                        const results = class_utils.filter_prop_er(arr_busca,'valor',new RegExp("^" + params.term + ".*", "i")).map(item => {
-                          return { id: item.valor, text: item.valor, num: item.num };
-                        });
-                        return { results: results };
-                      }
-                    },
+                    ajax: class_av.catalogo_pc_select2_ajax(idioma),
                     language: {
                         inputTooShort: function () { return ""; }
                     },
@@ -5950,6 +6628,113 @@ class_av = {
         
         return error;
     },
+
+    /*
+     * Validación integral previa a finalizar el análisis normal.
+     *
+     * No basta con revisar `cambios_sin_guardar()`: un registro puede venir
+     * incompleto desde origen y el analista no haber tocado la sección Artículo.
+     * En ese caso no existe una bandera de cambios, pero aun así NO debe poder
+     * pasar a P/C. Por eso Análisis completo vuelve a validar siempre los campos
+     * obligatorios y la consistencia de Instituciones/Autores.
+     */
+    valida_analisis_normal_completo: function(){
+        var resultado = { error: '', confirma: '', seccion: '' };
+        var confirmaciones = [];
+
+        /* ARTÍCULO: validación obligatoria aunque no se haya modificado. */
+        var campos = [
+            {e:'#idiomaDocumento', c:'Idioma(s) del documento'},
+            {e:'#titulo', c:'Título'},
+            {e:'#idioma', c:'Idioma de título'},
+            {e:'#tipo_documento', c:'Tipo de documento'},
+            {e:'#disciplina1', c:'Disciplina'}
+        ];
+
+        var errorArticulo = class_av.revisa(campos);
+        if(typeof(errorArticulo) === 'string'){
+            resultado.error = 'Falta: <b>' + errorArticulo + '</b>';
+            resultado.seccion = 'articulo';
+            return resultado;
+        }
+
+        var url1 = String($('#url1').val() || '').trim();
+        var url2 = String($('#url2').val() || '').trim();
+        var pattern = /^https?:\/\/.+/i;
+        if((url1 !== '' && !pattern.test(url1)) || (url2 !== '' && !pattern.test(url2))){
+            resultado.error = '<b>URL</b> mal estructurado, debe contener http o https y dominio';
+            resultado.seccion = 'articulo';
+            return resultado;
+        }
+
+        /*
+         * INSTITUCIONES: exactamente la misma rutina usada al pulsar
+         * Guardar instituciones. No guarda; sólo valida el DOM actual.
+         * Verifica país, nombre, duplicados y devuelve sus confirmaciones.
+         */
+        var instituciones = class_av.data_update_instituciones();
+        if(typeof(instituciones) === 'string'){
+            resultado.error = instituciones;
+            resultado.seccion = 'instituciones';
+            return resultado;
+        }
+        if(instituciones && instituciones.confirma){
+            confirmaciones.push(instituciones.confirma);
+        }
+
+        /*
+         * AUTORES: para autor corporativo no aplica. Para el resto se llama
+         * con revisa=true, igual que Guardar autores: nombre obligatorio,
+         * ORCID válido y sus advertencias de consistencia.
+         */
+        if(class_av.var.corporativo == 0){
+            var autores = class_av.data_update_autores(true);
+            if(typeof(autores) === 'string'){
+                resultado.error = autores;
+                resultado.seccion = 'autores';
+                return resultado;
+            }
+            if(autores && autores.confirma){
+                confirmaciones.push(autores.confirma);
+            }
+
+            /* No dejar instituciones huérfanas respecto de los autores. */
+            var sinRelacion = false;
+            $.each(class_av.var.institucionesJSON || [], function(i, val){
+                var busca = class_utils.filter_prop(
+                    class_av.var.autoresJSON || [],
+                    'institucionId',
+                    val.id
+                );
+                if(busca.length === 0){
+                    sinRelacion = true;
+                    return false;
+                }
+            });
+
+            if(sinRelacion){
+                resultado.error = 'Existen <b>Instituciones</b> sin relación con algún <b>Autor</b><br>Indique la relación o elimínelas';
+                resultado.seccion = 'autores';
+                return resultado;
+            }
+        }
+
+        resultado.confirma = confirmaciones.join('<br><br>');
+        return resultado;
+    },
+
+    muestra_seccion_validacion: function(seccion){
+        if(seccion === 'instituciones'){
+            $('#instituciones').collapse('show');
+            return;
+        }
+        if(seccion === 'autores'){
+            $('#autores').collapse('show');
+            return;
+        }
+        $('#articulo').collapse('show');
+    },
+
     control_guarda:function(){
         /*
          * Los botones duplicados colocados al final de cada sección/formulario
@@ -6030,6 +6815,10 @@ class_av = {
                                             url: "<?=site_url('metametrics/ws_update_article');?>",
                                             data: class_av.data_update_article(),
                                     }).done(function(res) {
+                                            if(class_av.es_captura_manual_pc_legacy(class_av.var.documentoJSON[0])){
+                                                // En captura manual las palabras forman parte del guardado normal.
+                                                class_av.var.cambios_pc = false;
+                                            }
                                             class_av.mensaje('Artículo guardado correctamente.');
                                             class_av.cambio_estatus(class_av.var.sistema, 'R');
                                             class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).estatus = 'R';
@@ -6045,149 +6834,165 @@ class_av = {
         });
         
         $('#save-full').off('click').on('click', function(){
-            
-            if(class_av.cambios_sin_guardar()){
-                return true;
-            }else{
-                
-                var revisa = false;
-                //Esta validación sólo aplica cuando no es corporativo
-                if( class_av.var.corporativo == 0 ){
-                    $.each(class_av.var.institucionesJSON, function(i, val){
-                        var busca = class_utils.filter_prop(class_av.var.autoresJSON, 'institucionId', val.id);
-                        if(busca.length == 0){
-                            revisa = true;
-                            class_av.mensaje('Existen <b>Instituciones</b> sin relación con algún <b>Autor</b><br>Indique la relación o elimínelas');
-                            return false;
-                        }
-                    });
+
+            /*
+             * Completar ejecuta SIEMPRE las validaciones de Artículo,
+             * Instituciones y Autores, aunque el analista nunca haya pulsado
+             * Guardar en esas secciones.
+             */
+            var validacion = class_av.valida_analisis_normal_completo();
+
+            if(validacion.error){
+                class_av.mensaje(validacion.error);
+                class_av.muestra_seccion_validacion(validacion.seccion);
+                return false;
+            }
+
+            var continuarCompletado = function(){
+                /* Después de validar, comprobamos cambios pendientes de guardar. */
+                if(class_av.cambios_sin_guardar(null, null, 'normal')){
+                    return false;
                 }
-                
-                if(revisa){
-                    return true;
-                }
-                
-                var texto = 'Se marcará el registro como <b>Completado</b>';
+
+                var features = (typeof cons !== 'undefined' && cons.features) ? cons.features : {};
+                var flujoPCActivo = (
+                    cons.pal_cla.val === '1' &&
+                    cons.rol.val !== 'Editor' &&
+                    features.mostrar_flujo_palabras_clave === true
+                );
+                var pcCompleto = String(class_av.var.documentoJSON[0].estatusPC || '') === 'C';
+                /*
+                 * Mientras el switch maestro esté apagado para un perfil, conserva
+                 * el comportamiento anterior: completar el análisis normal => C.
+                 * Así ningún analista puede quedar en P con la sección PC oculta.
+                 */
+                var estatusFinal = (!flujoPCActivo || pcCompleto) ? 'C' : 'P';
+                var texto = (estatusFinal === 'C')
+                    ? 'Se marcará el registro como <b>Completado</b>.'
+                    : 'Se completará el análisis de artículo, autores e instituciones. <br><b>Palabras clave seguirán pendientes</b>';
                 var envio = true;
-                
+
                 $.confirm({
                     title: '',
                     content: texto,
                     buttons: {
                         cancelar: {
-                                text: 'Cancelar',
-                                //btnClass: 'btn-red',
-                                action: function(){
-
-                                }
+                            text: 'Cancelar',
+                            action: function(){}
                         },
                         aceptar: {
-                                text: 'Aceptar',
-                                btnClass: 'btn-warning',
-                                action: function(){
-                                    if(envio){
-                                        envio = false;
-                                        $(this).prop('disabled', true);
-                                        loading.start();
+                            text: 'Aceptar',
+                            btnClass: 'btn-warning',
+                            action: function(){
+                                if(envio){
+                                    envio = false;
+                                    $(this).prop('disabled', true);
+                                    loading.start();
 
-                                        var data = {};
-                                        var usuario = 'sesion';
+                                    var data = {};
+                                    var usuario = 'sesion';
+                                    data['tabla'] = 'article';
+                                    data['where'] = ['sistema'];
 
-                                        data['tabla'] = 'article';
-                                        data['where'] = ['sistema'];
-
-                                        if(cons.rol.val == 'Editor'){
-                                            usuario = 'EDITOR';
-                                        }
-
-                                        data['data'] = [{
-                                            estatus: "C",
-                                            sistema: class_av.var.sistema,
-                                            usuario: usuario
-                                        }];
-
-                                        $.ajax({
-                                            type: 'POST',
-                                            url: "<?=site_url('metametrics/ws_update_estatus');?>",
-                                            data: data
-                                        })
-                                        .done(function(resp) {
-
-                                            if(resp.resp == 'success'){
-
-                                                class_av.cambio_estatus(class_av.var.sistema, 'C');
-
-                                                var articulo = class_utils.find_prop(
-                                                    class_av.var.articulosJSON,
-                                                    'sistema',
-                                                    class_av.var.sistema
-                                                );
-
-                                                articulo.estatus = 'C';
-                                                articulo.fecha = class_av.var.fechaActual;
-
-                                                $('.'+class_av.var.sistema)
-                                                    .addClass('sistema cerrado')
-                                                    .css({
-                                                        'cursor': 'default',
-                                                        'color': '#777777'
-                                                    });
-
-                                                $('#accordion').hide();
-                                                $('#save-no-indizable').hide();
-                                                $('#save-full').hide();
-                                                $('#acciones-finales-bottom').hide();
-                                                $('#save-article, #save-article-bottom').hide();
-                                                $('#save-instituciones, #save-instituciones-bottom').hide();
-                                                $('#save-autores, #save-autores-bottom').hide();
-
-                                                class_av.mensaje('Artículo completado correctamente.');
-                                                class_av.set_bitacora('Completado');
-
-                                                window.location.href = "#div_tabla";
-
-                                            }else{
-
-                                                class_av.mensaje(
-                                                    'Ocurrió un error, intente completar nuevamente'
-                                                );
-
-                                                // Permitir otro intento
-                                                envio = true;
-                                            }
-
-                                        })
-                                        .fail(function(xhr, status, error){
-
-                                            console.error(
-                                                'Error al completar artículo:',
-                                                status,
-                                                error,
-                                                xhr.responseText
-                                            );
-
-                                            class_av.mensaje(
-                                                'Ocurrió un error, intente completar nuevamente'
-                                            );
-
-                                            // Permitir otro intento
-                                            envio = true;
-
-                                        })
-                                        .always(function(){
-
-                                            // SIEMPRE quitar loading
-                                            loading.end();
-
-                                        });
+                                    if(cons.rol.val == 'Editor'){
+                                        usuario = 'EDITOR';
                                     }
+
+                                    data['data'] = [{
+                                        estatus: estatusFinal,
+                                        sistema: class_av.var.sistema,
+                                        usuario: usuario
+                                    }];
+
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: "<?=site_url('metametrics/ws_update_estatus');?>",
+                                        data: data
+                                    })
+                                    .done(function(resp) {
+                                        if(resp.resp == 'success'){
+                                            class_av.cambio_estatus(class_av.var.sistema, estatusFinal);
+
+                                            var articulo = class_utils.find_prop(
+                                                class_av.var.articulosJSON,
+                                                'sistema',
+                                                class_av.var.sistema
+                                            );
+
+                                            articulo.estatus = estatusFinal;
+                                            articulo.fecha = class_av.var.fechaActual;
+
+                                            $('.'+class_av.var.sistema)
+                                                .toggleClass('cerrado', estatusFinal === 'C').addClass('sistema')
+                                                .css({
+                                                    'cursor': (estatusFinal === 'C' ? 'default' : 'pointer'),
+                                                    'color': (estatusFinal === 'C' ? '#777777' : '#ff8000')
+                                                });
+
+                                            $('#accordion').hide();
+                                            $('#save-no-indizable').hide();
+                                            $('#save-full').hide();
+                                            $('#acciones-finales-bottom').hide();
+                                            $('#save-article, #save-article-bottom').hide();
+                                            $('#save-instituciones, #save-instituciones-bottom').hide();
+                                            $('#save-autores, #save-autores-bottom').hide();
+
+                                            class_av.mensaje(estatusFinal === 'C'
+                                                ? 'Artículo completado correctamente.'
+                                                : 'Análisis normal completado. Queda pendiente completar palabras clave.');
+                                            class_av.set_bitacora('Completado');
+                                            window.location.href = "#div_tabla";
+                                        }else{
+                                            class_av.mensaje('Ocurrió un error, intente completar nuevamente');
+                                            envio = true;
+                                        }
+                                    })
+                                    .fail(function(xhr, status, error){
+                                        console.error('Error al completar artículo:', status, error, xhr.responseText);
+                                        class_av.mensaje('Ocurrió un error, intente completar nuevamente');
+                                        envio = true;
+                                    })
+                                    .always(function(){
+                                        loading.end();
+                                    });
                                 }
+                            }
                         }
                     }
                 });
+            };
+
+            /*
+             * Las validaciones de Guardar Instituciones/Autores también tienen
+             * advertencias que requieren confirmación. Completar ya no las omite.
+             */
+            if(validacion.confirma){
+                $.confirm({
+                    title: 'Revisión antes de completar',
+                    content: validacion.confirma +
+                             '<br><br><b>¿Confirma estos datos y desea continuar?</b>',
+                    buttons: {
+                        revisar: {
+                            text: 'Revisar',
+                            action: function(){
+                                var esInstitucion = /instituci[oó]n/i.test(validacion.confirma);
+                                class_av.muestra_seccion_validacion(esInstitucion ? 'instituciones' : 'autores');
+                            }
+                        },
+                        confirmar: {
+                            text: 'Confirmar',
+                            btnClass: 'btn-warning',
+                            action: function(){
+                                continuarCompletado();
+                            }
+                        }
+                    }
+                });
+            }else{
+                continuarCompletado();
             }
         });
-        
+
         $('#save-instituciones').off('click').on('click', function(){
             
             var concluye = function(){
@@ -6415,6 +7220,10 @@ class_av = {
         });
         
         $('#save-pc').off('click').on('click', function(){
+            var featuresPC = (typeof cons !== 'undefined' && cons.features) ? cons.features : {};
+            if(featuresPC.mostrar_flujo_palabras_clave !== true){
+                return false;
+            }
             
             var texto = 'Se guardarán los cambios realizados a las palabras clave';
             var envio = true;
@@ -6436,16 +7245,39 @@ class_av = {
                             action: function(){
                                 if(envio){
                                     envio = false;
-                                    class_av.var.cambios_documento = false;
+                                    class_av.var.cambios_pc = false;
                                     $.ajax({
                                             type: 'POST',
                                             url: "<?=site_url('metametrics/ws_update_article');?>",
                                             data: class_av.data_update_pc(),
                                     }).done(function(res) {
-                                            class_av.mensaje('Palabras clave guardadas correctamente.');
-                                            class_av.cambio_estatus_pc(class_av.var.sistema, 'R');
-                                            class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).estatusPC = 'R';
-                                            class_av.set_bitacora('Guarda PC');
+                                            /*
+                                             * El guardado de palabras también abre formalmente el flujo PC.
+                                             * ws_update_estatus asignará asignadoPC al usuario de sesión si aún
+                                             * estaba vacío, pero NO insertará catalogador normal.
+                                             */
+                                            var estadoPC = {
+                                                tabla:'article',
+                                                where:['sistema'],
+                                                data:[{estatusPC:'R', sistema:class_av.var.sistema, usuario:'sesion'}]
+                                            };
+                                            $.ajax({
+                                                type:'POST',
+                                                url:"<?=site_url('metametrics/ws_update_estatus');?>",
+                                                data:estadoPC
+                                            }).done(function(respEstado){
+                                                if(respEstado.resp !== 'success'){
+                                                    class_av.mensaje('Las palabras se guardaron, pero no fue posible actualizar el estado de revisión PC. Intente Guardar palabras clave nuevamente.');
+                                                    return;
+                                                }
+                                                class_av.mensaje('Palabras clave guardadas correctamente.');
+                                                class_av.cambio_estatus_pc(class_av.var.sistema, 'R');
+                                                class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).estatusPC = 'R';
+                                                class_av.var.documentoJSON[0].estatusPC = 'R';
+                                                class_av.set_bitacora('Guarda PC');
+                                            }).fail(function(){
+                                                class_av.mensaje('Las palabras se guardaron, pero no fue posible registrar el estado PC.');
+                                            });
                                     }).fail(function(){
                                             class_av.mensaje('Ocurrió un error al intentar guardar las palabras clave');
                                     });
@@ -6456,73 +7288,81 @@ class_av = {
             });
         });
         
-        $('#save-full-pc').off('click').on('click', function(){     
-                var texto = 'Se marcará el registro como <b>Completado con palabras clave</b>';
-                var envio = true;
-                
-                $.confirm({
-                    title: '',
-                    content: texto,
-                    buttons: {
-                        cancelar: {
-                                text: 'Cancelar',
-                                //btnClass: 'btn-red',
-                                action: function(){
+        $('#save-full-pc').off('click').on('click', function(){
+            var featuresPC = (typeof cons !== 'undefined' && cons.features) ? cons.features : {};
+            if(featuresPC.mostrar_flujo_palabras_clave !== true){
+                return false;
+            }
+            var estatusPCActual = String(class_av.var.documentoJSON[0].estatusPC || '');
+            if(class_av.var.cambios_pc || estatusPCActual !== 'R'){
+                class_av.mensaje('Para completar palabras clave primero debe <b>Guardar palabras clave</b>.');
+                return false;
+            }
 
+            var estatusNormal = String(class_av.var.documentoJSON[0].estatus || '');
+            var promoverGlobal = (estatusNormal === 'P');
+            var texto = promoverGlobal
+                ? 'Se completarán <b>palabras clave</b>.'
+                : 'Se marcará la revisión de <b>palabras clave como completada</b>.';
+            var envio = true;
+
+            $.confirm({
+                title:'', content:texto,
+                buttons:{
+                    cancelar:{text:'Cancelar',action:function(){}},
+                    aceptar:{
+                        text:'Aceptar', btnClass:'btn-warning',
+                        action:function(){
+                            if(!envio) return;
+                            envio=false;
+                            loading.start();
+                            var data={tabla:'article',where:['sistema']};
+                            var usuario=(cons.rol.val == 'Editor')?'EDITOR':'sesion';
+                            var cambio={estatusPC:'C', sistema:class_av.var.sistema, usuario:usuario};
+                            if(promoverGlobal){ cambio.estatus='C'; }
+                            data.data=[cambio];
+
+                            $.ajax({type:'POST',url:"<?=site_url('metametrics/ws_update_estatus');?>",data:data})
+                            .done(function(resp){
+                                if(resp.resp !== 'success'){
+                                    envio=true;
+                                    class_av.mensaje('Ocurrió un error, intente completar nuevamente');
+                                    return;
                                 }
-                        },
-                        aceptar: {
-                                text: 'Aceptar',
-                                btnClass: 'btn-warning',
-                                action: function(){
-                                    if(envio){
-                                        envio = false;
-                                        $(this).prop('disabled', true);
-                                        loading.start();
-                                        var data = {};
-                                        var usuario = 'sesion';
-                                        data['tabla'] = 'article';
-                                        data['where'] = ['sistema'];
-                                        if(cons.rol.val == 'Editor'){
-                                            usuario = 'EDITOR';
-                                        }
-                                        data['data'] = [{estatusPC: "C", sistema:class_av.var.sistema, usuario: usuario}];
-                                        $.ajax({
-                                                type: 'POST',
-                                                url: "<?=site_url('metametrics/ws_update_estatus');?>",
-                                                data: data,
-                                        }).done(function(resp) {
-                                            if(resp.resp == 'success'){
-                                                class_av.cambio_estatus_pc(class_av.var.sistema, 'C');
-                                                class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).estatusPC = 'C';
-                                                class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).fecha = class_av.var.fechaActual;
-                                                $('.'+class_av.var.sistema).addClass('sistema cerrado');
-                                                $('.'+class_av.var.sistema).css('cursor','default');
-                                                $('.'+class_av.var.sistema).css('color','#777777');
-                                                $('#accordion').hide();
-                                                $('#save-no-indizable').hide();
-                                                $('#save-full').hide();
-                                                $('#save-full-pc').hide();
-                                                $('#acciones-finales-bottom').hide();
-                                                $('#save-article, #save-article-bottom').hide();
-                                                $('#save-pc').hide();
-                                                $('#save-instituciones, #save-instituciones-bottom').hide();
-                                                $('#save-autores, #save-autores-bottom').hide();
-                                                loading.end();
-                                                class_av.mensaje('Palabras clave completadas correctamente.');
-                                                class_av.set_bitacora('Completado PC');
-                                                window.location.href="#div_tabla";
-                                            }else{
-                                                class_av.mensaje('Ocurrió un error, intente completar nuevamente');
-                                            }
-                                        }).fail(function(){
-                                            class_av.mensaje('Ocurrió un error, intente completar nuevamente');
-                                        });
-                                    }
+                                var art=class_utils.find_prop(class_av.var.articulosJSON,'sistema',class_av.var.sistema);
+                                if(art) art.estatusPC='C';
+                                class_av.var.documentoJSON[0].estatusPC='C';
+                                class_av.var.cambios_pc=false;
+
+                                if(promoverGlobal){
+                                    if(art) art.estatus='C';
+                                    class_av.var.documentoJSON[0].estatus='C';
+                                    class_av.cambio_estatus(class_av.var.sistema,'C');
+                                    $('.'+class_av.var.sistema).addClass('sistema cerrado').css({'cursor':'default','color':'#777777'});
+                                    $('#accordion').hide();
+                                    window.location.href='#div_tabla';
+                                }else if(estatusNormal === 'C'){
+                                    // C histórico: jamás se degrada ni se reasigna el crédito normal.
+                                    class_av.cambio_estatus(class_av.var.sistema,'C');
+                                    $('.'+class_av.var.sistema).addClass('sistema cerrado').css({'cursor':'default','color':'#777777'});
+                                    $('#accordion').hide();
+                                    window.location.href='#div_tabla';
+                                }else{
+                                    // PC terminó primero: el análisis normal continúa A/R.
+                                    class_av.cambio_estatus(class_av.var.sistema, estatusNormal || 'R');
+                                    $('#save-pc, #save-pc-bottom, #save-full-pc, #save-full-pc-bottom').hide();
                                 }
+                                class_av.mensaje(promoverGlobal
+                                    ? 'Palabras clave completadas. El artículo ahora está completamente terminado.'
+                                    : 'Palabras clave completadas correctamente.');
+                                class_av.set_bitacora('Completado PC');
+                            })
+                            .fail(function(){ envio=true; class_av.mensaje('Ocurrió un error, intente completar nuevamente'); })
+                            .always(function(){ loading.end(); });
                         }
                     }
-                });
+                }
+            });
         });
     },
     agrega_nuevo_articulo: function(){
@@ -6580,56 +7420,99 @@ class_av = {
         });
     },
     filtro: function(){
-        $(".li-filtro").off('click').on('click', function(){
+        $('.li-filtro').off('click').on('click', function(){
             $('#btn-filtro').html($(this).html() + ' :');
             var id_filtro1 = this.id;
-            var sel = class_utils.unique(class_av.var.articulosJSON, this.id).sort();
             var lis = '';
-            $.each(sel, function(i,val){
-                if(val !== null){
-                    var valor = val;
-                    if(id_filtro1 == 'estatus'){
-                        valor = class_av.cons.estatus[val];
+            var features = (typeof cons !== 'undefined' && cons.features) ? cons.features : {};
+
+            if((id_filtro1 === 'estatusPC' || id_filtro1 === 'palabrasIA') &&
+               features.mostrar_flujo_palabras_clave !== true){
+                return false;
+            }
+
+            /*
+             * Filtro virtual: usa exactamente la misma condición de la insignia IA.
+             * Permite localizar artículos cuyas palabras clave ya fueron generadas
+             * por IA; no depende de asignadoPC ni de estatusPC.
+             */
+            if(id_filtro1 === 'palabrasIA'){
+                lis += class_av.var.li.replace('<id>', '1').replace('<val>', 'Generadas');
+                lis += class_av.var.li.replace('<id>', '0').replace('<val>', 'Sin generar');
+            }else{
+                var sel = class_utils.unique(class_av.var.articulosJSON, this.id).sort();
+                $.each(sel, function(i,val){
+                    if(val !== null){
+                        var valor = val;
+                        if(id_filtro1 == 'estatus'){
+                            valor = class_av.cons.estatus[val];
+                        }
+                        if(id_filtro1 == 'estatusPC'){
+                            valor = class_av.cons.estatusPC[val];
+                        }
+                        if(id_filtro1 == 'mes'){
+                            valor = class_av.cons.meses[val];
+                        }
+                        lis += class_av.var.li.replace('<id>', val).replace('<val>', valor);
                     }
-					if(id_filtro1 == 'estatusPC'){
-                        valor = class_av.cons.estatusPC[val];
-                    }
-                    if(id_filtro1 == 'mes'){
-                        valor = class_av.cons.meses[val];
-                    }
-                    lis += class_av.var.li.replace('<id>', val).replace('<val>', valor);
-                }
-            });
-            $("#ul-filtro").html(lis);
-			
-			if(id_filtro1 == 'mes'){
+                });
+            }
+
+            $('#ul-filtro').html(lis);
+
+            if(id_filtro1 == 'mes'){
                 const ul = document.getElementById('ul-filtro');
                 const items = Array.from(ul.querySelectorAll(':scope > li'));
 
                 items.sort((a, b) => {
-                  const ida = Number(a.firstElementChild.id); // <a id="..">
+                  const ida = Number(a.firstElementChild.id);
                   const idb = Number(b.firstElementChild.id);
-                  return ida - idb; // usa idb - ida para descendente
+                  return ida - idb;
                 });
 
                 const frag = document.createDocumentFragment();
                 items.forEach(li => frag.appendChild(li));
                 ul.appendChild(frag);
             }
-			
-            $('#btn-filtro2').html("Seleccione");
-            $(".li-filtro2").off('click').on('click', function(){
+
+            $('#btn-filtro2').html('Seleccione');
+            $('.li-filtro2').off('click').on('click', function(){
                 $('#btn-filtro2').html($(this).html());
-                var filtro = class_utils.filter_prop(class_av.var.articulosJSON, id_filtro1, this.id);
+                var valorSeleccionado = String(this.id || '');
+                var filtro;
+
+                if(id_filtro1 === 'palabrasIA'){
+                    loading.start();
+                    class_av.carga_estados_ia_palabras()
+                        .done(function(){
+                            filtro = class_av.var.articulosJSON.filter(function(articulo){
+                                var sistema = String((articulo || {}).sistema || '').trim();
+                                var generado = (class_av.var.ia_status_cache[sistema] === true);
+                                return valorSeleccionado === '1' ? generado : !generado;
+                            });
+                            class_av.setTabla(filtro);
+                            $('#remove').show();
+                        })
+                        .fail(function(){
+                            class_av.mensaje('No fue posible obtener el estado de generación de palabras clave. Intente nuevamente.');
+                        })
+                        .always(function(){
+                            loading.end();
+                        });
+                    return;
+                }else{
+                    filtro = class_utils.filter_prop(class_av.var.articulosJSON, id_filtro1, this.id);
+                }
+
                 class_av.setTabla(filtro);
                 $('#remove').show();
             });
         });
-        $("#remove").off('click').on('click', function(){
+        $('#remove').off('click').on('click', function(){
             $('#remove').hide();
-            $('#btn-filtro').html("Filtrar por :");
-            $('#btn-filtro2').html("Seleccione");
-            $("#ul-filtro").html("");
+            $('#btn-filtro').html('Filtrar por :');
+            $('#btn-filtro2').html('Seleccione');
+            $('#ul-filtro').html('');
             class_av.setTabla(class_av.var.articulosJSON);
         });
     },
@@ -6712,8 +7595,7 @@ class_av = {
                 /*
                  * El almacenamiento histórico puede conservar:
                  *   termino-original-sustituye-termino-elegido
-                 * Para consulta se muestra el término finalmente elegido,
-                 * igual que lo veía el analista después de guardar.
+                 * Para consulta mostramos el término finalmente guardado.
                  */
                 var marca = '-sustituye-';
                 if(termino.indexOf(marca) !== -1){
@@ -6721,7 +7603,7 @@ class_av = {
                     termino = String(partes[partes.length - 1] || '').trim();
                 }
 
-                var llave = termino.toLowerCase();
+                var llave = class_av.catalogo_pc_normaliza(termino);
                 if(termino !== '' && !vistos[llave]){
                     vistos[llave] = true;
                     salida.push(termino);
@@ -6740,73 +7622,106 @@ class_av = {
                 .replace(/'/g, '&#39;');
         };
 
-        var pintaLista = function(selector, lista){
-            var html = '';
-
-            $.each(lista, function(i,termino){
-                html +=
-                    '<span class="pc-chip-item">' +
-                        '<span class="badge badge-warning pc-chip" ' +
-                              'style="background-color:#ff8000;border-color:#ff8000;cursor:default;">' +
-                            '<span class="pc-chip-text">' + escHtml(termino) + '</span>' +
-                        '</span>' +
-                    '</span>';
-            });
-
-            $(selector).html(html);
-        };
-
         var palabras = listaAlmacenada(documento.palabraClave);
         var keywords = listaAlmacenada(documento.keyword);
 
         /*
-         * Limpiamos por completo cualquier rastro de la ficha anterior.
-         * En modo consulta no existe concepto de sugerencia o evidencia IA.
+         * El ojo sigue mostrando únicamente lo almacenado en article, pero para
+         * presentarlo correctamente resolvemos ESAS pocas palabras contra el
+         * catálogo vigente. No descargamos el catálogo completo ni consultamos
+         * genera_pc.
          */
-        class_av.actualiza_titulos_fuente_ia('');
-        $('#clasificacion_ayuda_ia').hide();
-        $('.ia-sugerencia, .evidencia-box, .clasificacion-origen').hide();
+        var pintaLista = function(lista, idioma, selectorExactas, selectorAprox){
+            var exactas = [];
+            var aproximadas = [];
 
-        $('#div_cargando_pc').hide();
+            $.each(lista || [], function(i, termino){
+                termino = class_av.catalogo_pc_mayuscula_inicial(termino);
+                var encontrado = class_av.catalogo_pc_buscar(termino, idioma);
+                var exacta = !!encontrado;
+                var terminoMostrar = class_av.catalogo_pc_mayuscula_inicial(
+                    exacta ? String(encontrado.valor || termino) : String(termino || '').trim()
+                );
+                var num = exacta ? Number(encontrado.num || 0) : 0;
+                var claseIdioma = (idioma === 'eng') ? 'keyword' : 'esp';
+                var claseTipo = exacta ? 'pc-exacta' : 'pc-aprox';
+                var id = 'stored-' + idioma + '-' + i + '-' + class_utils.slug(terminoMostrar);
 
-        $('#div_palabras_clave_autor, #div_palabras, #div_palabras_clave, #div_palabras_clave2').hide();
-        $('#div_keywords, #div_keywords_guardadas_interno, #div_keywords_catalogo_interno, #div_otras_keywords_interno').hide();
-        $('#add-palabra, #add-keyword').hide();
+                var html =
+                    '<div class="pc-chip-item" data-pc-num="' + num + '">' +
+                        '<button id="' + id + '" type="button" ' +
+                                'class="btn badge-warning ' + claseIdioma + ' palabra_clave pc-chip ' + claseTipo + '" ' +
+                                'data-pc-term="' + escHtml(terminoMostrar) + '" ' +
+                                'data-pc-tipo="' + (exacta ? 'exacta' : 'aprox') + '" ' +
+                                'data-pc-num="' + num + '" title="' + (exacta ? 'En catálogo Biblat' : 'Fuera del catálogo Biblat') + '">' +
+                            '<span class="pc-chip-text">' + escHtml(terminoMostrar) + '</span>' +
+                            '<span class="badge">' + num + '</span>' +
+                        '</button>' +
+                    '</div>';
 
-        $('#palabras_clave_autores, #palabras_catalogo, #otras_palabras').empty();
-        $('#keywords_guardadas, #keywords_catalogo, #otras_keywords').empty();
+                (exacta ? exactas : aproximadas).push({
+                    html: html,
+                    num: num,
+                    texto: terminoMostrar.toLowerCase()
+                });
+            });
 
-        /*
-         * Reutilizamos los contenedores de palabras adicionales únicamente
-         * como área visual de sólo lectura.
-         */
-        $('#titulo_palabras_clave_ia').text('Palabras clave almacenadas');
-        $('#titulo_keywords_ia').text('Keywords almacenadas');
+            var ordena = function(a,b){
+                if(b.num !== a.num) return b.num - a.num;
+                return a.texto.localeCompare(b.texto);
+            };
+            exactas.sort(ordena);
+            aproximadas.sort(ordena);
 
-        $('#div_palabras_clave_texto').toggle(palabras.length > 0);
-        $('#div_keywords_texto').toggle(keywords.length > 0);
+            $(selectorExactas).html(exactas.map(function(x){ return x.html; }).join(''));
+            $(selectorAprox).html(aproximadas.map(function(x){ return x.html; }).join(''));
+        };
 
-        /*
-         * La ayuda de selección corresponde al flujo editable; en consulta
-         * sólo interesa el encabezado con los valores almacenados.
-         */
-        $('#div_palabras_clave_texto .pc-ayuda-ia').hide();
+        var pintar = function(){
+            class_av.actualiza_titulos_fuente_ia('');
+            $('#clasificacion_ayuda_ia').hide();
+            $('.ia-sugerencia, .evidencia-box, .clasificacion-origen').hide();
+            $('#div_cargando_pc').hide();
 
-        pintaLista('#palabras_clave_n', palabras);
-        pintaLista('#keywords_n', keywords);
+            $('#titulo_palabras_clave_ia').text('Palabras clave almacenadas');
+            $('#titulo_keywords_ia').text('Keywords almacenadas');
+            $('#div_palabras_clave_texto .pc-ayuda-ia').hide();
 
-        $('#div_palabras_clave_n').toggle(palabras.length > 0);
-        $('#div_keywords_n').toggle(keywords.length > 0);
+            // En consulta reutilizamos la misma distribución verde/naranja del flujo editable.
+            $('#div_palabras_clave_autor, #div_palabras_clave, #div_palabras_clave2, #div_palabras_clave_n').hide();
+            $('#div_keywords_guardadas_interno, #div_keywords_n').hide();
+            $('#add-palabra, #add-keyword').hide();
+            $('#palabras_clave_n, #keywords_n, #palabras_clave_autores, #keywords_guardadas').empty();
 
-        class_av.var.count_palabras_clave = palabras.length;
-        class_av.var.count_keywords = keywords.length;
-        class_av.var.palabras_clave_n = [];
-        class_av.var.keywords_n = [];
+            $('#palabras_catalogo, #otras_palabras, #keywords_catalogo, #otras_keywords').empty();
 
-        /*
-         * Vuelve a aplicar el bloqueo después de pintar los elementos nuevos.
-         */
-        class_av.aplicar_modo_solo_lectura(true);
+            pintaLista(palabras, 'esp', '#palabras_catalogo', '#otras_palabras');
+            pintaLista(keywords, 'eng', '#keywords_catalogo', '#otras_keywords');
+
+            $('#div_palabras_clave_texto').toggle(palabras.length > 0);
+            $('#div_palabras').toggle(palabras.length > 0);
+
+            $('#div_keywords_texto').toggle(keywords.length > 0);
+            $('#div_keywords').toggle(keywords.length > 0);
+            $('#div_keywords_catalogo_interno, #div_otras_keywords_interno').toggle(keywords.length > 0);
+
+            class_av.var.count_palabras_clave = palabras.length;
+            class_av.var.count_keywords = keywords.length;
+            class_av.var.palabras_clave_n = [];
+            class_av.var.keywords_n = [];
+
+            // Los chips recién creados también deben quedar bloqueados.
+            class_av.aplicar_modo_solo_lectura(true);
+        };
+
+        if((palabras.length > 0 || keywords.length > 0) && typeof class_av.catalogo_pc_resolver === 'function'){
+            $('#div_cargando_pc').show();
+            class_av.catalogo_pc_resolver(null).always(function(){
+                pintar();
+            });
+        }else{
+            pintar();
+        }
     },
 
     palabras_clave: function(){
@@ -6822,6 +7737,26 @@ class_av = {
         class_av.actualiza_titulos_fuente_ia('');
 
         var features = (typeof cons !== 'undefined' && cons.features) ? cons.features : {};
+
+        /*
+         * El panel PC normal se libera con un interruptor independiente.
+         * Excepción de compatibilidad: los artículos de captura manual completa
+         * conservan la sección aunque el switch esté apagado, pero sin activar
+         * asignadoPC/fechaAsignadoPC/estatusPC.
+         */
+        var capturaManualLegacyPC = class_av.es_captura_manual_pc_legacy(
+            class_av.var.documentoJSON && class_av.var.documentoJSON.length ? class_av.var.documentoJSON[0] : {}
+        );
+        var presentacionPCLegacy = (
+            capturaManualLegacyPC &&
+            features.mostrar_flujo_palabras_clave !== true
+        );
+        $('#panelPalabrasClave').toggleClass('pc-presentacion-legacy', presentacionPCLegacy);
+
+        if(features.mostrar_flujo_palabras_clave !== true && !capturaManualLegacyPC){
+            $('#panelPalabrasClave, #div_palabras_clave_texto, #div_keywords_texto, #div_cargando_pc').hide();
+            return;
+        }
 
         /*
          * Los Editores no realizan la revisión de palabras clave. Aunque el
@@ -6867,6 +7802,17 @@ class_av = {
             var registro_pc = null;
             if(Array.isArray(registros_pc) && registros_pc.length > 0){
                 registro_pc = registros_pc[0];
+            }
+
+            /* Resuelve una sola vez por artículo sólo los términos relevantes. */
+            if(class_av.var.catalogo_pc_sistema !== class_av.var.sistema){
+                class_av.var.catalogo_pc_sistema = class_av.var.sistema;
+                class_av.var.palabras_clave0 = [];
+                class_av.var.keywords0 = [];
+                class_av.catalogo_pc_resolver(registro_pc).always(function(){
+                    class_av.palabras_clave();
+                });
+                return;
             }
 
             /*
@@ -7011,22 +7957,38 @@ class_av = {
             };
 
             var numeroCatalogo = function(termino, idioma){
-                var catalogo = (idioma === 'eng') ? class_av.var.keywords0 : class_av.var.palabras_clave0;
-                var buscado = normaliza(termino);
-                var encontrado;
-                $.each(catalogo || [], function(i,val){
-                    if(normaliza(val.valor) === buscado){
-                        encontrado = val;
-                        return false;
-                    }
-                });
-                return (encontrado !== undefined && encontrado.num !== undefined) ? Number(encontrado.num || 0) : 0;
+                var encontrado = class_av.catalogo_pc_buscar(termino, idioma);
+                return encontrado ? Number(encontrado.num || 0) : 0;
+            };
+
+
+            /*
+             * Consulta el catálogo vigente, no la clasificación histórica de
+             * genera_pc. Esto permite detectar una palabra que originalmente fue
+             * aproximación pero que hoy ya existe exactamente en Biblat.
+             */
+            var infoCatalogoExactoActual = function(termino, idioma){
+                termino = class_av.catalogo_pc_mayuscula_inicial(termino);
+                var encontrado = class_av.catalogo_pc_buscar(termino, idioma);
+                if(!encontrado){
+                    return {
+                        existe:false,
+                        valor:class_av.catalogo_pc_mayuscula_inicial(termino),
+                        num:0
+                    };
+                }
+                return {
+                    existe:true,
+                    valor:class_av.catalogo_pc_mayuscula_inicial(encontrado.valor || termino),
+                    num:Number(encontrado.num || 0)
+                };
             };
 
             // Botón seleccionable. Los generados por IA no llevan lápiz.
             // tipo: exacta (verde) o aprox (naranja).
             // grupo es opcional y mantiene la exclusividad entre alternativas relacionadas.
             var botonCatalogo = function(termino, idioma, prefijo, indice, grupo, tipo){
+                termino = class_av.catalogo_pc_mayuscula_inicial(termino);
                 var claseIdioma = (idioma === 'eng') ? 'keyword' : 'esp';
                 var slug = class_utils.slug(termino);
                 var id = prefijo + '-' + indice + '-' + slug;
@@ -7345,25 +8307,25 @@ class_av = {
             var tiene_ia_en = (exactas_en.length > 0 || sugerencias_en.length > 0);
 
             /*
-             * IMPORTANTE: palabraClave/keyword NO se usan para construir la lista de
-             * propuestas. Sólo se consultan para restaurar una selección que el
-             * analista ya guardó anteriormente.
+             * palabraClave/keyword NO construyen la lista de propuestas IA: esa lista
+             * sigue viniendo exclusivamente de genera_pc. Sin embargo, los valores que
+             * el artículo ya trae almacenados (por ejemplo, desde la cosecha) sí se usan
+             * desde la primera entrada para preseleccionar cualquier propuesta visible
+             * que coincida con ellos.
              *
-             * En este flujo, Guardar palabras clave cambia estatusPC a R. Por eso:
-             *   - estatusPC NULL/A => primera entrada: todas las propuestas IA en blanco.
-             *   - estatusPC R/C    => ya hubo guardado: se restauran las palabras
-             *                        almacenadas por el analista respetando su tipo
-             *                        (verde exacta / naranja aproximación).
-             *
-             * estatusPC NO determina si se muestran o no las propuestas IA; únicamente
-             * permite distinguir los valores originales del artículo de una selección
-             * que ya fue guardada desde esta pantalla.
+             * Guardar palabras clave cambia estatusPC a R. Por eso distinguimos:
+             *   - estatusPC NULL/A => los valores almacenados sólo preseleccionan
+             *                        coincidencias visibles de genera_pc. Los términos
+             *                        almacenados que no coincidan NO se reconstruyen
+             *                        como captura manual.
+             *   - estatusPC R/C    => ya hubo guardado del analista y se restaura toda
+             *                        su selección, incluidas palabras manuales.
              */
             var estatus_pc_actual = '';
             if(class_av.var.documentoJSON && class_av.var.documentoJSON[0]){
                 estatus_pc_actual = String(class_av.var.documentoJSON[0].estatusPC || '').toUpperCase();
             }
-            var hay_seleccion_guardada = (['R', 'C'].indexOf(estatus_pc_actual) !== -1);
+            var hay_guardado_analista = (['R', 'C'].indexOf(estatus_pc_actual) !== -1) || capturaManualLegacyPC;
 
             var terminoGuardadoVisible = function(valor){
                 var termino = String(valor || '').trim();
@@ -7376,9 +8338,11 @@ class_av = {
             };
 
             var listaGuardada = function(valor){
-                if(!hay_seleccion_guardada){
-                    return [];
-                }
+                /*
+                 * Siempre leemos lo actualmente almacenado. En una primera entrada
+                 * servirá únicamente para detectar coincidencias con las propuestas IA;
+                 * si ya hubo guardado del analista también permitirá restaurar manuales.
+                 */
                 var lista = listaTerminos(valor);
                 var salida = [];
                 var vistos = {};
@@ -7387,7 +8351,7 @@ class_av = {
                     var llave = normaliza(termino);
                     if(llave !== '' && !vistos[llave]){
                         vistos[llave] = true;
-                        salida.push(termino);
+                        salida.push(class_av.catalogo_pc_mayuscula_inicial(termino));
                     }
                 });
                 return salida;
@@ -7404,23 +8368,102 @@ class_av = {
                     : null
             );
 
+            /*
+             * Revalida únicamente las palabras que históricamente quedaron en
+             * biblat_sugerencias. Si la palabra original ya existe exactamente en
+             * el catálogo vigente, deja de ser un grupo de aproximaciones: se
+             * incorpora a las exactas (verde) y ya no se muestran sugerencias.
+             *
+             * Excepción: si el analista ya había guardado otra alternativa del
+             * mismo grupo, conservamos el grupo para no sustituir silenciosamente
+             * una decisión previa. En ese caso la palabra original, si hoy ya está
+             * en catálogo, se considera exacta cuando vuelva a elegirse.
+             */
+            var revalidaSugerenciasConCatalogoActual = function(lista, idioma, guardadas){
+                var promovidas = [];
+                var restantes = [];
+                var vistasPromovidas = {};
+
+                $.each(lista || [], function(i,item){
+                    var original = String((item && item.palabra) || '').trim();
+                    if(original === ''){
+                        restantes.push(item);
+                        return;
+                    }
+
+                    var info = infoCatalogoExactoActual(original, idioma);
+                    if(!info.existe){
+                        restantes.push(item);
+                        return;
+                    }
+
+                    var miembros = [original].concat((item && item.aproximaciones) || []);
+                    var guardadaDistinta = false;
+                    $.each(guardadas || [], function(j,g){
+                        var ng = normaliza(g);
+                        var pertenece = false;
+                        $.each(miembros, function(k,m){
+                            if(normaliza(m) === ng){
+                                pertenece = true;
+                                return false;
+                            }
+                        });
+                        if(pertenece && ng !== normaliza(original)){
+                            guardadaDistinta = true;
+                            return false;
+                        }
+                    });
+
+                    if(guardadaDistinta){
+                        restantes.push(item);
+                        return;
+                    }
+
+                    var llave = normaliza(info.valor);
+                    if(llave !== '' && !vistasPromovidas[llave]){
+                        vistasPromovidas[llave] = true;
+                        promovidas.push(info.valor);
+                    }
+                });
+
+                return {promovidas:promovidas, restantes:restantes};
+            };
+
+            var mezclaTerminosUnicos = function(base, extras){
+                var salida = [];
+                var vistos = {};
+                $.each((base || []).concat(extras || []), function(i,t){
+                    var termino = String(t || '').trim();
+                    var llave = normaliza(termino);
+                    if(llave !== '' && !vistos[llave]){
+                        vistos[llave] = true;
+                        salida.push(termino);
+                    }
+                });
+                return salida;
+            };
+
+            var revalidacion_esp = revalidaSugerenciasConCatalogoActual(
+                sugerencias, 'esp', palabras_guardadas_analista
+            );
+            exactas = mezclaTerminosUnicos(exactas, revalidacion_esp.promovidas);
+            sugerencias = revalidacion_esp.restantes;
+
+            var revalidacion_eng = revalidaSugerenciasConCatalogoActual(
+                sugerencias_en, 'eng', keywords_guardadas_analista
+            );
+            exactas_en = mezclaTerminosUnicos(exactas_en, revalidacion_eng.promovidas);
+            sugerencias_en = revalidacion_eng.restantes;
+
             // Si no existe genera_pc o no hay palabras generadas en ningún idioma,
             // se conserva la captura manual desde cero.
             var modo_manual_pc = (
                 registro_pc === null ||
                 (!tiene_ia_esp && !tiene_ia_en)
             );
-
-            // Catálogos para los select2 de agregar/editar palabras.
-            class_av.var.palabras_clave = class_av.cons.option_badge.replace('<valor>', '').replace('<opcion>', '').replace('<num>', '');
-            $.each(class_av.var.palabras_clave0, function(i, val){
-                class_av.var.palabras_clave += class_av.cons.option_badge.replace('<valor>', val.valor).replace('<opcion>', val.valor).replace('<num>', val.num);
-            });
-
-            class_av.var.keywords = class_av.cons.option_badge.replace('<valor>', '').replace('<opcion>', '').replace('<num>', '');
-            $.each(class_av.var.keywords0, function(i, val){
-                class_av.var.keywords += class_av.cons.option_badge.replace('<valor>', val.valor).replace('<opcion>', val.valor).replace('<num>', val.num);
-            });
+            // Los Select2 consultan al servidor bajo demanda; no construimos 300k <option>.
+            class_av.var.palabras_clave = '';
+            class_av.var.keywords = '';
 
             /* ============================
              * PRESENTACIÓN DE PALABRAS IA
@@ -7454,6 +8497,7 @@ class_av = {
             exactas_en = ordenaTerminosPorOcurrencias(exactas_en, 'eng');
 
             var htmlOpcionSugerencia = function(termino, idioma, tipo){
+                termino = class_av.catalogo_pc_mayuscula_inicial(termino);
                 var num = numeroCatalogo(termino, idioma);
                 return '<li>' +
                            '<button type="button" class="pc-sugerencia-opcion" ' +
@@ -7466,13 +8510,18 @@ class_av = {
 
             var htmlGrupoSugerencia = function(item, idioma, indice, prefijo, grupo, usadas){
                 var originales = [];
-                var original = String(item.palabra || '').trim();
+                var original = class_av.catalogo_pc_mayuscula_inicial(item.palabra);
                 var aproximaciones = ordenaTerminosPorOcurrencias(item.aproximaciones || [], idioma);
                 var vistasGrupo = {};
 
                 if(original !== ''){
-                    vistasGrupo[normaliza(original)] = true;
-                    originales.push({termino: original, tipo: 'aprox'});
+                    var infoOriginalActual = infoCatalogoExactoActual(original, idioma);
+                    var terminoOriginal = infoOriginalActual.existe ? infoOriginalActual.valor : original;
+                    vistasGrupo[normaliza(terminoOriginal)] = true;
+                    originales.push({
+                        termino: terminoOriginal,
+                        tipo: infoOriginalActual.existe ? 'exacta' : 'aprox'
+                    });
                 }
 
                 $.each(aproximaciones, function(j,aprox){
@@ -7482,7 +8531,10 @@ class_av = {
                     }
                     vistasGrupo[llave] = true;
                     usadas[llave] = true;
-                    originales.push({termino: aprox, tipo: 'exacta'});
+                    originales.push({
+                        termino: class_av.catalogo_pc_mayuscula_inicial(aprox),
+                        tipo: 'exacta'
+                    });
                 });
 
                 if(originales.length === 0){
@@ -7576,12 +8628,16 @@ class_av = {
                 $('#div_palabras_clave_texto, #div_keywords_texto, #div_keywords, #div_palabras').hide();
             }
 
-            var esRegistroNuevo = (
-                class_av.var.documentoJSON &&
-                class_av.var.documentoJSON[0] &&
-                class_av.var.documentoJSON[0].fechaAsignado == null
+            /*
+             * Agregar palabras manualmente pertenece al flujo PC, no al switch
+             * de sugerencias IA. Aunque la IA esté oculta/no disponible, el
+             * analista debe poder capturar sus propias palabras cuando el flujo
+             * PC esté liberado para su perfil.
+             */
+            var permitirAgregarPalabras = (
+                cons.rol.val !== 'Editor' &&
+                (features.mostrar_flujo_palabras_clave === true || capturaManualLegacyPC)
             );
-            var permitirAgregarPalabras = (esRegistroNuevo || mostrarIAPalabras);
 
             if(permitirAgregarPalabras){
                 $('#add-palabra, #add-keyword').show();
@@ -7926,7 +8982,7 @@ class_av = {
                 }else{
                     class_av.var.count_palabras_clave = seleccionadasUnicas(selector).length;
                 }
-                class_av.var.cambios_documento = true;
+                class_av.var.cambios_pc = true;
                 return true;
             };
 
@@ -7989,7 +9045,7 @@ class_av = {
                     }else{
                         class_av.var.count_palabras_clave = seleccionadasUnicas(selector).length;
                     }
-                    class_av.var.cambios_documento = true;
+                    class_av.var.cambios_pc = true;
                     return false;
                 });
 
@@ -8000,13 +9056,14 @@ class_av = {
             ordenaContenedorPC($('#otras_keywords'));
 
             /*
-             * Restaura lo guardado por el analista.
-             * Si el término pertenece a un grupo, se convierte en su líder.
-             * Si no forma parte de las propuestas IA se reconstruye como palabra
-             * manual: verde si existe exactamente en catálogo, naranja si no existe.
+             * Aplica los valores almacenados sobre las propuestas visibles.
+             * - Desde la primera entrada, cualquier coincidencia exacta con un chip o
+             *   con una opción de un grupo queda seleccionada.
+             * - Sólo si estatusPC ya es R/C se reconstruyen además los términos que no
+             *   pertenecen a las propuestas IA como palabras manuales.
              */
             var restauraGuardadas = function(idioma, guardadas){
-                if(!hay_seleccion_guardada || !Array.isArray(guardadas) || guardadas.length === 0){
+                if(!Array.isArray(guardadas) || guardadas.length === 0){
                     return;
                 }
 
@@ -8017,15 +9074,7 @@ class_av = {
                 variableNuevas.length = 0;
 
                 var buscaCatalogoExacto = function(termino){
-                    var salida;
-                    var llave = normaliza(termino);
-                    $.each(catalogo || [], function(i,val){
-                        if(normaliza(val.valor) === llave){
-                            salida = val;
-                            return false;
-                        }
-                    });
-                    return salida;
+                    return class_av.catalogo_pc_buscar(termino, idioma);
                 };
 
                 $.each(guardadas, function(i,termino){
@@ -8096,10 +9145,23 @@ class_av = {
                         return;
                     }
 
+                    /*
+                     * En la primera entrada el término puede provenir de la cosecha.
+                     * Si no coincide con ninguna propuesta visible no lo convertimos en
+                     * selección manual. Esa reconstrucción sólo corresponde a algo que
+                     * el analista ya guardó previamente desde esta interfaz.
+                     */
+                    if(!hay_guardado_analista){
+                        return;
+                    }
+
+                    termino = class_av.catalogo_pc_mayuscula_inicial(termino);
                     var encontrado = buscaCatalogoExacto(termino);
                     var exacta = (encontrado !== undefined);
                     var num = exacta ? Number(encontrado.num || 0) : 0;
-                    var terminoMostrar = exacta ? String(encontrado.valor || termino) : String(termino || '').trim();
+                    var terminoMostrar = class_av.catalogo_pc_mayuscula_inicial(
+                        exacta ? String(encontrado.valor || termino) : String(termino || '').trim()
+                    );
                     var tipoClase = exacta ? 'pc-exacta' : 'pc-aprox';
                     var claseNueva = (idioma === 'eng') ? 'new_k keyword' : 'new_p esp';
                     var idChip = 'n-' + class_utils.slug(terminoMostrar);

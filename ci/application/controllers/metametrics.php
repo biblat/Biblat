@@ -957,9 +957,11 @@ class Metametrics extends CI_Controller {
          */
         $usuario_sql = $db->escape($usuario);
         $condicion_activa = '('.
-            '(asignado = '.$usuario_sql." AND (estatus IS NULL OR estatus NOT IN ('C','B')))".
-            ' OR '.
-            '("asignadoPC" = '.$usuario_sql." AND \"estatusPC\" IN ('A','R'))".
+             '(asignado = '.$usuario_sql." AND (estatus IS NULL OR estatus IN ('A','R','D')))".
+             ' OR '.
+             '("asignadoPC" = '.$usuario_sql." AND \"estatusPC\" IN ('A','R'))".
+             ' OR '.
+             '(asignado = '.$usuario_sql." AND estatus = 'P' AND (\"asignadoPC\" IS NULL OR \"asignadoPC\" = ''))".
         ')';
         $db->where($condicion_activa, null, false);
         // La v1 portátil no incluye el flujo de Erratas.
@@ -1376,7 +1378,7 @@ class Metametrics extends CI_Controller {
 
     private function portatil_genera_pc($db_main, $sistemas){
         $out = array();
-        $db_main->from('claper_kw_fdw.genera_pc');
+        $db_main->from('claper_kw_fdw.genera_pc_tmp');
         $db_main->where_in('sistema', $sistemas);
         $q = $db_main->get();
         if(!$q) return $out;
@@ -1925,10 +1927,10 @@ class Metametrics extends CI_Controller {
 
     private function portatil_importar_evaluar($db, $usuario, $package_id, $exported_at, $sistema, $entrada){
         if(!is_array($entrada)){
-            return array('estado'=>'error', 'mensaje'=>'La entrada del artículo no es válida.');
+            return array('estado'=>'error', 'mensaje'=>'La entrada del artículo no tiene un formato válido.');
         }
 
-        $original = isset($entrada['original']) && is_array($entrada['original']) ? $entrada['original'] : null;
+        $original = isset($entrada['original']) && is_array($entrada['original']) ? $entrada['original'] : array();
         $hash_original = isset($entrada['original_hash']) ? strtolower(trim((string)$entrada['original_hash'])) : '';
         $firma_original = isset($entrada['original_signature']) ? strtolower(trim((string)$entrada['original_signature'])) : '';
         $cambio = isset($entrada['cambio']) && is_array($entrada['cambio']) ? $entrada['cambio'] : array();
@@ -1951,38 +1953,70 @@ class Metametrics extends CI_Controller {
             return array('estado'=>'omitido', 'mensaje'=>'El registro no contiene cambios.');
         }
 
-        $permitidos = array('documento'=>true, 'instituciones'=>true, 'autores'=>true, 'corporativo'=>true, 'finalizacion'=>true, 'bitacora'=>true);
+        $permitidos = array(
+            'documento'=>true,
+            'palabras_clave'=>true,
+            'instituciones'=>true,
+            'autores'=>true,
+            'corporativo'=>true,
+            'finalizacion'=>true,             // compatibilidad con paquetes anteriores
+            'finalizacion_origen'=>true,      // compatibilidad con transición
+            'finalizacion_normal'=>true,
+            'finalizacion_pc'=>true,
+            'bitacora'=>true
+        );
         foreach($cambio as $k => $v){
             if(!isset($permitidos[$k])){
                 return array('estado'=>'error', 'mensaje'=>'El ZIP contiene una sección de cambio no permitida: '.$k.'.');
             }
         }
 
-        $finalizacion = isset($cambio['finalizacion']) && $cambio['finalizacion'] !== null ? strtoupper(trim((string)$cambio['finalizacion'])) : null;
-        if(count($cambio) === 1 && array_key_exists('finalizacion', $cambio) && $finalizacion === null){
-            return array('estado'=>'omitido', 'mensaje'=>'La finalización pendiente fue cancelada y no quedaron otros cambios.');
-        }
         if(isset($cambio['corporativo']) && !isset($cambio['instituciones'])){
             return array('estado'=>'error', 'mensaje'=>'El indicador corporativo sólo puede cambiar junto con la sección Instituciones.');
         }
-        if($finalizacion !== null && !in_array($finalizacion, array('B','C','CPC'), true)){
-            return array('estado'=>'error', 'mensaje'=>'Estado de finalización no válido.');
+
+        /* Finalizaciones nuevas, independientes. */
+        $final_normal = null;
+        if(isset($cambio['finalizacion_normal']) && $cambio['finalizacion_normal'] !== null){
+            $final_normal = strtoupper(trim((string)$cambio['finalizacion_normal']));
+        }
+        $final_pc = null;
+        if(isset($cambio['finalizacion_pc']) && $cambio['finalizacion_pc'] !== null){
+            $final_pc = strtoupper(trim((string)$cambio['finalizacion_pc']));
         }
 
-        $orig_listado = isset($original['listado']) && is_array($original['listado']) ? $original['listado'] : array();
-        $orig_doc = isset($original['documento']) && is_array($original['documento']) ? $original['documento'] : array();
-        $orig_pc = isset($orig_listado['estatusPC']) ? $orig_listado['estatusPC'] : (isset($orig_doc['estatusPC']) ? $orig_doc['estatusPC'] : null);
-        $revision_pc = in_array((string)$orig_pc, array('A','R'), true);
+        if($final_normal !== null && !in_array($final_normal, array('C','B'), true)){
+            return array('estado'=>'error', 'mensaje'=>'Finalización normal no válida.');
+        }
+        if($final_pc !== null && $final_pc !== 'C'){
+            return array('estado'=>'error', 'mensaje'=>'Finalización de palabras clave no válida.');
+        }
 
-        if($revision_pc && (isset($cambio['instituciones']) || isset($cambio['autores']) || isset($cambio['corporativo']))){
-            return array('estado'=>'error', 'mensaje'=>'Una revisión de palabras clave no puede modificar instituciones ni autores.');
+        /*
+         * Compatibilidad: paquetes generados durante la transición podían traer un
+         * único campo finalizacion = B/P/C/CPC más finalizacion_origen.
+         */
+        if($final_normal === null && $final_pc === null && isset($cambio['finalizacion']) && $cambio['finalizacion'] !== null){
+            $legacy = strtoupper(trim((string)$cambio['finalizacion']));
+            $origen = isset($cambio['finalizacion_origen']) ? strtolower(trim((string)$cambio['finalizacion_origen'])) : '';
+            if($legacy === 'B'){
+                $final_normal = 'B';
+            }elseif($legacy === 'P'){
+                $final_normal = 'C';
+            }elseif($legacy === 'CPC'){
+                $final_pc = 'C';
+            }elseif($legacy === 'C'){
+                if($origen === 'pc') $final_pc = 'C';
+                else $final_normal = 'C';
+            }else{
+                return array('estado'=>'error', 'mensaje'=>'Estado de finalización no válido.');
+            }
         }
-        if($revision_pc && $finalizacion !== null && $finalizacion !== 'CPC'){
-            return array('estado'=>'error', 'mensaje'=>'Una revisión de palabras clave sólo puede finalizar como CPC.');
-        }
-        if(!$revision_pc && $finalizacion === 'CPC'){
-            return array('estado'=>'error', 'mensaje'=>'CPC sólo es válido para una revisión de palabras clave.');
-        }
+
+        $toco_normal = isset($cambio['documento']) || isset($cambio['instituciones']) ||
+                       isset($cambio['autores']) || isset($cambio['corporativo']) ||
+                       $final_normal !== null;
+        $toco_pc = isset($cambio['palabras_clave']) || $final_pc !== null;
 
         $bitacora_count = 0;
         if(isset($cambio['bitacora'])){
@@ -1994,27 +2028,38 @@ class Metametrics extends CI_Controller {
             $bitacora_count = count($cambio['bitacora']);
         }
 
-        $q = $db->query('SELECT sistema, asignado, "asignadoPC", estatus, "estatusPC" FROM article WHERE sistema = ? LIMIT 1', array($sistema));
+        $q = $db->query('SELECT sistema, asignado, "asignadoPC", "fechaAsignado", "fechaAsignadoPC", estatus, "estatusPC" FROM article WHERE sistema = ? LIMIT 1', array($sistema));
         if(!$q || $q->num_rows() === 0){
             return array('estado'=>'error', 'mensaje'=>'El artículo ya no existe en Biblat Central.');
         }
         $actual_estado = $q->row_array();
 
-        $asignado_ok = $revision_pc
-            ? ((string)$actual_estado['asignadoPC'] === (string)$usuario)
-            : ((string)$actual_estado['asignado'] === (string)$usuario);
-        if(!$asignado_ok){
-            return array('estado'=>'conflicto', 'mensaje'=>'El registro ya no está asignado a este usuario en el mismo flujo.');
+        $orig_listado = isset($original['listado']) && is_array($original['listado']) ? $original['listado'] : array();
+        $orig_doc = isset($original['documento']) && is_array($original['documento']) ? $original['documento'] : array();
+
+        if($toco_normal){
+            if((string)$actual_estado['asignado'] !== (string)$usuario){
+                return array('estado'=>'conflicto', 'mensaje'=>'El análisis normal ya no está asignado a este usuario.');
+            }
+            $estatus_original = isset($orig_listado['estatus']) ? $orig_listado['estatus'] : (isset($orig_doc['estatus']) ? $orig_doc['estatus'] : null);
+            if($this->portatil_importar_scalar($estatus_original) !== $this->portatil_importar_scalar($actual_estado['estatus'])){
+                return array('estado'=>'conflicto', 'mensaje'=>'El estatus normal cambió en línea después de exportar el paquete.');
+            }
         }
 
-        $estatus_original = $revision_pc
-            ? (isset($orig_listado['estatusPC']) ? $orig_listado['estatusPC'] : (isset($orig_doc['estatusPC']) ? $orig_doc['estatusPC'] : null))
-            : (isset($orig_listado['estatus']) ? $orig_listado['estatus'] : (isset($orig_doc['estatus']) ? $orig_doc['estatus'] : null));
-        $estatus_actual = $revision_pc ? $actual_estado['estatusPC'] : $actual_estado['estatus'];
-        if($this->portatil_importar_scalar($estatus_original) !== $this->portatil_importar_scalar($estatus_actual)){
-            return array('estado'=>'conflicto', 'mensaje'=>'El estatus cambió en la versión en línea después de exportar el paquete.');
+        if($toco_pc){
+            $asignado_pc = isset($actual_estado['asignadoPC']) ? trim((string)$actual_estado['asignadoPC']) : '';
+            $puede_iniciar_pc = ($asignado_pc === '' && (string)$actual_estado['asignado'] === (string)$usuario);
+            if(!$puede_iniciar_pc && $asignado_pc !== (string)$usuario){
+                return array('estado'=>'conflicto', 'mensaje'=>'La revisión de palabras clave ya no está asignada a este usuario.');
+            }
+            $estatus_pc_original = isset($orig_listado['estatusPC']) ? $orig_listado['estatusPC'] : (isset($orig_doc['estatusPC']) ? $orig_doc['estatusPC'] : null);
+            if($this->portatil_importar_scalar($estatus_pc_original) !== $this->portatil_importar_scalar($actual_estado['estatusPC'])){
+                return array('estado'=>'conflicto', 'mensaje'=>'El estatus de palabras clave cambió en línea después de exportar el paquete.');
+            }
         }
 
+        /* Documento normal: no compara ni valida PC. */
         if(isset($cambio['documento'])){
             if(!is_array($cambio['documento'])){
                 return array('estado'=>'error', 'mensaje'=>'La sección documento no tiene un formato válido.');
@@ -2023,15 +2068,34 @@ class Metametrics extends CI_Controller {
             if($actual_doc === null){
                 return array('estado'=>'error', 'mensaje'=>'No fue posible leer el artículo actual.');
             }
-            $cmp_original = $this->portatil_importar_documento_comparable($orig_doc, $revision_pc);
-            $cmp_actual = $this->portatil_importar_documento_comparable($actual_doc, $revision_pc);
+            $cmp_original = $this->portatil_importar_documento_comparable($orig_doc, false);
+            $cmp_actual = $this->portatil_importar_documento_comparable($actual_doc, false);
             if($this->portatil_importar_hash_comparable($cmp_original) !== $this->portatil_importar_hash_comparable($cmp_actual)){
-                return array('estado'=>'conflicto', 'mensaje'=>'Los metadatos que se van a actualizar cambiaron en línea después de la exportación.');
+                return array('estado'=>'conflicto', 'mensaje'=>'Los metadatos del artículo cambiaron en línea después de la exportación.');
             }
-            $err = $this->portatil_importar_validar_documento($cambio['documento'], $revision_pc);
+            $err = $this->portatil_importar_validar_documento($cambio['documento'], false);
             if($err !== '') return array('estado'=>'error', 'mensaje'=>$err);
         }
 
+        /* Palabras clave: conflicto y validación independientes. */
+        if(isset($cambio['palabras_clave'])){
+            if(!is_array($cambio['palabras_clave'])){
+                return array('estado'=>'error', 'mensaje'=>'La sección palabras_clave no tiene un formato válido.');
+            }
+            $actual_doc_pc = $this->portatil_importar_documento_actual($db, $sistema);
+            if($actual_doc_pc === null){
+                return array('estado'=>'error', 'mensaje'=>'No fue posible leer las palabras clave actuales.');
+            }
+            $cmp_original_pc = $this->portatil_importar_documento_comparable($orig_doc, true);
+            $cmp_actual_pc = $this->portatil_importar_documento_comparable($actual_doc_pc, true);
+            if($this->portatil_importar_hash_comparable($cmp_original_pc) !== $this->portatil_importar_hash_comparable($cmp_actual_pc)){
+                return array('estado'=>'conflicto', 'mensaje'=>'Las palabras clave cambiaron en línea después de exportar el paquete.');
+            }
+            $err = $this->portatil_importar_validar_documento($cambio['palabras_clave'], true);
+            if($err !== '') return array('estado'=>'error', 'mensaje'=>$err);
+        }
+
+        /* Instituciones: misma validación que el importador actual. */
         if(isset($cambio['instituciones'])){
             if(!is_array($cambio['instituciones'])){
                 return array('estado'=>'error', 'mensaje'=>'La sección instituciones no tiene un formato válido.');
@@ -2046,7 +2110,6 @@ class Metametrics extends CI_Controller {
             $err = $this->portatil_importar_validar_instituciones($cambio['instituciones'], $corp);
             if($err !== '') return array('estado'=>'error', 'mensaje'=>$err);
 
-            // Si sólo se guardaron instituciones, no dejamos autores apuntando a IDs eliminados.
             if(!$corp && !isset($cambio['autores'])){
                 $ids = array();
                 foreach($cambio['instituciones'] as $r){
@@ -2084,53 +2147,142 @@ class Metametrics extends CI_Controller {
         return array(
             'estado'=>'aplicable',
             'mensaje'=>'Listo para importar.',
-            'revision_pc'=>$revision_pc,
-            'finalizacion'=>$finalizacion,
+            'toco_normal'=>$toco_normal,
+            'toco_pc'=>$toco_pc,
+            'finalizacion_normal'=>$final_normal,
+            'finalizacion_pc'=>$final_pc,
             'bitacora_count'=>$bitacora_count
         );
     }
+    
+    private function portatil_normalizar_asignacion_pc_legacy($db, $sistema, $usuario){
+        $q = $db->query(
+            'SELECT asignado, "asignadoPC", "fechaAsignado", "fechaAsignadoPC" '.
+            'FROM article WHERE sistema = ? LIMIT 1',
+            array($sistema)
+        );
+        if(!$q || !$q->num_rows()) return;
 
+        $r = $q->row_array();
+        $normal = isset($r['asignado']) ? trim((string)$r['asignado']) : '';
+        $pc = isset($r['asignadoPC']) ? trim((string)$r['asignadoPC']) : '';
+        $fn = !empty($r['fechaAsignado']) ? substr((string)$r['fechaAsignado'],0,10) : '';
+        $fp = !empty($r['fechaAsignadoPC']) ? substr((string)$r['fechaAsignadoPC'],0,10) : '';
+
+        $pc_nuevo = $pc;
+        $update = array();
+        if($pc_nuevo === ''){
+            $pc_nuevo = ($normal !== '') ? $normal : trim((string)$usuario);
+            if($pc_nuevo !== '') $update['asignadoPC'] = $pc_nuevo;
+        }
+
+        if($fp === ''){
+            if($normal !== '' && $pc_nuevo === $normal){
+                if($fn !== '') $update['fechaAsignadoPC'] = $fn;
+            }elseif($pc_nuevo !== ''){
+                $update['fechaAsignadoPC'] = date('Y-m-d');
+            }
+        }
+
+        if(!empty($update)){
+            $db->where('sistema', $sistema)->update('article', $update);
+        }
+    }
+    
     private function portatil_importar_aplicar($db, $usuario, $rol_paquete, $sistema, $entrada, $evaluacion){
         $cambio = $entrada['cambio'];
-        $revision_pc = !empty($evaluacion['revision_pc']);
-        $finalizacion = isset($evaluacion['finalizacion']) ? $evaluacion['finalizacion'] : null;
+        $final_normal = isset($evaluacion['finalizacion_normal']) ? $evaluacion['finalizacion_normal'] : null;
+        $final_pc = isset($evaluacion['finalizacion_pc']) ? $evaluacion['finalizacion_pc'] : null;
 
-        $toco = false;
+        $toco_normal_datos = false;
+        $toco_pc_datos = false;
+
         if(isset($cambio['documento'])){
-            $this->portatil_importar_aplicar_documento($db, $sistema, $cambio['documento'], $revision_pc);
-            $toco = true;
+            /*
+             * La rutina histórica de aplicación normal también conoce palabraClave/
+             * keyword. Para impedir que las borre o cambie, le inyectamos los valores
+             * PC ACTUALES antes de llamarla.
+             */
+            $d_normal = $cambio['documento'];
+            $actual_doc = $this->portatil_importar_documento_actual($db, $sistema);
+            if(is_array($actual_doc)){
+                $d_normal['palabraClave'] = isset($actual_doc['palabraClave']) ? $actual_doc['palabraClave'] : array();
+                $d_normal['keyword'] = isset($actual_doc['keyword']) ? $actual_doc['keyword'] : array();
+            }
+            $this->portatil_importar_aplicar_documento($db, $sistema, $d_normal, false);
+            $toco_normal_datos = true;
         }
 
         if(isset($cambio['instituciones'])){
             $corp = isset($cambio['corporativo']) ? ((int)$cambio['corporativo'] ? 1 : 0) : 0;
             $this->portatil_importar_aplicar_instituciones($db, $sistema, $cambio['instituciones'], $corp);
-            $toco = true;
+            $toco_normal_datos = true;
         }
 
         if(isset($cambio['autores'])){
             $this->portatil_importar_aplicar_autores($db, $sistema, $cambio['autores']);
-            $toco = true;
+            $toco_normal_datos = true;
         }
 
-        // Un guardado normal deja el registro En revisión; una revisión PC deja estatusPC=R.
-        if($toco){
-            if($revision_pc){
-                $db->where('sistema', $sistema)->update('article', array('estatusPC'=>'R'));
-            }else{
-                $db->where('sistema', $sistema)->update('article', array('estatus'=>'R'));
-            }
+        if(isset($cambio['palabras_clave'])){
+            $this->portatil_importar_aplicar_documento($db, $sistema, $cambio['palabras_clave'], true);
+            $toco_pc_datos = true;
+            /* Normaliza asignación PC sin convertir registros legados a la fecha de hoy. */
+            $this->portatil_normalizar_asignacion_pc_legacy($db, $sistema, $usuario);
         }
 
-        if($finalizacion !== null){
-            if($finalizacion === 'CPC'){
-                $db->where('sistema', $sistema)->update('article', array('estatusPC'=>'C'));
-            }elseif($finalizacion === 'C'){
-                $db->where('sistema', $sistema)->update('article', array('estatus'=>'C'));
-            }elseif($finalizacion === 'B'){
-                $db->where('sistema', $sistema)->update('article', array('estatus'=>'B'));
-            }
+        /* Guardados parciales, sin cerrar la sección. */
+        if($toco_normal_datos && $final_normal === null){
+            $db->where('sistema', $sistema)->update('article', array('estatus'=>'R'));
+        }
+        if($toco_pc_datos && $final_pc === null){
+            $db->where('sistema', $sistema)->update('article', array('estatusPC'=>'R'));
+        }
+
+        /* -------------------------------------------------------------
+         * Finalización normal
+         * ------------------------------------------------------------- */
+        if($final_normal === 'B'){
+            $db->where('sistema', $sistema)->update('article', array('estatus'=>'B'));
             $nombre_catalogador = (strcasecmp(trim((string)$rol_paquete), 'Editor') === 0) ? 'EDITOR' : $usuario;
             $this->portatil_importar_insertar_catalogador($db, $sistema, $nombre_catalogador);
+        }elseif($final_normal === 'C'){
+            /* Si PC ya está o quedará C en este mismo ZIP, el global termina C; si no, P. */
+            $q_pc = $db->query('SELECT "estatusPC" FROM article WHERE sistema = ? LIMIT 1', array($sistema));
+            $pc_actual = ($q_pc && $q_pc->num_rows()) ? (string)$q_pc->row()->estatusPC : '';
+            $estatus_destino = ($pc_actual === 'C' || $final_pc === 'C') ? 'C' : 'P';
+            $db->where('sistema', $sistema)->update('article', array('estatus'=>$estatus_destino));
+
+            $nombre_catalogador = (strcasecmp(trim((string)$rol_paquete), 'Editor') === 0) ? 'EDITOR' : $usuario;
+            $this->portatil_importar_insertar_catalogador($db, $sistema, $nombre_catalogador);
+        }
+
+        /* -------------------------------------------------------------
+         * Finalización PC
+         * ------------------------------------------------------------- */
+        if($final_pc === 'C'){
+            $this->portatil_normalizar_asignacion_pc_legacy($db, $sistema, $usuario);
+            $db->where('sistema', $sistema)->update('article', array('estatusPC'=>'C'));
+
+            $q_estado = $db->query('SELECT estatus, asignado FROM article WHERE sistema = ? LIMIT 1', array($sistema));
+            if($q_estado && $q_estado->num_rows()){
+                $r = $q_estado->row_array();
+
+                /*
+                 * Sólo PC puede promover P -> C. En ese caso el crédito y la fecha
+                 * de completado global pertenecen al analista normal.
+                 * Si el normal también terminó en ESTE mismo ZIP, ya se insertó su
+                 * catalogador arriba y no se duplica.
+                 */
+                if((string)$r['estatus'] === 'P' && $final_normal !== 'C'){
+                    $db->where('sistema', $sistema)->update('article', array('estatus'=>'C'));
+                    $analista_normal = isset($r['asignado']) ? trim((string)$r['asignado']) : '';
+                    if($analista_normal !== ''){
+                        $this->portatil_importar_insertar_catalogador($db, $sistema, $analista_normal);
+                    }
+                }
+                /* estatus=C histórico: no se toca y no se inserta catalogador normal. */
+            }
         }
 
         $bitacora_insertada = 0;
@@ -2138,19 +2290,10 @@ class Metametrics extends CI_Controller {
             $bitacora_insertada = $this->portatil_importar_aplicar_bitacora($db, $usuario, $sistema, $cambio['bitacora']);
         }
 
-        /*
-         * Marcador de procedencia.
-         * Se crea EN EL SERVIDOR únicamente cuando el artículo se importó de forma
-         * satisfactoria. tiempo=0 para que no altere las métricas de producción.
-         * Se deja un marcador por evento de importación: si el artículo vuelve a
-         * trabajarse en línea, los movimientos posteriores quedarán cronológicamente
-         * después de "Importado portátil" y será sencillo distinguir el origen.
-         */
         $bitacora_insertada += $this->portatil_importar_registrar_origen_portatil($db, $usuario, $sistema);
-
         return array('bitacora'=>$bitacora_insertada);
     }
-
+    
     private function portatil_importar_aplicar_documento($db, $sistema, $d, $revision_pc){
         $palabras = $this->portatil_importar_lista($this->portatil_importar_get($d, 'palabraClave', array()));
         $keywords = $this->portatil_importar_lista($this->portatil_importar_get($d, 'keyword', array()));
@@ -2274,14 +2417,16 @@ class Metametrics extends CI_Controller {
         if(count($rows) > 500) return 'La bitácora portátil contiene demasiados movimientos para un artículo.';
 
         $permitidos = array(
-            'Guarda Artículo'=>true,
-            'Completado'=>true,
-            'Guarda Instituciones'=>true,
-            'Guarda Autores'=>true,
-            'Guarda PC'=>true,
-            'Completado PC'=>true,
-            'Recarga'=>true
-        );
+         'Guarda Artículo'=>true,
+         'Completado'=>true,
+         'Guarda Instituciones'=>true,
+         'Guarda Autores'=>true,
+         'Guarda PC'=>true,
+         'Completado PC'=>true,
+         'Reabierto'=>true,
+         'Reabierto PC'=>true,
+         'Recarga'=>true
+         );
 
         $export_ts = strtotime((string)$exported_at);
         if($export_ts === false) $export_ts = time();
@@ -2486,6 +2631,7 @@ class Metametrics extends CI_Controller {
 
     private function portatil_importar_documento_comparable($d, $revision_pc){
         if(!is_array($d)) $d = array();
+
         if($revision_pc){
             return array(
                 'palabraClave'=>$this->portatil_importar_lista($this->portatil_importar_get($d, 'palabraClave', array())),
@@ -2493,6 +2639,12 @@ class Metametrics extends CI_Controller {
                 'estatusPC'=>$this->portatil_importar_scalar($this->portatil_importar_get($d, 'estatusPC', ''))
             );
         }
+
+        /*
+         * IMPORTANTE: palabraClave/keyword ya NO pertenecen al documento normal.
+         * Así una actualización PC en línea no provoca conflicto al importar sólo
+         * Artículo/Instituciones/Autores y viceversa.
+         */
         $out = array();
         foreach(array(
             'articulo','idioma','tipo_documento','titulo2','idioma2','titulo3','idioma3',
@@ -2501,8 +2653,6 @@ class Metametrics extends CI_Controller {
         ) as $k){
             $out[$k] = $this->portatil_importar_scalar($this->portatil_importar_get($d, $k, ''));
         }
-        $out['palabraClave'] = $this->portatil_importar_lista($this->portatil_importar_get($d, 'palabraClave', array()));
-        $out['keyword'] = $this->portatil_importar_lista($this->portatil_importar_get($d, 'keyword', array()));
         return $out;
     }
 
@@ -2686,6 +2836,150 @@ class Metametrics extends CI_Controller {
         }
         echo json_encode($obj, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         exit;
+    }
+    
+    public function ws_reabrir_contextual(){
+        $this->output->set_content_type('application/json');
+        $this->load->database('prueba');
+
+        $usuario = trim((string)$this->session->userdata('usu_base'));
+        if($usuario === ''){
+            $this->output->set_output(json_encode(array('resp'=>'session')));
+            return;
+        }
+
+        $sistema = trim((string)$this->input->post('sistema', true));
+        if($sistema === ''){
+            $this->output->set_output(json_encode(array('resp'=>'error','mensaje'=>'Falta el sistema del registro.')));
+            return;
+        }
+
+        $q = $this->db->query(
+            'SELECT sistema, asignado, "asignadoPC", "fechaAsignado", "fechaAsignadoPC", estatus, "estatusPC" '.
+            'FROM article WHERE sistema = ? LIMIT 1',
+            array($sistema)
+        );
+        if(!$q || $q->num_rows() === 0){
+            $this->output->set_output(json_encode(array('resp'=>'error','mensaje'=>'No se encontró el registro.')));
+            return;
+        }
+
+        $a = $q->row_array();
+        $asignado = trim((string)$a['asignado']);
+        $asignadoPC = trim((string)$a['asignadoPC']);
+        $fecha = $a['fechaAsignado'] ? substr((string)$a['fechaAsignado'],0,10) : '';
+        $fechaPC = $a['fechaAsignadoPC'] ? substr((string)$a['fechaAsignadoPC'],0,10) : '';
+        $estatus = trim((string)$a['estatus']);
+        $estatusPC = trim((string)$a['estatusPC']);
+
+        $pc_exclusiva = false;
+
+        if($asignadoPC === ''){
+            // Legado/transición: PC todavía no fue asignada explícitamente.
+            $pc_exclusiva = false;
+        }elseif($asignado !== ''){
+            if($asignadoPC !== $asignado){
+                $pc_exclusiva = true;
+            }elseif($fechaPC === ''){
+                // Mismo analista y sin fecha PC: por compatibilidad se toma fechaAsignado.
+                $pc_exclusiva = false;
+            }elseif($fecha === ''){
+                // PC tiene una fecha explícita posterior y el normal no conservó fecha.
+                $pc_exclusiva = true;
+            }else{
+                // En el flujo nuevo, misma persona pero fechas distintas = asignación PC posterior.
+                $pc_exclusiva = ($fechaPC !== $fecha);
+            }
+        }else{
+            // Históricos sin responsable normal conservado.
+            if($fechaPC !== '' && in_array($estatus, array('C','P','B'), true)){
+                $pc_exclusiva = true;
+            }elseif($fecha !== '' && $fechaPC !== '' && $fecha !== $fechaPC){
+                $pc_exclusiva = true;
+            }
+        }
+
+        $rol = trim((string)$this->session->userdata('rol'));
+        $es_admin = (strcasecmp($rol, 'Administrador') === 0);
+        if(!$es_admin){
+            if($pc_exclusiva){
+                if($asignadoPC === '' || $asignadoPC !== $usuario){
+                    $this->output->set_output(json_encode(array('resp'=>'error','mensaje'=>'La revisión de palabras clave no está asignada a este usuario.')));
+                    return;
+                }
+            }else{
+                /*
+                 * Si asignadoPC aún está vacío, el dueño PC efectivo es `asignado`.
+                 * Esto permite reabrir completo los registros de transición.
+                 */
+                $asignado_pc_efectivo = ($asignadoPC !== '') ? $asignadoPC : $asignado;
+                $es_normal = ($asignado !== '' && $asignado === $usuario);
+                $es_pc = ($asignado_pc_efectivo !== '' && $asignado_pc_efectivo === $usuario);
+                if(!$es_normal && !$es_pc){
+                    $this->output->set_output(json_encode(array('resp'=>'error','mensaje'=>'El registro no está asignado a este usuario.')));
+                    return;
+                }
+            }
+        }
+
+        $reabre_normal = false;
+        $reabre_pc = false;
+        $alcance = $pc_exclusiva ? 'pc' : 'integrado';
+
+        if($pc_exclusiva){
+            $reabre_pc = ($estatusPC === 'C');
+        }else{
+            $reabre_normal = in_array($estatus, array('P','C','B'), true);
+            $reabre_pc = ($estatusPC === 'C');
+        }
+
+        if(!$reabre_normal && !$reabre_pc){
+            $this->output->set_output(json_encode(array(
+                'resp'=>'error',
+                'mensaje'=>'El registro no tiene una parte completada que pueda reabrirse.'
+            )));
+            return;
+        }
+
+        $this->db->trans_start();
+        $this->db->where('sistema', $sistema);
+        if($reabre_normal){
+            $this->db->set('estatus', 'R');
+        }
+        if($reabre_pc){
+            $this->db->set('estatusPC', 'R');
+        }
+        $this->db->update('article');
+        $this->db->trans_complete();
+
+        if($this->db->trans_status() === false){
+            $this->output->set_output(json_encode(array('resp'=>'error','mensaje'=>'No fue posible reabrir el registro.')));
+            return;
+        }
+
+        $nuevo_estatus = $reabre_normal ? 'R' : $estatus;
+        $nuevo_estatus_pc = $reabre_pc ? 'R' : $estatusPC;
+
+        if($alcance === 'pc'){
+            $mensaje = 'Palabras clave reabiertas. Artículo, Instituciones y Autores permanecen cerrados.';
+        }elseif($reabre_normal && $reabre_pc){
+            $mensaje = 'Registro reabierto. Puede volver a editar el análisis normal y Palabras clave.';
+        }elseif($reabre_normal){
+            $mensaje = 'Análisis normal reabierto. Palabras clave conserva su estado actual.';
+        }else{
+            $mensaje = 'Palabras clave reabiertas. El análisis normal ya estaba en revisión.';
+        }
+
+        $this->output->set_output(json_encode(array(
+            'resp'=>'success',
+            'sistema'=>$sistema,
+            'alcance'=>$alcance,
+            'reabre_normal'=>$reabre_normal,
+            'reabre_pc'=>$reabre_pc,
+            'estatus'=>$nuevo_estatus,
+            'estatusPC'=>$nuevo_estatus_pc,
+            'mensaje'=>$mensaje
+        )));
     }
 	
 	    /*

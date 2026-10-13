@@ -12,6 +12,13 @@
                             // El modo portátil nunca se habilita para Editores.
                             mostrar_portatil: 'Editor' != '<?php echo $rol; ?>' && (false || 'Administrador' == '<?php echo $rol; ?>'),
                             mostrar_ia_disciplinas: false || 'Administrador' == '<?php echo $rol; ?>',
+                            /*
+                             * Interruptor maestro del NUEVO flujo separado de palabras clave.
+                             * false = sólo Administradores durante pruebas.
+                             * true  = todos los perfiles no Editor.
+                             * Controla sección PC, estado PC en tabla y filtros PC.
+                             */
+                            mostrar_flujo_palabras_clave: 'Editor' != '<?php echo $rol; ?>' && (false || 'Administrador' == '<?php echo $rol; ?>'),
                             // Los Editores no realizan la revisión de palabras clave.
                             mostrar_ia_palabras_clave: 'Editor' != '<?php echo $rol; ?>' && (false || 'Administrador' == '<?php echo $rol; ?>'),
                             // Indicador "IA" en la columna Estatus del listado.
@@ -79,6 +86,44 @@
       font-weight: 700;
       line-height: 1.2;
       white-space: nowrap;
+  }
+
+
+  /* Estado específico del flujo de palabras clave, independiente del estatus normal. */
+  .pc-status-slot {
+      display: inline-block;
+      margin-left: 5px;
+      vertical-align: middle;
+  }
+
+  .pc-status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1.2;
+      white-space: nowrap;
+  }
+
+  .pc-status-pendiente {
+      border: 1px solid #aaaaaa;
+      background: #f5f5f5;
+      color: #666666;
+  }
+
+  .pc-status-revision {
+      border: 1px solid #ff8000;
+      background: #fff7ed;
+      color: #d96d00;
+  }
+
+  .pc-status-completo {
+      border: 1px solid #3c763d;
+      background: #eef8f0;
+      color: #3c763d;
   }
 
   /* Acceso visible al modo consulta para registros finalizados. */
@@ -330,6 +375,53 @@
   .pc-chip-item .edita_keyword {
       margin-left: 2px;
       flex: 0 0 auto;
+  }
+
+  /* ==============================================================
+   * Compatibilidad temporal: captura manual con el nuevo flujo PC apagado.
+   * La sección sigue disponible, pero NO se muestra la semántica nueva
+   * verde/naranja ni la leyenda catálogo/aproximación. La selección se
+   * distingue únicamente con una presentación neutra.
+   * ============================================================== */
+  #panelPalabrasClave.pc-presentacion-legacy .pc-leyenda {
+      display: none !important;
+  }
+
+  #panelPalabrasClave.pc-presentacion-legacy .pc-layout {
+      grid-template-columns: 1fr;
+      gap: 8px;
+  }
+
+  #panelPalabrasClave.pc-presentacion-legacy .pc-chip.pc-exacta.badge-secondary,
+  #panelPalabrasClave.pc-presentacion-legacy .pc-chip.pc-aprox.badge-secondary,
+  #panelPalabrasClave.pc-presentacion-legacy .pc-chip.badge-secondary {
+      background: #ffffff !important;
+      border: 1px solid #ff8000 !important;
+      color: #333333 !important;
+      box-shadow: none !important;
+  }
+
+  #panelPalabrasClave.pc-presentacion-legacy .pc-chip.pc-exacta.badge-secondary:hover,
+  #panelPalabrasClave.pc-presentacion-legacy .pc-chip.pc-aprox.badge-secondary:hover,
+  #panelPalabrasClave.pc-presentacion-legacy .pc-chip.badge-secondary:hover {
+      background: #fff4e8 !important;
+      border-color: #e67300 !important;
+  }
+
+  /* Con el flujo PC apagado no distinguimos exactas/aproximaciones:
+   * cualquier término seleccionado conserva el naranja clásico. */
+  #panelPalabrasClave.pc-presentacion-legacy .pc-chip.pc-exacta.badge-warning,
+  #panelPalabrasClave.pc-presentacion-legacy .pc-chip.pc-aprox.badge-warning,
+  #panelPalabrasClave.pc-presentacion-legacy .pc-chip.badge-warning {
+      background: #ff8000 !important;
+      border: 1px solid #ff8000 !important;
+      color: #111111 !important;
+      box-shadow: 0 2px 5px rgba(255,128,0,.16) !important;
+  }
+
+  #panelPalabrasClave.pc-presentacion-legacy .pc-chip.badge-warning .badge {
+      background: #ffd6a8 !important;
+      color: #6b3a00 !important;
   }
 
   .pc-sugerencia-item {
@@ -708,6 +800,24 @@
   #accordion.modo-solo-lectura textarea {
       background: #f6f6f6 !important;
       color: #555 !important;
+  }
+
+  /* Palabras clave ya completadas: se conservan visibles como consulta,
+   * pero no pueden modificarse mientras estatusPC=C. */
+  #palabras-clave.pc-solo-lectura button,
+  #palabras-clave.pc-solo-lectura input,
+  #palabras-clave.pc-solo-lectura select,
+  #palabras-clave.pc-solo-lectura textarea,
+  #palabras-clave.pc-solo-lectura .pc-chip,
+  #palabras-clave.pc-solo-lectura .pc-sugerencia-toggle,
+  #palabras-clave.pc-solo-lectura .edita_palabra,
+  #palabras-clave.pc-solo-lectura .edita_keyword {
+      pointer-events: none !important;
+  }
+  #palabras-clave.pc-solo-lectura .notice-pc {
+      background: #f6f6f6 !important;
+      border-left-color: #3c763d !important;
+      color: #555555 !important;
   }
 
   /* ==============================================================
@@ -1115,7 +1225,8 @@
             <ul class="dropdown-menu" style="border-radius:5px">
                 <li><a class="li-filtro" id="estatus">Estatus</a></li>
                 {if $pal_cla == '1'}
-                <li><a class="li-filtro" id="estatusPC">Estatus PC</a></li>
+                <li id="filtro-estatus-pc" style="display:none"><a class="li-filtro" id="estatusPC">Estatus PC</a></li>
+                <li id="filtro-palabras-ia" style="display:none"><a class="li-filtro" id="palabrasIA">Palabras clave</a></li>
                 {/if}
                 <li><a class="li-filtro" id="fechaAsignado">Fecha asignado</a></li>
                 <li><a class="li-filtro" id="mes">Completados por mes</a></li>
@@ -1166,7 +1277,6 @@
                             {else}
                                 <button id="save-no-indizable" type="button" class="btn btn-no-indizable"><i class="fa fa-thumbs-down" aria-hidden="true"></i> <span>No indizable</span></button>
                                 <button id="save-full" type="button" class="btn btn-finalizar"><i class="fa fa-thumbs-up" aria-hidden="true"></i> <span>Análisis completo</span></button>
-                                <button id="save-full-pc" type="button" class="btn btn-finalizar"><i class="fa fa-thumbs-up" aria-hidden="true"></i> <span>Análisis de palabras clave completo</span></button>
                             {/if}
                       </center>
                   </h5>
@@ -1179,7 +1289,6 @@
                           Artículo
                       </a><a href="<?=site_url("adminb/ayuda_articulos");?>" target="_blank" style="padding: 5px"><i class="fa fa-question-circle" style="color: #ff8000;"></i></a>
                       <button id="save-article" type="button" class="btn btn-guardar-seccion" style="float: right;"><i class="fa fa-file" aria-hidden="true"></i><span> Guardar artículo</span></button>
-                      <button id="save-pc" type="button" class="btn btn-dark" style="float: right;"><i class="fa fa-list-ol" aria-hidden="true" style="color: #ff8000;"></i><span> Guardar palabras clave</span></button>
                       <br><br>
                   </h5>
                 </div>
@@ -1477,7 +1586,39 @@
                         </div>
                         {/if}
                         
-                        <br>
+                        <div class="guardar-final">
+                            <button id="save-article-bottom"
+                                    type="button"
+                                    class="btn btn-guardar-seccion guardar-duplicado"
+                                    data-target="#save-article">
+                                <i class="fa fa-file" aria-hidden="true"></i>
+                                <span> Guardar artículo</span>
+                            </button>
+                        </div>
+                        <!--comentar-->
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default" id="panelPalabrasClave" style="display:none">
+                <div class="panel-heading">
+                  <h5 class="panel-title">
+                      <a data-toggle="collapse" data-parent="#accordion" href="#palabras-clave" id="accordionPalabrasClave">
+                        Palabras clave
+                      </a>
+                      <span class="acciones-pc-encabezado" style="float:right;display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                          <button id="save-pc" type="button" class="btn btn-guardar-seccion">
+                              <i class="fa fa-list-ol" aria-hidden="true"></i><span> Guardar palabras clave</span>
+                          </button>
+                          <button id="save-full-pc" type="button" class="btn btn-finalizar">
+                              <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                              <span>Análisis de palabras clave completo</span>
+                          </button>
+                      </span>
+                      <br><br>
+                  </h5>
+                </div>
+                <div id="palabras-clave" class="panel-collapse collapse">
+                    <div class="panel-body">
                         <div class="row" id="div_palabras_clave_texto" style="display:none">
                             <div class="col-xs-12">
                                 <div class="pc-titulo-ia" id="titulo_palabras_clave_ia">Palabras clave seleccionadas con IA</div>
@@ -1566,16 +1707,22 @@
                                 <button id="import-ai" type="button" class="btn btn-dark" style="display:none"><img class="imagen" src="{base_url('img/aie.png')}" style="filter: invert(0.5) sepia(9) hue-rotate(0deg) saturate(1000%);height:20px;display:inline-block"><span> Extraer de PDF</span></button>
                             </center>
                         </div>
-                        <div class="guardar-final">
-                            <button id="save-article-bottom"
+                        <div class="guardar-final" style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;">
+                            <button id="save-pc-bottom"
                                     type="button"
                                     class="btn btn-guardar-seccion guardar-duplicado"
-                                    data-target="#save-article">
-                                <i class="fa fa-file" aria-hidden="true"></i>
-                                <span> Guardar artículo</span>
+                                    data-target="#save-pc">
+                                <i class="fa fa-list-ol" aria-hidden="true"></i>
+                                <span> Guardar palabras clave</span>
+                            </button>
+                            <button id="save-full-pc-bottom"
+                                    type="button"
+                                    class="btn btn-finalizar guardar-duplicado"
+                                    data-target="#save-full-pc">
+                                <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                                <span>Análisis de palabras clave completo</span>
                             </button>
                         </div>
-                        <!--comentar-->
                     </div>
                 </div>
             </div>
