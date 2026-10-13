@@ -1004,7 +1004,8 @@ class Datos extends REST_Controller {
                     end as "fechaAsignadoPC",
 
                     case
-                        when estatus in (\'P\', \'C\', \'B\')
+                        --when estatus in (\'P\', \'C\', \'B\')
+						when estatus in (\'C\')
                         then extract(month from c.fecha)
                     end as mes,
 
