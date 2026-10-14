@@ -20,7 +20,7 @@ class Generic_model extends CI_Model {
          * Esta función recibe el formato de data_valor_actualiza() del JS corregido.
          */
         public function update_asigna($tabla, $arr_where, $data, $data_ant = null) {
-            $db = $this->load->database();
+            $db = $this->load->database('', TRUE);
 
             if ($tabla !== 'article' || $data_ant !== null || !is_array($data) || count($data) === 0) {
                 return array('resp'=>'error', 'mensaje'=>'Solicitud de asignación inválida.');
