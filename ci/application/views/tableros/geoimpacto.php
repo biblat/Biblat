@@ -17,10 +17,19 @@
     </dd>
 </div>
 
-<div class="row">
-	<div class="col-xs-12" style="height:800px">
-			<iframe width="100%" width="100%" height="100%" src="geoimpacto_mapa" frameborder="0" style="border:none" allowfullscreen ></iframe>
-	</div>
+<!--div class="row">
+    <div class="col-xs-12" style="height:800px">
+            <iframe width="100%" width="100%" height="100%" src="geoimpacto_mapa" frameborder="0" style="border:none" allowfullscreen ></iframe>
+    </div>
+</div-->
+<div style="width:100%; height:85vh;">
+    <iframe
+        src="https://kepler.gl/demo/map?mapUrl=https%3A%2F%2Fdl.dropboxusercontent.com%2Fscl%2Ffi%2Fpyevndmg6h0ml83a9yglc%2FUntitled-Map.json%3Frlkey%3Dkq06um3wuox05eecwi2ap78i7%26dl%3D0"
+        width="100%"
+        height="100%"
+        style="border:0;"
+        allowfullscreen>
+    </iframe>
 </div>
 
 <div class="row">
