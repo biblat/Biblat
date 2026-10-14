@@ -826,7 +826,12 @@ class Metametrics extends CI_Controller {
         //$this->output->enable_profiler(false);
         if ($this->input->post()) {
             $this->load->model('generic_model');
-            echo $this->generic_model->update_asigna($this->input->post('tabla'), $this->input->post('where'), $this->input->post('data'));
+            $resultado =  $this->generic_model->update_asigna($this->input->post('tabla'), $this->input->post('where'), $this->input->post('data'));
+            echo json_encode(
+                $resultado,
+                JSON_UNESCAPED_UNICODE |
+                JSON_UNESCAPED_SLASHES
+            );
         }
     }
     

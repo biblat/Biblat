@@ -7,194 +7,112 @@ class Generic_model extends CI_Model {
 		parent::__construct();
 	}
 	
-	/*
-	* Actualiza los datos que cumplan con el $arr_where y los datos $data, sólo se usa $data_ant si se actualizará algún dato que se encuentre en el arr_where
-	*
-	* arr_where: arreglo de nombres de los campos where
-	* data_ant : valores a biscar en el where
-	*/
-	public function update_asigna($tabla, $arr_where, $data, $data_ant = null){
-                //$this->load->database('prueba');
-				$this->load->database();
-		if(isset($data_ant)){
-			//Acomodo de nombre de campos where con su respectivo valor a buscar
-			foreach ($data_ant as $x => $value){
-				foreach ($arr_where as $aw){
-					$array[$aw] = $value[$aw];
-				}
-				$this->db->where($array);
-				$this->db->update($tabla, $data[$x]);
-			}
-		}else{
-			foreach ($data as $value){
-                                $datos_json = [];
-                                $json = false;
-				foreach ($arr_where as $aw){
-                                    if($aw == 'volumen'){
-                                        if(isset($value['volumen'])){
-                                            $datos_json['a'] = $value['volumen'];
-                                            unset($value['volumen']);
-                                             $json = true;
-                                        }
-                                    }
-                                    if($aw == 'numero'){
-                                        if(isset($value['numero'])){
-                                            $datos_json['b'] = $value['numero'];
-                                            unset($value['numero']);
-                                            $json = true;
-                                        }
-                                    }
-                                    if($aw == 'parte'){
-                                        if(isset($value['parte'])){
-                                            $datos_json['d'] = $value['parte'];
-                                            unset($value['parte']);
-                                            $json = true;
-                                        }
-                                    }
-                                    
-                                    if(isset($value[$aw])){
-                                        $array[$aw] = $value[$aw];
-                                    }
-				}
-                                $descripcion_bibliografica = '';
-                                $jsonb ='';
-                                $arr_datos_json = [];
-                                if($json){
-                                    $josnb = 'jsonb_build_object(';
-                                    if(isset($datos_json['a'])){
-                                        $josnb .= '\'a\', ?';
-                                        array_push($arr_datos_json, $datos_json['a']);
-                                        
-                                    }
-                                    if(isset($datos_json['b'])){
-                                        if(isset($datos_json['a'])){
-                                            $josnb .= ',';
-                                        }
-                                        $josnb .= '\'b\', ?';
-                                        array_push($arr_datos_json, $datos_json['b']);
-                                        
-                                    }
-                                    if(isset($datos_json['d'])){
-                                        if(isset($datos_json['a']) or isset($datos_json['b'])){
-                                            $josnb .= ',';
-                                        }
-                                        array_push($arr_datos_json, $datos_json['d']);
-                                        
-                                    }
-                                    //$value['descripcionBibliografica'] = json_encode($datos_json);
-                                }
-                                 
-                                if (isset($value['asignado'])) {
-                                    if($value['asignado'] == 'SIN'){
-                                        $value['asignado'] = NULL;
-                                        $value['estatus'] = NULL;
-                                        $value['fechaAsignado'] = NULL;
-                                    }
-                                }
-                                
-                                if (isset($value['asignadoPC'])) {
-                                    if($value['asignadoPC'] == 'SIN'){
-                                        $value['asignadoPC'] = NULL;
-                                        $value['estatusPC'] = NULL;
-                                        $value['fechaAsignadoPC'] = NULL;
-                                    }
-                                }
-								
-                                if (!empty($arr_datos_json)) {
-                                    //$json_string = json_encode($datos_json);
-                                    //$json_string = str_replace("{", "", $json_string);
-                                    //$json_string = str_replace("}", "", $json_string);
-                                    //echo $json_string;
-                                    if(isset($datos_json['a'])){
-                                        $datos_json_w = [];
-                                        $datos_json_w['a'] = $datos_json['a'];
-                                        $json_string = json_encode($datos_json_w);
-                                        $json_string = str_replace("{", "", $json_string);
-                                        $json_string = str_replace("}", "", $json_string);
-                                        echo $json_string;
-                                        $this->db->where("(replace(cast(\"descripcionBibliografica\" as text),' ','') like '%$json_string%')");
-                                    }
-                                    if(isset($datos_json['b'])){
-                                        $datos_json_w = [];
-                                        $datos_json_w['b'] = $datos_json['b'];
-                                        $json_string = strtoupper(json_encode($datos_json_w));
-                                        $json_string = str_replace("{", "", $json_string);
-                                        $json_string = str_replace("}", "", $json_string);
-                                        echo $json_string;
-                                        $this->db->where("(replace(upper(cast(\"descripcionBibliografica\" as text)),' ','') like '%$json_string%')");
-                                    }
-                                    if(isset($datos_json['d'])){
-                                        $datos_json_w = [];
-                                        $datos_json_w['d'] = $datos_json['d'];
-                                        $json_string = strtoupper(json_encode($datos_json_w));
-                                        $json_string = str_replace("{", "", $json_string);
-                                        $json_string = str_replace("}", "", $json_string);
-                                        echo $json_string;
-                                        $this->db->where("(replace(upper(cast(\"descripcionBibliografica\" as text)),' ','') like '%$json_string%')");
-                                    }
-                                    //$this->db->where("(replace(cast(\"descripcionBibliografica\" as text),' ','') like '%$json_string%')");
-                                }
-                                //$valores_a_excluir = array('C', 'B');
-                                //$this->db->where_not_in('estatus', $valores_a_excluir);
-                                if (isset($value['asignado'])) {
-                                    $this->db->where("( (estatus not in ('B', 'C') or estatus is NULL) or (estatus = 'C' and \"fechaAsignado\" is null) )");
-                                }
-                                if (isset($value['asignadoPC'])) {
-                                    $this->db->where("(\"estatusPC\" not in ('C') or \"estatusPC\" is NULL)");
-                                }
-                                $this->db->where($array);
-				$this->db->update($tabla, $value);
-                                return $query_construido;
-			}
-                        
-                        /****
-                         * foreach ($data as $value){
-                                $datos_json = [];
-                                $json = false;
-				foreach ($arr_where as $aw){
-                                    if($aw == 'volumen'){
-                                        if(isset($value['volumen'])){
-                                            $datos_json['a'] = $value['volumen'];
-                                            unset($value['volumen']);
-                                             $json = true;
-                                        }
-                                    }
-                                    if($aw == 'numero'){
-                                        if(isset($value['numero'])){
-                                            $datos_json['b'] = $value['numero'];
-                                            unset($value['numero']);
-                                            $json = true;
-                                        }
-                                    }
-                                    if($aw == 'parte'){
-                                        if(isset($value['parte'])){
-                                            $datos_json['c'] = $value['parte'];
-                                            unset($value['parte']);
-                                            $json = true;
-                                        }
-                                    }
-                                    
-                                    if(isset($value[$aw])){
-					$array[$aw] = $value[$aw];
-                                    }
-				}
-                                if($json){
-                                    $descripcion_bibliografica = $this->db->select('jsonb_build_object(\'a\', ?, \'b\', ?, \'c\', ?) as descripcion_bibliografica', [
-                                                                    $datos_json['a'],
-                                                                    $datos_json['b'],
-                                                                    $datos_json['c']
-                                                                ])->get_compiled_select();
-                                    //$value['descripcionBibliografica'] = json_encode($datos_json);
-                                }
-				$this->db->where($array);
-                                $this->db->where("descripcionBibliografica = ($descripcion_bibliografica)", null, false);
-				$this->db->update($tabla, $value);
-                                return $query_construido;
-			}
-                         */
-                        
-		}
-	}
+	    /*
+            * Actualiza los datos que cumplan con el $arr_where y los datos $data, sólo se usa $data_ant si se actualizará algún dato que se encuentre en el arr_where
+            *
+            * arr_where: arreglo de nombres de los campos where
+            * data_ant : valores a biscar en el where
+            */
+        /*
+         * Asignación SEGURA por número de revista (CLASE/PERIÓDICA, cosecha 99).
+         * No se utilizan LIKE ni criterios bibliográficos omitidos.
+         * Si volumen, número o parte no tienen valor, deben faltar en el JSON.
+         * Esta función recibe el formato de data_valor_actualiza() del JS corregido.
+         */
+        public function update_asigna($tabla, $arr_where, $data, $data_ant = null) {
+            $db = $this->load->database();
+
+            if ($tabla !== 'article' || $data_ant !== null || !is_array($data) || count($data) === 0) {
+                return array('resp'=>'error', 'mensaje'=>'Solicitud de asignación inválida.');
+            }
+
+            $actualizados = 0;
+            $db->trans_begin();
+            foreach ($data as $value) {
+                if (!is_array($value)) {
+                    $db->trans_rollback();
+                    return array('resp'=>'error', 'mensaje'=>'El registro de asignación no es válido.');
+                }
+
+                $revista = isset($value['revista']) ? trim((string)$value['revista']) : '';
+                $anio = isset($value['anioRevista']) ? (string)$value['anioRevista'] : '';
+                $base = isset($value['base']) ? strtoupper(trim((string)$value['base'])) : '';
+                $volumen = isset($value['volumen']) ? trim((string)$value['volumen']) : '';
+                $numero = isset($value['numero']) ? trim((string)$value['numero']) : '';
+                $parte = isset($value['parte']) ? trim((string)$value['parte']) : '';
+
+                $pc = array_key_exists('asignadoPC', $value);
+                $normal = array_key_exists('asignado', $value);
+                if ($revista === '' || !preg_match('/^\d{4}$/', $anio) ||
+                    !in_array($base, array('PER', 'CLA'), true) || ($normal === $pc) ||
+                    ($volumen === '' && $numero === '' && $parte === '')) {
+                    $db->trans_rollback();
+                    return array('resp'=>'error', 'mensaje'=>'No hay datos suficientes para identificar un número de revista sin ambigüedad.');
+                }
+
+                $campo = $pc ? 'asignadoPC' : 'asignado';
+                $estatus = $pc ? 'estatusPC' : 'estatus';
+                $fecha = $pc ? 'fechaAsignadoPC' : 'fechaAsignado';
+                $analista = trim((string)$value[$campo]);
+                if ($analista === '') {
+                    $db->trans_rollback();
+                    return array('resp'=>'error', 'mensaje'=>'Es necesario seleccionar un analista o SIN.');
+                }
+
+                $sin_asignar = ($analista === 'SIN');
+                $cambios = array(
+                    $campo => $sin_asignar ? null : $analista,
+                    $estatus => $sin_asignar ? null : 'A',
+                    $fecha => $sin_asignar ? null : date('Y-m-d')
+                );
+
+                // Nunca cruza PER99 con CLA99, ni modifica los registros PER01/CLA01.
+                $db->where('sistema ~ ' . $db->escape('^'.$base.'99'), null, false);
+                $db->where('revista', $revista);
+                $db->where('anioRevista', $anio);
+
+                // Comparación exacta de a=volumen, b=número, d=parte.
+                // Particularmente, número s/n no significa «cualquier número».
+                $valores = array('a'=>$volumen, 'b'=>$numero, 'd'=>$parte);
+                foreach ($valores as $llave => $dato) {
+                    $expr = "UPPER(BTRIM(COALESCE(\"descripcionBibliografica\"::jsonb->>'" . $llave . "', '')))";
+                    $dato = strtoupper(trim($dato));
+                    if ($dato === '' || in_array($dato, array('S/N','S/V'), true)) {
+                        // Se aceptan algunas representaciones explícitas de sin número.
+                        $db->where($expr." IN ('', 'S/N', 'S/V', 'NS/N')", null, false);
+                    } else {
+                        $db->where($expr.' = '.$db->escape($dato), null, false);
+                    }
+                }
+
+                if ($pc) {
+                    // PC se permite incluso si el análisis normal está completado (C).
+                    // Nunca se asigna si el artículo está bloqueado o PC está completado.
+                    $db->where("(estatus IS NULL OR estatus <> 'B')", null, false);
+                    $db->where("(\"estatusPC\" IS NULL OR \"estatusPC\" NOT IN ('C','B'))", null, false);
+                } else {
+                    // En análisis normal, C y B quedan estrictamente protegidos.
+                    $db->where("(estatus IS NULL OR estatus NOT IN ('C','B'))", null, false);
+                }
+
+                if (!$db->update('article', $cambios)) {
+                    $db->trans_rollback();
+                    return array('resp'=>'error', 'mensaje'=>'Ocurrió un error al actualizar los artículos.');
+                }
+                $actualizados += (int)$db->affected_rows();
+            }
+
+            if ($db->trans_status() === false) {
+                $db->trans_rollback();
+                return array('resp'=>'error', 'mensaje'=>'No se pudo completar la transacción.');
+            }
+            $db->trans_commit();
+            return array(
+                'resp'=>'success',
+                'actualizados'=>$actualizados,
+                'mensaje'=>$actualizados > 0 ? 'Asignación realizada.' : 'No hubo registros elegibles para ese número de revista.'
+            );
+        }
         
         public function update($tabla, $arr_where, $data, $data_ant = null){
                 //$this->load->database('prueba');

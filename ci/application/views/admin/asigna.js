@@ -222,8 +222,29 @@ class_asi = {
                                         type: 'POST',
                                         url: "<?=site_url('metametrics/ws_asigna');?>",
                                         data: class_asi.data_valor_actualiza(selected.id, selected.value),
-                                }).done(function() {
-                                    class_asi.mensaje('Número actualizado correctamente', function(){location.reload();});
+                                }).done(function(resp) {
+
+                                    var resultado = resp;
+
+                                    if (typeof resultado === 'string') {
+                                        resultado = JSON.parse(resultado);
+                                    }
+
+                                    if (resultado.resp === 'success') {
+                                        class_asi.mensaje(
+                                            'Artículos actualizados: ' + resultado.actualizados,
+                                            function() {
+                                                location.reload();
+                                            }
+                                        );
+                                    } else {
+                                        class_asi.mensaje(
+                                            resultado.mensaje || 'No se realizó la asignación.',
+                                            function() {
+                                                location.reload();
+                                            }
+                                        );
+                                    }
                                 });
                             }
                     }
@@ -412,48 +433,35 @@ class_asi = {
         return data;
     },
     data_valor_actualiza(id, val, pc=false){
-        var volumen = '';
-        var numero = '';
-        var parte = '';
-        if(id.split('__')[2] !== ''){
-            volumen = id.split('__')[2];
+        // Identidad del grupo: revista, año, volumen, número, parte y BASE.
+        var p = String(id).split('__');
+        if (p.length !== 6) {
+            throw new Error('Identificador del número de revista incompleto.');
         }
-        if(id.split('__')[3] !== ''){
-            numero = id.split('__')[3];
+        var base = String(p[5]).trim().toUpperCase();
+        if (base !== 'CLA' && base !== 'PER') {
+            throw new Error('Base de datos de la revista no reconocida.');
         }
-        if(id.split('__')[4] !== ''){
-            parte = id.split('__')[4];
-        }
-        
-        var estatus = '"estatus"';
-        var asignado = '"asignado"';
-        var fechaAsignado = '"fechaAsignado"';
-        
-        if(pc){
-            estatus = '"estatusPC"';
-            asignado = '"asignadoPC"';
-            fechaAsignado = '"fechaAsignadoPC"';
-        }
-        
-        var v_json = '	{'+
-                            '"revista": ' + '"' + id.split('__')[0] + '"' + ',' +
-                            '"anioRevista": ' + id.split('__')[1] + ',' +
-                            asignado + ': ' + '"' + val + '"' + ',' +
-                            estatus + ': ' + '"A"' + ',' +
-                            fechaAsignado + ': ' + '"' + (new Date()).getFullYear()+'-'+(((new Date()).getMonth()+1)+'').padStart(2,'0')+'-'+((new Date()).getDate()+'').padStart(2,'0') + '"' +
-                            ((volumen !== '')?(', "volumen": "V' + id.split('__')[2]+'"'):'' )+
-                            ((numero !== '')?(', "numero": "N' + id.split('__')[3]+'"'):'' )+
-                            ((parte !== '')?(', "parte": "' + id.split('__')[4]+'"'):'' )+
-                            /*((volumen !== '')?(', "\\"descripcionBibliografica\\"->>\'a\'": "V' + id.split('-')[2]+'"'):'' )+
-                            ((numero !== '')?(', "\\"descripcionBibliografica\\"->>\'b\'": "N' + id.split('-')[3]+'"'):'' )+
-                            ((parte !== '')?(', "\\"descripcionBibliografica\\"->>\'c\'": "' + id.split('-')[4]+'"'):'' )+*/
-                    '}';
-        var data = '	{ "data": [' + v_json + ']}';
-        data = JSON.parse(data);
-        data['tabla'] = 'article';
-        data['where'] = ['revista', 'anioRevista', 'volumen', 'numero', 'parte'];
-
-        return data;
+        var normaliza = function(texto, prefijo) {
+            var x = String(texto || '').trim();
+            if (!x || /^(s\/n|s\/v)$/i.test(x)) return '';
+            if (prefijo && x.toUpperCase().startsWith(prefijo)) return x;
+            return prefijo + x;
+        };
+        var asignado = pc ? 'asignadoPC' : 'asignado';
+        return {
+            tabla: 'article',
+            where: ['revista', 'anioRevista', 'volumen', 'numero', 'parte', 'base'],
+            data: [{
+                revista: p[0],
+                anioRevista: String(p[1]).trim(),
+                base: base,
+                volumen: normaliza(p[2], 'V'),
+                numero: normaliza(p[3], 'N'),
+                parte: String(p[4] || '').trim(),
+                [asignado]: val
+            }]
+        };
     },
     setTabla: function(data){
         var tbody = '';
@@ -470,11 +478,18 @@ class_asi = {
         $.each(data, function(i, val){
             //Para pruebas de asignación asignado == null
             //if(val.asignado == null ){
+                // El identificador incluye la BASE para diferenciar CLASE y PERIÓDICA.
+                // No sustituir «spe» por vacío: es diferente de «s/n».
+                var idDato = function(x) {
+                    var s = String(x == null ? '' : x).trim();
+                    return /^(s\/n|s\/v)$/i.test(s) ? '' : s;
+                };
                 var id = val['revista'] + '__' +
                         val['anioRevista'] + '__' +
-                        ((val['volumen'] == '' || val['volumen'].toLowerCase().indexOf('s/') !== -1 )?'':val['volumen']) + '__' +
-                        ((val['numero'] == '' || val['numero'].toLowerCase().indexOf('s/') !== -1 )?'':val['numero']) + '__' +
-                        ((val['parte'] == '')?'':val['parte']);
+                        idDato(val['volumen']) + '__' +
+                        idDato(val['numero']) + '__' +
+                        idDato(val['parte']) + '__' +
+                        String(val['base'] || '').toUpperCase();
                 
                 var obj_revista = {
                     'revista': val['revista'],
