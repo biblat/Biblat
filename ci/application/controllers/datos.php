@@ -254,7 +254,7 @@ class Datos extends REST_Controller {
                         CASE
                             WHEN (article."descripcionBibliografica" ->> \'a\'::text) IS NULL THEN \'s/v\'::text
                             WHEN btrim(article."descripcionBibliografica" ->> \'a\'::text) = \'\'::text THEN \'s/v\'::text
-                            ELSE replace(replace(upper(article."descripcionBibliografica" ->> \'a\'::text), \'V\'::text, \'\'::text), \'"\'::text, \'\'::text)
+                            ELSE regexp_replace(replace(upper(btrim(article."descripcionBibliografica" ->> \'a\'::text)), \'"\'::text, \'\'::text), \'^V\'::text, \'\'::text)
                         END AS volumen,
                         CASE
                             WHEN (article."descripcionBibliografica" ->> \'b\'::text) IS NULL THEN \'s/n\'::text
@@ -282,13 +282,13 @@ class Datos extends REST_Controller {
                                  CASE
                                      WHEN (a2."descripcionBibliografica" ->> \'a\') IS NULL 
                                           OR btrim(a2."descripcionBibliografica" ->> \'a\') = \'\' THEN \'s/v\'
-                                     ELSE replace(replace(upper(a2."descripcionBibliografica" ->> \'a\'), \'V\', \'\'), \'"\', \'\')
+                                     ELSE regexp_replace(replace(upper(btrim(a2."descripcionBibliografica" ->> \'a\')), \'"\', \'\'), \'^V\', \'\')
                                  END
                              ) = (
                                  CASE
                                      WHEN (article."descripcionBibliografica" ->> \'a\') IS NULL 
                                           OR btrim(article."descripcionBibliografica" ->> \'a\') = \'\' THEN \'s/v\'
-                                     ELSE replace(replace(upper(article."descripcionBibliografica" ->> \'a\'), \'V\', \'\'), \'"\', \'\')
+                                     ELSE regexp_replace(replace(upper(btrim(article."descripcionBibliografica" ->> \'a\')), \'"\', \'\'), \'^V\', \'\')
                                  END
                              )
                              AND (
@@ -321,13 +321,13 @@ class Datos extends REST_Controller {
                        ) repetidos ON true
 
 
-                        WHERE article."anioRevista" IS NOT NULL and article.sistema ~ \'^(CLA|PER)99.*\' 
+                        WHERE article."anioRevista" IS NOT NULL and article.sistema ~ \'^(CLA|PER)99.*\'
 						
                         GROUP BY (slug(article.revista)), article."anioRevista", (
                         CASE
                             WHEN (article."descripcionBibliografica" ->> \'a\'::text) IS NULL THEN \'s/v\'::text
                             WHEN btrim(article."descripcionBibliografica" ->> \'a\'::text) = \'\'::text THEN \'s/v\'::text
-                            ELSE replace(replace(upper(article."descripcionBibliografica" ->> \'a\'::text), \'V\'::text, \'\'::text), \'"\'::text, \'\'::text)
+                            ELSE regexp_replace(replace(upper(btrim(article."descripcionBibliografica" ->> \'a\'::text)), \'"\'::text, \'\'::text), \'^V\'::text, \'\'::text)
                         END), (
                         CASE
                             WHEN (article."descripcionBibliografica" ->> \'b\'::text) IS NULL THEN \'s/n\'::text
@@ -345,7 +345,7 @@ class Datos extends REST_Controller {
                           CASE
                               WHEN (article."descripcionBibliografica" ->> \'a\'::text) IS NULL THEN \'s/v\'::text
                               WHEN btrim(article."descripcionBibliografica" ->> \'a\'::text) = \'\'::text THEN \'s/v\'::text
-                              ELSE replace(replace(upper(article."descripcionBibliografica" ->> \'a\'::text), \'V\'::text, \'\'::text), \'"\'::text, \'\'::text)
+                              ELSE regexp_replace(replace(upper(btrim(article."descripcionBibliografica" ->> \'a\'::text)), \'"\'::text, \'\'::text), \'^V\'::text, \'\'::text)
                           END), (NULLIF(regexp_replace(
                           CASE
                               WHEN (article."descripcionBibliografica" ->> \'b\'::text) IS NULL THEN \'s/n\'::text
