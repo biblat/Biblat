@@ -27,7 +27,9 @@ class Generic_model extends CI_Model {
             }
 
             $actualizados = 0;
+            $criterios_ultimo = array();
             $db->trans_begin();
+
             foreach ($data as $value) {
                 if (!is_array($value)) {
                     $db->trans_rollback();
@@ -66,28 +68,32 @@ class Generic_model extends CI_Model {
                     $fecha => $sin_asignar ? null : date('Y-m-d')
                 );
 
-                // Nunca cruza PER99 con CLA99, ni modifica los registros PER01/CLA01.
+                // Nunca cruza PER99 con CLA99 ni modifica los registros PER01/CLA01.
                 $db->where('sistema ~ ' . $db->escape('^'.$base.'99'), null, false);
                 $db->where('revista', $revista);
                 $db->where('anioRevista', $anio);
 
-                // Comparación exacta de a=volumen, b=número, d=parte.
-                // Particularmente, número s/n no significa «cualquier número».
+                // Coincidencia literal de volúmenes reales, incluidos romanos (VXLIV).
+                // Sólo los marcadores de AUSENCIA se agrupan: s/n, Ns/n, nulo, etc.
+                // s/n NO equivale a cualquier número y no tocará, por ejemplo, N3.
                 $valores = array('a'=>$volumen, 'b'=>$numero, 'd'=>$parte);
                 foreach ($valores as $llave => $dato) {
-                    $expr = "UPPER(BTRIM(COALESCE(\"descripcionBibliografica\"::jsonb->>'" . $llave . "', '')))";
-                    $dato = strtoupper(trim($dato));
-                    if ($dato === '' || in_array($dato, array('S/N','S/V'), true)) {
-                        // Se aceptan algunas representaciones explícitas de sin número.
-                        $db->where($expr." IN ('', 'S/N', 'S/V', 'NS/N')", null, false);
+                    // NULLIF evita errores si la descripción se guardó como texto vacío.
+                    $expr = "UPPER(BTRIM(COALESCE(NULLIF(BTRIM(\"descripcionBibliografica\"::text), '')::jsonb->>'" . $llave . "', '')))";
+                    $dato = strtoupper(trim((string)$dato));
+
+                    // CORRECCIÓN: el backend ya aceptaba NS/N en BD, pero no como
+                    // parámetro de búsqueda. Se añaden los alias de ausencia al WHERE.
+                    $marcadores = array('', 'S/N', 'S/V', 'NS/N', 'VS/V', 'NULL');
+                    if (in_array($dato, $marcadores, true)) {
+                        $db->where($expr." IN ('', 'S/N', 'S/V', 'NS/N', 'VS/V', 'NULL')", null, false);
                     } else {
                         $db->where($expr.' = '.$db->escape($dato), null, false);
                     }
                 }
 
                 if ($pc) {
-                    // PC se permite incluso si el análisis normal está completado (C).
-                    // Nunca se asigna si el artículo está bloqueado o PC está completado.
+                    // PC permitido aunque análisis normal esté en C; respeta bloqueos.
                     $db->where("(estatus IS NULL OR estatus <> 'B')", null, false);
                     $db->where("(\"estatusPC\" IS NULL OR \"estatusPC\" NOT IN ('C','B'))", null, false);
                 } else {
@@ -99,7 +105,17 @@ class Generic_model extends CI_Model {
                     $db->trans_rollback();
                     return array('resp'=>'error', 'mensaje'=>'Ocurrió un error al actualizar los artículos.');
                 }
-                $actualizados += (int)$db->affected_rows();
+                $filas = (int)$db->affected_rows();
+                $actualizados += $filas;
+
+                if ($filas === 0) {
+                    // Diagnóstico disponible en logs de CodeIgniter si se habilita debug.
+                    log_message('debug', '[ASIGNACION] Ningún artículo actualizado: ' . $db->last_query());
+                }
+                $criterios_ultimo = array(
+                    'revista'=>$revista, 'anioRevista'=>$anio, 'base'=>$base,
+                    'volumen'=>$volumen, 'numero'=>$numero, 'parte'=>$parte
+                );
             }
 
             if ($db->trans_status() === false) {
@@ -110,7 +126,9 @@ class Generic_model extends CI_Model {
             return array(
                 'resp'=>'success',
                 'actualizados'=>$actualizados,
-                'mensaje'=>$actualizados > 0 ? 'Asignación realizada.' : 'No hubo registros elegibles para ese número de revista.'
+                'mensaje'=>$actualizados > 0 ? 'Asignación realizada.' : 'No hubo registros elegibles para ese número de revista.',
+                // Cuando no actualiza ninguno, inspecciona este campo en Network/Response.
+                'criterios_sin_coincidencias'=>$actualizados === 0 ? $criterios_ultimo : null
             );
         }
         
