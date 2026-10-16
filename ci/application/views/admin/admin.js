@@ -9,7 +9,7 @@ class_admin = {
 		send_xml: '/api_metametrics/send_xml?oai=<oai>&years=<years>',
 		send_zip: '/api_metametrics/send_zip',
         //td_num: '<a href="#" id="<anio>__<num>" class="thumbnail" style="color:#fff; background-color: #f0ad4e; border-color: #eea236; width:100px; text-align:center"><num></a>',
-        td_num: '<button type="button" class="btn btn-warning nums" id="<anio>__<num>"><num></button>',
+        td_num: '<button type="button" class="btn btn-warning nums" id="issue_<indice>"><num></button>',
         idiomas: {
                     'es_ES' : 'Español',
                     'en_US' : 'Inglés',
@@ -477,33 +477,38 @@ class_admin = {
             });
         });
     },
-    registrosCLAPER: function(anio, vol, num, especial){
+    registrosCLAPER: function(anio, vol, num, especial, issueSeleccionado){
         loading.start();
-        var issue = '';
         var ids_issue = '';
         var arr_ids_issue = [];
-        //Issue
-        issue = class_utils.filter_prop(class_admin.var.data.numeros, 'year', anio);
-        if (vol == 'null'){
-            issue = class_utils.filter_prop(issue, 'vol', null);
+        var issue = [];
+
+        // Cuando se pulsa un botón, se recibe el objeto original del fascículo.
+        // No hay conversiones de tipo ni búsquedas basadas en separadores V/N.
+        if (issueSeleccionado){
+            issue = [issueSeleccionado];
         }else{
-            issue = class_utils.filter_prop(issue, 'vol', vol);
+            // Compatibilidad con llamadas anteriores que sólo pasen año/vol/núm.
+            var valorComparable = function(valor){
+                return (valor === null || valor === undefined || valor === 'null')
+                    ? '' : String(valor).trim();
+            };
+            issue = (class_admin.var.data.numeros || []).filter(function(item){
+                var mismoEspecial = especial
+                    ? Boolean(item.especial)
+                    : !item.especial;
+                return valorComparable(item.year) === valorComparable(anio)
+                    && valorComparable(item.vol) === valorComparable(vol)
+                    && valorComparable(item.num) === valorComparable(num)
+                    && mismoEspecial;
+            });
         }
-        if (num == 'null'){
-            issue = class_utils.filter_prop(issue, 'num', null);
-        }else{
-            issue = class_utils.filter_prop(issue, 'num', num);
-        }
-		
-        var issue_tmp = [];
-        if (especial){
-            issue_tmp = class_utils.filter_prop(issue, 'especial', 'especial');
-            if (issue_tmp.length == 0)
-                issue = class_utils.filter_prop(issue, 'especial', 'suplemento');
-            else
-                issue = issue_tmp;
-        }else{
-            issue = class_utils.filter_prop(issue, 'especial', undefined);
+
+        if (!issue.length){
+            console.error('No se encontró el fascículo seleccionado:', anio, vol, num, especial);
+            $('#mensajeFin').html('<b>No fue posible identificar el fascículo seleccionado.</b>');
+            loading.end();
+            return;
         }
 
         console.log(issue);
@@ -519,7 +524,13 @@ class_admin = {
         var arr_id_pubs = [];
         //id's de las publicaciones
         $.each(publicaciones_vigentes, function(i,val){
-            if(issue[0].num == val.numero.num && issue[0].vol == val.numero.vol && issue[0].especial == val.numero.especial){
+            // Incluimos el año para no incorporar artículos de otro año con
+            // el mismo volumen/número. Igualamos tipos sin cambiar el valor.
+            var numeroArticulo = val.numero || {};
+            if(String(issue[0].year) === String(numeroArticulo.year)
+                && String(issue[0].num) === String(numeroArticulo.num)
+                && String(issue[0].vol) === String(numeroArticulo.vol)
+                && (issue[0].especial || null) === (numeroArticulo.especial || null)){
 
                 //Revisión si es contenido indizable
                 var indizable = val.titulo;
@@ -563,7 +574,7 @@ class_admin = {
             doc.revista = class_admin.var.revista[0].trim();
             doc.institucion_editora = class_admin.var.revista[8].trim();
             doc.ciudad_editora = class_admin.var.revista[7].trim();
-            doc.fecha_publicacion = anio.trim();
+            doc.fecha_publicacion = String(anio).trim();
             doc.disciplina = class_admin.var.revista[2].trim();
             
             doc.doi = (val.doi == null)?null:val.doi.trim();
@@ -616,13 +627,23 @@ class_admin = {
             doc.idioma_resumen += (arr_idioma.indexOf('Portugués') !== -1)?(doc.idioma_resumen != '')?', portugués':'Portugués':'';
             doc.idioma_resumen += (arr_idioma.indexOf('Inglés') !== -1)?(doc.idioma_resumen != '')?', inglés':'Inglés':'';
 
-            doc.anio = anio.trim();
-            if(['', undefined, null, '0', 'null'].indexOf(vol) !== -1){
-                doc.volumen = 's/v'
+            doc.anio = String(anio).trim();
+
+            // Respetar la grafía original del volumen (43, XLIII, XLIV, 12A...).
+            // Sólo usar s/v si el metadato realmente está ausente.
+            var volumenTexto = (vol === null || vol === undefined) ? '' : String(vol).trim();
+            if (['', '0', 'null', 's/v'].indexOf(volumenTexto.toLowerCase()) !== -1){
+                doc.volumen = 's/v';
             }else{
-                doc.volumen = (class_admin.cons.er.letra.test(vol.trim()))?'s/v':'V' + vol.trim();
+                doc.volumen = 'V' + volumenTexto;
             }
-            doc.numero = (class_admin.cons.er.letra.test(num.trim()))?'s/n':'N' + num.trim();
+
+            var numeroTexto = (num === null || num === undefined) ? '' : String(num).trim();
+            if (['', 'null', 's/n'].indexOf(numeroTexto.toLowerCase()) !== -1){
+                doc.numero = 's/n';
+            }else{
+                doc.numero = 'N' + numeroTexto;
+            }
             doc.parte = '';
             if(especial){
                 if (val.numero.especial.toUpperCase().indexOf('ESPECIAL') !== -1)
@@ -949,21 +970,14 @@ class_admin = {
         var tabla = '';
 
         $.each(issue, function(i, val){
+            var etiqueta = 'V' + val.vol + 'N' + val.num +
+                (val.especial ? 'Esp' : '');
 
+            // Mostrar el texto original sin insertarlo directamente como HTML.
+            var etiquetaSegura = $('<div>').text(etiqueta).html();
             tabla += class_admin.cons.td_num
-                .replaceAll('<anio>', val.year)
-                .replaceAll(
-                    '<num>',
-                    'V' +
-                    val.vol +
-                    'N' +
-                    val.num +
-                    (
-                        (val.especial !== undefined)
-                        ? 'Esp'
-                        : ''
-                    )
-                ) + ' ';
+                .replaceAll('<indice>', i)
+                .replaceAll('<num>', etiquetaSegura) + ' ';
         });
 
 
@@ -981,63 +995,38 @@ class_admin = {
 
                 e.preventDefault();
 
-                var id = this.id;
+                // El ID del botón es simplemente issue_0, issue_1, etc.
+                // Los metadatos proceden del objeto original, no de un split().
+                var indice = parseInt(this.id.replace('issue_', ''), 10);
+                var seleccionado = issue[indice];
+                if (!seleccionado){
+                    $('#mensajeFin').html('<b>No fue posible identificar el fascículo.</b>');
+                    return;
+                }
+                var etiquetaSegura = $('<div>').text($(this).text()).html();
 
                 $.confirm({
-
                     title: '',
-
                     content:
                         'Se ingresarán a Biblat los documentos ' +
                         'encontrados en el número seleccionado: ' +
-                        '<b>' +
-                        this.id.replace('__', ' ') +
-                        '</b>',
-
+                        '<b>' + etiquetaSegura + '</b>',
                     buttons: {
-
                         cancelar: {
-
                             text: 'Cancelar',
-
-                            action: function(){
-                            }
+                            action: function(){}
                         },
-
                         aceptar: {
-
                             text: 'Aceptar',
                             btnClass: 'btn-warning',
-
                             action: function(){
-
                                 $('#mensajeFin').html('');
-
-                                var anio =
-                                    id.split('__')[0];
-
-                                var vol =
-                                    id.split('__')[1]
-                                    .split('V')[1]
-                                    .split('N')[0];
-
-                                var num =
-                                    id.split('__')[1]
-                                    .split('N')[1]
-                                    .split('Esp')[0];
-
-                                var especial =
-                                    (
-                                        id.indexOf('Esp') !== -1
-                                    )
-                                    ? true
-                                    : false;
-
                                 class_admin.registrosCLAPER(
-                                    anio,
-                                    vol,
-                                    num,
-                                    especial
+                                    String(seleccionado.year),
+                                    seleccionado.vol,
+                                    seleccionado.num,
+                                    Boolean(seleccionado.especial),
+                                    seleccionado
                                 );
                             }
                         }
