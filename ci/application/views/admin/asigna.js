@@ -44,7 +44,7 @@ class_asi = {
                                     '<th rowspan="1" style="padding:15px">Asignado PC</th>' +
                                     '<th rowspan="1" style="padding:15px">Asignar PC a:</th>' +
                                     '<th style="padding:15px">Analista PC</th>' +
-									'<th style="padding:15px">Repetidos</th>' +
+                                    '<th style="padding:15px">Repetidos</th>' +
                                 '</tr>'+
                             '</thead>' +
                             '<tbody id="body_revistas"><body></tbody></table>',
@@ -230,7 +230,7 @@ class_asi = {
                                         resultado = JSON.parse(resultado);
                                     }
 
-                                    if (resultado.resp === 'success') {
+                                    if (resultado.resp === 'success' && Number(resultado.actualizados) > 0) {
                                         class_asi.mensaje(
                                             'Artículos actualizados: ' + resultado.actualizados,
                                             function() {
@@ -245,6 +245,8 @@ class_asi = {
                                             }
                                         );
                                     }
+                                }).fail(function() {
+                                    class_asi.mensaje('Error de comunicación al asignar el número.');
                                 });
                             }
                     }
@@ -277,8 +279,26 @@ class_asi = {
                                         type: 'POST',
                                         url: "<?=site_url('metametrics/ws_asigna');?>",
                                         data: class_asi.data_valor_actualiza(selected.id, selected.value, true),
-                                }).done(function() {
-                                    class_asi.mensaje('Número actualizado correctamente', function(){location.reload();});
+                                }).done(function(resp) {
+                                    var resultado = resp;
+                                    if (typeof resultado === 'string') {
+                                        try {
+                                            resultado = JSON.parse(resultado);
+                                        } catch(e) {
+                                            class_asi.mensaje('El servidor no devolvió una respuesta JSON válida.');
+                                            return;
+                                        }
+                                    }
+                                    if (resultado && resultado.resp === 'success' && Number(resultado.actualizados) > 0) {
+                                        class_asi.mensaje('Artículos PC actualizados: ' + resultado.actualizados, function(){location.reload();});
+                                    } else {
+                                        class_asi.mensaje(
+                                            (resultado && resultado.mensaje) || 'No hubo artículos PC elegibles para asignar.',
+                                            function(){location.reload();}
+                                        );
+                                    }
+                                }).fail(function() {
+                                    class_asi.mensaje('Error de comunicación al asignar las palabras clave.');
                                 });
                             }
                     }
@@ -296,7 +316,7 @@ class_asi = {
             class_asi.var.revisa_pc = setInterval( function(){ class_asi.revisa_estatus(class_asi.var.arr_palabras_clave[id]) }, 10000 );
             $(this).parent().html('<i class="fa fa-refresh fa-spin" aria-hidden="true" style="color: #ff8000;" data-toggle="tooltip" data-placement="top" title="Generando palabras clave ..."></i>');
             $.when(
-                //class_utils.setResource('http://localhost:5001' + '' + '/palabras_clave/', class_asi.var.arr_palabras_clave[id], true)
+                //class_utils.setResource('http://localhost:5000' + '' + '/palabras_clave/', class_asi.var.arr_palabras_clave[id], true)
                 class_utils.setResource('https://biblat.unam.mx' + '/scielo-claper' + '/palabras_clave/', class_asi.var.arr_palabras_clave[id], true)
             ).then(function(){
             });
@@ -442,31 +462,43 @@ class_asi = {
         if (base !== 'CLA' && base !== 'PER') {
             throw new Error('Base de datos de la revista no reconocida.');
         }
+
+        // Normaliza únicamente marcadores de AUSENCIA. No convertir romanos a números.
+        // El campo JSON "b" puede contener s/n, Ns/n, vacío o null según el origen.
+        // Para valores reales, se conserva la regla de prefijos de tu aplicación.
         var normaliza = function(texto, prefijo) {
-            var x = String(texto || '').trim();
-            if (!x || /^(s\/n|s\/v)$/i.test(x)) return '';
-            if (prefijo && x.toUpperCase().startsWith(prefijo)) return x;
+            var x = String(texto == null ? '' : texto).trim();
+            if (!x || /^(null|undefined)$/i.test(x)) return '';
+            if (prefijo === 'V' && /^(s\/v|vs\/v|vnull|vundefined)$/i.test(x)) return '';
+            if (prefijo === 'N' && /^(s\/n|ns\/n|n|nnull|nundefined)$/i.test(x)) return '';
+            if (x.toUpperCase().startsWith(prefijo)) return x;
             return prefijo + x;
         };
+
         var asignado = pc ? 'asignadoPC' : 'asignado';
+        var datos = {
+            revista: p[0],
+            anioRevista: String(p[1]).trim(),
+            base: base,
+            volumen: normaliza(p[2], 'V'),
+            numero: normaliza(p[3], 'N'),
+            parte: String(p[4] || '').trim(),
+            [asignado]: val
+        };
+
+        // Útil para comprobar los valores exactos que viajan a ws_asigna.
+        console.debug('[ASIGNACION] Valores enviados a ws_asigna:', datos);
+
         return {
             tabla: 'article',
             where: ['revista', 'anioRevista', 'volumen', 'numero', 'parte', 'base'],
-            data: [{
-                revista: p[0],
-                anioRevista: String(p[1]).trim(),
-                base: base,
-                volumen: normaliza(p[2], 'V'),
-                numero: normaliza(p[3], 'N'),
-                parte: String(p[4] || '').trim(),
-                [asignado]: val
-            }]
+            data: [datos]
         };
     },
     setTabla: function(data){
         var tbody = '';
-		
-		var generando_pc = class_utils.filter_prop(class_asi.var.revistasJSON, 'palabras_clave', 'R');
+        
+        var generando_pc = class_utils.filter_prop(class_asi.var.revistasJSON, 'palabras_clave', 'R');
         if(generando_pc.length > 0){
             $('.genera_pc').css('color', 'gray');
             $('.genera_pc').css('cursor', '');
@@ -474,21 +506,24 @@ class_asi = {
             //Muestra que está trabajando en las palabras
             class_asi.var.generando_pc = true;
         }
-		
+        
         $.each(data, function(i, val){
             //Para pruebas de asignación asignado == null
             //if(val.asignado == null ){
                 // El identificador incluye la BASE para diferenciar CLASE y PERIÓDICA.
                 // No sustituir «spe» por vacío: es diferente de «s/n».
-                var idDato = function(x) {
+                var idDato = function(x, tipo) {
                     var s = String(x == null ? '' : x).trim();
-                    return /^(s\/n|s\/v)$/i.test(s) ? '' : s;
+                    if (/^(null|undefined)$/i.test(s)) return '';
+                    if (tipo === 'V' && /^(s\/v|vs\/v|vnull|vundefined)$/i.test(s)) return '';
+                    if (tipo === 'N' && /^(s\/n|ns\/n|n|nnull|nundefined)$/i.test(s)) return '';
+                    return s;
                 };
                 var id = val['revista'] + '__' +
                         val['anioRevista'] + '__' +
-                        idDato(val['volumen']) + '__' +
-                        idDato(val['numero']) + '__' +
-                        idDato(val['parte']) + '__' +
+                        idDato(val['volumen'], 'V') + '__' +
+                        idDato(val['numero'], 'N') + '__' +
+                        idDato(val['parte'], 'P') + '__' +
                         String(val['base'] || '').toUpperCase();
                 
                 var obj_revista = {
@@ -502,22 +537,22 @@ class_asi = {
                 };
 
                 var tr = class_asi.var.tr.replace('<revista>', val['revista'])
-								.replace('<pais>', val['pais'])
+                                .replace('<pais>', val['pais'])
                                 .replace('<base>', val['base'])
-								.replace('<cosecha>', val['cosecha'])
+                                .replace('<cosecha>', val['cosecha'])
                                 .replace('<anio>', val['anioRevista'])
                                 .replace('<volumen>', val['volumen'])
                                 .replace('<numero>', val['numero'])
                                 .replace('<parte>', val['parte'])
                                 .replace('<articulos>', val['articulos'])
                                 .replace('<conpdf>', val['conpdf'])
-								.replace('<conhtml>', val['conhtml'])
+                                .replace('<conhtml>', val['conhtml'])
                                 .replace('<ingreso>', val['fecha'])
                                 .replace('<asignado>', val['fecha_asignado'])
                                 .replace('<select_asigna>', '<span  style="display:none">'+val['asignado']+'</span>'+class_asi.var.select_asigna.replace('<options>', class_asi.var.options_asigna.replace('"'+val['asignado']+'"', '"'+val['asignado']+'" selected')).replace('<id>', id))
                                 .replace('<vacio>', val['asignado'])
                                 .replace('<asignado_pc>', val['fecha_asignado_pc'])
-								.replace('<repetidos>', (val['titulos'] !== null)?val['titulos'].replaceAll(' || ', '<br>'):'')
+                                .replace('<repetidos>', (val['titulos'] !== null)?val['titulos'].replaceAll(' || ', '<br>'):'')
                                 .replace('<bcolor>', ( (parseInt(val['repetidos']) > 0)?'lightcoral':'' ))
                                 .replaceAll('null', '');
                 
@@ -538,9 +573,8 @@ class_asi = {
                             tr = tr.replace('<select_asigna_pc>', '<center id="'+obj_revista.pc_id+'"><i id="genera_pc_'+i+'" class="fa fa-cogs genera_pc" aria-hidden="true" style="color: #ff8000; cursor: pointer" data-toggle="tooltip" data-placement="top" title="[Clic] para generar palabras clave"></i></center>');
                             class_asi.var.arr_palabras_clave[i]=obj_revista;
                         }else if(val['palabras_clave'] == 'R'){
-                            //Muestra que está trabajando en las palabras
                             tr = tr.replace('<select_asigna_pc>', '<center id="'+obj_revista.pc_id+'"><i class="fa fa-refresh fa-spin" aria-hidden="true" style="color: #ff8000;" data-toggle="tooltip" data-placement="top" title="Generando palabras clave ..."></i> ('+val['analizados']+')</center>');
-							class_asi.revisa_estatus(obj_revista);
+                            class_asi.revisa_estatus(obj_revista);
                             class_asi.var.revisa_pc = setInterval( function(){ class_asi.revisa_estatus(obj_revista) }, 10000);
                         }
                     }
@@ -566,7 +600,7 @@ class_asi = {
                                 extend: 'csvHtml5',
                                 text: 'Exportar CSV',
                                 exportOptions: {
-                                    //columns: [0,1,2,3,4,5,6,7,8,9,10,12,13,15] // Aquí indicas los índices de las columnas a exportar (0, 2 y 3 en este caso)
+//                                    columns: [0,1,2,3,4,5,6,7,8,9,10,12,13,15] // Aquí indicas los índices de las columnas a exportar (0, 2 y 3 en este caso)
                                     columns: [0,1,2,3,4,5,6,8,9,11,12]
                                 }
                             },
@@ -600,7 +634,7 @@ class_asi = {
 //                                targets: [12,15]
                                 targets: [9,12]
                             },
-							{ className: 'none',
+                            { className: 'none',
                                 targets: [13] } 
                         ],
                         //Reajusta el ancho de las columnas
@@ -664,6 +698,3 @@ class_asi = {
 };
 
 $(class_asi.ready);
-
-
-
