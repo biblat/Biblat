@@ -537,12 +537,28 @@ class_av = {
          * liberamos la pantalla y avisamos. La petición puede todavía terminar
          * después; en ese caso los catálogos se inicializan normalmente.
          */
-        watchdogCarga = setTimeout(function(){
-            finalizarCargaInicial(
-                'La carga de los catálogos está tardando más de lo esperado. ' +
-                'La pantalla fue liberada; si los campos de catálogos no aparecen, recargue la página.'
-            );
-        }, 20000);
+        /*
+        * Si los catálogos tardan más de 20 segundos,
+        * recargamos la página automáticamente una sola vez.
+        */
+       watchdogCarga = setTimeout(function() {
+
+           if (!sessionStorage.getItem('reintentoCatalogos')) {
+
+               sessionStorage.setItem('reintentoCatalogos', '1');
+
+               window.location.reload();
+
+           } else {
+
+               finalizarCargaInicial(
+                   'No fue posible cargar los catálogos. ' +
+                   'Por favor, intente recargar la página.'
+               );
+
+           }
+
+       }, 20000);
 
         $.when(
             class_utils.getResource('/datos/articulos/'),
