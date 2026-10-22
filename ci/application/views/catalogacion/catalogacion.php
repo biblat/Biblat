@@ -51,8 +51,10 @@
     <div style="margin-left: 150px; width:80%; font-size: 11px">
         <p>
             * Advertencia y descargo de responsabilidad​<br>
-              Esta aplicación funciona con el modelo de lenguaje Gemini en su versión gratuita. Biblat no es responsable de los resultados obtenidos, tampoco almacena copias de los archivos o del texto utilizado, ni tiene control sobre el uso que el proveedor del modelo (Google) pueda hacer de los datos. Este servicio se ofrece únicamente para efectos académicos. Se recomienda utilizar únicamente información para la cual el usuario tenga permiso o autorización.​
-              <br>Toda aplicación que trabaja con inteligencia artificial puede cometer errores, se debe verificar los resultados en todo momento.
+            Esta aplicación utiliza un modelo de lenguaje de gran escala (LLM) para el procesamiento de la información.<br> 
+            Biblat no es responsable de los resultados obtenidos. Los archivos y textos proporcionados no se envían a proveedores externos de inteligencia artificial. Asimismo, Biblat no almacena copias de los archivos ni de los textos utilizados para el procesamiento.<br>
+            
+            Este servicio se ofrece únicamente para efectos académicos. Se recomienda utilizar únicamente información para la cual el usuario tenga permiso o autorización. Toda aplicación que trabaja con inteligencia artificial puede cometer errores, por lo que siempre se deben verificar los resultados.
         </p>
     </div>
 </div>
