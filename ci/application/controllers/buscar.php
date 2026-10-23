@@ -538,6 +538,18 @@ $this->template->set_partial('main_js','revista/badges.js', array(), TRUE, FALSE
             }
         }
 		
+		private $challenge_pass_ips = [
+            "127.0.0.1",
+            "::1",
+            "148.204.63.19",
+            "148.204.63.195"
+        ];
+		
+		private $challenge_pass_prefixes = [
+            // Ejemplo: permitir una red institucional completa
+            "132.248."
+        ];
+		
 		private function require_human_challenge() {
             $method = strtoupper($this->input->server('REQUEST_METHOD'));
 

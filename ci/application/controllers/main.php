@@ -671,7 +671,7 @@ class Main extends CI_Controller{
 	}
 
 	public function indicadoresRevista($alpha="a"){
-		$this->reviewIP("indicadores revista");
+		//$this->reviewIP("indicadores revista");
 		$this->load->library('pagination');
 		$config['base_url'] = site_url('bibliometria/indicadores-por-revista');
 		$config['uri_segment'] = 4;
