@@ -222,8 +222,8 @@ $route[$langs.'/geoimpacto_mapa'] = 'tableros/geoimpacto_mapa';
 $route[$langs.'/indizacion/api'] = 'indizacion/api';
 $route[$langs.'/indizacion/send_indizacion'] = 'indizacion/send_indizacion';
 
-$route[langs.'/challenge'] = 'challenge/index';
-$route[langs.'/challenge/verify'] = 'challenge/verify';
+$route[$langs.'/challenge'] = 'challenge/index';
+$route[$langs.'/challenge/verify'] = 'challenge/verify';
 
 // URI like '/en/about' -> use controller 'about'
 $route[$langs.'/(.+)$'] = "$1";
