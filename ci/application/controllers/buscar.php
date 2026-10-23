@@ -274,20 +274,20 @@ class Buscar extends CI_Controller{
 			}
         }
 		
-		$ip = $this->get_ip(); // Obtener la IP del visitante
+		//$ip = $this->get_ip(); // Obtener la IP del visitante
 
 		// Lista de prefijos de IP denegadas
-		$denied_ips = unserialize(IPsBlock);
+		//$denied_ips = unserialize(IPsBlock);
 
 		// Lista de IPs permitidas
-		$pass_ips = [
-			"148.204.63.19",
-			"148.204.63.195"
-		];
+		//$pass_ips = [
+		//	"148.204.63.19",
+		//	"148.204.63.195"
+		//];
 
-		$blocked = false;
+		//$blocked = false;
 
-		foreach ($denied_ips as $prefix) {
+		/*foreach ($denied_ips as $prefix) {
 			if (strpos($ip, $prefix) === 0) { // Si la IP empieza con un prefijo denegado
 				// Verificamos si está en las excepciones
 				$is_exception = false;
@@ -303,7 +303,7 @@ class Buscar extends CI_Controller{
 					break;
 				}
 			}
-		}
+		}*/
 		
 		/*
 		if ($blocked) {
@@ -311,7 +311,7 @@ class Buscar extends CI_Controller{
 		}else{
 			$this->insertIP();
 		}*/
-		$this->insertIP();
+		//$this->insertIP();
 		
 		$articulosResultado = articulosResultado($query, $queryCount, $paginationURL, $perPage, $countCompleto=TRUE);
 
