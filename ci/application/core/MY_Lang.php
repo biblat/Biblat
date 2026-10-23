@@ -152,23 +152,35 @@ class MY_Lang extends CI_Lang {
  
    
   function switch_uri($lang)
-  {
-    if ((!empty($this->uri)) && (array_key_exists($lang, $this->languages)))
-    {
+	{
+		// Obtener la URI actual
+		$uri = trim((string) ($this->uri ?? ''), '/');
 
-      if ($uri_segment = $this->get_uri_lang($this->uri))
-      {
-        $uri_segment['parts'][0] = $lang;
-        $uri = implode('/',$uri_segment['parts']);
-      }
-      else
-      {
-        $uri = $lang.'/'.$this->uri;
-      }
-    }
+		// Verificar que el idioma solicitado exista
+		if (!array_key_exists($lang, $this->languages))
+		{
+			return $uri;
+		}
 
-    return $uri;
-  }
+		// Si estamos en la página principal
+		if ($uri === '')
+		{
+			return $lang;
+		}
+
+		// Identificar el idioma actual en la URI
+		$uri_segment = $this->get_uri_lang($uri);
+
+		// Si la URI ya contiene un idioma, sustituirlo
+		if ($uri_segment !== FALSE && $uri_segment['lang'] !== NULL)
+		{
+			$uri_segment['parts'][0] = $lang;
+			return implode('/', $uri_segment['parts']);
+		}
+
+		// Si no contiene idioma, agregarlo al inicio
+		return $lang . '/' . $uri;
+	}
 
   //check if the language exists
   //when true returns an array with lang abbreviation + rest

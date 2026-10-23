@@ -8,7 +8,7 @@
         }
 		
 		$rate_limit_f = $this->session->userdata('rate_limit');
-        $rate_limit_f = implode(',', $rate_limit_f);
+        $rate_limit_f = implode(',', is_array($rate_limit_f) ? $rate_limit_f : []);
     ?>
 	<form action="{site_url('buscar')}" id="searchform" method="post" role="search" autocomplete="off">
         <div class="form-group">

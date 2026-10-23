@@ -535,7 +535,7 @@ class Main extends CI_Controller{
 		$this->template->set_partial('main_js','main/mapa.js', array(), TRUE, FALSE);																			 
 		$this->template->set_breadcrumb(_('Sobre Biblat'));
 		$this->template->set_meta('description', _('Bibliografía latinoamericana'));
-		$this->template->build('main/index', $data['index']);
+		$this->template->build('main/index', $data['index'] ?? null);
 	}
 
 	public function creditos(){

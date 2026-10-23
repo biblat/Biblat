@@ -27,7 +27,9 @@
  * @link		http://codeigniter.com/user_guide/libraries/input.html
  */
 class CI_Input {
-
+	
+	public $security;
+	public $uni;
 	/**
 	 * IP address of the current user
 	 *
@@ -384,7 +386,7 @@ class CI_Input {
 					$flag = FILTER_FLAG_IPV6;
 					break;
 				default:
-					$flag = '';
+					$flag = 0;
 					break;
 			}
 

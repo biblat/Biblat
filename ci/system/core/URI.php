@@ -27,7 +27,8 @@
  * @link		http://codeigniter.com/user_guide/libraries/uri.html
  */
 class CI_URI {
-
+	
+	public $config;
 	/**
 	 * List of cached uri segments
 	 *

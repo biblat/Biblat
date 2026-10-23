@@ -27,7 +27,8 @@
  * @link		http://codeigniter.com/user_guide/general/routing.html
  */
 class CI_Router {
-
+	
+	public $uri;
 	/**
 	 * Config class
 	 *
