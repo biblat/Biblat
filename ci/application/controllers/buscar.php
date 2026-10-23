@@ -7,6 +7,7 @@ class Buscar extends CI_Controller{
 
 	public function __construct(){
 		parent::__construct();
+		$this->load->library('session');
 		$this->require_human_challenge();
 		$this->output->enable_profiler($this->config->item('enable_profiler'));
 		$this->template->set_partial('biblat_js', 'javascript/biblat', array(), TRUE, FALSE);
