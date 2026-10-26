@@ -2845,4 +2845,107 @@ class Datos extends REST_Controller {
                'corporativo'=>$esCorporativo ? 1 : 0
            ), 200);
        }
+
+		public function totales_biblat_get(){
+            $this->cors_portatil_catalogo();
+
+            $this->load->database();
+
+            $query = "
+                WITH
+                revistas_clase AS (
+                    SELECT DISTINCT slug(revista) AS revista
+                    FROM article
+                    WHERE
+                        (estatus <> 'B' OR estatus IS NULL)
+                        AND sistema LIKE 'CLA%'
+                ),
+
+                revistas_periodica AS (
+                    SELECT DISTINCT slug(revista) AS revista
+                    FROM article
+                    WHERE
+                        (estatus <> 'B' OR estatus IS NULL)
+                        AND sistema LIKE 'PER%'
+                ),
+
+                articulos AS (
+                    SELECT
+                        COUNT(*) FILTER (
+                            WHERE sistema LIKE 'CLA%'
+                        ) AS articulos_clase,
+
+                        COUNT(*) FILTER (
+                            WHERE sistema LIKE 'PER%'
+                        ) AS articulos_periodica,
+
+                        COUNT(*) FILTER (
+                            WHERE
+                                sistema LIKE 'CLA%'
+                                AND url IS NOT NULL
+                                AND url::text <> '[]'
+                        ) AS texto_completo_clase,
+
+                        COUNT(*) FILTER (
+                            WHERE
+                                sistema LIKE 'PER%'
+                                AND url IS NOT NULL
+                                AND url::text <> '[]'
+                        ) AS texto_completo_periodica
+
+                    FROM article
+
+                    WHERE
+                        (estatus <> 'B' OR estatus IS NULL)
+                        AND (
+                            sistema LIKE 'CLA%'
+                            OR sistema LIKE 'PER%'
+                        )
+                )
+
+                SELECT
+                    (
+                        SELECT COUNT(*)
+                        FROM revistas_clase
+                    ) AS revistas_clase,
+
+                    (
+                        SELECT COUNT(*)
+                        FROM revistas_periodica
+                    ) AS revistas_periodica,
+
+                    (
+                        SELECT COUNT(*)
+                        FROM (
+                            SELECT revista
+                            FROM revistas_clase
+
+                            UNION
+
+                            SELECT revista
+                            FROM revistas_periodica
+                        ) revistas
+                    ) AS revistas_total,
+
+                    articulos_clase,
+
+                    articulos_periodica,
+
+                    articulos_clase + articulos_periodica
+                        AS articulos_total,
+
+                    texto_completo_clase,
+
+                    texto_completo_periodica,
+
+                    texto_completo_clase + texto_completo_periodica
+                        AS texto_completo_total
+
+                FROM articulos
+            ";
+
+            $query = $this->db->query($query);
+
+            $this->response($query->result_array(), 200);
+        }
 }

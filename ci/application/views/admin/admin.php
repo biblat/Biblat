@@ -3,6 +3,14 @@
 </div>
 <div class="row">
     {if $rol == "Administrador"}
+		<div class="col-xs-4">
+            <a href="<?=site_url("adminb/numeralia");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
+                <br><br>
+                <center>
+                    <i class="fa fa-line-chart" style="font-size:100px"></i><br><br><span style="font-weight: bold">Numeralia</span>
+                </center>
+            </a>
+        </div>
         <div class="col-xs-4">
             <a href="<?=site_url("adminb/cosecha");?>" class="thumbnail" style="height: 200px; background-color: #cacaca">
                 <br><br>
