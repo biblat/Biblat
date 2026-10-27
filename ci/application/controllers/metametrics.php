@@ -2966,13 +2966,13 @@ class Metametrics extends CI_Controller {
         $nuevo_estatus_pc = $reabre_pc ? 'R' : $estatusPC;
 
         if($alcance === 'pc'){
-            $mensaje = 'Palabras clave reabiertas. Artículo, Instituciones y Autores permanecen cerrados.';
+            $mensaje = 'Palabras clave reabiertas correctamente.';
         }elseif($reabre_normal && $reabre_pc){
-            $mensaje = 'Registro reabierto. Puede volver a editar el análisis normal y Palabras clave.';
+            $mensaje = 'Registro reabierto correctamente.';
         }elseif($reabre_normal){
-            $mensaje = 'Análisis normal reabierto. Palabras clave conserva su estado actual.';
+            $mensaje = 'Registro reabierto correctamente.';
         }else{
-            $mensaje = 'Palabras clave reabiertas. El análisis normal ya estaba en revisión.';
+            $mensaje = 'Palabras clave reabiertas correctamente. ';
         }
 
         $this->output->set_output(json_encode(array(

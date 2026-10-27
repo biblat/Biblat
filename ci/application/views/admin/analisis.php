@@ -23,9 +23,9 @@
                             mostrar_ia_palabras_clave: 'Editor' != '<?php echo $rol; ?>' && (false || 'Administrador' == '<?php echo $rol; ?>'),
                             // Indicador "IA" en la columna Estatus del listado.
                             mostrar_indicador_ia: false || 'Administrador' == '<?php echo $rol; ?>',
-                            mostrar_consulta_finalizados: false || 'Administrador' == '<?php echo $rol; ?>',
+                            mostrar_consulta_finalizados: true || 'Administrador' == '<?php echo $rol; ?>',
                             // Permite a Analistas/Administradores devolver un registro cerrado a revisión.
-                            mostrar_reabrir_finalizados: false || 'Administrador' == '<?php echo $rol; ?>',
+                            mostrar_reabrir_finalizados: true || 'Administrador' == '<?php echo $rol; ?>',
                         })
                     };
 </script>
@@ -1296,8 +1296,7 @@
                     <div class="panel-body">
                         <div id="aviso_solo_lectura">
                             <i class="fa fa-lock" aria-hidden="true" style="color:#ff8000"></i>
-                            <b>Registro finalizado — modo consulta.</b>
-                            Se muestran los datos actualmente almacenados en Biblat Central para que pueda verificar el resultado, pero no se permite modificarlos ni volver a guardarlos.
+                            <b>Registro Completado — modo consulta.</b>
                         </div>
                         <div class="row">
                             <div class="col-xs-12">
