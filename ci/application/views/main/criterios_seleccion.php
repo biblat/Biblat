@@ -1,4 +1,4 @@
-                <p><b>{_('Información General')}</b></p><br>
+   <p><b>{_('Información General')}</b></p><br>
 
                 <p>{$clase=_('Citas Latinoamericanas en Ciencias Sociales y Humanidades') $periodica=_('Índice de Revistas Latinoamericanas en Ciencias') _sprintf('¡Gracias por su interés en BIBLAT! Al elegirnos, usted estará contribuyendo al desarrollo de indicadores y productos bibliométricos que impulsen la toma de decisiones en el entorno editorial académico; además, su revista será incluida en los resultados de búsqueda de los metabuscadores en internet y formará parte de %s o %s, dos de las bases de datos pioneras en América Latina, portal %s y catálogo %s.','<a href="https://clase.dgb.unam.mx" target="_blank"><acronym title="$clase">CLASE</acronym></a>','<a href="https://periodica.dgb.unam.mx" target="_blank"><acronym title="$periodica">PERIÓDICA</acronym></a>','<a href="http://biblat.unam.mx" target="_blank">BIBLAT</a>','<a href="https://seriunam.dgb.unam.mx/" target="_blank">SERIUNAM</a>')}</p><br>
                 
@@ -14,7 +14,7 @@
                 
                 <p>{_('Las revistas que deseen incorporarse a BIBLAT serán sometidas a tres evaluaciones, dos de ellas en línea y otra a cargo del Comité de Evaluación.')}</p><br>
                 
-                <dd style="margin-left: 50px;">
+                <div style="margin-left: 50px;">
                     <p><b>{_('Primera evaluación. Validación de metadatos')}</b></p>
                     
                     <p>{_('Se analizará la calidad de los metadatos almacenados en la base de datos del sitio OJS de la revista para asegurarse que estén completos y sean consistentes, esta comprobación es automática a través de la herramienta')} <a href="{site_url('metametrics/simulador')}">MetaMetrics</a>. {_('Se recomienda consultar el ')} <a href="{base_url('archivos/pdf/manual_indizacion_ojs_2ed.pdf')}" target="_blank">{_('Manual de indización en OJS: Buenas prácticas para la región latinoamericana')}</a>{_(', a fin de conocer las características requeridas en los metadatos y realizar los ajustes en sus registros, si es el caso.')}</p><br>
@@ -26,7 +26,7 @@
                     <p><b>{_('Tercera evaluación. Revisión del Comité de Evaluación')}</b></p>
                     
                     <p>{_('El Comité de Evaluación revisará los resultados de la primera y segunda evaluaciones, verificará la información en el sitio web y emitirá un dictamen de aprobación o no-aprobación vía correo electrónico.')}</p><br>
-                </dd>
+                </div>
 
                 <p>{_('Los requisitos para que una revista sea evaluada son:')}</p>
                 
@@ -66,13 +66,14 @@
 
                         <li>{_('Metadatos de indización: En cada artículo publicado deben constar los metadatos necesarios: título, autor(es) con su afiliación institucional, resúmenes y palabras clave en al menos dos idiomas.')} <a href="{site_url('metametrics/simulador')}">{_('Este rubro se evalúa a través de la herramienta MetaMetrics.')}</a></li>
                 </ol><br><br>
-				
-		<p> 
-			<b>{_('Salvaguarda de la integridad académica.')}</b> {_('Además de los criterios editoriales, el Comité podrá revisar información adicional publicada en el sitio web de la revista, enlazada desde este o disponible en otros sitios web, cuando resulte pertinente para verificar la legitimidad de la revista y salvaguardar su integridad académica.')}
-			<br>{_('El presente criterio podrá aplicarse durante los procesos de evaluación y reevaluación, o en cualquier otro momento aún cuando una revista ya haya sido aceptada o se encuentre indizada y se identifiquen posibles faltas a la integridad académica.')}
-			<br>{_('El Comité documentará las evidencias que estime pertinentes y las remitirá a la revista junto con el dictamen de rechazo, en caso de que se encuentre en proceso de postulación, o con la notificación de suspensión del servicio de indización, cuando la revista haya sido aceptada o indizada previamente.')} 
-		</p><br><br>
                 
+                <p> 
+                    <b>{_('Salvaguarda de la integridad académica.')}</b> {_('Además de los criterios editoriales, el Comité podrá revisar información adicional publicada en el sitio web de la revista, enlazada desde este o disponible en otros sitios web, cuando resulte pertinente para verificar la legitimidad de la revista y salvaguardar su integridad académica.')}
+                    <br>{_('El presente criterio podrá aplicarse durante los procesos de evaluación y reevaluación, o en cualquier otro momento aún cuando una revista ya haya sido aceptada o se encuentre indizada y se identifiquen posibles faltas a la integridad académica.')}
+                    <br>{_('El Comité documentará las evidencias que estime pertinentes y las remitirá a la revista junto con el dictamen de rechazo, en caso de que se encuentre en proceso de postulación, o con la notificación de suspensión del servicio de indización, cuando la revista haya sido aceptada o indizada previamente.')} 
+                </p>
+                
+                <br><br>
 		<div class="page_title">
             <hr/>
             <h4 id="plantilla">{_('Plantilla de evaluación del Comité de Evaluación de Revistas de CLASE, PERIÓDICA y Catálogo SERIUNAM')}</h4>
@@ -125,7 +126,7 @@
                                                                                                     {_('Validación de frecuencia: Se entiende que una revista cumple con este parámetro si a lo largo del año cumple con la periodicidad por la revista (por ejemplo, tres fascículos al año, en el caso de las revistas cuatrimestrales).')}<br>
                                                                                                     {_('Publicación al inicio del periodo programado: para aprobar este punto se requiere que la publicación de los contenidos de la revista se realice al inicio del período según la frecuencia. Para tal efecto, se verifica la frecuencia definida por la revista y la fecha observada en el sitio web de la revista. Cuando los artículos se reúnen en ediciones periódicas, éstas deben estar finalizadas preferentemente al inicio del período.')}<br>
                                                                                                     {_('Se valora como la mejor práctica editorial la publicación continua de artículos, esto es, que los documentos se publiquen en línea tan pronto como sean aprobados y editados. En este caso, los artículos quedan reunidos en un volumen anual con o sin ediciones periódicas (números). Cuando no se adoptan ediciones (números), la publicación de los artículos debe ocurrir a lo largo del año.')}<br>
-                                                                                                    {_('Es deseable que el número de artículos publicados anualmente por una revista de publicación continua sea a mayor o igual a 36 documentos, que pueden ser: artículos, ensayos, reseñas de libro, revisiones bibliográficas, notas de más de una cuartilla, informes técnicos o cartas al editor.',.')}<br>
+                                                                                                    {_('Es deseable que el número de artículos publicados anualmente por una revista de publicación continua sea a mayor o igual a 36 documentos, que pueden ser: artículos, ensayos, reseñas de libro, revisiones bibliográficas, notas de más de una cuartilla, informes técnicos o cartas al editor.')}<br>
                                         </td>
                                 </tr>
 				<tr>
@@ -151,7 +152,7 @@
 				<tr>
 					<td id="14">14</td>
 					<td><b>{_('Referencias bibliográficas en los documentos:')}</b> {_('Los documentos publicados deben proporcionar una lista de referencias bibliográficas, obras citadas o notas bibliográficas al pie de página. La presencia de estas referencias será valorada solamente en artículos, ensayos, reseñas, datasets, archivos históricos, colecciones y programas informáticos y no en cartas al editor, editoriales, entrevistas, reportajes u otro tipo de documentos que no suelen incluir referencias bibliográficas')}
-                                                                                                    <br>{_('Para las citas y referencias bibliográficas se recomienda la adopción fiel de normas establecidas como estándares internacionales o las más utilizadas en el área temática de la revista. (APA, Harvard, ISO, Vancouver o alguna otra).',')}</td>
+                                                                                                    <br>{_('Para las citas y referencias bibliográficas se recomienda la adopción fiel de normas establecidas como estándares internacionales o las más utilizadas en el área temática de la revista. (APA, Harvard, ISO, Vancouver o alguna otra).')}</td>
 				</tr>
 				<tr>
 					<td id="15">15</td>
@@ -189,14 +190,10 @@
 					<td id="23">23</td>
 					<td><b>{_('Fuentes de financiamiento:')}</b> {_('Indicar si la revista efectúa cobro por el procesamiento de artículos (APC) y/o mencionar cuáles son sus fuentes de financiamiento.')}</td>
 				</tr>     
-			</tbody>
-                        <thead>
 				<tr class="encabezado">
                                     <td style="background-color: #ff800040"></td>
                                         <td style="background-color: #ff800040"><b>{_('Requisitos no obligatorios:')}</b> {_('Son un referente de calidad para las revistas y agregan puntajes extras en la presente evaluación.')}</td>
 				</tr>
-                        </thead>
-                        <tbody>
                             <tr>
 				<td id="24">24</td>
 				<td><b>{_('Adopción de códigos de ética:')}</b> {_('La revista debe informar su adhesión a normas y códigos de ética internacionales: Pueden ser los establecidos por el Committee on Publication Ethics (Code of Conduct and Best Practices Guidelines for Journals Editors, COPE https://publicationethics.org), por el Council of Science Editors (http://www.councilscienceeditors.org), Council for International Organizations of Medical Sciences (CIOMS, http://cioms.ch), el International Committee of Medical Journal Editors (ICJME, http://www.icmje.org), algún otro, o bien tener su propio código de ética y en este caso darlo a conocer.')}</td>
@@ -246,7 +243,7 @@
                             </tr>
                             <tr>
 				<td id="32">32</td>
-				<td><b>{_('Es recomendable la adopción de programas para la detección del plagio')}</td>
+				<td><b>{_('Es recomendable la adopción de programas para la detección del plagio')}</b></td>
                             </tr>
  
                         </tbody>                            
