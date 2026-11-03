@@ -49,6 +49,8 @@ class_ver = {
             //Afiliaciones permitidas
             'afiliacion_permitida' : [
                 /\bFundação do ABC\b/i,
+				/\/ror\.org\//,
+                /\bCentro de Educação e Saúde, Cuité, PB, Brasil\b/i
             ],
             //Licesncias
             'licencia' : /^https?:\/\/creativecommons\.org\/licenses/,
