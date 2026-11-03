@@ -11,18 +11,18 @@
                         features: Object.freeze({
                             // El modo portátil nunca se habilita para Editores.
                             mostrar_portatil: 'Editor' != '<?php echo $rol; ?>' && (false || 'Administrador' == '<?php echo $rol; ?>'),
-                            mostrar_ia_disciplinas: false || 'Administrador' == '<?php echo $rol; ?>',
+                            mostrar_ia_disciplinas: true || 'Administrador' == '<?php echo $rol; ?>',
                             /*
                              * Interruptor maestro del NUEVO flujo separado de palabras clave.
                              * false = sólo Administradores durante pruebas.
                              * true  = todos los perfiles no Editor.
                              * Controla sección PC, estado PC en tabla y filtros PC.
                              */
-                            mostrar_flujo_palabras_clave: 'Editor' != '<?php echo $rol; ?>' && (false || 'Administrador' == '<?php echo $rol; ?>'),
+                            mostrar_flujo_palabras_clave: 'Editor' != '<?php echo $rol; ?>' && (true || 'Administrador' == '<?php echo $rol; ?>'),
                             // Los Editores no realizan la revisión de palabras clave.
-                            mostrar_ia_palabras_clave: 'Editor' != '<?php echo $rol; ?>' && (false || 'Administrador' == '<?php echo $rol; ?>'),
+                            mostrar_ia_palabras_clave: 'Editor' != '<?php echo $rol; ?>' && (true || 'Administrador' == '<?php echo $rol; ?>'),
                             // Indicador "IA" en la columna Estatus del listado.
-                            mostrar_indicador_ia: false || 'Administrador' == '<?php echo $rol; ?>',
+                            mostrar_indicador_ia: true || 'Administrador' == '<?php echo $rol; ?>',
                             mostrar_consulta_finalizados: true || 'Administrador' == '<?php echo $rol; ?>',
                             // Permite a Analistas/Administradores devolver un registro cerrado a revisión.
                             mostrar_reabrir_finalizados: true || 'Administrador' == '<?php echo $rol; ?>',
