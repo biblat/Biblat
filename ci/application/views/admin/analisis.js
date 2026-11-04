@@ -7824,7 +7824,7 @@ class_av = {
                                             //setTimeout(function(){
                                             //    $(window).scrollTop(desplazamientoPC);
                                             //}, 0);
-                                        });
+                                        //});
                                     }
                                     class_av.set_bitacora_sistema('Completado PC', sistema, 0);
                                 })
