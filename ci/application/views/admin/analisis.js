@@ -329,6 +329,7 @@ class_av = {
                         tipo_documento: [],
                         disciplina: [],
                         disciplina_eng: [],
+                        subdisciplinas_traduccion: {},
                         pais: [],
                         pais_slug: [],
                     },
@@ -631,6 +632,7 @@ class_av = {
                     class_av.var.catalogos['tipo_documento'] = [];
                     class_av.var.catalogos['disciplina'] = [];
                     class_av.var.catalogos['disciplina_eng'] = [];
+                    class_av.var.catalogos['subdisciplinas_traduccion'] = {};
                     class_av.var.catalogos['pais'] = [];
                     class_av.var.catalogos['pais_slug'] = [];
                     class_av.var.max_largo_pais = 0;
@@ -670,6 +672,31 @@ class_av = {
                             var disc_eng = arr_disc_eng[0].trim();
                             class_av.var.catalogos['disciplina_eng'].push(disc_eng);
                             class_av.var.catalogos[disc_eng] = arr_disc_eng.splice(1);
+                        }
+
+                        // La misma FILA de Google Sheets contiene la disciplina y
+                        // sus subdisciplinas correspondientes en ambos idiomas:
+                        // Disciplina: disciplina ES;sub1 ES;sub2 ES
+                        // Discipline: discipline EN;sub1 EN;sub2 EN
+                        // Evitamos emparejar sólo por el índice global de disciplina,
+                        // pues una celda vacía podría desplazar las correspondencias.
+                        if(disciplina !== '' && disciplinaEng !== ''){
+                            var partesEs = disciplina.split(';').map(function(v){return v.trim();});
+                            var partesEn = disciplinaEng.split(';').map(function(v){return v.trim();});
+                            var claveDisc = class_av.pc_clave_subdisciplina(partesEs[0]);
+                            if(!class_av.var.catalogos.subdisciplinas_traduccion[claveDisc]){
+                                class_av.var.catalogos.subdisciplinas_traduccion[claveDisc] = {};
+                            }
+                            if(partesEs.length !== partesEn.length){
+                                console.warn('Catálogo bilingüe con distinto número de subdisciplinas:',
+                                    partesEs[0], partesEs.length - 1, partesEn.length - 1);
+                            }
+                            for(var j=1; j < Math.min(partesEs.length, partesEn.length); j++){
+                                if(partesEs[j] && partesEn[j]){
+                                    var claveSub = class_av.pc_clave_subdisciplina(partesEs[j]);
+                                    class_av.var.catalogos.subdisciplinas_traduccion[claveDisc][claveSub] = partesEn[j];
+                                }
+                            }
                         }
 
                         if(pais !== ''){
@@ -5321,6 +5348,7 @@ class_av = {
     /* ================================================================
      * Subdisciplinas como palabras clave adicionales y NO VISIBLES.
      *
+     * - Se añaden en español e inglés usando las equivalencias de Google Sheets.
      * - Se añaden al guardar ARTÍCULO, aunque no estén en el catálogo
      *   y aunque el analista ya haya seleccionado diez palabras.
      * - No se dibujan ni se restauran como selecciones del analista.
@@ -5361,6 +5389,66 @@ class_av = {
             vistas[key] = true;
             return true;
         });
+    },
+    // Correspondencias del catálogo de Google Sheets: Disciplina / Discipline.
+    // Nunca traducimos libremente: sólo se incorporan equivalencias verificables
+    // por disciplina y posición en la misma fila del catálogo.
+    pc_subdisciplinas_ingles_de_registro: function(registro){
+        registro = registro || {};
+        var traducciones = (class_av.var.catalogos || {}).subdisciplinas_traduccion || {};
+        var pares = [];
+        var vistosEs = {};
+        [1, 2, 3].forEach(function(n){
+            var sub = String(registro['subdisciplina' + n] || '').trim();
+            var dis = String(registro['disciplina' + n] || '').trim();
+            var clave = class_av.pc_clave_subdisciplina(sub);
+            if(clave && !vistosEs[clave]){
+                vistosEs[clave] = true;
+                pares.push({subdisciplina: sub, disciplina: dis});
+            }
+        });
+        // Alternativa para registros que sólo traen listas JSON.
+        var subdisciplinas = class_av.pc_lista_almacenada(registro.subdisciplinas);
+        var disciplinas = class_av.pc_lista_almacenada(registro.disciplinas);
+        subdisciplinas.forEach(function(sub, i){
+            var clave = class_av.pc_clave_subdisciplina(sub);
+            if(clave && !vistosEs[clave]){
+                vistosEs[clave] = true;
+                pares.push({
+                    subdisciplina: sub,
+                    disciplina: (disciplinas.length === subdisciplinas.length) ? disciplinas[i] : ''
+                });
+            }
+        });
+        var salida = [];
+        var vistosEn = {};
+        pares.forEach(function(par){
+            var claveSub = class_av.pc_clave_subdisciplina(par.subdisciplina);
+            var claveDisc = class_av.pc_clave_subdisciplina(par.disciplina);
+            var traduccion = (traducciones[claveDisc] || {})[claveSub] || '';
+            if(!traduccion){
+                // Si falta la disciplina, sólo usamos una equivalencia cuando
+                // todas las filas que contienen esa subdisciplina coinciden.
+                var alternativas = {};
+                Object.keys(traducciones).forEach(function(d){
+                    var val = traducciones[d][claveSub];
+                    if(val) alternativas[class_av.pc_clave_subdisciplina(val)] = val;
+                });
+                var claves = Object.keys(alternativas);
+                if(claves.length === 1) traduccion = alternativas[claves[0]];
+            }
+            if(!traduccion){
+                console.warn('Sin equivalencia inglesa unívoca para la subdisciplina:',
+                    par.disciplina, par.subdisciplina);
+                return;
+            }
+            var keyEn = class_av.pc_clave_subdisciplina(traduccion);
+            if(!vistosEn[keyEn]){
+                vistosEn[keyEn] = true;
+                salida.push(traduccion);
+            }
+        });
+        return salida;
     },
     pc_termino_visible_de_almacenado: function(valor){
         var texto = String(valor == null ? '' : valor).trim();
@@ -5422,7 +5510,25 @@ class_av = {
         articulo.palabraClave = JSON.stringify(class_av.pc_fusionar_subdisciplinas(
             palabrasBase, anteriores, actuales
         ));
-        return {articulo: articulo, subdisciplinas: actuales};
+
+        var anterioresEn = class_av.pc_subdisciplinas_ingles_de_registro(registroServidor);
+        // Al guardar Artículo, los selectores contienen la clasificación nueva,
+        // incluso si documentoJSON todavía refleja la clasificación anterior.
+        var clasificacionNueva = {
+            disciplinas: articulo.disciplinas,
+            subdisciplinas: articulo.subdisciplinas
+        };
+        [1, 2, 3].forEach(function(n){
+            clasificacionNueva['disciplina' + n] = $('#disciplina' + n).val();
+            clasificacionNueva['subdisciplina' + n] = $('#subdisciplina' + n).val();
+        });
+        var actualesEn = class_av.pc_subdisciplinas_ingles_de_registro(clasificacionNueva);
+        var keywordsBase = Object.prototype.hasOwnProperty.call(articulo, 'keyword')
+            ? articulo.keyword : registroServidor.keyword;
+        articulo.keyword = JSON.stringify(class_av.pc_fusionar_subdisciplinas(
+            keywordsBase, anterioresEn, actualesEn
+        ));
+        return {articulo: articulo, subdisciplinas: actuales, subdisciplinasEn: actualesEn};
     },
     data_update_article: function(){
         var data = {};
@@ -5774,7 +5880,14 @@ class_av = {
                         arr_palabras_clave, [], subdisciplinasOcultas
                     )
                 );
-                obj['keyword'] = JSON.stringify(arr_keywords);
+                var subdisciplinasOcultasEn = class_av.pc_subdisciplinas_ingles_de_registro(
+                    class_av.var.documentoJSON[0] || {}
+                );
+                obj['keyword'] = JSON.stringify(
+                    class_av.pc_fusionar_subdisciplinas(
+                        arr_keywords, [], subdisciplinasOcultasEn
+                    )
+                );
                 // No alteramos documentoJSON hasta que el servidor confirme el guardado.
             }
             
@@ -7174,8 +7287,8 @@ class_av = {
                                                 finalizarGuardado();
                                                 return;
                                             }
-                                            // Comprobar que las subdisciplinas quedaron
-                                            // físicamente dentro de article.palabraClave.
+                                            // Verificar físicamente las palabras ocultas en
+                                            // español e inglés, así como el resto del contenido.
                                             class_utils.getResource(
                                                 '/datos/documento/' + encodeURIComponent(sistema) +
                                                 '?subdisciplinas_verificar=' + Date.now()
@@ -7183,24 +7296,32 @@ class_av = {
                                                 var guardado = Array.isArray(verificacion) ? verificacion[0] : null;
                                                 var actuales = guardado
                                                     ? class_av.pc_subdisciplinas_de_registro(guardado) : [];
-                                                var claves = {};
-                                                class_av.pc_lista_almacenada(guardado && guardado.palabraClave)
-                                                    .forEach(function(p){
-                                                        claves[class_av.pc_clave_subdisciplina(
-                                                            class_av.pc_termino_visible_de_almacenado(p)
-                                                        )] = true;
+                                                var listaEs = class_av.pc_lista_almacenada(
+                                                    guardado && guardado.palabraClave
+                                                );
+                                                var listaEn = class_av.pc_lista_almacenada(
+                                                    guardado && guardado.keyword
+                                                );
+                                                var contiene = function(lista, termino){
+                                                    var clave = class_av.pc_clave_subdisciplina(termino);
+                                                    return lista.some(function(x){
+                                                        return class_av.pc_clave_subdisciplina(
+                                                            class_av.pc_termino_visible_de_almacenado(x)
+                                                        ) === clave;
                                                     });
-                                                var faltantes = fusion.subdisciplinas.filter(function(sub){
-                                                    return !claves[class_av.pc_clave_subdisciplina(sub)];
+                                                };
+                                                var faltantesEs = fusion.subdisciplinas.filter(function(sub){
+                                                    return !contiene(listaEs, sub);
                                                 });
-                                                // Además de las subdisciplinas, validar que
-                                                // se conservaron las palabras visibles que
-                                                // ya estaban almacenadas en el servidor.
+                                                var faltantesEn = fusion.subdisciplinasEn.filter(function(sub){
+                                                    return !contiene(listaEn, sub);
+                                                });
                                                 var firmaEsperada = class_av.pc_firma_palabras(
-                                                    fusion.articulo.palabraClave, null
+                                                    fusion.articulo.palabraClave, fusion.articulo.keyword
                                                 );
                                                 var firmaRecibida = class_av.pc_firma_palabras(
-                                                    guardado && guardado.palabraClave, null
+                                                    guardado && guardado.palabraClave,
+                                                    guardado && guardado.keyword
                                                 );
                                                 var nuevas = fusion.subdisciplinas.map(function(v){
                                                     return class_av.pc_clave_subdisciplina(v);
@@ -7208,12 +7329,12 @@ class_av = {
                                                 var persistidas = actuales.map(function(v){
                                                     return class_av.pc_clave_subdisciplina(v);
                                                 }).sort();
-                                                if(!guardado || faltantes.length ||
+                                                if(!guardado || faltantesEs.length || faltantesEn.length ||
                                                    firmaEsperada !== firmaRecibida ||
                                                    JSON.stringify(nuevas) !== JSON.stringify(persistidas)){
                                                     class_av.mensaje('El servidor respondió, pero no se pudo ' +
-                                                        'verificar el almacenamiento de las subdisciplinas. ' +
-                                                        'Revise el registro antes de continuar.');
+                                                        'verificar el almacenamiento de las subdisciplinas ' +
+                                                        'en español e inglés. Revise el registro antes de continuar.');
                                                     finalizarGuardado();
                                                     return;
                                                 }
@@ -7223,8 +7344,10 @@ class_av = {
                                                     doc.keyword = guardado.keyword;
                                                     doc.estatus = 'R';
                                                     [1,2,3].forEach(function(n){
-                                                        doc['subdisciplina'+n] = actuales[n-1] || null;
+                                                        doc['disciplina'+n] = $('#disciplina'+n).val() || null;
+                                                        doc['subdisciplina'+n] = $('#subdisciplina'+n).val() || null;
                                                     });
+                                                    doc.disciplinas = fusion.articulo.disciplinas;
                                                     doc.subdisciplinas = JSON.stringify(actuales);
                                                     class_av.var.cambios_documento = false;
                                                     if(capturaManualLegacy){ class_av.var.cambios_pc = false; }
@@ -8216,7 +8339,10 @@ class_av = {
         var palabras = class_av.pc_ocultar_subdisciplinas(
             listaAlmacenada(documento.palabraClave), subdisciplinasOcultas
         );
-        var keywords = listaAlmacenada(documento.keyword);
+        var subdisciplinasOcultasEn = class_av.pc_subdisciplinas_ingles_de_registro(documento);
+        var keywords = class_av.pc_ocultar_subdisciplinas(
+            listaAlmacenada(documento.keyword), subdisciplinasOcultasEn
+        );
 
         /*
          * El ojo sigue mostrando únicamente lo almacenado en article, pero para
@@ -8956,10 +9082,16 @@ class_av = {
                     subdisciplinasOcultas
                 )
             );
+            var subdisciplinasOcultasEn = class_av.pc_subdisciplinas_ingles_de_registro(
+                (class_av.var.documentoJSON && class_av.var.documentoJSON[0]) || {}
+            );
             var keywords_guardadas_analista = listaGuardada(
-                class_av.var.documentoJSON && class_av.var.documentoJSON[0]
-                    ? class_av.var.documentoJSON[0].keyword
-                    : null
+                class_av.pc_ocultar_subdisciplinas(
+                    class_av.var.documentoJSON && class_av.var.documentoJSON[0]
+                        ? class_av.var.documentoJSON[0].keyword
+                        : null,
+                    subdisciplinasOcultasEn
+                )
             );
 
             /*
