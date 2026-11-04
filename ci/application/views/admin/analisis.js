@@ -5317,6 +5317,112 @@ class_av = {
         }
         return palabra;
     },
+    /* ================================================================
+     * Subdisciplinas como palabras clave adicionales y NO VISIBLES.
+     *
+     * - Se añaden al guardar ARTÍCULO, aunque no estén en el catálogo
+     *   y aunque el analista ya haya seleccionado diez palabras.
+     * - No se dibujan ni se restauran como selecciones del analista.
+     * - Guardar PC debe conservarlas; no hay que volver a marcarlas.
+     * - Su procedencia se infiere de la clasificación del artículo.
+     * ================================================================ */
+    pc_lista_almacenada: function(valor){
+        if(valor === undefined || valor === null || valor === '') return [];
+        if(typeof valor === 'string'){
+            var texto = valor.trim();
+            if(texto === '' || texto.toLowerCase() === 'null') return [];
+            try{ valor = JSON.parse(texto); }catch(e){ valor = [texto]; }
+        }
+        if(!Array.isArray(valor)) valor = [valor];
+        return valor.map(function(v){
+            return String(v == null ? '' : v).trim();
+        }).filter(function(v){ return v !== ''; });
+    },
+    pc_clave_subdisciplina: function(valor){
+        return String(valor == null ? '' : valor).trim()
+            .normalize('NFC').toLocaleLowerCase('es');
+    },
+    pc_subdisciplinas_de_registro: function(registro){
+        registro = registro || {};
+        var lista = [];
+        [1, 2, 3].forEach(function(n){
+            var v = registro['subdisciplina' + n];
+            if(v !== undefined && v !== null && String(v).trim() !== ''){
+                lista.push(String(v).trim());
+            }
+        });
+        // También acepta el arreglo JSON usado por ws_update_article.
+        lista = lista.concat(class_av.pc_lista_almacenada(registro.subdisciplinas));
+        var vistas = {};
+        return lista.filter(function(v){
+            var key = class_av.pc_clave_subdisciplina(v);
+            if(!key || vistas[key]) return false;
+            vistas[key] = true;
+            return true;
+        });
+    },
+    pc_termino_visible_de_almacenado: function(valor){
+        var texto = String(valor == null ? '' : valor).trim();
+        // Compatibilidad con la sustitución histórica del catálogo.
+        var marca = '-sustituye-';
+        if(texto.indexOf(marca) !== -1){
+            var partes = texto.split(marca);
+            texto = String(partes[partes.length - 1] || '').trim();
+        }
+        return texto;
+    },
+    pc_ocultar_subdisciplinas: function(palabras, subdisciplinas){
+        var ocultas = {};
+        class_av.pc_lista_almacenada(subdisciplinas).forEach(function(v){
+            ocultas[class_av.pc_clave_subdisciplina(v)] = true;
+        });
+        return class_av.pc_lista_almacenada(palabras).filter(function(v){
+            var key = class_av.pc_clave_subdisciplina(
+                class_av.pc_termino_visible_de_almacenado(v)
+            );
+            return !ocultas[key];
+        });
+    },
+    pc_fusionar_subdisciplinas: function(palabras, subdisciplinasAnteriores, subdisciplinasNuevas){
+        /*
+         * Al cambiar la clasificación, sustituimos las subdisciplinas ocultas
+         * antiguas por las nuevas. Las selecciones humanas restantes se preservan.
+         * No es posible diferenciar dos valores idénticos (humano vs. automático)
+         * sin un campo de procedencia específico en PostgreSQL.
+         */
+        var visibles = class_av.pc_ocultar_subdisciplinas(palabras, subdisciplinasAnteriores);
+        var todos = visibles.concat(class_av.pc_lista_almacenada(subdisciplinasNuevas));
+        var vistos = {};
+        return todos.filter(function(v){
+            var key = class_av.pc_clave_subdisciplina(
+                class_av.pc_termino_visible_de_almacenado(v)
+            );
+            if(!key || vistos[key]) return false;
+            vistos[key] = true;
+            return true;
+        });
+    },
+    pc_preparar_articulo_con_subdisciplinas: function(datosArticulo, registroServidor){
+        var sistema = String(class_av.var.sistema || '');
+        var cambios = (datosArticulo && datosArticulo.data) || [];
+        var articulo = cambios.find(function(x){
+            return x && String(x.sistema || '') === sistema;
+        });
+        if(!articulo) throw new Error('No se localizó el artículo que se va a guardar.');
+
+        var anteriores = class_av.pc_subdisciplinas_de_registro(registroServidor);
+        var actuales = class_av.pc_subdisciplinas_de_registro({
+            subdisciplinas: articulo.subdisciplinas
+        });
+        // En captura manual heredada las palabras visibles van en el propio
+        // formulario; en el resto, se conserva lo que realmente hay en la BD.
+        var palabrasBase = Object.prototype.hasOwnProperty.call(articulo, 'palabraClave')
+            ? articulo.palabraClave : registroServidor.palabraClave;
+        articulo.palabraClave = JSON.stringify(class_av.pc_fusionar_subdisciplinas(
+            palabrasBase, anteriores, actuales
+        ));
+        return {articulo: articulo, subdisciplinas: actuales};
+    },
     data_update_article: function(){
         var data = {};
         var data_int = [];
@@ -5499,8 +5605,7 @@ class_av = {
                 keywordsLegacy = [...new Set(keywordsLegacy)];
                 obj['palabraClave'] = JSON.stringify(palabrasLegacy);
                 obj['keyword'] = JSON.stringify(keywordsLegacy);
-                class_av.var.documentoJSON[0].palabraClave = JSON.stringify(palabrasLegacy);
-                class_av.var.documentoJSON[0].keyword = JSON.stringify(keywordsLegacy);
+                // documentoJSON se sincroniza únicamente tras confirmar el guardado.
             }
 
             var url1 = $('#url1').val();
@@ -5657,7 +5762,17 @@ class_av = {
                 arr_palabras_clave = [...new Set(arr_palabras_clave)];
                 arr_keywords = [...new Set(arr_keywords)];
 
-                obj['palabraClave'] = JSON.stringify(arr_palabras_clave);
+                // Los términos de la clasificación se almacenan por detrás:
+                // no aparecen en los chips, no cuentan para el límite de 10
+                // y tampoco sirven como selección explícita para completar PC.
+                var subdisciplinasOcultas = class_av.pc_subdisciplinas_de_registro(
+                    class_av.var.documentoJSON[0] || {}
+                );
+                obj['palabraClave'] = JSON.stringify(
+                    class_av.pc_fusionar_subdisciplinas(
+                        arr_palabras_clave, [], subdisciplinasOcultas
+                    )
+                );
                 obj['keyword'] = JSON.stringify(arr_keywords);
                 // No alteramos documentoJSON hasta que el servidor confirme el guardado.
             }
@@ -5695,10 +5810,24 @@ class_av = {
         return class_av.pc_firma_palabras(registro.palabraClave, registro.keyword);
     },
     pc_cantidad_seleccionada: function(idioma){
-        var datos = class_av.data_update_pc();
-        var registro = (datos && datos.data && datos.data[0]) || {};
-        var valor = idioma === 'eng' ? registro.keyword : registro.palabraClave;
-        try{ return JSON.parse(valor || '[]').length; }catch(e){ return 0; }
+        // Cuenta SOLO las selecciones de la interfaz: nunca las subdisciplinas
+        // insertadas silenciosamente, aunque el total persistido sea > 10.
+        var selector = (idioma === 'eng')
+            ? '.keyword.palabra_clave.badge-warning'
+            : '.esp.palabra_clave.badge-warning';
+        var vistos = {};
+        $(selector).each(function(){
+            var palabra = $(this).find('.pc-chip-text').first().text().trim();
+            if(!palabra){
+                // Compatibilidad con los chips antiguos sin pc-chip-text.
+                var $copia = $(this).clone();
+                $copia.find('span, div, i').remove();
+                palabra = $copia.text().trim();
+            }
+            var llave = class_av.pc_clave_subdisciplina(palabra);
+            if(llave) vistos[llave] = true;
+        });
+        return Object.keys(vistos).length;
     },
     /*
      * Comprueba en PostgreSQL, vía el endpoint de documento, lo guardado.
@@ -6301,7 +6430,16 @@ class_av = {
                         });
 
                         if(!duplicada){
-                            $('.pc-sugerencia-opcion').each(function(){
+                            // Las sugerencias también se revisan POR IDIOMA.
+                            // Una sugerencia existente en Keywords no puede bloquear
+                            // una palabra clave en español (ni viceversa).
+                            // Se incluyen ambos contenedores porque algunos grupos
+                            // con líder exacto se trasladan al lado del catálogo.
+                            var selectorSugerencias = (idioma === 'eng')
+                                ? '#keywords_catalogo .pc-sugerencia-opcion, #otras_keywords .pc-sugerencia-opcion'
+                                : '#palabras_catalogo .pc-sugerencia-opcion, #otras_palabras .pc-sugerencia-opcion';
+
+                            $(selectorSugerencias).each(function(){
                                 if(normalizaLocal($(this).attr('data-pc-term')) === llave){
                                     duplicada = true;
                                     return false;
@@ -6343,7 +6481,7 @@ class_av = {
                         var seleccionadas = $(selectorIdioma + '.badge-warning').length;
                         var seleccionarNueva = (seleccionadas < 10);
                         var estadoClase = seleccionarNueva ? 'badge-warning' : 'badge-secondary';
-                        var idChip = 'n-' + class_utils.slug(terminoMostrar);
+                        var idChip = 'n-' + ((idioma === 'eng') ? 'en-' : 'es-') + class_utils.slug(terminoMostrar);
 
                         var html = '<div class="pc-chip-item" data-pc-manual="1" data-pc-num="'+num+'">' +
                                    '<button id="'+idChip+'" class="btn '+claseNueva+' '+estadoClase+' palabra_clave pc-chip '+tipoClase+'" type="button" ' +
@@ -6944,22 +7082,140 @@ class_av = {
                             action: function(){
                                 if(envio){
                                     envio = false;
-                                    class_av.var.cambios_documento = false;
-                                    $.ajax({
+                                    var sistema = String(class_av.var.sistema || '');
+                                    var datosGuardar = class_av.data_update_article();
+                                    var capturaManualLegacy = class_av.es_captura_manual_pc_legacy(
+                                        class_av.var.documentoJSON[0] || {}
+                                    );
+                                    loading.start();
+                                    var terminoGuardado = false;
+                                    var finalizarGuardado = function(){
+                                        if(!terminoGuardado){
+                                            terminoGuardado = true;
+                                            loading.end();
+                                        }
+                                    };
+                                    // Traer palabras ACTUALES de BD para no sobrescribir
+                                    // cambios de PC realizados con posterioridad a la carga.
+                                    var rutaActual = '/datos/documento/' + encodeURIComponent(sistema) +
+                                        '?subdisciplinas_guardar=' + Date.now();
+                                    class_utils.getResource(rutaActual)
+                                    .done(function(datosServidor){
+                                        if(class_av.var.sistema !== sistema){
+                                            class_av.mensaje('El registro abierto cambió; vuelva a guardar el artículo.');
+                                            finalizarGuardado();
+                                            return;
+                                        }
+                                        var registroServidor = Array.isArray(datosServidor)
+                                            ? datosServidor[0] : null;
+                                        if(!registroServidor || typeof registroServidor !== 'object'){
+                                            class_av.mensaje('No fue posible leer el artículo almacenado. No se enviaron cambios.');
+                                            finalizarGuardado();
+                                            return;
+                                        }
+                                        var fusion;
+                                        try{
+                                            fusion = class_av.pc_preparar_articulo_con_subdisciplinas(
+                                                datosGuardar, registroServidor
+                                            );
+                                        }catch(error){
+                                            class_av.mensaje('No fue posible preparar las subdisciplinas: ' +
+                                                String(error.message || error));
+                                            finalizarGuardado();
+                                            return;
+                                        }
+                                        $.ajax({
                                             type: 'POST',
                                             url: "<?=site_url('metametrics/ws_update_article');?>",
-                                            data: class_av.data_update_article(),
-                                    }).done(function(res) {
-                                            if(class_av.es_captura_manual_pc_legacy(class_av.var.documentoJSON[0])){
-                                                // En captura manual las palabras forman parte del guardado normal.
-                                                class_av.var.cambios_pc = false;
+                                            data: datosGuardar
+                                        }).done(function(res){
+                                            if(res && res.resp === 'session'){
+                                                class_av.mensaje('Su sesión expiró. Inicie sesión nuevamente.',
+                                                    function(){ window.location.reload(); });
+                                                finalizarGuardado();
+                                                return;
                                             }
-                                            class_av.mensaje('Artículo guardado correctamente.');
-                                            class_av.cambio_estatus(class_av.var.sistema, 'R');
-                                            class_utils.find_prop(class_av.var.articulosJSON, 'sistema', class_av.var.sistema).estatus = 'R';
-                                            class_av.set_bitacora('Guarda Artículo');
+                                            if(res && res.resp !== undefined && res.resp !== 'success'){
+                                                class_av.mensaje('El servidor no confirmó el guardado del artículo.');
+                                                finalizarGuardado();
+                                                return;
+                                            }
+                                            // Comprobar que las subdisciplinas quedaron
+                                            // físicamente dentro de article.palabraClave.
+                                            class_utils.getResource(
+                                                '/datos/documento/' + encodeURIComponent(sistema) +
+                                                '?subdisciplinas_verificar=' + Date.now()
+                                            ).done(function(verificacion){
+                                                var guardado = Array.isArray(verificacion) ? verificacion[0] : null;
+                                                var actuales = guardado
+                                                    ? class_av.pc_subdisciplinas_de_registro(guardado) : [];
+                                                var claves = {};
+                                                class_av.pc_lista_almacenada(guardado && guardado.palabraClave)
+                                                    .forEach(function(p){
+                                                        claves[class_av.pc_clave_subdisciplina(
+                                                            class_av.pc_termino_visible_de_almacenado(p)
+                                                        )] = true;
+                                                    });
+                                                var faltantes = fusion.subdisciplinas.filter(function(sub){
+                                                    return !claves[class_av.pc_clave_subdisciplina(sub)];
+                                                });
+                                                // Además de las subdisciplinas, validar que
+                                                // se conservaron las palabras visibles que
+                                                // ya estaban almacenadas en el servidor.
+                                                var firmaEsperada = class_av.pc_firma_palabras(
+                                                    fusion.articulo.palabraClave, null
+                                                );
+                                                var firmaRecibida = class_av.pc_firma_palabras(
+                                                    guardado && guardado.palabraClave, null
+                                                );
+                                                var nuevas = fusion.subdisciplinas.map(function(v){
+                                                    return class_av.pc_clave_subdisciplina(v);
+                                                }).sort();
+                                                var persistidas = actuales.map(function(v){
+                                                    return class_av.pc_clave_subdisciplina(v);
+                                                }).sort();
+                                                if(!guardado || faltantes.length ||
+                                                   firmaEsperada !== firmaRecibida ||
+                                                   JSON.stringify(nuevas) !== JSON.stringify(persistidas)){
+                                                    class_av.mensaje('El servidor respondió, pero no se pudo ' +
+                                                        'verificar el almacenamiento de las subdisciplinas. ' +
+                                                        'Revise el registro antes de continuar.');
+                                                    finalizarGuardado();
+                                                    return;
+                                                }
+                                                if(class_av.var.sistema === sistema && class_av.var.documentoJSON[0]){
+                                                    var doc = class_av.var.documentoJSON[0];
+                                                    doc.palabraClave = guardado.palabraClave;
+                                                    doc.keyword = guardado.keyword;
+                                                    doc.estatus = 'R';
+                                                    [1,2,3].forEach(function(n){
+                                                        doc['subdisciplina'+n] = actuales[n-1] || null;
+                                                    });
+                                                    doc.subdisciplinas = JSON.stringify(actuales);
+                                                    class_av.var.cambios_documento = false;
+                                                    if(capturaManualLegacy){ class_av.var.cambios_pc = false; }
+                                                }
+                                                var fila = class_utils.find_prop(
+                                                    class_av.var.articulosJSON, 'sistema', sistema
+                                                );
+                                                if(fila) fila.estatus = 'R';
+                                                class_av.cambio_estatus(sistema, 'R');
+                                                class_av.set_bitacora('Guarda Artículo');
+                                                class_av.mensaje('Artículo guardado correctamente.');
+                                                finalizarGuardado();
+                                            }).fail(function(){
+                                                class_av.mensaje('El artículo se envió, pero no fue posible ' +
+                                                    'verificar las subdisciplinas guardadas en PostgreSQL.');
+                                                finalizarGuardado();
+                                            });
+                                        }).fail(function(){
+                                            class_av.mensaje('Ocurrió un error al intentar guardar el Artículo.');
+                                            finalizarGuardado();
+                                        });
                                     }).fail(function(){
-                                            class_av.mensaje('Ocurrió un error al intentar guardar el Artículo');
+                                        class_av.mensaje('No fue posible leer el estado actual del artículo ' +
+                                            'en el servidor. No se guardó para evitar sobrescribir palabras clave.');
+                                        finalizarGuardado();
                                     });
                                 }
                             }
@@ -7842,7 +8098,10 @@ class_av = {
                 .replace(/'/g, '&#39;');
         };
 
-        var palabras = listaAlmacenada(documento.palabraClave);
+        var subdisciplinasOcultas = class_av.pc_subdisciplinas_de_registro(documento);
+        var palabras = class_av.pc_ocultar_subdisciplinas(
+            listaAlmacenada(documento.palabraClave), subdisciplinasOcultas
+        );
         var keywords = listaAlmacenada(documento.keyword);
 
         /*
@@ -8572,10 +8831,16 @@ class_av = {
                 return salida;
             };
 
+            var subdisciplinasOcultas = class_av.pc_subdisciplinas_de_registro(
+                (class_av.var.documentoJSON && class_av.var.documentoJSON[0]) || {}
+            );
             var palabras_guardadas_analista = listaGuardada(
-                class_av.var.documentoJSON && class_av.var.documentoJSON[0]
-                    ? class_av.var.documentoJSON[0].palabraClave
-                    : null
+                class_av.pc_ocultar_subdisciplinas(
+                    class_av.var.documentoJSON && class_av.var.documentoJSON[0]
+                        ? class_av.var.documentoJSON[0].palabraClave
+                        : null,
+                    subdisciplinasOcultas
+                )
             );
             var keywords_guardadas_analista = listaGuardada(
                 class_av.var.documentoJSON && class_av.var.documentoJSON[0]
@@ -9231,7 +9496,7 @@ class_av = {
                     );
                     var tipoClase = exacta ? 'pc-exacta' : 'pc-aprox';
                     var claseNueva = (idioma === 'eng') ? 'new_k keyword' : 'new_p esp';
-                    var idChip = 'n-' + class_utils.slug(terminoMostrar);
+                    var idChip = 'n-' + ((idioma === 'eng') ? 'en-' : 'es-') + class_utils.slug(terminoMostrar);
                     var html = '<div class="pc-chip-item" data-pc-manual="1" data-pc-num="'+num+'">' +
                                    '<button id="'+idChip+'" class="btn '+claseNueva+' badge-warning palabra_clave pc-chip '+tipoClase+'" type="button" ' +
                                            'data-pc-term="'+String(terminoMostrar).replace(/"/g, '&quot;')+'" data-pc-tipo="'+(exacta?'exacta':'aprox')+'" data-pc-num="'+num+'">' +
