@@ -74,10 +74,10 @@ class_av = {
         palabra_clave_sustituye: '<br><center><i class="fa fa-arrow-down" aria-hidden="true"></i><center><br><palabra> <span class="badge"><num></span>'
     },   
     var: {
-        //servidor: 'http://localhost:5000',
-        //app: '',
-        servidor: 'https://biblat.unam.mx',
-        app: '/scielo-claper',
+        servidor: 'http://localhost:5000',
+        app: '',
+        //servidor: 'https://biblat.unam.mx',
+        //app: '/scielo-claper',
         usuariosJSON: [],
         analistasJSON: [],
         documentoJSON: '',
@@ -2492,7 +2492,8 @@ class_av = {
                         if(soloLectura){
                             class_av.aplicar_modo_solo_lectura(true);
                         }
-                        window.location.href="#accordion";
+                        // Antes: window.location.href="#accordion"; dejaba ancla activa.
+                        class_av.navegar_acordeon_sin_hash();
 
                         $('#agrega-institucion').off('click').on('click', function(){
                             class_av.agrega_institucion();
@@ -6981,6 +6982,39 @@ class_av = {
     },
 
     /*
+     * Abre la ficha y lleva la vista al acordeón SIN crear una ancla #accordion.
+     * Mantener el hash obliga al navegador a recordar el destino y puede
+     * provocar saltos cuando cambian elementos o se cierran cuadros de diálogo.
+     */
+    navegar_acordeon_sin_hash: function(){
+        var $acordeon = $('#accordion');
+        if(!$acordeon.length || !$acordeon.is(':visible')) return;
+
+        // No agregamos entradas al historial ni recargamos la página.
+        // Eliminar incluso un hash previo evita reactivar el scroll del ancla.
+        if(window.location.hash && window.history && window.history.replaceState){
+            try {
+                window.history.replaceState(
+                    window.history.state,
+                    document.title,
+                    window.location.pathname + window.location.search
+                );
+            } catch(err) {
+                console.warn('No se pudo limpiar el ancla de la ficha:', err);
+            }
+        }
+
+        var pos = $acordeon.offset();
+        if(pos && Number.isFinite(pos.top)){
+            $('html, body').stop(true);
+            window.scrollTo(
+                window.pageXOffset || document.documentElement.scrollLeft || 0,
+                Math.max(0, Math.round(pos.top - 12))
+            );
+        }
+    },
+
+    /*
      * Tras completar Artículo/Autores/Instituciones (estatus P), PC sigue
      * pendiente. En vez de regresar al listado, conservamos la ficha abierta,
      * desplegamos PC y desplazamos la pantalla al encabezado de su panel.
@@ -7730,8 +7764,34 @@ class_av = {
         $('#save-full-pc').off('click').on('click', function(e){
             // Impide el salto al inicio de página por el href del botón/enlace.
             e.preventDefault();
-            // Capturar la posición antes de abrir cualquiera de los diálogos.
-            var desplazamientoPC = $(window).scrollTop();
+            e.stopPropagation();
+            // La ficha pudo abrirse desde una versión anterior que dejó #accordion
+            // en la barra de direcciones. Retirarlo sin navegar ni modificar el scroll.
+            if(window.location.hash === '#accordion' && window.history && window.history.replaceState){
+                try{
+                    window.history.replaceState(window.history.state, document.title,
+                        window.location.pathname + window.location.search);
+                }catch(error){
+                    console.warn('No se pudo limpiar #accordion:', error);
+                }
+            }
+            // Evitar que el navegador intente devolver el foco al botón después
+            // de que el guardado lo oculte.
+            if(document.activeElement && typeof document.activeElement.blur === 'function'){
+                document.activeElement.blur();
+            }
+            // Capturamos la posición de la ficha ANTES de mostrar diálogos.
+            // No es una orden para ir arriba: sólo se utilizará para impedir
+            // que jquery-confirm altere el desplazamiento cuando PC termina
+            // pero el análisis normal todavía está pendiente.
+            var panelPCElemento = document.getElementById('panelPalabrasClave');
+            var posicionInicialPC = {
+                x: window.pageXOffset || document.documentElement.scrollLeft || 0,
+                y: window.pageYOffset || document.documentElement.scrollTop || 0,
+                // Distancia del panel al borde superior de la pantalla. Permite
+                // conservar el punto de lectura aun si se ocultan controles.
+                panelTop: panelPCElemento ? panelPCElemento.getBoundingClientRect().top : null
+            };
             var featuresPC = (typeof cons !== 'undefined' && cons.features) ? cons.features : {};
             if(featuresPC.mostrar_flujo_palabras_clave !== true) return false;
             var errorValidacion = class_av.pc_valida_para_completar();
@@ -7751,6 +7811,41 @@ class_av = {
                 estatusNormal = String(articuloEnLista.estatus);
             }
             var promoverGlobal = (estatusNormal === 'P');
+            var mantenerFichaPC = !promoverGlobal && estatusNormal !== 'C';
+            // Los cuadros de diálogo pueden alterar el foco o el scroll.
+            // Restauramos al terminar de cerrarse, sin hacer navegación por ancla.
+            // Nunca se ejecuta esta restauración si Artículo ya está P/C.
+            var restaurarVistaPC = function(){
+                if(!mantenerFichaPC || class_av.var.sistema !== sistema ||
+                   !$('#accordion').is(':visible')) return;
+
+                var restaurar = function(){
+                    if(class_av.var.sistema !== sistema || !$('#accordion').is(':visible')) return;
+                    var destinoY = posicionInicialPC.y;
+                    var $panelPC = $('#panelPalabrasClave');
+                    if($panelPC.length && posicionInicialPC.panelTop !== null){
+                        var actual = $panelPC.offset();
+                        if(actual && Number.isFinite(actual.top)){
+                            destinoY = actual.top - posicionInicialPC.panelTop;
+                        }
+                    }
+                    $('html, body').stop(true);
+                    window.scrollTo(posicionInicialPC.x, Math.max(0, Math.round(destinoY)));
+                };
+
+                if(typeof window.requestAnimationFrame === 'function'){
+                    window.requestAnimationFrame(function(){
+                        window.requestAnimationFrame(restaurar);
+                    });
+                }else{
+                    setTimeout(restaurar, 0);
+                }
+                // JQuery Confirm puede devolver el foco y retirar el bloqueo de
+                // desplazamiento DESPUÉS de onClose. Restauramos también tras
+                // finalizar su animación. No actuamos sobre Artículo P/C.
+                setTimeout(restaurar, 120);
+                setTimeout(restaurar, 380);
+            };
             var texto = promoverGlobal
                 ? 'Se completarán <b>palabras clave</b>.'
                 : 'Se marcará la revisión de <b>palabras clave como completada</b>.';
@@ -7758,6 +7853,10 @@ class_av = {
 
             $.confirm({
                 title:'', content:texto,
+                // También al cancelar o cerrarse el primer cuadro de confirmación
+                // conservamos la posición si el artículo no estaba terminado.
+                onClose: restaurarVistaPC,
+                onDestroy: restaurarVistaPC,
                 buttons:{
                     cancelar:{text:'Cancelar',action:function(){}},
                     aceptar:{
@@ -7812,19 +7911,34 @@ class_av = {
                                         // Sólo PC está completa: NO cerrar la ficha, NO
                                         // cambiar el hash ni subir al inicio de página.
                                         class_av.cambio_estatus_pc(sistema, 'C');
+                                        // Desenfocar cualquier botón que vaya a
+                                        // ocultarse; Chrome puede desplazar la ventana
+                                        // cuando se destruye el elemento enfocado.
+                                        if(document.activeElement && typeof document.activeElement.blur === 'function'){
+                                            document.activeElement.blur();
+                                        }
                                         $('#save-pc, #save-pc-bottom, #save-full-pc, #save-full-pc-bottom').hide();
                                     }
                                     if(promoverGlobal || estatusNormal === 'C'){
                                         class_av.mensaje('Palabras clave completadas. El registro está completamente terminado.');
                                     }else{
-                                        class_av.mensaje('Palabras clave completadas correctamente.');//, function(){
-                                            // El cuadro de diálogo puede restaurar el foco
-                                            // y desplazar el documento al cerrarse.
-                                            // Se recupera la posición previa del analista.
-                                            //setTimeout(function(){
-                                            //    $(window).scrollTop(desplazamientoPC);
-                                            //}, 0);
-                                        //});
+                                        // PC terminó, pero Artículo sigue A/R.
+                                        // Mostrar el mismo mensaje sin navegar, y
+                                        // restaurar la posición DESPUÉS de cerrar el
+                                        // diálogo (no desde su botón Aceptar).
+                                        $.confirm({
+                                            title: '',
+                                            content: 'Palabras clave completadas correctamente.',
+                                            onClose: restaurarVistaPC,
+                                            onDestroy: restaurarVistaPC,
+                                            buttons: {
+                                                aceptar: {
+                                                    text: 'Aceptar',
+                                                    btnClass: 'btn-warning',
+                                                    action: function(){ return true; }
+                                                }
+                                            }
+                                        });
                                     }
                                     class_av.set_bitacora_sistema('Completado PC', sistema, 0);
                                 })
@@ -10034,7 +10148,8 @@ class_av = {
                         var repetidas_sug_ciudades = [];
 
                         $('#accordion').show();
-                        window.location.href="#accordion";
+                        // Antes: window.location.href="#accordion"; dejaba ancla activa.
+                        class_av.navegar_acordeon_sin_hash();
 
                         $('#agrega-institucion').off('click').on('click', function(){
                             class_av.agrega_institucion();
