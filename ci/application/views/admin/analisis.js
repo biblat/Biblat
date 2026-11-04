@@ -7817,13 +7817,13 @@ class_av = {
                                     if(promoverGlobal || estatusNormal === 'C'){
                                         class_av.mensaje('Palabras clave completadas. El registro está completamente terminado.');
                                     }else{
-                                        class_av.mensaje('Palabras clave completadas correctamente.', function(){
+                                        class_av.mensaje('Palabras clave completadas correctamente.');//, function(){
                                             // El cuadro de diálogo puede restaurar el foco
                                             // y desplazar el documento al cerrarse.
                                             // Se recupera la posición previa del analista.
-                                            setTimeout(function(){
-                                                $(window).scrollTop(desplazamientoPC);
-                                            }, 0);
+                                            //setTimeout(function(){
+                                            //    $(window).scrollTop(desplazamientoPC);
+                                            //}, 0);
                                         });
                                     }
                                     class_av.set_bitacora_sistema('Completado PC', sistema, 0);
