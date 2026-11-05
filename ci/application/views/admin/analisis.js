@@ -325,6 +325,10 @@ class_av = {
         opciones_paises: '',
         a_opciones_instituciones: '',
         texto_pdf: '',
+        // La consulta PDF nunca bloquea la apertura de la ficha ni muestra un estado global.
+        pdf_revision_token: 0,
+        pdf_revision_xhr: null,
+        pdf_revision_habilitada: false,
         catalogos: { 
                         tipo_documento: [],
                         disciplina: [],
@@ -2472,7 +2476,6 @@ class_av = {
         });
         
         $('.sistema').off('click').on('click', function(e){
-            class_utils.cancelaPeticiones();
             // El ID contiene únicamente el sistema. No insertar revista/título:
             // las comillas del título rompían el atributo id del HTML.
             var sistema = String(this.id || '');
@@ -2496,6 +2499,8 @@ class_av = {
                 return false;
             }
 
+            class_utils.cancelaPeticiones();
+            var pdfRevisionToken = class_av.pdf_invalidar_revision();
             class_av.aplicar_modo_solo_lectura(false);
             class_av.var.solo_lectura = soloLectura;
             class_av.var.tiempo_analisis = soloLectura ? 0 : Date.now();
@@ -2548,11 +2553,13 @@ class_av = {
             $('#autores').collapse('hide');
             
             setTimeout(function(){
+                if(pdfRevisionToken !== class_av.var.pdf_revision_token) return;
                 $('#articulo').collapse('hide');
                 $('#palabras-clave').collapse('hide');
                 $('#instituciones').collapse('hide');
                 $('#autores').collapse('hide');
                 setTimeout(function(){
+                    if(pdfRevisionToken !== class_av.var.pdf_revision_token) return;
                     $('#articulo').collapse('show');
                     // Texto literal: no interpretar comillas, signos ni HTML como etiquetas.
                     $('#titRevista').text(revista);
@@ -2565,6 +2572,8 @@ class_av = {
                     class_utils.getResource('/datos/instituciones/'+sistema)
             ) 
             .then(function(resp_documento, resp_autores, resp_instituciones){
+                if(pdfRevisionToken !== class_av.var.pdf_revision_token ||
+                   sistema !== class_av.var.sistema) return;
                 class_av.var.documentoJSON = resp_documento[0];
                 // La ficha contiene url1/url2 y sus tipos: no requiere otra petición.
                 class_av.titulo_flotante_enlaces_actualizar(class_av.var.documentoJSON[0] || {});
@@ -2582,6 +2591,7 @@ class_av = {
                     asignacion_pc_exclusiva ||
                     (['C','P'].indexOf(estatus_normal) !== -1 && ['A','R'].indexOf(estatus_pc) !== -1);
                 var revision_pc = revision_pc_exclusiva; // compatibilidad con revisiones PDF existentes.
+                class_av.var.pdf_revision_habilitada = (!revision_pc && !soloLectura);
                 var features = (typeof cons !== 'undefined' && cons.features) ? cons.features : {};
                 var flujoPCActivo = (
                     cons.pal_cla.val === '1' &&
@@ -2695,23 +2705,10 @@ class_av = {
                     class_av.autor_corporativo(true);
                 }
                 
-                //Lectura del pdf
-                /*$.when(
-                    class_utils.setResource(class_av.var.servidor + class_av.var.app + '/get_pdf/', {url: url_pdf}, true)
-                ) 
-                .then(function(resp_pdf){*/
-                    
-                    var setArticulo = function(resp_pdf){
-                        /*
-                         * Cuando se abre mediante el ojo no hay resp_pdf.
-                         * Se limpia texto_pdf para no reutilizar por accidente
-                         * el contenido del artículo consultado anteriormente.
-                         */
-                        class_av.var.texto_pdf = (
-                            resp_pdf &&
-                            resp_pdf.result !== undefined &&
-                            resp_pdf.result !== null
-                        ) ? resp_pdf.result : '';
+                // Abrir la ficha sin esperar la descarga ni la extracción del PDF.
+                var setArticulo = function(){
+                        // Las comparaciones PDF se activarán tras la petición independiente.
+                        class_av.var.texto_pdf = '';
 
                         /**** Búsqueda de título en pdf *********/
                         //if(url_pdf !== ''){
@@ -3617,25 +3614,13 @@ class_av = {
                     };
                     
 					
-					/* El ojo consulta sólo datos almacenados; no vuelve a obtener el PDF. */
-					if(!revision_pc && !soloLectura){
-						$.ajax({
-							url:class_av.var.servidor + class_av.var.app + '/get_pdf/', 
-							type:'POST',
-							timeout: 90000,
-							data: {url: url_pdf},
-							cache:false,
-							dataType:"json"
-						}).done(function(resp_pdf){
-							setArticulo(resp_pdf);
-						}).fail(function(){
-							var resp_pdf = {'result': 'fallo'};
-							setArticulo(resp_pdf);
-						});
-					}else{
-                        setArticulo({result:''});
+                    // La ficha se muestra primero; la consulta PDF corre por separado.
+                    setArticulo();
+                    // El ojo (sólo lectura) y las asignaciones exclusivas PC no consultan PDF.
+                    // Cuando no existe URL se muestra igualmente el indicador de enlace roto.
+                    if(!revision_pc && !soloLectura){
+                        class_av.pdf_revisar_en_segundo_plano(url_pdf, sistema, pdfRevisionToken);
                     }
-                //});
             });
             
             },500);
@@ -3644,6 +3629,7 @@ class_av = {
         class_av.control_guarda();
         
         $('#btn_nuevo_articulo').off('click').on('click', function(){
+            class_av.pdf_invalidar_revision();
             $('#div-filtro').hide();
             class_av.titulo_flotante_ocultar();
             $('#accordion').hide();
@@ -4124,111 +4110,236 @@ class_av = {
         class_av.change_orcid(id);
         class_av.var.cambios_autor = (true && !class_av.var.cambios_de_inicio);
     },
+    /*
+     * Invalidar una consulta PDF pendiente al cambiar de artículo o de vista.
+     * Esto impide que respuestas tardías modifiquen los indicadores de otra ficha.
+     */
+    pdf_invalidar_revision: function(){
+        class_av.var.pdf_revision_token++;
+        if(class_av.var.pdf_revision_xhr && class_av.var.pdf_revision_xhr.readyState !== 4){
+            class_av.var.pdf_revision_xhr.abort();
+        }
+        class_av.var.pdf_revision_xhr = null;
+        class_av.var.pdf_revision_habilitada = false;
+        class_av.var.texto_pdf = '';
+        return class_av.var.pdf_revision_token;
+    },
+
+    /*
+     * Revisa los valores VIGENTES de la pantalla tras recuperar el PDF.
+     * No escribe en inputs/selects ni dispara change: sólo actualiza indicadores.
+     * Instituciones y autores que todavía estén construyéndose se revisan
+     * después con sus llamadas habituales a busca_en_pdf().
+     */
+    pdf_actualizar_revisiones: function(sistema, token){
+        if(token !== class_av.var.pdf_revision_token ||
+           sistema !== class_av.var.sistema ||
+           class_av.var.solo_lectura ||
+           !class_av.var.pdf_revision_habilitada ||
+           !$('#accordion').is(':visible') ||
+           !class_av.var.texto_pdf){
+            return;
+        }
+
+        ['#titulo', '#titulo2', '#titulo3'].forEach(function(selector){
+            var $campo = $(selector);
+            if($campo.length && String($campo.val() || '').trim()){
+                class_av.busca_en_pdf(class_av.var.texto_pdf, $campo.val(),
+                    '#check-' + selector.substring(1), selector);
+            }
+        });
+
+        $('#div-instituciones select[id^="institucion-"]').each(function(){
+            var $campo = $(this);
+            var valor = String($campo.val() || '').trim();
+            if(valor){
+                class_av.busca_en_pdf(class_av.var.texto_pdf, valor,
+                    '#check-ins-' + this.id.substring('institucion-'.length), '#' + this.id);
+            }
+        });
+
+        $('#div-autores input[id^="nombre-"]').each(function(){
+            var id = this.id.substring('nombre-'.length);
+            var nombre = String($(this).val() || '').trim();
+            if(nombre){
+                var partes = nombre.split(',');
+                if(partes[1]) nombre = partes[1] + ' ' + partes[0];
+                class_av.busca_en_pdf(class_av.var.texto_pdf, nombre,
+                    '#check-nombre-pdf-' + id, '#' + this.id);
+            }
+            var $orcid = $('#orcid-' + id);
+            if($orcid.length && String($orcid.val() || '').trim()){
+                class_av.busca_en_pdf(class_av.var.texto_pdf, $orcid.val(),
+                    '#check-orcid-pdf-' + id, '#orcid-' + id);
+            }
+        });
+    },
+
+    /*
+     * La revisión ha terminado sin texto recuperable.
+     * Conservar el comportamiento anterior: un fallo del PDF muestra el indicador
+     * de enlace roto en las comprobaciones PDF (no un aviso general), y las
+     * validaciones independientes del PDF continúan funcionando normalmente.
+     * No cambia campos ni intenta otra descarga.
+     */
+    pdf_finalizar_sin_texto: function(sistema, token){
+        if(token !== class_av.var.pdf_revision_token ||
+           sistema !== class_av.var.sistema ||
+           class_av.var.solo_lectura ||
+           !class_av.var.pdf_revision_habilitada){
+            return;
+        }
+        class_av.var.texto_pdf = 'fallo';
+        class_av.pdf_actualizar_revisiones(sistema, token);
+    },
+
+    /* Una sola petición, sin reintentos, sin indicadores generales ni mensajes de error. */
+    pdf_revisar_en_segundo_plano: function(url_pdf, sistema, token){
+        if(token !== class_av.var.pdf_revision_token ||
+           sistema !== class_av.var.sistema){
+            return;
+        }
+        // Sin enlace PDF tampoco se debe ocultar para siempre el indicador previo.
+        if(!String(url_pdf || '').trim()){
+            class_av.pdf_finalizar_sin_texto(sistema, token);
+            return;
+        }
+
+        var xhr = $.ajax({
+            url: class_av.var.servidor + class_av.var.app + '/get_pdf/',
+            type: 'POST',
+            data: {url: url_pdf},
+            cache: false,
+            dataType: 'json',
+            timeout: 30000
+        });
+        class_av.var.pdf_revision_xhr = xhr;
+
+        xhr.done(function(resp_pdf){
+            if(token !== class_av.var.pdf_revision_token ||
+               sistema !== class_av.var.sistema ||
+               !$('#accordion').is(':visible') ||
+               class_av.var.solo_lectura){
+                return;
+            }
+            var texto = resp_pdf && resp_pdf.result;
+            if(typeof texto !== 'string' || !texto.trim() ||
+               ['fallo', 'error', 'no encontrado'].indexOf(texto.trim().toLowerCase()) !== -1){
+                // Incluye resultado vacío, PDF inaccesible o extracción fallida.
+                class_av.pdf_finalizar_sin_texto(sistema, token);
+                return;
+            }
+            class_av.var.texto_pdf = texto;
+            class_av.pdf_actualizar_revisiones(sistema, token);
+        }).fail(function(xhr, motivo){
+            // Sólo restaurar los indicadores de fallo. Sin mensajes ni reintentos.
+            // Una cancelación por cambio de artículo queda invalidada por el token.
+            if(motivo !== 'abort'){
+                class_av.pdf_finalizar_sin_texto(sistema, token);
+            }
+        }).always(function(){
+            if(token === class_av.var.pdf_revision_token){
+                class_av.var.pdf_revision_xhr = null;
+            }
+        });
+    },
+
     busca_en_pdf: function(url_pdf, texto, id, id_h){
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
+            var token = class_av.var.pdf_revision_token;
+            var sistema = class_av.var.sistema;
+            var $campo = id_h ? $(id_h) : $();
+            var campoElemento = $campo.length ? $campo[0] : null;
+            var valorInicial = campoElemento ? $campo.val() : null;
+            var vigente = function(){
+                return token === class_av.var.pdf_revision_token &&
+                       sistema === class_av.var.sistema &&
+                       !class_av.var.solo_lectura &&
+                       $('#accordion').is(':visible') &&
+                       (!campoElemento ||
+                           (($(id_h)[0] === campoElemento) && $(id_h).val() === valorInicial));
+            };
+
             $(id).hide();
-            $(id + '-load').show();
-            $(id + '-load').show();
-            $(id + '-broken').hide();
-            $(id + '-false').hide();
-            $(id + '-half').hide();
-            $(id + '-true').hide();
-            $(id + '-texto').html('');
-            $(id + '-texto').hide();
-            
-            /*
-             * Los registros abiertos desde el icono de ojo están en modo
-             * sólo lectura. Sus datos ya fueron almacenados, por lo que no
-             * se vuelve a ejecutar ninguna comparación contra el PDF.
-             *
-             * Resolvemos la Promise para conservar sin cambios los .then()
-             * existentes en instituciones y autores.
-             */
-            if(class_av.var.solo_lectura === true){
-                $(id + '-load').hide();
-                $(id).hide();
+            $(id + '-load, ' + id + '-broken, ' + id + '-false, ' +
+              id + '-half, ' + id + '-true, ' + id + '-texto').hide();
+            $(id + '-texto').empty();
+
+            // Habilitar el campo tras una revisión que no puede continuar.
+            // Sólo modifica disabled cuando el campo está realmente editable.
+            var desbloquearCampo = function(){
+                var datosActuales = (class_av.var.documentoJSON || [])[0] || {};
+                var normalCerrado = ['P', 'C', 'B'].indexOf(String(datosActuales.estatus || '')) !== -1;
+                if(campoElemento && class_av.var.pdf_revision_habilitada &&
+                   !class_av.var.solo_lectura && !normalCerrado &&
+                   !$('#accordion').hasClass('modo-solo-lectura')){
+                    $campo.prop('disabled', false);
+                }
+            };
+
+            // Sin contenido pendiente: no mostrar carga ni falso negativo.
+            if(class_av.var.solo_lectura === true ||
+               !class_av.var.pdf_revision_habilitada ||
+               texto == null || !String(texto).trim() || !url_pdf){
+                desbloquearCampo();
                 resolve();
-                return false;
+                return;
             }
 
-            if(texto == null || texto == '' || texto == undefined || url_pdf == null || url_pdf == '' || url_pdf == undefined){
+            // Compatibilidad con la interfaz original: PDF -> enlace roto.
+            // Esto NO es una validación negativa del título, autor o institución.
+            if(url_pdf === 'fallo'){
+                $(id).show();
+                $(id + '-broken').show();
+                desbloquearCampo();
                 resolve();
-                return false;
+                return;
             }
-            
+
+            if(id_h == null){
+                $(id).show();
+                $(id + '-texto').text('Título corto').show();
+                resolve();
+                return;
+            }
+
             try{
-                texto = class_utils.slug(texto.replaceAll(class_av.cons.caracteres,'.'));
+                texto = class_utils.slug(String(texto).replaceAll(class_av.cons.caracteres,'.'));
             }catch(error){
                 resolve();
-                return false;
+                return;
             }
-            
+            if(!texto){
+                resolve();
+                return;
+            }
+
             $(id).show();
-            
-            if(url_pdf == 'fallo'){
-                $(id + '-load').hide();
-                $(id + '-broken').show();
-                resolve();
-                return false;
-            }
-            
-            if(id_h == null){
-                $(id + '-load').hide();
-                $(id + '-texto').html('Título corto');
-                $(id + '-texto').show();
-                resolve();
-                return false;
-            }
-            
-            /*if(class_av.var.arr_busca_pdf.indexOf(texto) !== -1){
-                 $(id + '-load').hide();
-                 $(id_h).prop("disabled", false);
-                 resolve();
-                return false;
-            }else{
-                class_av.var.arr_busca_pdf.push(texto);
-            }*/
-            
-            $.when(
-                //class_utils.getResource('http://localhost:5001/texto_en_pdf/'+class_utils.slug(texto.replaceAll(class_av.cons.caracteres,'.'))+'/url/'+url_pdf)
-                class_utils.setResource(class_av.var.servidor + class_av.var.app + '/texto_en_textopdf/',{texto: texto, textopdf: url_pdf})
-            ).then(function(resp_pdf){
+            $(id + '-load').show();
+
+            $.when(class_utils.setResource(
+                class_av.var.servidor + class_av.var.app + '/texto_en_textopdf/',
+                {texto: texto, textopdf: url_pdf}
+            )).then(function(resp_pdf){
                 setTimeout(function(){
+                    if(!vigente()) return;
                     $(id + '-load').hide();
-                    if(resp_pdf.result == 'fallo'){
-                        $(id + '-broken').show();
-                    }else{
-                        $(id + '-broken').hide();
-                    }
-                    if(resp_pdf.result == 'parte'){
-                        if($(id + '-half')[0] == undefined){
-                            $(id + '-false').show();
-                        }
-                        $(id + '-half').show();
-                    }else{
-                        if($(id + '-half')[0] == undefined){
-                            $(id + '-false').hide();
-                        }
-                        $(id + '-half').hide();
-                    }
-                    if(resp_pdf.result == 'no encontrado'){
-                        $(id + '-false').show();
-                    }else{
-                        $(id + '-false').hide();
-                    }
-                    if(resp_pdf.result == 'encontrado'){
-                        $(id + '-true').show();
-                    }else{
-                        $(id + '-true').hide();
-                    }
+                    var resultado = resp_pdf && resp_pdf.result;
+                    $(id + '-broken').toggle(resultado === 'fallo');
+                    $(id + '-half').toggle(resultado === 'parte');
+                    $(id + '-false').toggle(resultado === 'no encontrado' ||
+                        (resultado === 'parte' && !$(id + '-half').length));
+                    $(id + '-true').toggle(resultado === 'encontrado');
                 },1000);
             }).fail(function(){
+                if(!vigente()) return;
                 $(id + '-load').hide();
-                $(id + '-texto').html('Sin comparar');
-                $(id + '-texto').show();
+                $(id + '-texto').text('Sin comparar').show();
             }).always(function(){
+                if(vigente() && campoElemento){
+                    $campo.prop('disabled', false);
+                }
                 resolve();
-                $(id_h).prop("disabled", false);
             });
         });
     },
@@ -10654,6 +10765,7 @@ class_av = {
         });
     },
 	autores_errata: function(){
+        class_av.pdf_invalidar_revision();
         loading.start();
         $.when(
                     class_utils.getResource('/datos/documento/'+class_av.var.selectedData[0].id),
