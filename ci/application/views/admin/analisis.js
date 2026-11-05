@@ -1746,11 +1746,12 @@ class_av = {
         xhr.send(JSON.stringify(payload));
     },
     /* ============================================================
-     * TÍTULO FLOTANTE DEL ARTÍCULO ACTUAL — versión 4
+     * TÍTULO FLOTANTE DEL ARTÍCULO ACTUAL — versión 5
      * - Muestra siempre el título COMPLETO, sin truncamiento ni desplegable.
      * - Control lateral integrado dentro de la tarjeta; no se superpone.
      * - Al ocultar, la tarjeta se mueve a la derecha y deja el control visible.
-     * - El título se inserta con .text(), nunca con .html().
+     * - Enlaces PDF/HTML del artículo desde url1/url2, sin peticiones extra.
+     * - El título y los textos de enlace se insertan con .text(), nunca con .html().
      * ============================================================ */
     titulo_flotante_inicializar: function(){
         if($('#biblat-titulo-flotante').length){
@@ -1896,7 +1897,24 @@ class_av = {
         $texto[0].style.removeProperty('-webkit-line-clamp');
         $texto[0].style.removeProperty('-webkit-box-orient');
 
-        $contenido.append($etiqueta, $texto);
+        // Enlaces de consulta, compactos y sin mostrar la URL completa.
+        // Se rellenan al recibir los datos del artículo y se actualizan
+        // si el analista cambia url1/url2 o su tipo mientras edita.
+        var $enlaces = $('<div>', {
+            id: 'biblat-titulo-flotante-enlaces',
+            'aria-label': 'Enlaces para consultar el artículo'
+        }).css({
+            display: 'none',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            gap: '6px',
+            borderTop: '1px solid #ededed',
+            marginTop: '9px',
+            paddingTop: '8px',
+            textAlign: 'left'
+        });
+
+        $contenido.append($etiqueta, $texto, $enlaces);
         $flotante.append($pestana, $contenido).appendTo('body');
         class_av.titulo_flotante_ajustar_posicion();
         class_av.titulo_flotante_replegar(false);
@@ -1913,6 +1931,17 @@ class_av = {
                     $(this).trigger('click');
                 }
             });
+
+        // Delegado en document para no interferir con los .off('change')
+        // que aplica control_aa() directamente sobre los campos originales.
+        $(document)
+            .off('.biblatTituloFlotanteEnlaces', '#url1, #url2, #tipourl1, #tipourl2')
+            .on('input.biblatTituloFlotanteEnlaces change.biblatTituloFlotanteEnlaces',
+                '#url1, #url2, #tipourl1, #tipourl2', function(){
+                    if(class_av.var.titulo_flotante_actual){
+                        class_av.titulo_flotante_enlaces_actualizar();
+                    }
+                });
 
         $(window).off('.biblatTituloFlotante').on(
             'scroll.biblatTituloFlotante resize.biblatTituloFlotante',
@@ -1973,6 +2002,87 @@ class_av = {
         $('#biblat-titulo-flotante-contenido')
             .attr('aria-hidden', replegado ? 'true' : 'false')
             .css('pointer-events', replegado ? 'none' : 'auto');
+        // Evita que los enlaces ocultos puedan recibir foco con Tab.
+        $('#biblat-titulo-flotante-enlaces a').attr('tabindex', replegado ? '-1' : '0');
+    },
+
+    titulo_flotante_enlaces_actualizar: function(datos){
+        var $enlaces = $('#biblat-titulo-flotante-enlaces');
+        if(!$enlaces.length) return;
+
+        var entradas = [];
+        var vistos = {};
+        for(var i=1; i<=2; i++){
+            // Con datos: toma la ficha recién recibida del servidor.
+            // Sin datos: usa los campos que está editando el analista.
+            var valor = datos ? datos['url'+i] : $('#url'+i).val();
+            var tipo = datos ? datos['tipourl'+i] : $('#tipourl'+i).val();
+            var url = String(valor == null ? '' : valor).trim();
+            if(!url || url === '#') continue;
+
+            // Evita enlaces peligrosos (javascript:, data:, etc.) y permite
+            // URL http(s) absolutas y rutas relativas del mismo servidor.
+            // Algunas fuentes almacenan URLs iniciadas con www. sin esquema.
+            if(/^www\./i.test(url)) url = 'https://' + url;
+            var destino;
+            try{
+                destino = new URL(url, window.location.href);
+            }catch(e){ continue; }
+            if(destino.protocol !== 'http:' && destino.protocol !== 'https:') continue;
+            if(vistos[destino.href]) continue;
+            vistos[destino.href] = true;
+
+            var codigoTipo = String(tipo == null ? '' : tipo).trim().toLowerCase();
+            var etiqueta = codigoTipo === 'pdf' ? 'PDF' : (codigoTipo === 'html' ? 'HTML' : 'Enlace');
+            var icono = codigoTipo === 'pdf' ? 'fa-file-pdf-o' :
+                        (codigoTipo === 'html' ? 'fa-globe' : 'fa-external-link');
+            entradas.push({href:destino.href, etiqueta:etiqueta, icono:icono});
+        }
+
+        $enlaces.empty();
+        if(!entradas.length){
+            $enlaces.css('display', 'none');
+            return;
+        }
+        var totales = {};
+        var posiciones = {};
+        entradas.forEach(function(item){
+            totales[item.etiqueta] = (totales[item.etiqueta] || 0) + 1;
+        });
+        entradas.forEach(function(item){
+            posiciones[item.etiqueta] = (posiciones[item.etiqueta] || 0) + 1;
+            var etiqueta = item.etiqueta + (
+                totales[item.etiqueta] > 1 ? ' ' + posiciones[item.etiqueta] : ''
+            );
+            var $link = $('<a>', {
+                href: item.href,
+                target: '_blank',
+                rel: 'noopener noreferrer',
+                title: item.href,
+                'aria-label': 'Consultar ' + etiqueta
+            }).css({
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '4px 7px',
+                border: '1px solid #e9d5c1',
+                borderRadius: '5px',
+                background: '#fffaf5',
+                color: '#a04b00',
+                fontSize: '11px',
+                fontWeight: '600',
+                lineHeight: '16px',
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+                cursor: 'pointer'
+            });
+            $link.append($('<i>', {'class':'fa ' + item.icono, 'aria-hidden':'true'}));
+            $link.append($('<span>').text(etiqueta));
+            $link.append($('<i>', {'class':'fa fa-external-link', 'aria-hidden':'true'}).css('font-size','9px'));
+            $link.attr('tabindex', class_av.var.titulo_flotante_replegado ? '-1' : '0');
+            $enlaces.append($link);
+        });
+        $enlaces.css('display', 'flex');
     },
 
     titulo_flotante_actualizar: function(){
@@ -1980,6 +2090,8 @@ class_av = {
         var titulo = String($('#titArticulo').text() || '').replace(/\s+/g, ' ').trim();
         class_av.var.titulo_flotante_actual = titulo;
         $('#biblat-titulo-flotante-texto').text(titulo);
+        // No conservar los enlaces del artículo anterior mientras carga el nuevo.
+        $('#biblat-titulo-flotante-enlaces').empty().css('display', 'none');
         // Cada artículo nuevo empieza con la tarjeta visible.
         class_av.titulo_flotante_replegar(false);
         class_av.titulo_flotante_refrescar();
@@ -1994,6 +2106,7 @@ class_av = {
 
     titulo_flotante_ocultar: function(){
         class_av.var.titulo_flotante_actual = '';
+        $('#biblat-titulo-flotante-enlaces').empty().css('display', 'none');
         class_av.titulo_flotante_replegar(false);
         class_av.titulo_flotante_mostrar(false);
     },
@@ -2453,6 +2566,8 @@ class_av = {
             ) 
             .then(function(resp_documento, resp_autores, resp_instituciones){
                 class_av.var.documentoJSON = resp_documento[0];
+                // La ficha contiene url1/url2 y sus tipos: no requiere otra petición.
+                class_av.titulo_flotante_enlaces_actualizar(class_av.var.documentoJSON[0] || {});
                 var estatus_normal = String(class_av.var.documentoJSON[0].estatus || '');
                 var estatus_pc = String(class_av.var.documentoJSON[0].estatusPC || '');
                 /*
@@ -2802,6 +2917,7 @@ class_av = {
                         $('#url2').val(class_av.var.documentoJSON[0].url2);
                         $("#tipourl1").val(class_av.var.documentoJSON[0].tipourl1);
                         $("#tipourl2").val(class_av.var.documentoJSON[0].tipourl2);
+                        class_av.titulo_flotante_enlaces_actualizar();
 						
 						$('#resumen_esp').val(class_av.var.documentoJSON[0]['Resumen español']);
                         $('#resumen_ing').val(class_av.var.documentoJSON[0]['Resumen inglés']);
