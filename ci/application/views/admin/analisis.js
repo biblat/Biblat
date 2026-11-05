@@ -335,10 +335,13 @@ class_av = {
                     },
         max_largo_pais: 0,
         sistema: '',
+        titulo_flotante_actual: '',
+        titulo_flotante_replegado: false,
         cambios_de_inicio: true,
         cambios_documento: false,
         cambios_pc: false,
         pc_guardando: false,
+        pc_manual_id_seq: 0, // ids DOM distintos incluso cuando las variantes comparten slug
         cambios_autor: false,
         cambios_institucion: false
     },
@@ -1167,6 +1170,40 @@ class_av = {
         return String(valor || '').trim().toLowerCase()
             .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     },
+    /* Identidad de las selecciones del analista: distingue mayúsculas y acentos.
+       NFC sólo unifica representaciones Unicode equivalentes de la MISMA grafía. */
+    pc_clave_literal: function(valor){
+        return String(valor == null ? '' : valor).trim().normalize('NFC');
+    },
+    /* Al agregar un término, buscar primero la grafía exacta elegida en Select2.
+       No sustituirla por variantes con más ocurrencias o distinta capitalización. */
+    catalogo_pc_buscar_estricto: function(termino, idioma){
+        var lista = (idioma === 'eng') ? class_av.var.keywords0 : class_av.var.palabras_clave0;
+        var clave = class_av.pc_clave_literal(termino);
+        for(var i=0; i<(lista || []).length; i++){
+            var item = lista[i];
+            if(item && class_av.pc_clave_literal(item.valor) === clave){
+                return item;
+            }
+        }
+        return undefined;
+    },
+    /* Resalta una selección localizada desde Agregar sin regresar al principio de la página. */
+    pc_resaltar_opcion: function($boton){
+        if(!$boton || !$boton.length) return;
+        var elemento = $boton[0];
+        $boton.css({'outline':'3px solid #ff8000', 'outline-offset':'3px'});
+        try{
+            if(elemento && elemento.scrollIntoView){
+                elemento.scrollIntoView({behavior:'smooth', block:'nearest', inline:'nearest'});
+            }
+        }catch(e){}
+        setTimeout(function(){
+            if(elemento && elemento.isConnected){
+                $boton.css({'outline':'', 'outline-offset':''});
+            }
+        }, 2400);
+    },
 
     /*
      * Regla de presentación de palabras clave:
@@ -1326,7 +1363,7 @@ class_av = {
         var agrega = function(v){
             var t = String(v == null ? '' : v).trim();
             if(!t || /^sin resultado$/i.test(t)) return;
-            var k = class_av.catalogo_pc_normaliza(t);
+            var k = class_av.pc_clave_literal(t);
             if(k && !vistos[k]){ vistos[k] = true; salida.push(t); }
         };
         var recorre = function(v){
@@ -1355,9 +1392,9 @@ class_av = {
         var esp = [], eng = [];
         var agregaUnicos = function(destino, lista){
             var vistos={};
-            $.each(destino,function(i,t){ vistos[class_av.catalogo_pc_normaliza(t)] = true; });
+            $.each(destino,function(i,t){ vistos[class_av.pc_clave_literal(t)] = true; });
             $.each(lista || [], function(i,t){
-                var k=class_av.catalogo_pc_normaliza(t);
+                var k=class_av.pc_clave_literal(t);
                 if(k && !vistos[k]){ vistos[k]=true; destino.push(String(t).trim()); }
             });
         };
@@ -1708,8 +1745,288 @@ class_av = {
 
         xhr.send(JSON.stringify(payload));
     },
+    /* ============================================================
+     * TÍTULO FLOTANTE DEL ARTÍCULO ACTUAL — versión 4
+     * - Muestra siempre el título COMPLETO, sin truncamiento ni desplegable.
+     * - Control lateral integrado dentro de la tarjeta; no se superpone.
+     * - Al ocultar, la tarjeta se mueve a la derecha y deja el control visible.
+     * - El título se inserta con .text(), nunca con .html().
+     * ============================================================ */
+    titulo_flotante_inicializar: function(){
+        if($('#biblat-titulo-flotante').length){
+            return;
+        }
+
+        if(!$('#biblat-estilos-titulo-flotante-v4').length){
+            $('<style>', {id:'biblat-estilos-titulo-flotante-v4'}).text(
+                '#biblat-titulo-flotante-pestana:focus-visible{' +
+                'outline:2px solid #ff8000!important;outline-offset:-3px!important;}' +
+                '#biblat-titulo-flotante-pestana:hover{' +
+                'background:#ffead7!important;color:#a94b00!important;}' +
+                '@media (prefers-reduced-motion:reduce){' +
+                '#biblat-titulo-flotante{transition:none!important;}}'
+            ).appendTo('head');
+        }
+
+        var $flotante = $('<div>', {
+            id: 'biblat-titulo-flotante',
+            role: 'group',
+            'aria-label': 'Artículo que se está analizando'
+        }).css({
+            position: 'fixed',
+            top: '76px',
+            right: '14px',
+            zIndex: 1035,
+            width: '430px',
+            boxSizing: 'border-box',
+            display: 'flex',
+            alignItems: 'stretch',
+            padding: '0',
+            border: '1px solid #dedede',
+            borderRadius: '9px',
+            overflow: 'hidden',
+            background: '#fff',
+            color: '#242424',
+            boxShadow: '0 4px 14px rgba(0,0,0,.14)',
+            fontFamily: 'Arial, Helvetica, sans-serif',
+            textAlign: 'left',
+            transition: 'transform 280ms ease',
+            willChange: 'transform'
+        }).hide();
+        $flotante[0].style.setProperty('position', 'fixed', 'important');
+        $flotante[0].style.setProperty('box-sizing', 'border-box', 'important');
+        $flotante[0].style.setProperty('display', 'none', 'important');
+        $flotante[0].style.setProperty('align-items', 'stretch', 'important');
+        $flotante[0].style.setProperty('padding', '0', 'important');
+        $flotante[0].style.setProperty('overflow', 'hidden', 'important');
+
+        // En vez de una pestaña por FUERA, el control ocupa una columna
+        // propia DENTRO de la tarjeta, unida visualmente a ella.
+        var $pestana = $('<div>', {
+            id: 'biblat-titulo-flotante-pestana',
+            role: 'button',
+            tabindex: '0',
+            'aria-controls': 'biblat-titulo-flotante-contenido',
+            'aria-expanded': 'true',
+            'aria-label': 'Ocultar título hacia la derecha',
+            title: 'Ocultar título'
+        }).text('›').css({
+            position: 'relative',
+            flex: '0 0 34px',
+            width: '34px',
+            alignSelf: 'stretch',
+            boxSizing: 'border-box',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '0',
+            margin: '0',
+            border: '0',
+            borderRight: '1px solid #f0d7bf',
+            borderRadius: '0',
+            background: '#fff4e9',
+            color: '#af5000',
+            fontFamily: 'Arial, Helvetica, sans-serif',
+            fontSize: '26px',
+            fontWeight: '600',
+            lineHeight: '1',
+            cursor: 'pointer',
+            userSelect: 'none'
+        });
+        $pestana[0].style.setProperty('display', 'flex', 'important');
+        $pestana[0].style.setProperty('position', 'relative', 'important');
+        $pestana[0].style.setProperty('flex', '0 0 34px', 'important');
+        $pestana[0].style.setProperty('background', '#fff4e9', 'important');
+        $pestana[0].style.setProperty('font-size', '26px', 'important');
+        $pestana[0].style.setProperty('color', '#af5000', 'important');
+
+        var $contenido = $('<div>', {
+            id: 'biblat-titulo-flotante-contenido',
+            'aria-hidden': 'false'
+        }).css({
+            flex: '1 1 0',
+            minWidth: '0',
+            boxSizing: 'border-box',
+            padding: '11px 14px 12px',
+            textAlign: 'left',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            maxHeight: 'calc(100vh - 100px)'
+        });
+        $contenido[0].style.setProperty('min-width', '0', 'important');
+        $contenido[0].style.setProperty('padding', '11px 14px 12px', 'important');
+        $contenido[0].style.setProperty('display', 'block', 'important');
+
+        var $etiqueta = $('<div>', {
+            'class': 'biblat-titulo-etiqueta',
+            text: 'ARTÍCULO ACTUAL'
+        }).css({
+            fontSize: '10px',
+            lineHeight: '15px',
+            fontWeight: '700',
+            letterSpacing: '0.6px',
+            color: '#a04b00',
+            margin: '0 0 5px',
+            padding: '0',
+            textAlign: 'left'
+        });
+        $etiqueta[0].style.setProperty('display', 'block', 'important');
+
+        var $texto = $('<div>', {
+            id: 'biblat-titulo-flotante-texto',
+            'class': 'biblat-titulo-texto'
+        }).css({
+            display: 'block',
+            fontSize: '13px',
+            fontWeight: '600',
+            lineHeight: '19px',
+            color: '#242424',
+            textAlign: 'left',
+            overflowWrap: 'anywhere',
+            wordBreak: 'normal',
+            whiteSpace: 'normal',
+            margin: '0',
+            padding: '0',
+            maxHeight: 'none',
+            overflow: 'visible'
+        });
+        $texto[0].style.setProperty('display', 'block', 'important');
+        $texto[0].style.setProperty('max-height', 'none', 'important');
+        $texto[0].style.setProperty('overflow', 'visible', 'important');
+        $texto[0].style.removeProperty('-webkit-line-clamp');
+        $texto[0].style.removeProperty('-webkit-box-orient');
+
+        $contenido.append($etiqueta, $texto);
+        $flotante.append($pestana, $contenido).appendTo('body');
+        class_av.titulo_flotante_ajustar_posicion();
+        class_av.titulo_flotante_replegar(false);
+
+        $pestana.off('.biblatTituloFlotante')
+            .on('click.biblatTituloFlotante', function(e){
+                e.preventDefault();
+                e.stopPropagation();
+                class_av.titulo_flotante_replegar(!class_av.var.titulo_flotante_replegado);
+            })
+            .on('keydown.biblatTituloFlotante', function(e){
+                if(e.key === 'Enter' || e.key === ' ' || e.keyCode === 13 || e.keyCode === 32){
+                    e.preventDefault();
+                    $(this).trigger('click');
+                }
+            });
+
+        $(window).off('.biblatTituloFlotante').on(
+            'scroll.biblatTituloFlotante resize.biblatTituloFlotante',
+            function(){ class_av.titulo_flotante_refrescar(); }
+        );
+
+        var $ficha = $('#accordion');
+        if($ficha.length && typeof MutationObserver !== 'undefined'){
+            if(class_av._observador_titulo_flotante){
+                class_av._observador_titulo_flotante.disconnect();
+            }
+            class_av._observador_titulo_flotante = new MutationObserver(function(){
+                class_av.titulo_flotante_refrescar();
+            });
+            class_av._observador_titulo_flotante.observe($ficha[0], {
+                attributes: true,
+                attributeFilter: ['style', 'class']
+            });
+        }
+    },
+
+    titulo_flotante_ajustar_posicion: function(){
+        var $flotante = $('#biblat-titulo-flotante');
+        if(!$flotante.length) return;
+        // La pestaña de 34px está incluida dentro de este ancho.
+        var ancho = Math.max(145, Math.min(430, window.innerWidth - 28));
+        $flotante[0].style.setProperty('width', ancho + 'px', 'important');
+        $flotante[0].style.setProperty('right', '14px', 'important');
+        if(window.innerWidth <= 768){
+            $flotante.css({top:'auto', bottom:'12px'});
+            $('#biblat-titulo-flotante-contenido').css('max-height', 'calc(100vh - 35px)');
+        }else{
+            $flotante.css({top:'76px', bottom:'auto'});
+            $('#biblat-titulo-flotante-contenido').css('max-height', 'calc(100vh - 100px)');
+        }
+    },
+
+    titulo_flotante_replegar: function(replegado){
+        var $flotante = $('#biblat-titulo-flotante');
+        class_av.var.titulo_flotante_replegado = (replegado === true);
+        if(!$flotante.length) return;
+
+        // Al quedar oculto, sólo los 34px de la columna izquierda permanecen
+        // en pantalla, pegados al borde derecho, SIN superposición externa.
+        $flotante[0].style.setProperty(
+            'transform',
+            replegado ? 'translateX(calc(100% - 20px))' : 'translateX(0)',
+            'important'
+        );
+
+        $('#biblat-titulo-flotante-pestana')
+            .text(replegado ? '‹' : '›')
+            .attr({
+                'aria-expanded': replegado ? 'false' : 'true',
+                'aria-label': replegado ? 'Mostrar título desde la derecha' : 'Ocultar título hacia la derecha',
+                title: replegado ? 'Mostrar título' : 'Ocultar título'
+            });
+        $('#biblat-titulo-flotante-contenido')
+            .attr('aria-hidden', replegado ? 'true' : 'false')
+            .css('pointer-events', replegado ? 'none' : 'auto');
+    },
+
+    titulo_flotante_actualizar: function(){
+        // .text() respeta comillas, comillas tipográficas, acentos y signos.
+        var titulo = String($('#titArticulo').text() || '').replace(/\s+/g, ' ').trim();
+        class_av.var.titulo_flotante_actual = titulo;
+        $('#biblat-titulo-flotante-texto').text(titulo);
+        // Cada artículo nuevo empieza con la tarjeta visible.
+        class_av.titulo_flotante_replegar(false);
+        class_av.titulo_flotante_refrescar();
+    },
+
+    titulo_flotante_mostrar: function(mostrar){
+        var $flotante = $('#biblat-titulo-flotante');
+        if(!$flotante.length) return;
+        // Evita que CSS del sitio sobreescriba ocultar / mostrar.
+        $flotante[0].style.setProperty('display', mostrar ? 'flex' : 'none', 'important');
+    },
+
+    titulo_flotante_ocultar: function(){
+        class_av.var.titulo_flotante_actual = '';
+        class_av.titulo_flotante_replegar(false);
+        class_av.titulo_flotante_mostrar(false);
+    },
+
+    titulo_flotante_refrescar: function(){
+        var $flotante = $('#biblat-titulo-flotante');
+        var $ficha = $('#accordion');
+        if(!$flotante.length) return;
+        class_av.titulo_flotante_ajustar_posicion();
+        if(!$ficha.length || !$ficha.is(':visible') || !class_av.var.titulo_flotante_actual){
+            class_av.titulo_flotante_mostrar(false);
+            return;
+        }
+        var fichaRect = $ficha[0].getBoundingClientRect();
+        if(fichaRect.bottom < 55 || fichaRect.top > window.innerHeight){
+            class_av.titulo_flotante_mostrar(false);
+            return;
+        }
+
+        var tituloEl = document.getElementById('titArticulo');
+        var tituloEnPantalla = false;
+        if(tituloEl && $(tituloEl).is(':visible')){
+            var rect = tituloEl.getBoundingClientRect();
+            tituloEnPantalla = rect.bottom > 65 && rect.top < window.innerHeight;
+        }
+        // Aparece cuando el título original ya no está visible.
+        class_av.titulo_flotante_mostrar(!tituloEnPantalla);
+    },
+
     ready: function(){
         loading.start();
+
+        class_av.titulo_flotante_inicializar();
 
         // Interruptor temporal de la interfaz portátil.
         var features = (typeof cons !== 'undefined' && cons.features) ? cons.features : {};
@@ -2043,8 +2360,9 @@ class_av = {
         
         $('.sistema').off('click').on('click', function(e){
             class_utils.cancelaPeticiones();
-            var _id = this.id;
-            var sistema = _id.split('__')[0];
+            // El ID contiene únicamente el sistema. No insertar revista/título:
+            // las comillas del título rompían el atributo id del HTML.
+            var sistema = String(this.id || '');
             var soloLectura = $(this).hasClass('cerrado');
             var consultaDesdeOjo = ($(this).data('consulta-desde-ojo') === true);
 
@@ -2098,12 +2416,18 @@ class_av = {
             
             // Los registros finalizados sí se pueden abrir, pero sólo en modo consulta.
             
+            class_av.titulo_flotante_ocultar();
             loading.start();
             $('#accordion').hide();
             
             class_av.var.sistema = sistema;
-            var revista = _id.split('__')[1];
-            var articulo = _id.split('__')[2];
+            // Recuperar título/revista desde el objeto del artículo, sin usar
+            // separadores en atributos HTML ni depender de la longitud del título.
+            var registroTitulo = class_utils.find_prop(
+                class_av.var.articulosJSON || [], 'sistema', sistema
+            ) || {};
+            var revista = String(registroTitulo.revista || '').trim();
+            var articulo = String(registroTitulo.articulo || '').replace(/<[^>]+>/g, '').trim();
             
             $('#articulo').collapse('hide');
             $('#palabras-clave').collapse('hide');
@@ -2117,8 +2441,10 @@ class_av = {
                 $('#autores').collapse('hide');
                 setTimeout(function(){
                     $('#articulo').collapse('show');
-                    $('#titRevista').html(revista);
-                    $('#titArticulo').html(articulo);
+                    // Texto literal: no interpretar comillas, signos ni HTML como etiquetas.
+                    $('#titRevista').text(revista);
+                    $('#titArticulo').text(articulo);
+                    class_av.titulo_flotante_actualizar();
             
             $.when(
                     class_utils.getResource('/datos/documento/'+sistema),
@@ -2516,6 +2842,7 @@ class_av = {
                         var repetidas_sug_ciudades = [];
 
                         $('#accordion').show();
+                        class_av.titulo_flotante_refrescar();
                         if(soloLectura){
                             class_av.aplicar_modo_solo_lectura(true);
                         }
@@ -3202,6 +3529,7 @@ class_av = {
         
         $('#btn_nuevo_articulo').off('click').on('click', function(){
             $('#div-filtro').hide();
+            class_av.titulo_flotante_ocultar();
             $('#accordion').hide();
             $('#div_nuevo_articulo').show();
             $('#div_tabla').hide();
@@ -4758,7 +5086,7 @@ class_av = {
             var tr = class_av.var.tr.replace('<revista>', val['revista'])
                             .replace('<issn>', val['issn'])
                             .replace('<numero>', val['numero'])
-                            .replace('<id>', val['sistema'] + '__' + val['revista'] + '__' + val['articulo'])
+                            .replace('<id>', String(val['sistema'] || ''))
                             .replace('<sistema>', val['sistema'])
                             .replace('<sistema_ia>', val['sistema'])
                             .replace('<sistema_pc>', val['sistema'])
@@ -5460,6 +5788,25 @@ class_av = {
         }
         return texto;
     },
+    pc_termino_para_guardar: function(elemento){
+        var $boton = $(elemento);
+        // La fuente de verdad es data-pc-term, que contiene la grafía del catálogo
+        // para las exactas y la variante literal elegida para las manuales.
+        var palabra = String($boton.attr('data-pc-term') || '').trim();
+        var html = String($boton.html() || '');
+        if(!palabra){
+            palabra = html.split('<span')[0].trim(); // fichas históricas
+        }
+        var palabra_sustituye = '';
+        if(html.indexOf('fa-arrow-down') !== -1){
+            var partes = html.split('<br>');
+            if(partes.length > 2){
+                palabra_sustituye = partes[2].split('<span')[0].trim();
+                palabra_sustituye = $('<div>').html(palabra_sustituye).text().trim();
+            }
+        }
+        return palabra_sustituye ? palabra + '-sustituye-' + palabra_sustituye : palabra;
+    },
     pc_ocultar_subdisciplinas: function(palabras, subdisciplinas){
         var ocultas = {};
         class_av.pc_lista_almacenada(subdisciplinas).forEach(function(v){
@@ -5480,16 +5827,26 @@ class_av = {
          * sin un campo de procedencia específico en PostgreSQL.
          */
         var visibles = class_av.pc_ocultar_subdisciplinas(palabras, subdisciplinasAnteriores);
-        var todos = visibles.concat(class_av.pc_lista_almacenada(subdisciplinasNuevas));
-        var vistos = {};
-        return todos.filter(function(v){
-            var key = class_av.pc_clave_subdisciplina(
-                class_av.pc_termino_visible_de_almacenado(v)
-            );
-            if(!key || vistos[key]) return false;
-            vistos[key] = true;
-            return true;
+        var nuevas = class_av.pc_lista_almacenada(subdisciplinasNuevas);
+        var resultado = [];
+        var vistasLiterales = {};
+        var vistasNormalizadas = {};
+        // Las elecciones del analista son distintas si cambia su grafía.
+        visibles.forEach(function(v){
+            var literal = class_av.pc_clave_literal(class_av.pc_termino_visible_de_almacenado(v));
+            if(!literal || vistasLiterales[literal]) return;
+            vistasLiterales[literal] = true;
+            vistasNormalizadas[class_av.pc_clave_subdisciplina(class_av.pc_termino_visible_de_almacenado(v))] = true;
+            resultado.push(v);
         });
+        // Las subdisciplinas automáticas mantienen su deduplicación normalizada.
+        nuevas.forEach(function(v){
+            var clave = class_av.pc_clave_subdisciplina(class_av.pc_termino_visible_de_almacenado(v));
+            if(!clave || vistasNormalizadas[clave]) return;
+            vistasNormalizadas[clave] = true;
+            resultado.push(v);
+        });
+        return resultado;
     },
     pc_preparar_articulo_con_subdisciplinas: function(datosArticulo, registroServidor){
         var sistema = String(class_av.var.sistema || '');
@@ -5684,25 +6041,13 @@ class_av = {
             if(class_av.es_captura_manual_pc_legacy(class_av.var.documentoJSON[0])){
                 var palabrasLegacy = [];
                 $('.esp.palabra_clave.badge-warning').each(function(){
-                    var palabra = $(this).html();
-                    var sustituye = '';
-                    if(palabra.indexOf('fa-arrow-down') !== -1){
-                        sustituye = palabra.split('<br>')[2].split('<span')[0].trim();
-                    }
-                    palabra = palabra.split('<span')[0].trim();
-                    if(sustituye !== '') palabra = palabra + '-sustituye-' + sustituye;
+                    var palabra = class_av.pc_termino_para_guardar(this);
                     palabrasLegacy.push(palabra);
                 });
 
                 var keywordsLegacy = [];
                 $('.keyword.palabra_clave.badge-warning').each(function(){
-                    var palabra = $(this).html();
-                    var sustituye = '';
-                    if(palabra.indexOf('fa-arrow-down') !== -1){
-                        sustituye = palabra.split('<br>')[2].split('<span')[0].trim();
-                    }
-                    palabra = palabra.split('<span')[0].trim();
-                    if(sustituye !== '') palabra = palabra + '-sustituye-' + sustituye;
+                    var palabra = class_av.pc_termino_para_guardar(this);
                     keywordsLegacy.push(palabra);
                 });
 
@@ -5836,31 +6181,13 @@ class_av = {
             if(cons.pal_cla.val == "1"){
                 var arr_palabras_clave = [];
                 $('.esp.palabra_clave.badge-warning').each(function() {
-                    var palabra = $(this).html(); // Obtener el texto dentro del botón actual
-                    var palabra_sustituye = '';
-                    //busca si hay sustitución de palabra
-                    if( palabra.indexOf('fa-arrow-down') !== -1 ){
-                        palabra_sustituye = palabra.split('<br>')[2].split('<span')[0].trim();
-                    }
-                    palabra = palabra.split('<span')[0].trim();
-                    if(palabra_sustituye !== ''){
-                        palabra = palabra + '-sustituye-' + palabra_sustituye;
-                    }
+                    var palabra = class_av.pc_termino_para_guardar(this);
                     arr_palabras_clave.push(palabra);
                 });
                 
                 var arr_keywords = [];
                 $('.keyword.palabra_clave.badge-warning').each(function() {
-                    var palabra = $(this).html(); // Obtener el texto dentro del botón actual
-                    var palabra_sustituye = '';
-                    //busca si hay sustitución de palabra
-                    if( palabra.indexOf('fa-arrow-down') !== -1 ){
-                        palabra_sustituye = palabra.split('<br>')[2].split('<span')[0].trim();
-                    }
-                    palabra = palabra.split('<span')[0].trim();
-                    if(palabra_sustituye !== ''){
-                        palabra = palabra + '-sustituye-' + palabra_sustituye;
-                    }
+                    var palabra = class_av.pc_termino_para_guardar(this);
                     arr_keywords.push(palabra);
                 });
                 
@@ -5938,7 +6265,7 @@ class_av = {
                 $copia.find('span, div, i').remove();
                 palabra = $copia.text().trim();
             }
-            var llave = class_av.pc_clave_subdisciplina(palabra);
+            var llave = class_av.pc_clave_literal(palabra);
             if(llave) vistos[llave] = true;
         });
         return Object.keys(vistos).length;
@@ -6518,76 +6845,75 @@ class_av = {
                         var name = String(this.$content.find('.name').val() || '').trim();
                         var clase = (idioma == 'eng') ? '.keyword.palabra_clave' : '.esp.palabra_clave';
                         var var_palabras_clave = (idioma == 'eng') ? class_av.var.keywords_n : class_av.var.palabras_clave_n;
-                        var normalizaLocal = function(v){ return String(v || '').trim().toLowerCase(); };
+                        // Para AGREGAR, "Ciberseguridad" y "ciberseguridad" son opciones
+                        // diferentes. No normalizar a minúsculas ni eliminar acentos.
+                        var llave = class_av.pc_clave_literal(name);
 
-                        if(name === ''){
+                        if(!llave){
                             $.alert('No es una palabra válida');
                             return false;
                         }
 
-                        // Toda palabra agregada se conserva con mayúscula inicial.
-                        name = class_av.catalogo_pc_mayuscula_inicial(name);
-
-                        var llave = normalizaLocal(name);
-                        var duplicada = false;
-
+                        var $existente = $();
                         $(clase).each(function(){
-                            var termino = String($(this).attr('data-pc-term') || '');
-                            if(termino === ''){
-                                var html = $(this).html() || '';
-                                termino = html.split('<span')[0].trim();
+                            var termino = String($(this).attr('data-pc-term') || '').trim();
+                            if(!termino){
+                                termino = $(this).html().split('<span')[0].trim();
                             }
-                            if(normalizaLocal(termino) === llave){
-                                duplicada = true;
+                            if(class_av.pc_clave_literal(termino) === llave){
+                                $existente = $(this);
                                 return false;
                             }
                         });
 
-                        if(!duplicada){
-                            // Las sugerencias también se revisan POR IDIOMA.
-                            // Una sugerencia existente en Keywords no puede bloquear
-                            // una palabra clave en español (ni viceversa).
-                            // Se incluyen ambos contenedores porque algunos grupos
-                            // con líder exacto se trasladan al lado del catálogo.
-                            var selectorSugerencias = (idioma === 'eng')
-                                ? '#keywords_catalogo .pc-sugerencia-opcion, #otras_keywords .pc-sugerencia-opcion'
-                                : '#palabras_catalogo .pc-sugerencia-opcion, #otras_palabras .pc-sugerencia-opcion';
+                        if($existente.length){
+                            // Ya está visible: seleccionarla (si no lo estaba) y destacarla.
+                            // No agregar un chip duplicado ni enviar mensaje de duplicado.
+                            if(!$existente.hasClass('badge-warning')){
+                                $existente.trigger('click');
+                            }
+                            class_av.pc_resaltar_opcion($existente);
+                            return true;
+                        }
 
-                            $(selectorSugerencias).each(function(){
-                                if(normalizaLocal($(this).attr('data-pc-term')) === llave){
-                                    duplicada = true;
+                        // También revisar los términos ocultos del desplegable del mismo idioma.
+                        var selectorSugerencias = (idioma === 'eng')
+                            ? '#keywords_catalogo .pc-sugerencia-opcion, #otras_keywords .pc-sugerencia-opcion'
+                            : '#palabras_catalogo .pc-sugerencia-opcion, #otras_palabras .pc-sugerencia-opcion';
+                        var $oculta = $();
+                        $(selectorSugerencias).each(function(){
+                            if(class_av.pc_clave_literal($(this).attr('data-pc-term')) === llave){
+                                $oculta = $(this);
+                                return false;
+                            }
+                        });
+                        if($oculta.length){
+                            // Usa exactamente el evento existente: extrae la sugerencia,
+                            // la coloca en el área verde y la selecciona si hay cupo.
+                            $oculta.attr('data-pc-forzar-visible', '1').trigger('click');
+                            var $convertida = $();
+                            $(clase).each(function(){
+                                if(class_av.pc_clave_literal($(this).attr('data-pc-term')) === llave){
+                                    $convertida = $(this);
                                     return false;
                                 }
                             });
-                        }
-
-                        if(!duplicada){
-                            $.each(var_palabras_clave, function(i,val){
-                                if(normalizaLocal(val) === llave){
-                                    duplicada = true;
-                                    return false;
+                            if($convertida.length){
+                                class_av.pc_resaltar_opcion($convertida);
+                                if(!$convertida.hasClass('badge-warning')){
+                                    class_av.mensaje('La palabra se trasladó a las coincidencias exactas, pero quedó sin seleccionar porque ya se alcanzó el máximo de 10.');
                                 }
-                            });
-                        }
-
-                        if(duplicada){
-                            class_av.mensaje('La palabra ya se encuentra en las opciones para seleccionar');
+                                return true;
+                            }
                             return false;
                         }
 
-                        /*
-                         * La búsqueda centralizada prefiere la variante cuya grafía
-                         * coincide con la regla de mayúscula inicial. De esta forma
-                         * "méxico" no toma el contador de "méxico" si también existe
-                         * "México" en el catálogo.
-                         */
-                        var encontrado = class_av.catalogo_pc_buscar(name, idioma);
-
+                        // Una entrada nueva conserva exactamente la variante elegida
+                        // en Select2 (también en minúsculas o con acentos diferentes).
+                        var encontrado = class_av.catalogo_pc_buscar_estricto(name, idioma);
                         var exacta = (encontrado !== undefined);
                         var num = exacta ? Number(encontrado.num || 0) : 0;
-                        var terminoMostrar = class_av.catalogo_pc_mayuscula_inicial(
-                            exacta ? String(encontrado.valor || name) : name
-                        );
+                        var terminoMostrar = exacta ? String(encontrado.valor || name).trim() : name;
                         var tipoClase = exacta ? 'pc-exacta' : 'pc-aprox';
                         var claseNueva = (idioma == 'eng') ? 'new_k keyword' : 'new_p esp';
                         var selectorIdioma = (idioma == 'eng') ? '.keyword.palabra_clave' : '.esp.palabra_clave';
@@ -6595,7 +6921,9 @@ class_av = {
                         var seleccionadas = $(selectorIdioma + '.badge-warning').length;
                         var seleccionarNueva = (seleccionadas < 10);
                         var estadoClase = seleccionarNueva ? 'badge-warning' : 'badge-secondary';
-                        var idChip = 'n-' + ((idioma === 'eng') ? 'en-' : 'es-') + class_utils.slug(terminoMostrar);
+                        class_av.var.pc_manual_id_seq = Number(class_av.var.pc_manual_id_seq || 0) + 1;
+                        var idChip = 'n-' + ((idioma === 'eng') ? 'en-' : 'es-') +
+                            class_utils.slug(terminoMostrar) + '-' + class_av.var.pc_manual_id_seq;
 
                         var html = '<div class="pc-chip-item" data-pc-manual="1" data-pc-num="'+num+'">' +
                                    '<button id="'+idChip+'" class="btn '+claseNueva+' '+estadoClase+' palabra_clave pc-chip '+tipoClase+'" type="button" ' +
@@ -8316,7 +8644,7 @@ class_av = {
                     termino = String(partes[partes.length - 1] || '').trim();
                 }
 
-                var llave = class_av.catalogo_pc_normaliza(termino);
+                var llave = class_av.pc_clave_literal(termino);
                 if(termino !== '' && !vistos[llave]){
                     vistos[llave] = true;
                     salida.push(termino);
@@ -8355,12 +8683,13 @@ class_av = {
             var aproximadas = [];
 
             $.each(lista || [], function(i, termino){
-                termino = class_av.catalogo_pc_mayuscula_inicial(termino);
-                var encontrado = class_av.catalogo_pc_buscar(termino, idioma);
+                termino = String(termino || '').trim();
+                var encontrado = class_av.catalogo_pc_buscar_estricto(termino, idioma) ||
+                                 class_av.catalogo_pc_buscar(termino, idioma);
                 var exacta = !!encontrado;
-                var terminoMostrar = class_av.catalogo_pc_mayuscula_inicial(
-                    exacta ? String(encontrado.valor || termino) : String(termino || '').trim()
-                );
+                // Este término YA fue guardado por el analista; mostrar su
+                // superficie tal cual, no otra variante localizada en la caché.
+                var terminoMostrar = termino;
                 var num = exacta ? Number(encontrado.num || 0) : 0;
                 var claseIdioma = (idioma === 'eng') ? 'keyword' : 'esp';
                 var claseTipo = exacta ? 'pc-exacta' : 'pc-aprox';
@@ -8698,7 +9027,8 @@ class_av = {
                 }
                 return {
                     existe:true,
-                    valor:class_av.catalogo_pc_mayuscula_inicial(encontrado.valor || termino),
+                    // El catálogo decide la grafía, no el texto devuelto por IA.
+                    valor:String(encontrado.valor || termino).trim(),
                     num:Number(encontrado.num || 0)
                 };
             };
@@ -8707,7 +9037,10 @@ class_av = {
             // tipo: exacta (verde) o aprox (naranja).
             // grupo identifica alternativas relacionadas; NO impone exclusividad.
             var botonCatalogo = function(termino, idioma, prefijo, indice, grupo, tipo){
-                termino = class_av.catalogo_pc_mayuscula_inicial(termino);
+                // Sólo las exactas mantienen la superficie literal del catálogo.
+                // Las aproximaciones conservan la presentación existente.
+                termino = (tipo === 'exacta') ? String(termino || '').trim() :
+                    class_av.catalogo_pc_mayuscula_inicial(termino);
                 var claseIdioma = (idioma === 'eng') ? 'keyword' : 'esp';
                 var slug = class_utils.slug(termino);
                 var id = prefijo + '-' + indice + '-' + slug;
@@ -9057,15 +9390,17 @@ class_av = {
                  * Los términos almacenados sólo se aplican como selección si ya
                  * existe un guardado de revisión PC (o guardado manual legado).
                  */
-                var lista = listaTerminos(valor);
+                // listaTerminos() agrupa ignorando mayúsculas; eso es válido
+                // para propuestas IA, pero NO para decisiones humanas guardadas.
+                var lista = class_av.pc_lista_almacenada(valor);
                 var salida = [];
                 var vistos = {};
                 $.each(lista, function(i,val){
                     var termino = terminoGuardadoVisible(val);
-                    var llave = normaliza(termino);
+                    var llave = class_av.pc_clave_literal(termino);
                     if(llave !== '' && !vistos[llave]){
                         vistos[llave] = true;
-                        salida.push(class_av.catalogo_pc_mayuscula_inicial(termino));
+                        salida.push(termino);
                     }
                 });
                 return salida;
@@ -9218,6 +9553,14 @@ class_av = {
                 });
             };
 
+            // Canonizar las EXACTAS heredadas de genera_pc con la grafía
+            // recuperada de Biblat, SIN modificar los campos almacenados en genera_pc.
+            exactas = mezclaTerminosUnicos(exactas.map(function(t){
+                return infoCatalogoExactoActual(t, 'esp').valor;
+            }), []);
+            exactas_en = mezclaTerminosUnicos(exactas_en.map(function(t){
+                return infoCatalogoExactoActual(t, 'eng').valor;
+            }), []);
             exactas = ordenaTerminosPorOcurrencias(exactas, 'esp');
             exactas_en = ordenaTerminosPorOcurrencias(exactas_en, 'eng');
 
@@ -9447,7 +9790,7 @@ class_av = {
                 // Toda selección (incluidas las sugerencias que salieron del
                 // conjunto) tiene ahora su propio botón .badge-warning.
                 $(selector + '.badge-warning').each(function(){
-                    var termino = normaliza(textoBoton(this));
+                    var termino = class_av.pc_clave_literal(textoBoton(this));
                     if(termino !== '') unicas[termino] = true;
                 });
                 return Object.keys(unicas);
@@ -9529,7 +9872,7 @@ class_av = {
                 var $boton = $(elemento);
                 var selector = (idioma === 'eng') ? '.keyword.palabra_clave' : '.esp.palabra_clave';
                 var mensajeMax = (idioma === 'eng') ? 'El número máximo de keywords son 10' : 'El número máximo de palabras clave son 10';
-                var termino = normaliza(textoBoton(elemento));
+                var termino = class_av.pc_clave_literal(textoBoton(elemento));
                 var actuales = seleccionadasUnicas(selector);
 
                 if($boton.hasClass('badge-warning')){
@@ -9581,22 +9924,23 @@ class_av = {
              * luego se desmarca. Funciona para español e inglés y también
              * al restaurar selecciones efectivamente guardadas.
              */
-            var promoverSugerenciaAVerde = function($opcion, idioma, restaurando){
+            var promoverSugerenciaAVerde = function($opcion, idioma, restaurando, forzarVisible){
                 if(!$opcion || !$opcion.length) return false;
                 restaurando = (restaurando === true);
+                forzarVisible = (forzarVisible === true);
                 var $grupo = $opcion.closest('.pc-sugerencia-item');
                 if(!$grupo.length) return false;
 
                 var $destino = (idioma === 'eng') ? $('#keywords_catalogo') : $('#palabras_catalogo');
                 var selector = (idioma === 'eng') ? '.keyword.palabra_clave' : '.esp.palabra_clave';
-                var texto = class_av.catalogo_pc_mayuscula_inicial($opcion.attr('data-pc-term'));
-                var llave = normaliza(texto);
+                var texto = String($opcion.attr('data-pc-term') || '').trim();
+                var llave = class_av.pc_clave_literal(texto);
                 if(!llave) return false;
                 var cantidad = seleccionadasUnicas(selector).length;
                 var $existente = $();
 
                 $(selector).each(function(){
-                    if(normaliza(textoBoton(this)) === llave){
+                    if(class_av.pc_clave_literal(textoBoton(this)) === llave){
                         $existente = $(this);
                         return false;
                     }
@@ -9606,7 +9950,8 @@ class_av = {
                     class_av.mensaje('Esta palabra clave ya está seleccionada.');
                     return false;
                 }
-                if(!restaurando && !$existente.hasClass('badge-warning') && cantidad >= 10){
+                var puedeSeleccionar = restaurando || cantidad < 10 || $existente.hasClass('badge-warning');
+                if(!puedeSeleccionar && !forzarVisible){
                     class_av.mensaje(idioma === 'eng'
                         ? 'El número máximo de keywords son 10'
                         : 'El número máximo de palabras clave son 10');
@@ -9616,7 +9961,7 @@ class_av = {
                 if($existente.length){
                     // Ya existe como opción independiente: seleccionarla sin
                     // generar una segunda ficha con el mismo término.
-                    pintaSeleccion($existente, true);
+                    if(puedeSeleccionar) pintaSeleccion($existente, true);
                 }else{
                     var num = Number($opcion.attr('data-pc-num') || 0);
                     var grupo = String($grupo.attr('data-pc-grupo-contenedor') || 'sug');
@@ -9625,7 +9970,7 @@ class_av = {
                     var $nuevo = $(html).attr('data-pc-origen-sugerencia', grupo).attr('data-pc-num', num);
                     var $boton = $nuevo.find('button.palabra_clave').first();
                     $boton.attr('data-pc-num', num);
-                    pintaSeleccion($boton, true);
+                    pintaSeleccion($boton, puedeSeleccionar);
                     $destino.append($nuevo);
                     ordenaContenedorPC($destino);
                 }
@@ -9658,7 +10003,9 @@ class_av = {
                     var $lider = $opcion.closest('.pc-sugerencia-item')
                         .find('.pc-principal-slot .palabra_clave').first();
                     var idioma = $lider.hasClass('keyword') ? 'eng' : 'esp';
-                    promoverSugerenciaAVerde($opcion, idioma, false);
+                    var forzarVisible = ($opcion.attr('data-pc-forzar-visible') === '1');
+                    $opcion.removeAttr('data-pc-forzar-visible');
+                    promoverSugerenciaAVerde($opcion, idioma, false, forzarVisible);
                     return false;
                 });
 
@@ -9684,18 +10031,18 @@ class_av = {
                 variableNuevas.length = 0;
 
                 var buscaCatalogoExacto = function(termino){
-                    return class_av.catalogo_pc_buscar(termino, idioma);
+                    return class_av.catalogo_pc_buscar_estricto(termino, idioma);
                 };
 
                 $.each(guardadas, function(i,termino){
-                    var buscado = normaliza(termino);
+                    var buscado = class_av.pc_clave_literal(termino);
                     if(buscado === ''){
                         return;
                     }
 
                     var $coincidencia = $();
                     $(selector).each(function(){
-                        if(normaliza(textoBoton(this)) === buscado){
+                        if(class_av.pc_clave_literal(textoBoton(this)) === buscado){
                             $coincidencia = $(this);
                             return false;
                         }
@@ -9715,7 +10062,7 @@ class_av = {
                         var $lider = $grupo.find('.pc-principal-slot .palabra_clave').first();
                         if(!$lider.is(selector)) return;
                         $grupo.find('.pc-sugerencia-opcion').each(function(){
-                            if(normaliza($(this).attr('data-pc-term')) === buscado){
+                            if(class_av.pc_clave_literal($(this).attr('data-pc-term')) === buscado){
                                 encontradaOpcion = promoverSugerenciaAVerde($(this), idioma, true);
                                 return false;
                             }
@@ -9733,16 +10080,17 @@ class_av = {
                         return;
                     }
 
-                    termino = class_av.catalogo_pc_mayuscula_inicial(termino);
+                    // Restaurar literalmente la selección que eligió el analista.
+                    // No convertir "ciberseguridad" en "Ciberseguridad".
                     var encontrado = buscaCatalogoExacto(termino);
                     var exacta = (encontrado !== undefined);
                     var num = exacta ? Number(encontrado.num || 0) : 0;
-                    var terminoMostrar = class_av.catalogo_pc_mayuscula_inicial(
-                        exacta ? String(encontrado.valor || termino) : String(termino || '').trim()
-                    );
+                    var terminoMostrar = exacta ? String(encontrado.valor || termino).trim() : termino;
                     var tipoClase = exacta ? 'pc-exacta' : 'pc-aprox';
                     var claseNueva = (idioma === 'eng') ? 'new_k keyword' : 'new_p esp';
-                    var idChip = 'n-' + ((idioma === 'eng') ? 'en-' : 'es-') + class_utils.slug(terminoMostrar);
+                    class_av.var.pc_manual_id_seq = Number(class_av.var.pc_manual_id_seq || 0) + 1;
+                    var idChip = 'n-' + ((idioma === 'eng') ? 'en-' : 'es-') +
+                        class_utils.slug(terminoMostrar) + '-' + class_av.var.pc_manual_id_seq;
                     var html = '<div class="pc-chip-item" data-pc-manual="1" data-pc-num="'+num+'">' +
                                    '<button id="'+idChip+'" class="btn '+claseNueva+' badge-warning palabra_clave pc-chip '+tipoClase+'" type="button" ' +
                                            'data-pc-term="'+String(terminoMostrar).replace(/"/g, '&quot;')+'" data-pc-tipo="'+(exacta?'exacta':'aprox')+'" data-pc-num="'+num+'">' +
@@ -10279,6 +10627,8 @@ class_av = {
                         opciones_sug_ciudades = {};
                         var repetidas_sug_ciudades = [];
 
+                        // Al abrir un documento original, no mostrar el título de la ficha anterior.
+                        class_av.titulo_flotante_ocultar();
                         $('#accordion').show();
                         // Antes: window.location.href="#accordion"; dejaba ancla activa.
                         class_av.navegar_acordeon_sin_hash();
