@@ -1007,7 +1007,7 @@ class Main extends CI_Controller{
                 );
             }
             
-            $this->multi_attach_mail($correos,
+            $enviado = $this->multi_attach_mail($correos,
                     "Postulación de Revista",
                     $mensaje,
                     "biblat_comite@dgb.unam.mx",
@@ -1028,6 +1028,17 @@ class Main extends CI_Controller{
                 $result = $this->setDocumentsDrive("CartaDePostulacion_".$_POST['issn'].".docx", 'Preevaluacion_'.$_POST['issn'].'.xlsx');
                 unlink("CartaDePostulacion_".$_POST['issn'].".docx");
                 unlink('Preevaluacion_'.$_POST['issn'].'.xlsx');
+				
+				if(!empty($_POST['bitacora_sesion'])){
+                    $registro = $_POST;
+                    $registro['sesion'] = $_POST['bitacora_sesion'];
+                    $registro['revista'] = $_POST['nombre_revista'] ?? '';
+                    $registro['url_revista'] = $_POST['url'] ?? '';
+                    $registro['detalle'] = $enviado ?
+                        'Correo aceptado por mail()' : 'mail() devolvió false';
+                    $this->guardarBitacoraPostulacion($registro, 'postulacion_procesada');
+                }
+				
                 echo('{"docx":"'.$result[0].'", "xlsx":"'.$result[1].'"}');
             }
             else
@@ -1171,6 +1182,111 @@ class Main extends CI_Controller{
             }
             
             return [$fileDocId, $fileXlsxId];
+        }
+		
+		/**
+         * Bitácora de la preevaluación editorial.
+         * Requiere la pestaña BitacoraPostulaciones (A:T) en la hoja configurada.
+         * La cuenta de servicio de credentials2.json debe tener acceso de editor.
+         */
+        public function registrarBitacoraPostulacion(){
+            if (strtoupper($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+                $this->output->set_status_header(405)
+                    ->set_content_type('application/json', 'utf-8')
+                    ->set_output(json_encode(array('ok' => false)));
+                return;
+            }
+            $datos = $this->input->post(NULL, FALSE);
+            $ok = is_array($datos) && $this->guardarBitacoraPostulacion($datos);
+            $this->output->set_status_header($ok ? 200 : 503)
+                ->set_content_type('application/json', 'utf-8')
+                ->set_output(json_encode(array('ok' => $ok)));
+        }
+
+        protected function datoBitacora($datos, $clave, $limite = 200){
+            $dato = isset($datos[$clave]) && !is_array($datos[$clave])
+                ? trim((string) $datos[$clave]) : '';
+            $dato = preg_replace('/[\\x00-\\x1F\\x7F]/', ' ', $dato);
+            $dato = mb_substr($dato, 0, $limite, 'UTF-8');
+            // Protección adicional ante fórmulas si alguien exporta los datos.
+            if (preg_match('/^[=@\\-]/u', $dato)) {
+                $dato = "'" . $dato;
+            }
+            return $dato;
+        }
+
+        protected function guardarBitacoraPostulacion($datos, $eventoForzado = ''){
+            $permitidos = array(
+                'formulario_habilitado','datos_revista','formulario_invalido',
+                'intento_postulacion','error_postulacion','postulacion_procesada'
+            );
+            $evento = $eventoForzado !== '' ? $eventoForzado :
+                $this->datoBitacora($datos, 'evento', 40);
+            $sesion = $this->datoBitacora($datos, 'sesion', 80);
+            if(!in_array($evento, $permitidos, true) ||
+               !preg_match('/^[a-zA-Z0-9_-]{12,80}$/', $sesion)){
+                return false;
+            }
+            // No se acepta que el navegador declare un resultado definitivo.
+            if($eventoForzado === '' && in_array($evento,
+                    array('postulacion_procesada'), true)){
+                return false;
+            }
+            // Evita almacenar intentos que nunca habilitaron el formulario.
+            if((int)($datos['obligatorios'] ?? 0) !== 23 ||
+               (int)($datos['opcionales'] ?? 0) < 5){
+                return false;
+            }
+            $sheetId = trim((string) $this->config->item('bitacora_postulaciones_spreadsheet_id'));
+            if($sheetId === ''){
+                log_message('error', 'Falta configurar bitacora_postulaciones_spreadsheet_id');
+                return false;
+            }
+            $fecha = new DateTimeImmutable('now', new DateTimeZone('America/Mexico_City'));
+            $fila = array(
+                $fecha->format('Y-m-d H:i:s'),
+                $sesion,
+                $this->datoBitacora($datos,'secuencia',10),
+                $evento,
+                $this->datoBitacora($datos,'origen',200),
+                $this->datoBitacora($datos,'url_oai',500),
+                $this->datoBitacora($datos,'revista',250),
+                $this->datoBitacora($datos,'issn',20),
+                $this->datoBitacora($datos,'issne',20),
+                $this->datoBitacora($datos,'url_revista',500),
+                $this->datoBitacora($datos,'organizacion',250),
+                $this->datoBitacora($datos,'pais',80),
+                $this->datoBitacora($datos,'correo',250),
+                $this->datoBitacora($datos,'obligatorios',3),
+                $this->datoBitacora($datos,'opcionales',3),
+                $this->datoBitacora($datos,'total',3),
+                $this->datoBitacora($datos,'criterio_actual',3),
+                $this->datoBitacora($datos,'campos_capturados',3),
+                $this->datoBitacora($datos,'apta',1),
+                $this->datoBitacora($datos,'detalle',180)
+            );
+            try {
+                $credenciales = trim((string) $this->config->item('bitacora_postulaciones_credentials_path'));
+                if(!is_file($credenciales)){
+                    throw new RuntimeException('Configure una ruta de credenciales válida y privada');
+                }
+                $client = new Google_Client();
+                $client->setApplicationName('Biblat - bitacora de postulaciones');
+                $client->setAuthConfig($credenciales);
+                $client->setScopes(array(Google_Service_Sheets::SPREADSHEETS));
+                $servicio = new Google_Service_Sheets($client);
+                $cuerpo = new Google_Service_Sheets_ValueRange(array(
+                    'values' => array($fila)
+                ));
+                $servicio->spreadsheets_values->append(
+                    $sheetId, "'BitacoraPostulaciones'!A:T", $cuerpo,
+                    array('valueInputOption'=>'RAW', 'insertDataOption'=>'INSERT_ROWS')
+                );
+                return true;
+            } catch (Throwable $e) {
+                log_message('error', 'BitacoraPostulaciones: '.$e->getMessage());
+                return false;
+            }
         }
         
         public function getClientGoogle2()

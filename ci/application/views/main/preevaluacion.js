@@ -491,6 +491,7 @@ class_pre = {
             
             $('#obliga').text('Obligatorios: ' + class_pre.puntos_obliga + '/23');
             $('#nobliga').text('No obligatorios: ' + class_pre.puntos_nobliga + '/9');
+			class_pre.bitacora.actualizarCriterios();
             
             if(class_pre.puntos_obliga === 23 && class_pre.puntos_nobliga >= 5){
                 $('#div_postular').show();
@@ -520,6 +521,20 @@ class_pre = {
         $('#btn_comenzar').on('click',function(){
             $('#row_comenzar').hide();
             $('#row_preevaluacion').show();            
+        });
+		
+		// Los cambios en datos identificadores se guardan sin esperar el envío.
+        $('#form_postular').on('input change',
+            '#nombre_revista, #issn, #issne, #url_revista, #organizacion, #pais, #correo',
+            function(){ class_pre.bitacora.programarDatos(); }
+        );
+        // Respaldo de la identificación si se cierra la pestaña sin enviar.
+        $(window).on('pagehide',function(){ class_pre.bitacora.guardarAlSalir(); });
+        // Un clic sobre Postular no genera submit si el HTML5 detecta un campo inválido.
+        $('#btn_postular').on('click', function(){
+            if(!$('#form_postular')[0].checkValidity()){
+                class_pre.bitacora.registrar('formulario_invalido');
+            }
         });
         
         $('#form_postular').on('submit',function(e){
@@ -570,9 +585,21 @@ class_pre = {
                 form['otra_institucion_pais_'+i] = $('#otra_institucion_pais_'+i).val();
             }
             
+			class_pre.bitacora.registrar('intento_postulacion');
             loading.start();
             
-            $.post('<?=site_url("main/createPlantilla");?>', $.extend(form,{criterio:class_pre.criterio,completo:true}), function(result){
+            $.post('<?=site_url("main/createPlantilla");?>', $.extend(form,{
+                criterio:class_pre.criterio,
+                completo:true,
+                bitacora_sesion:class_pre.bitacora.sesion,
+                url_oai:class_pre.bitacora.datos().url_oai,
+                obligatorios:class_pre.puntos_obliga,
+                opcionales:class_pre.puntos_nobliga,
+                total:class_pre.puntos,
+                apta:1,
+                origen:window.location.pathname,
+                campos_capturados:class_pre.bitacora.datos().campos_capturados
+            }), function(result){
                 result = '{'+(result.split('}')[0]+'}').split('{')[1];
                 result = JSON.parse(result);
                 loading.end();
@@ -592,7 +619,13 @@ class_pre = {
                                 //"https://docs.google.com/document/d//edit",
                                 //"https://docs.google.com/spreadsheets/d//edit"
                             ];
+				class_pre.bitacora.finalizada = true;
                 class_pre.initClient2(array);
+				try { sessionStorage.removeItem('biblat_preevaluacion_sesion'); } catch(e){}
+				}).fail(function(xhr){
+					loading.end();
+					class_pre.bitacora.registrar('error_postulacion',
+                    'HTTP ' + (xhr.status || 'sin respuesta'));
             });
         });
         
@@ -850,6 +883,139 @@ class_pre = {
         var textContent = document.createTextNode(message + '\n');
         //pre.appendChild(textContent);
       }
+};
+
+// Bitácora editorial: envía únicamente hitos y campos identificadores al servidor.
+// No se utiliza la clave de Google desde el navegador para escribir la bitácora.
+class_pre.bitacora = {
+    sesion: '',
+    secuencia: 0,
+    formularioHabilitado: false,
+    finalizada: false,
+    meta: {},
+    temporizador: null,
+    ultimaFirma: '',
+    url: '<?=site_url("main/registrarBitacoraPostulacion");?>',
+
+    iniciar: function(){
+        if(class_pre.simulador || this.sesion){ return; }
+        try {
+            this.meta = JSON.parse(sessionStorage.getItem('biblat_meta_preidentificacion') || '{}');
+            var oai = typeof url_metametrics === 'undefined' ? '' : url_metametrics;
+            if(!oai || (this.meta.url_oai && oai !== this.meta.url_oai)){
+                this.meta = {};
+            }
+            var ultimaOai = sessionStorage.getItem('biblat_preevaluacion_oai') || '';
+            if(ultimaOai && ultimaOai !== oai){
+                sessionStorage.removeItem('biblat_preevaluacion_sesion');
+            }
+            sessionStorage.setItem('biblat_preevaluacion_oai', oai);
+            this.sesion = sessionStorage.getItem('biblat_preevaluacion_sesion') || '';
+            if(!this.sesion){
+                this.sesion = this.nuevoId();
+                sessionStorage.setItem('biblat_preevaluacion_sesion', this.sesion);
+            }
+        } catch(e) {
+            this.sesion = this.nuevoId();
+        }
+    },
+
+    nuevoId: function(){
+        if(window.crypto && window.crypto.randomUUID){
+            return window.crypto.randomUUID();
+        }
+        var a = new Uint8Array(16);
+        if(window.crypto && window.crypto.getRandomValues){
+            window.crypto.getRandomValues(a);
+            return 'pre-' + Array.from(a).map(function(n){
+                return n.toString(16).padStart(2,'0');
+            }).join('');
+        }
+        return 'pre-' + String(Date.now()) + '-' + Math.random().toString(36).slice(2);
+    },
+
+    datos: function(){
+        var valor = function(selector){
+            return ($(selector).val() || '').toString().trim();
+        };
+        var ids = ['#nombre_revista','#issn','#issne','#url_revista',
+            '#organizacion','#correo','#nombre'];
+        var n = ids.filter(function(id){ return !!valor(id); }).length;
+        return {
+            sesion: this.sesion,
+            secuencia: ++this.secuencia,
+            origen: window.location.pathname,
+            url_oai: typeof url_metametrics === 'undefined' ?
+                (this.meta.url_oai || '') : (url_metametrics || this.meta.url_oai || ''),
+            revista: valor('#nombre_revista') || this.meta.revista || '',
+            issn: valor('#issn') || this.meta.issn || '',
+            issne: valor('#issne') || this.meta.issne || '',
+            url_revista: valor('#url_revista'),
+            organizacion: valor('#organizacion'),
+            pais: valor('#pais'),
+            correo: valor('#correo') || valor('#correo2'),
+            obligatorios: class_pre.puntos_obliga,
+            opcionales: class_pre.puntos_nobliga,
+            total: class_pre.puntos,
+            criterio_actual: class_pre.select,
+            campos_capturados: n,
+            apta: class_pre.puntos_obliga === 23 && class_pre.puntos_nobliga >= 5 ? 1 : 0
+        };
+    },
+
+    registrar: function(evento, detalle){
+        // No se envía absolutamente nada antes de habilitar la postulación.
+        if(class_pre.simulador || !this.formularioHabilitado || !this.sesion){ return; }
+        var datos = this.datos();
+        datos.evento = evento;
+        datos.detalle = detalle || '';
+        // El registro es independiente del envío principal y no debe bloquearlo.
+        $.post(this.url, datos).fail(function(xhr){
+            console.warn('Bitácora no guardada', evento, xhr.status);
+        });
+    },
+
+    actualizarCriterios: function(){
+        if(class_pre.simulador){ return; }
+        if(!this.formularioHabilitado &&
+                class_pre.puntos_obliga === 23 && class_pre.puntos_nobliga >= 5){
+            // La primera fila se inserta sólo al desbloquear el formulario.
+            this.iniciar();
+            this.formularioHabilitado = true;
+            this.registrar('formulario_habilitado');
+        }
+    },
+
+    guardarAlSalir: function(){
+        if(class_pre.simulador || !this.formularioHabilitado ||
+           !this.sesion || this.finalizada ||
+           !navigator.sendBeacon){ return; }
+        var datos = this.datos();
+        // Sólo respaldar si el editor capturó algún campo del formulario.
+        if(!datos.campos_capturados){ return; }
+        datos.evento = 'datos_revista';
+        datos.detalle = 'Respaldo al ocultar o cerrar la página';
+        var form = new FormData();
+        Object.keys(datos).forEach(function(k){ form.append(k, datos[k]); });
+        // Envío de mejor esfuerzo; no se interpreta como cierre o abandono seguro.
+        navigator.sendBeacon(this.url, form);
+    },
+
+    programarDatos: function(){
+        if(!this.formularioHabilitado){ return; }
+        var self = this;
+        clearTimeout(this.temporizador);
+        this.temporizador = setTimeout(function(){
+            if(!self.formularioHabilitado){ return; }
+            var d = self.datos();
+            var firma = [d.revista,d.issn,d.issne,d.url_revista,d.organizacion,
+                d.pais,d.correo].join('|');
+            if(firma && firma !== self.ultimaFirma){
+                self.ultimaFirma = firma;
+                self.registrar('datos_revista');
+            }
+        }, 2500);
+    }
 };
 
 $(class_pre.ready);
