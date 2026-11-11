@@ -22,7 +22,7 @@ class_pre = {
     puntos_nobliga:0,
     pag_inicio:0,
     pag_fin:0,
-	html_otra_liga: '<div class="row">'+
+    html_otra_liga: '<div class="row">'+
                     '<div class="col-md-9 col-md-offset-3">'+
                     'Liga o nombre de otro sistema de informacion'+
                     '</div>'+
@@ -417,6 +417,17 @@ class_pre = {
             class_pre.paginacion(1,1);
 
             class_pre.control();
+            
+            // Precargar los campos de "Enviar avance" cuando se viene de MetaMetrics.
+            // Leer sessionStorage no crea una sesión de bitácora ni registra la visita.
+            try {
+                var preMeta = JSON.parse(sessionStorage.getItem('biblat_meta_preidentificacion') || '{}');
+                var oaiActual = typeof url_metametrics === 'undefined' ? '' : url_metametrics;
+                if(preMeta && preMeta.url_oai && preMeta.url_oai === oaiActual){
+                    $('#revista_avance').val(preMeta.revista || '');
+                    $('#issn_avance').val(preMeta.issne || preMeta.issn || '');
+                }
+            } catch(e){}
 
             class_pre.chart = Highcharts.chart('resultado', Highcharts.merge(class_pre.gaugeOptions, {
                 yAxis: {
@@ -491,7 +502,7 @@ class_pre = {
             
             $('#obliga').text('Obligatorios: ' + class_pre.puntos_obliga + '/23');
             $('#nobliga').text('No obligatorios: ' + class_pre.puntos_nobliga + '/9');
-			class_pre.bitacora.actualizarCriterios();
+            class_pre.bitacora.actualizarCriterios();
             
             if(class_pre.puntos_obliga === 23 && class_pre.puntos_nobliga >= 5){
                 $('#div_postular').show();
@@ -522,8 +533,8 @@ class_pre = {
             $('#row_comenzar').hide();
             $('#row_preevaluacion').show();            
         });
-		
-		// Los cambios en datos identificadores se guardan sin esperar el envío.
+        
+        // Los cambios en datos identificadores se guardan sin esperar el envío.
         $('#form_postular').on('input change',
             '#nombre_revista, #issn, #issne, #url_revista, #organizacion, #pais, #correo',
             function(){ class_pre.bitacora.programarDatos(); }
@@ -585,9 +596,10 @@ class_pre = {
                 form['otra_institucion_pais_'+i] = $('#otra_institucion_pais_'+i).val();
             }
             
-			class_pre.bitacora.registrar('intento_postulacion');
+            class_pre.bitacora.registrar('intento_postulacion');
             loading.start();
             
+            //$.post('<?=site_url("main/createPlantilla");?>', $.extend(form,{criterio:class_pre.criterio,completo:true}), function(result){
             $.post('<?=site_url("main/createPlantilla");?>', $.extend(form,{
                 criterio:class_pre.criterio,
                 completo:true,
@@ -614,17 +626,17 @@ class_pre = {
                 mes = "0".repeat(2-mes.length)+mes;
                 var anio = String(new Date(Date.now()).getFullYear());
                 var array = [form.nombre_revista, form.issn, form.pais, form.ciudad, form.nombre, form.correo, form.periodicidad, form.organizacion, form.autorizo, 
-                                dia + "/" + mes + "/" + anio, "https://docs.google.com/spreadsheets/d/"+result.xlsx+"/edit", "https://docs.google.com/document/d/"+result.docx+"/edit", form.url
-								//dia + "/" + mes + "/" + anio, "", "", form.url
+                                //dia + "/" + mes + "/" + anio, "https://docs.google.com/spreadsheets/d/"+result.xlsx+"/edit", "https://docs.google.com/document/d/"+result.docx+"/edit", form.url
+                                dia + "/" + mes + "/" + anio, "", "", form.url
                                 //"https://docs.google.com/document/d//edit",
                                 //"https://docs.google.com/spreadsheets/d//edit"
                             ];
-				class_pre.bitacora.finalizada = true;
+                class_pre.bitacora.finalizada = true;
                 class_pre.initClient2(array);
-				try { sessionStorage.removeItem('biblat_preevaluacion_sesion'); } catch(e){}
-				}).fail(function(xhr){
-					loading.end();
-					class_pre.bitacora.registrar('error_postulacion',
+                try { sessionStorage.removeItem('biblat_preevaluacion_sesion'); } catch(e){}
+            }).fail(function(xhr){
+                loading.end();
+                class_pre.bitacora.registrar('error_postulacion',
                     'HTTP ' + (xhr.status || 'sin respuesta'));
             });
         });
@@ -633,16 +645,54 @@ class_pre = {
             e.preventDefault();
             var form = {};
             form.correo = $('#correo2').val();
+            
+            if(class_pre.simulador){ return; }
+
+            // No se registran visitas ni criterios. Esta es la PRIMERA acción
+            // que permite identificar a un editor sin el puntaje necesario.
+            class_pre.bitacora.iniciar();
+            var identificacion = class_pre.bitacora.datos();
+            var form = {
+                correo: ($('#correo2').val() || '').trim(),
+                nombre_revista: ($('#revista_avance').val() || '').trim(),
+                issn: ($('#issn_avance').val() || '').trim().toUpperCase(),
+                criterio: class_pre.criterio,
+                completo: false,
+                bitacora_sesion: class_pre.bitacora.sesion,
+                url_oai: identificacion.url_oai,
+                origen: window.location.pathname,
+                secuencia: identificacion.secuencia,
+                criterio_actual: class_pre.select
+            };
+
+            $('#btn_enviar').prop('disabled', true);
+            
             loading.start();
             
-            $.post('<?=site_url("main/createPlantilla");?>', $.extend(form,{criterio:class_pre.criterio,completo:false}), function(result){
-                loading.end();
-                $('#btn_enviar').prop('disabled',true);
-                $('#btn_enviar').text('Enviado!');
-                $('#div_postular').html('');
-                $('#div_criterios').html('');
-                $('.form').prop('disabled',true);
-              });
+            $.ajax({
+                url: '<?=site_url("main/createPlantilla");?>',
+                method: 'POST',
+                data: form,
+                dataType: 'json'
+            }).done(function(result){
+                if(!result || !result.ok || !result.correo_aceptado){
+                    $('#btn_enviar').prop('disabled', false);
+                    alert('No fue posible enviar el avance. Inténtelo nuevamente.');
+                    return;
+                }
+                 $('#btn_enviar').text('Enviado!');
+                 $('#div_postular').html('');
+                 $('#div_criterios').html('');
+                $('.form').prop('disabled', true);
+                if(!result.drive_guardado){
+                    alert('Se solicitó el envío del correo, pero no fue posible respaldar el avance en Drive.');
+                }
+                try { sessionStorage.removeItem('biblat_preevaluacion_sesion'); } catch(e){}
+            }).fail(function(xhr){
+                $('#btn_enviar').prop('disabled', false);
+                console.warn('Error al solicitar envío de avance', xhr.status);
+                alert('No fue posible procesar el avance. Por favor, inténtelo nuevamente.');
+            }).always(function(){ loading.end(); });
         });
     },
     add_otros:function(){
@@ -947,8 +997,8 @@ class_pre.bitacora = {
             origen: window.location.pathname,
             url_oai: typeof url_metametrics === 'undefined' ?
                 (this.meta.url_oai || '') : (url_metametrics || this.meta.url_oai || ''),
-            revista: valor('#nombre_revista') || this.meta.revista || '',
-            issn: valor('#issn') || this.meta.issn || '',
+            revista: valor('#nombre_revista') || valor('#revista_avance') || this.meta.revista || '',
+            issn: valor('#issn') || valor('#issn_avance') || this.meta.issn || '',
             issne: valor('#issne') || this.meta.issne || '',
             url_revista: valor('#url_revista'),
             organizacion: valor('#organizacion'),

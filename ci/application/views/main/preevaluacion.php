@@ -584,11 +584,33 @@
             </div>
             <div class="row"><br></div>
             <form id="form_enviar">
+             <div class="row">
+                 <div class="col-md-3">
+                    <label for="revista_avance">Título de la revista (opcional):</label>
+                </div>
+                <div class="col-md-9">
+                    <input id="revista_avance" class="form" type="text" style="width:100%" maxlength="250">
+                </div>
+            </div>
+            <div class="row"><br></div>
             <div class="row">
                 <div class="col-md-3">
-                    <label for="correo2">Correo electrónico:</label>
+                    <label for="issn_avance">ISSN de la revista:</label>
                 </div>
                 <div class="col-md-3">
+                    <input
+                    id="issn_avance"
+                    type="text"
+                    pattern="[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9Xx]"
+                    title="ISSN impreso o electrónico. Formato XXXX-XXXX">
+                </div>
+            </div>
+            <div class="row"><br></div>
+            <div class="row">
+                <div class="col-md-3">
+                     <label for="correo2">Correo electrónico:</label>
+                 </div>
+                 <div class="col-md-3">
                     <input id="correo2" class="form" type="email" style="width:100%" required="required">
                 </div>
             </div>
