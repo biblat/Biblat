@@ -299,11 +299,20 @@ class_admin = {
     },
 
     ready: function(){
-        var anio = (new Date()).getFullYear();
-        var anios='';
-        for(var i=anio; i>=anio-50; i--){
-            anios += '<option value="'+i+'">'+i+'</option>';
+        var fecha = new Date();
+        var anio = fecha.getFullYear();
+        var mes = fecha.getMonth(); // Enero = 0, Octubre = 9
+        
+        // En cosecha, a partir de octubre, incluir el año siguiente
+        if ((window.location.pathname.replace(/\/$/, '')).indexOf('/adminb/cosecha') !== -1 && mes >= 9) {
+            anio++;
         }
+
+        var anios = '';
+        for (var i = anio; i >= anio - 50; i--) {
+            anios += '<option value="' + i + '">' + i + '</option>';
+        }
+
         $('#anio').html(anios);
         $('#btn_actualizar_ojs').hide();
         loading.start();
