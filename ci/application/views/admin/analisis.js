@@ -1179,6 +1179,12 @@ class_av = {
     pc_clave_literal: function(valor){
         return String(valor == null ? '' : valor).trim().normalize('NFC');
     },
+    /* Una revisión PC completada ya no admite altas ni cambios de palabras.
+       Se usa tanto al abrir un registro como tras completar sin recargar. */
+    pc_palabras_completadas: function(){
+        var doc = (class_av.var.documentoJSON && class_av.var.documentoJSON[0]) || {};
+        return String(doc.estatusPC || '').trim().toUpperCase() === 'C';
+    },
     /* Al agregar un término, buscar primero la grafía exacta elegida en Select2.
        No sustituirla por variantes con más ocurrencias o distinta capitalización. */
     catalogo_pc_buscar_estricto: function(termino, idioma){
@@ -1901,6 +1907,27 @@ class_av = {
         $texto[0].style.removeProperty('-webkit-line-clamp');
         $texto[0].style.removeProperty('-webkit-box-orient');
 
+        // La revista se toma del título de la ficha ya cargada, sin peticiones extra.
+        var $revista = $('<div>', {
+            id: 'biblat-titulo-flotante-revista',
+            'aria-label': 'Revista del artículo actual'
+        }).css({
+            display: 'none',
+            marginTop: '9px',
+            paddingTop: '8px',
+            borderTop: '1px solid #f0f0f0',
+            textAlign: 'left',
+            overflowWrap: 'anywhere',
+            whiteSpace: 'normal'
+        });
+        $revista.append($('<div>').text('REVISTA').css({
+            fontSize: '10px', fontWeight: '700', letterSpacing: '0.5px',
+            lineHeight: '15px', color: '#777', marginBottom: '2px'
+        }));
+        $revista.append($('<div>', {id:'biblat-titulo-flotante-revista-nombre'}).css({
+            fontSize: '12px', fontWeight: '500', lineHeight: '18px', color: '#383838'
+        }));
+
         // Enlaces de consulta, compactos y sin mostrar la URL completa.
         // Se rellenan al recibir los datos del artículo y se actualizan
         // si el analista cambia url1/url2 o su tipo mientras edita.
@@ -1918,7 +1945,7 @@ class_av = {
             textAlign: 'left'
         });
 
-        $contenido.append($etiqueta, $texto, $enlaces);
+        $contenido.append($etiqueta, $texto, $revista, $enlaces);
         $flotante.append($pestana, $contenido).appendTo('body');
         class_av.titulo_flotante_ajustar_posicion();
         class_av.titulo_flotante_replegar(false);
@@ -2094,6 +2121,9 @@ class_av = {
         var titulo = String($('#titArticulo').text() || '').replace(/\s+/g, ' ').trim();
         class_av.var.titulo_flotante_actual = titulo;
         $('#biblat-titulo-flotante-texto').text(titulo);
+        var revista = String($('#titRevista').text() || '').replace(/\s+/g, ' ').trim();
+        $('#biblat-titulo-flotante-revista-nombre').text(revista);
+        $('#biblat-titulo-flotante-revista').toggle(revista !== '');
         // No conservar los enlaces del artículo anterior mientras carga el nuevo.
         $('#biblat-titulo-flotante-enlaces').empty().css('display', 'none');
         // Cada artículo nuevo empieza con la tarjeta visible.
@@ -2110,6 +2140,8 @@ class_av = {
 
     titulo_flotante_ocultar: function(){
         class_av.var.titulo_flotante_actual = '';
+        $('#biblat-titulo-flotante-revista-nombre').empty();
+        $('#biblat-titulo-flotante-revista').hide();
         $('#biblat-titulo-flotante-enlaces').empty().css('display', 'none');
         class_av.titulo_flotante_replegar(false);
         class_av.titulo_flotante_mostrar(false);
@@ -2616,6 +2648,10 @@ class_av = {
                 // no mostramos acciones que puedan cambiar estatusPC/asignadoPC.
                 $('#save-pc, #save-pc-bottom, #save-full-pc, #save-full-pc-bottom').toggle(flujoPCActivo && !pc_cerrado);
                 $('#palabras-clave').toggleClass('pc-solo-lectura', pc_cerrado);
+                if(pc_cerrado){
+                    // No ofrecer captura cuando la revisión ya se completó.
+                    $('#add-palabra, #add-keyword').hide();
+                }
 
                 if(capturaManualLegacyPC){
                     $('#panelPalabrasClave .notice-pc').html(
@@ -7048,6 +7084,8 @@ class_av = {
         });
     },
     prompt_n: function(id, idioma, arr_sustituye){
+        // No abrir captura en un análisis PC ya finalizado.
+        if(class_av.var.solo_lectura || class_av.pc_palabras_completadas()) return false;
         var agregar = (idioma == 'eng') ? 'Agregar keyword:' : 'Agregar palabra clave:';
 
         $.confirm({
@@ -8575,6 +8613,12 @@ class_av = {
                                     if(art) art.estatusPC='C';
                                     class_av.var.documentoJSON[0].estatusPC='C';
                                     class_av.var.cambios_pc=false;
+                                    // La confirmación del servidor es el momento en que
+                                    // termina la captura, incluso si Artículo sigue A/R.
+                                    $('#add-palabra, #add-keyword').hide();
+                                    // También retirar las tijeras: permiten añadir un
+                                    // fragmento y tampoco deben quedar activas tras PC C.
+                                    $('.pc-fragmento-tijeras').remove();
 
                                     if(promoverGlobal || estatusNormal === 'C'){
                                         // El análisis normal ya terminó (P o C): al
@@ -9931,7 +9975,9 @@ class_av = {
              */
             var permitirAgregarPalabras = (
                 cons.rol.val !== 'Editor' &&
-                (features.mostrar_flujo_palabras_clave === true || capturaManualLegacyPC)
+                (features.mostrar_flujo_palabras_clave === true || capturaManualLegacyPC) &&
+                !class_av.var.solo_lectura &&
+                !class_av.pc_palabras_completadas()
             );
 
             if(permitirAgregarPalabras){
@@ -10096,6 +10142,7 @@ class_av = {
             };
 
             var clickPalabra = function(elemento, idioma){
+                if(class_av.var.solo_lectura || class_av.pc_palabras_completadas()) return false;
                 var $boton = $(elemento);
                 var selector = (idioma === 'eng') ? '.keyword.palabra_clave' : '.esp.palabra_clave';
                 var mensajeMax = (idioma === 'eng') ? 'El número máximo de keywords son 10' : 'El número máximo de palabras clave son 10';
@@ -10154,6 +10201,9 @@ class_av = {
             var promoverSugerenciaAVerde = function($opcion, idioma, restaurando, forzarVisible){
                 if(!$opcion || !$opcion.length) return false;
                 restaurando = (restaurando === true);
+                // La restauración de palabras guardadas sigue permitida en PC C,
+                // pero no la selección interactiva de nuevas sugerencias.
+                if(!restaurando && (class_av.var.solo_lectura || class_av.pc_palabras_completadas())) return false;
                 forzarVisible = (forzarVisible === true);
                 var $grupo = $opcion.closest('.pc-sugerencia-item');
                 if(!$grupo.length) return false;
@@ -10225,7 +10275,7 @@ class_av = {
                 .on('click.pcSugerenciaOpcion', '.pc-sugerencia-opcion', function(e){
                     e.preventDefault();
                     e.stopPropagation();
-                    if(class_av.var.solo_lectura) return false;
+                    if(class_av.var.solo_lectura || class_av.pc_palabras_completadas()) return false;
                     var $opcion = $(this);
                     var $lider = $opcion.closest('.pc-sugerencia-item')
                         .find('.pc-principal-slot .palabra_clave').first();
@@ -10368,9 +10418,11 @@ class_av = {
                 class_av.prompt(this.id, 'eng', resp_sustituye);
             });
             $('#add-palabra').off('click').on('click', function(){
+                if(class_av.var.solo_lectura || class_av.pc_palabras_completadas()) return false;
                 class_av.prompt_n(this.id, 'esp', resp_sustituye);
             });
             $('#add-keyword').off('click').on('click', function(){
+                if(class_av.var.solo_lectura || class_av.pc_palabras_completadas()) return false;
                 class_av.prompt_n(this.id, 'eng', resp_sustituye);
             });
 
@@ -11475,3 +11527,494 @@ class_av = {
 };
 
 $(class_av.ready);
+
+/*
+ * BIBLAT CENTRAL - Seleccion libre de palabras para extraer una palabra clave IA
+ * Compatible con la vista de palabras clave del 05/11/2026.
+ * Cargar DESPUES del archivo Javascript principal de Biblat.
+ * No modifica la BD ni el proceso de guardado.
+ */
+(function (window, $) {
+    'use strict';
+
+    if (!$ || window.__biblatFragmentosPCInstalado) return;
+    window.__biblatFragmentosPCInstalado = true;
+
+    var SELECTORES_CONTENEDOR = '#palabras_catalogo, #otras_palabras, #keywords_catalogo, #otras_keywords';
+    var SELECTOR_BOTON_ORIGINAL = '.pc-chip-item > button.palabra_clave.pc-chip';
+    var MODAL_ID = 'pc-fragmento-modal';
+    var estado = null;
+    var observadores = [];
+    var redibujadoPendiente = false;
+
+    function av() {
+        return window.class_av;
+    }
+
+    function soloLectura() {
+        return !!(av() && av().var && (
+            av().var.solo_lectura === true ||
+            (typeof av().pc_palabras_completadas === 'function' && av().pc_palabras_completadas())
+        ));
+    }
+
+    function claveLiteral(valor) {
+        if (av() && typeof av().pc_clave_literal === 'function') {
+            return av().pc_clave_literal(valor);
+        }
+        return String(valor == null ? '' : valor).trim().normalize('NFC');
+    }
+
+    function capitalizaInicio(valor, idioma) {
+        var texto = String(valor == null ? '' : valor).trim().replace(/\s+/g, ' ');
+        if (!texto) return '';
+        // Cambiar SOLAMENTE la primera letra, incluso tras un signo inicial.
+        // No tocar acentos, siglas ni el resto de la frase.
+        return texto.replace(/\p{L}/u, function (letra) {
+            return letra.toLocaleUpperCase(idioma === 'eng' ? 'en' : 'es');
+        });
+    }
+
+    function escapeSelectorId(texto) {
+        return String(texto).replace(/[^a-zA-Z0-9_-]/g, '-');
+    }
+
+    function contenedorDeIdioma(idioma, exacta) {
+        return $(idioma === 'eng'
+            ? (exacta ? '#keywords_catalogo' : '#otras_keywords')
+            : (exacta ? '#palabras_catalogo' : '#otras_palabras'));
+    }
+
+    function selectorBotonIdioma(idioma) {
+        return idioma === 'eng' ? '.keyword.palabra_clave' : '.esp.palabra_clave';
+    }
+
+    function cuentaSeleccionadas(idioma) {
+        var unicas = {};
+        $(selectorBotonIdioma(idioma) + '.badge-warning').each(function () {
+            var texto = $(this).attr('data-pc-term') || '';
+            var clave = claveLiteral(texto);
+            if (clave) unicas[clave] = true;
+        });
+        return Object.keys(unicas).length;
+    }
+
+    function buscaVisible(idioma, termino) {
+        var clave = claveLiteral(termino);
+        var $hallado = $();
+        $(selectorBotonIdioma(idioma)).each(function () {
+            if (claveLiteral($(this).attr('data-pc-term')) === clave) {
+                $hallado = $(this);
+                return false;
+            }
+        });
+        return $hallado;
+    }
+
+    function buscaOpcionDeDesplegable(idioma, termino) {
+        var clave = claveLiteral(termino);
+        var $hallada = $();
+        var lista = idioma === 'eng'
+            ? '#keywords_catalogo .pc-sugerencia-opcion, #otras_keywords .pc-sugerencia-opcion'
+            : '#palabras_catalogo .pc-sugerencia-opcion, #otras_palabras .pc-sugerencia-opcion';
+        $(lista).each(function () {
+            if (claveLiteral($(this).attr('data-pc-term')) === clave) {
+                $hallada = $(this);
+                return false;
+            }
+        });
+        return $hallada;
+    }
+
+    function mensaje(texto) {
+        if (av() && typeof av().mensaje === 'function') {
+            av().mensaje(texto);
+        } else {
+            window.alert(texto);
+        }
+    }
+
+    function mensajeMaximo(idioma) {
+        return idioma === 'eng'
+            ? 'El número máximo de keywords son 10'
+            : 'El número máximo de palabras clave son 10';
+    }
+
+    function informarMaximo(idioma) {
+        // Advertir dentro del mismo cuadro para evitar que otro modal quede
+        // detrás de las tijeras (y sin desplazar la pantalla del artículo).
+        $('#' + MODAL_ID + ' .pc-fragmento-error')
+            .text(mensajeMaximo(idioma)).show();
+    }
+
+    function actualizaContadores(idioma) {
+        if (!av() || !av().var) return;
+        if (idioma === 'eng') av().var.count_keywords = cuentaSeleccionadas('eng');
+        else av().var.count_palabras_clave = cuentaSeleccionadas('esp');
+        av().var.cambios_pc = true;
+    }
+
+    function ordenNuevo($destino) {
+        var max = -1;
+        $destino.children().each(function () {
+            var valor = Number($(this).attr('data-pc-order'));
+            if (Number.isFinite(valor)) max = Math.max(max, valor);
+        });
+        return max + 1;
+    }
+
+    function guardaComoNueva(termino, idioma, exacta, num) {
+        if (!av() || !av().var) return false;
+        var destino = contenedorDeIdioma(idioma, exacta);
+        if (!destino.length) return false;
+
+        av().var.pc_manual_id_seq = Number(av().var.pc_manual_id_seq || 0) + 1;
+        var id = 'pc-fragmento-' + (idioma === 'eng' ? 'en-' : 'es-') +
+            escapeSelectorId(termino).slice(0, 45) + '-' + av().var.pc_manual_id_seq;
+        var claseIdioma = idioma === 'eng' ? 'new_k keyword' : 'new_p esp';
+
+        // Crear los nodos con .text() y .attr(), nunca inyectar el texto IA como HTML.
+        var $envoltura = $('<div>', {
+            'class': 'pc-chip-item',
+            'data-pc-num': num,
+            'data-pc-order': ordenNuevo(destino),
+            'data-pc-fragmento': '1'
+        });
+        var $boton = $('<button>', {
+            id: id,
+            type: 'button',
+            'class': 'btn ' + claseIdioma + ' badge-warning palabra_clave pc-chip ' +
+                (exacta ? 'pc-exacta' : 'pc-aprox')
+        }).attr({
+            'data-pc-term': termino,
+            'data-pc-tipo': exacta ? 'exacta' : 'aprox',
+            'data-pc-num': num
+        });
+        $boton.append(document.createTextNode(termino + ' '));
+        $boton.append($('<span>', {'class': 'badge'}).text(num));
+        $boton.append($('<div>', {id: id + '-sustituye'}));
+        $envoltura.append($boton);
+        destino.append($envoltura);
+
+        // Igual que el alta manual: conservar la lista auxiliar de términos nuevos.
+        var nuevas = idioma === 'eng' ? av().var.keywords_n : av().var.palabras_clave_n;
+        if (Array.isArray(nuevas) && nuevas.indexOf(termino) < 0) nuevas.push(termino);
+
+        if (idioma === 'eng') {
+            $('#div_keywords_texto, #div_keywords, #div_keywords_catalogo_interno, #div_otras_keywords_interno').show();
+        } else {
+            $('#div_palabras_clave_texto, #div_palabras').show();
+        }
+        actualizaContadores(idioma);
+        return true;
+    }
+
+    // Crear/seleccionar el fragmento sólo DESPUÉS de resolver su existencia
+    // en el catálogo actual de PostgreSQL. El catálogo ONLINE local es parcial.
+    function aplicarFragmentoResuelto(contexto, nuevo) {
+        if (!estado || estado !== contexto || soloLectura() ||
+           String(av().var.sistema || '') !== contexto.sistema) return false;
+        var idioma = contexto.idioma;
+        var match = av().catalogo_pc_buscar(nuevo, idioma);
+        var exacta = !!match;
+        var termino = exacta ? capitalizaInicio(match.valor || nuevo, idioma) : nuevo;
+        var num = exacta ? Number(match.num || 0) : 0;
+
+        // Una opción visible ya seleccionada no se duplica y NO recibe aviso.
+        var $existente = buscaVisible(idioma, termino);
+        if ($existente.length) {
+           if (!$existente.hasClass('badge-warning')) {
+               if (cuentaSeleccionadas(idioma) >= 10) {
+                  informarMaximo(idioma);
+                  return false;
+               }
+               $existente.trigger('click'); // delegado existente
+           }
+           cerrar();
+           return true;
+        }
+
+        // Conserva el flujo de las alternativas ya ofrecidas en el desplegable.
+        var $opcion = buscaOpcionDeDesplegable(idioma, termino);
+        if ($opcion.length) {
+           if (cuentaSeleccionadas(idioma) >= 10) {
+               informarMaximo(idioma);
+               return false;
+           }
+           $opcion.trigger('click');
+           var $convertida = buscaVisible(idioma, termino);
+           if ($convertida.length && $convertida.hasClass('badge-warning')) {
+               cerrar();
+               return true;
+           }
+           return false;
+        }
+
+        if (cuentaSeleccionadas(idioma) >= 10) {
+           informarMaximo(idioma);
+           return false;
+        }
+        if (!guardaComoNueva(termino, idioma, exacta, num)) return false;
+        cerrar();
+        return true;
+    }
+
+    function aplicarFragmento() {
+        if (!estado || soloLectura() || estado.enviando) return false;
+        var contexto = estado;
+        var idioma = contexto.idioma;
+        // Las palabras pueden ser no contiguas: componer sólo las marcadas,
+        // siempre en el orden en que aparecen en la propuesta de la IA.
+        var nuevo = capitalizaInicio(
+           contexto.palabras.filter(function (palabra, indice) {
+               return contexto.seleccionadas[indice] === true;
+           }).join(' '), idioma
+        );
+        if (!nuevo) return false;
+        // Si ya no es el artículo original, no aplicar una selección de otra ficha.
+        if (String(av().var.sistema || '') !== contexto.sistema) {
+           cerrar();
+           return false;
+        }
+        if (cuentaSeleccionadas(idioma) >= 10 && !buscaVisible(idioma, nuevo).length) {
+           informarMaximo(idioma);
+           return false;
+        }
+
+        contexto.enviando = true;
+        $('#' + MODAL_ID + ' .pc-fragmento-usar')
+           .prop('disabled', true).text('Revisando catálogo...');
+        $('#' + MODAL_ID + ' .pc-fragmento-error').hide().empty();
+
+        // La versión en línea NO descarga el catálogo completo. Consultar por
+        // POST exactamente como catalogo_pc_resolver(), pero para este fragmento.
+        var endpoint = idioma === 'eng'
+           ? "<?=site_url('datos/keywords_resolver');?>"
+           : "<?=site_url('datos/palabras_resolver');?>";
+
+        $.ajax({
+           type: 'POST',
+           url: endpoint,
+           data: {terminos: JSON.stringify([nuevo])},
+           dataType: 'json',
+           timeout: 20000
+        }).done(function (filas) {
+           if (estado !== contexto || String(av().var.sistema || '') !== contexto.sistema) return;
+           if (!Array.isArray(filas)) {
+               $('#' + MODAL_ID + ' .pc-fragmento-error')
+                  .text('El catálogo devolvió una respuesta inválida. Intenta nuevamente.')
+                  .show();
+               return;
+           }
+           if (filas.length) av().catalogo_pc_agrega_cache(idioma, filas);
+           aplicarFragmentoResuelto(contexto, nuevo);
+        }).fail(function (xhr) {
+           if (estado !== contexto) return;
+           var aviso = 'No fue posible consultar el catálogo. No se agregó el fragmento.';
+           if (xhr && (xhr.status === 401 || xhr.status === 403)) {
+               aviso = 'La sesión pudo haber expirado. Recarga la página e inicia sesión nuevamente.';
+           }
+           $('#' + MODAL_ID + ' .pc-fragmento-error').text(aviso).show();
+        }).always(function () {
+           if (estado === contexto) {
+               contexto.enviando = false;
+               $('#' + MODAL_ID + ' .pc-fragmento-usar')
+                  .prop('disabled', false).text('Usar palabra clave');
+           }
+        });
+        return false;
+    }
+
+    function renderSeleccion() {
+        if (!estado) return;
+        $('#' + MODAL_ID + ' .pc-fragmento-error').hide().empty();
+        var $lista = $('#' + MODAL_ID + ' .pc-fragmento-palabras');
+        // Construir los botones una sola vez. Al alternar una selección sólo
+        // cambia su aspecto y aria-pressed: el foco no se pierde con cada clic.
+        if ($lista.children('.pc-fragmento-palabra').length !== estado.palabras.length) {
+            $lista.empty();
+            estado.palabras.forEach(function (palabra, indice) {
+                $('<button>', {
+                    type: 'button',
+                    'class': 'pc-fragmento-palabra',
+                    'aria-pressed': 'false',
+                    'data-indice': indice
+                }).text(palabra).appendTo($lista);
+            });
+        }
+        $lista.children('.pc-fragmento-palabra').each(function (indice) {
+            var activa = estado.seleccionadas[indice] === true;
+            $(this).toggleClass('activa', activa)
+                   .attr('aria-pressed', activa ? 'true' : 'false');
+        });
+        var elegidas = estado.palabras.filter(function (palabra, indice) {
+            return estado.seleccionadas[indice] === true;
+        });
+        var resultado = capitalizaInicio(elegidas.join(' '), estado.idioma);
+        $('#' + MODAL_ID + ' .pc-fragmento-resultado').text(resultado || 'Selecciona una o varias palabras');
+        $('#' + MODAL_ID + ' .pc-fragmento-usar').prop('disabled', !resultado || estado.enviando);
+        $('#' + MODAL_ID + ' .pc-fragmento-ayuda').text(
+            'Selecciona las palabras que quieras, aunque no sean consecutivas. ' +
+            'Puedes quitar cualquiera con otro clic. Se conservará el orden original.' +
+            (elegidas.length ? ' Seleccionadas: ' + elegidas.length + '.' : '')
+        );
+    }
+
+    function abrir(termino, idioma, $origen) {
+        if (soloLectura()) return;
+        var palabras = String(termino || '').trim().split(/\s+/).filter(Boolean);
+        if (palabras.length < 2) return;
+        estado = {
+            idioma: idioma,
+            sistema: String(av().var.sistema || ''),
+            enviando: false,
+            palabras: palabras,
+            seleccionadas: palabras.map(function () { return false; }),
+            $origen: $origen
+        };
+        $('#' + MODAL_ID + ' .pc-fragmento-origen').text(termino);
+        $('#' + MODAL_ID + ' .pc-fragmento-palabras').empty();
+        renderSeleccion();
+        $('#' + MODAL_ID).addClass('abierto').attr('aria-hidden', 'false');
+        // No cambiar el hash, el scrollTop ni el foco de los campos del artículo.
+        var cerrarBtn = $('#' + MODAL_ID + ' .pc-fragmento-cerrar')[0];
+        try { cerrarBtn.focus({preventScroll: true}); } catch (e) { cerrarBtn.focus(); }
+    }
+
+    function cerrar() {
+        var $origen = estado && estado.$origen;
+        $('#' + MODAL_ID).removeClass('abierto').attr('aria-hidden', 'true');
+        estado = null;
+        if ($origen && $origen.length && document.contains($origen[0])) {
+            try { $origen[0].focus({preventScroll: true}); } catch (e) { /* sin desplazamiento */ }
+        }
+    }
+
+    function decorar() {
+        redibujadoPendiente = false;
+        if (soloLectura()) {
+            $(SELECTORES_CONTENEDOR).find('.pc-fragmento-tijeras').remove();
+            return;
+        }
+        $(SELECTORES_CONTENEDOR).find(SELECTOR_BOTON_ORIGINAL).each(function () {
+            var $boton = $(this);
+            var $item = $boton.parent('.pc-chip-item');
+            if (!$item.length || $item.is('[data-pc-manual="1"], [data-pc-fragmento="1"]')) return;
+            if ($item.children('.pc-fragmento-tijeras').length) return;
+            var termino = $boton.attr('data-pc-term') || '';
+            if (String(termino).trim().split(/\s+/).length < 2) return;
+            var idioma = $boton.hasClass('keyword') ? 'eng' : 'esp';
+            $item.addClass('pc-chip-con-tijeras');
+            var $tijeras = $('<button>', {
+                type: 'button',
+                'class': 'pc-fragmento-tijeras',
+                title: 'Extraer una parte de esta palabra clave',
+                'aria-label': 'Extraer un fragmento de ' + termino
+            }).attr('data-pc-idioma', idioma);
+            $tijeras.append($('<i>', {'class': 'fa fa-scissors', 'aria-hidden': 'true'}));
+            $item.append($tijeras);
+        });
+    }
+
+    function solicitarDecorado() {
+        if (redibujadoPendiente) return;
+        redibujadoPendiente = true;
+        window.requestAnimationFrame ? window.requestAnimationFrame(decorar) : window.setTimeout(decorar, 0);
+    }
+
+    function instalarInterfaz() {
+        if (!$('#pc-fragmento-estilos').length) {
+            $('<style>', {id: 'pc-fragmento-estilos'}).text('\
+.pc-chip-con-tijeras{display:inline-flex;align-items:center;gap:5px;max-width:100%;vertical-align:top;}\
+.pc-chip-con-tijeras>.pc-chip{min-width:0;white-space:normal;text-align:left;}\
+.pc-fragmento-tijeras{flex:0 0 auto;border:1px solid #d6d8db;background:#fff;color:#6c757d;border-radius:7px;cursor:pointer;font-size:14px;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;padding:0;}\
+#accordion.modo-solo-lectura .pc-fragmento-tijeras,#palabras-clave.pc-solo-lectura .pc-fragmento-tijeras{display:none!important;}\
+.pc-fragmento-tijeras:hover,.pc-fragmento-tijeras:focus{border-color:#e07c19;color:#bf5c05;background:#fff7ec;outline-offset:2px;}\
+#pc-fragmento-modal{display:none;position:fixed;inset:0;z-index:100010;align-items:center;justify-content:center;padding:15px;}\
+#pc-fragmento-modal.abierto{display:flex;}\
+#pc-fragmento-modal .pc-fragmento-fondo{position:absolute;inset:0;background:rgba(24,30,38,.55);}\
+#pc-fragmento-modal .pc-fragmento-cuadro{position:relative;z-index:1;background:white;width:min(600px,100%);max-height:90vh;overflow-y:auto;border-radius:12px;box-shadow:0 14px 50px rgba(0,0,0,.25);padding:22px;color:#252525;}\
+#pc-fragmento-modal .pc-fragmento-encabezado{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px;}\
+#pc-fragmento-modal h3{font-size:19px;font-weight:650;line-height:1.35;margin:0;}\
+#pc-fragmento-modal .pc-fragmento-cerrar{border:0;background:transparent;color:#666;cursor:pointer;font-size:23px;line-height:1;padding:0 5px;}\
+#pc-fragmento-modal .pc-fragmento-origen{font-weight:600;color:#444;overflow-wrap:anywhere;margin:10px 0 16px;}\
+#pc-fragmento-modal .pc-fragmento-ayuda{font-size:13px;color:#666;margin:0 0 12px;}\
+#pc-fragmento-modal .pc-fragmento-palabras{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 17px;}\
+#pc-fragmento-modal .pc-fragmento-palabra{border:1px solid #c6cbd0;border-radius:7px;background:#fff;color:#333;padding:8px 11px;font-size:15px;cursor:pointer;}\
+#pc-fragmento-modal .pc-fragmento-palabra:hover{border-color:#d97706;background:#fff8ed;}\
+#pc-fragmento-modal .pc-fragmento-palabra.activa{border-color:#c76800;background:#ffeed8;color:#743900;font-weight:600;}\
+#pc-fragmento-modal .pc-fragmento-previa{border:1px solid #e1e3e5;border-radius:8px;background:#f7f8f9;padding:13px;margin:0 0 18px;}\
+#pc-fragmento-modal .pc-fragmento-etiqueta{font-size:12px;color:#61686f;margin-bottom:6px;font-weight:600;}\
+#pc-fragmento-modal .pc-fragmento-resultado{font-size:17px;overflow-wrap:anywhere;}\
+#pc-fragmento-modal .pc-fragmento-error{display:none;border:1px solid #f2bb86;background:#fff6eb;border-radius:6px;padding:9px 12px;margin-bottom:12px;color:#9a410a;font-size:13px;}\
+#pc-fragmento-modal .pc-fragmento-acciones{display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap;}\
+#pc-fragmento-modal .pc-fragmento-acciones button{border-radius:7px;padding:9px 14px;font-weight:600;cursor:pointer;}\
+#pc-fragmento-modal .pc-fragmento-cancelar{border:1px solid #ccd1d6;background:#fff;color:#333;}\
+#pc-fragmento-modal .pc-fragmento-usar{border:1px solid #c75b0a;background:#df7519;color:#fff;}\
+#pc-fragmento-modal .pc-fragmento-usar:hover{background:#bf5b0b;}\
+#pc-fragmento-modal .pc-fragmento-usar:disabled{opacity:.45;cursor:not-allowed;}\
+@media(max-width:480px){#pc-fragmento-modal .pc-fragmento-cuadro{padding:16px;}#pc-fragmento-modal .pc-fragmento-palabra{padding:7px 9px;}}\
+').appendTo('head');
+        }
+        if (!$('#' + MODAL_ID).length) {
+            var $modal = $('<div>', {id: MODAL_ID, 'aria-hidden': 'true'});
+            $modal.append('<div class="pc-fragmento-fondo"></div>');
+            var $cuadro = $('<div>', {
+                'class': 'pc-fragmento-cuadro', role: 'dialog',
+                'aria-modal': 'true', 'aria-labelledby': 'pc-fragmento-titulo'
+            });
+            $cuadro.append('<div class="pc-fragmento-encabezado"><h3 id="pc-fragmento-titulo"><i class="fa fa-scissors" aria-hidden="true"></i> Extraer palabra clave</h3><button type="button" class="pc-fragmento-cerrar" aria-label="Cerrar">&times;</button></div>');
+            $cuadro.append('<div class="pc-fragmento-origen"></div>');
+            $cuadro.append('<p class="pc-fragmento-ayuda"></p>');
+            $cuadro.append('<div class="pc-fragmento-palabras"></div>');
+            $cuadro.append('<div class="pc-fragmento-previa"><div class="pc-fragmento-etiqueta">PALABRA CLAVE RESULTANTE</div><div class="pc-fragmento-resultado"></div></div>');
+            $cuadro.append('<div class="pc-fragmento-error" role="alert"></div>');
+            $cuadro.append('<div class="pc-fragmento-acciones"><button type="button" class="pc-fragmento-cancelar">Cancelar</button><button type="button" class="pc-fragmento-usar">Usar palabra clave</button></div>');
+            $modal.append($cuadro).appendTo('body');
+        }
+    }
+
+    $(function () {
+        instalarInterfaz();
+        decorar();
+
+        // Los listados se reemplazan completamente al cambiar de artículo.
+        // Observar sólo estos cuatro contenedores, nunca todo el documento.
+        $(SELECTORES_CONTENEDOR).each(function () {
+            if (typeof MutationObserver === 'undefined') return;
+            var observador = new MutationObserver(solicitarDecorado);
+            observador.observe(this, {childList: true, subtree: true});
+            observadores.push(observador);
+        });
+
+        $(document)
+            .off('click.biblatFragmentoTijeras', '.pc-fragmento-tijeras')
+            .on('click.biblatFragmentoTijeras', '.pc-fragmento-tijeras', function (ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                var $boton = $(this);
+                var $chip = $boton.siblings('button.palabra_clave').first();
+                abrir($chip.attr('data-pc-term'), $boton.attr('data-pc-idioma'), $boton);
+            })
+            .off('click.biblatFragmentoPalabra', '#' + MODAL_ID + ' .pc-fragmento-palabra')
+            .on('click.biblatFragmentoPalabra', '#' + MODAL_ID + ' .pc-fragmento-palabra', function () {
+                if (!estado || estado.enviando) return;
+                var indice = Number($(this).attr('data-indice'));
+                if (!Number.isInteger(indice) || indice < 0 || indice >= estado.palabras.length) return;
+                // Cada palabra se selecciona/deselecciona independientemente.
+                // No hay inicio/fin ni requisito de contigüidad.
+                estado.seleccionadas[indice] = !estado.seleccionadas[indice];
+                renderSeleccion();
+            })
+            .off('click.biblatFragmentoUsar', '#' + MODAL_ID + ' .pc-fragmento-usar')
+            .on('click.biblatFragmentoUsar', '#' + MODAL_ID + ' .pc-fragmento-usar', function () {
+                aplicarFragmento();
+            })
+            .off('click.biblatFragmentoCerrar', '#' + MODAL_ID + ' .pc-fragmento-cerrar, #' + MODAL_ID + ' .pc-fragmento-cancelar, #' + MODAL_ID + ' .pc-fragmento-fondo')
+            .on('click.biblatFragmentoCerrar', '#' + MODAL_ID + ' .pc-fragmento-cerrar, #' + MODAL_ID + ' .pc-fragmento-cancelar, #' + MODAL_ID + ' .pc-fragmento-fondo', cerrar)
+            .off('keydown.biblatFragmento', '#' + MODAL_ID)
+            .on('keydown.biblatFragmento', '#' + MODAL_ID, function (ev) {
+                if (ev.key === 'Escape') { ev.preventDefault(); cerrar(); }
+            });
+    });
+})(window, window.jQuery);
