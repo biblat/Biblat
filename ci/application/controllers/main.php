@@ -1329,15 +1329,15 @@ class Main extends CI_Controller{
             // No confiar en un total declarado por el navegador.
             $criteriosValidos = is_array($criterios) && count($criterios) === 32;
             if ($criteriosValidos) {
-                for ($i = 0; $i < 32; $i) {
+                for ($i = 0; $i < 32; $i++) {
                     if (!isset($criterios[$i]) || !is_array($criterios[$i])) {
                         $criteriosValidos = false;
                         break;
                     }
                     $cumple = filter_var($criterios[$i]['cumplo'] ?? false, FILTER_VALIDATE_BOOLEAN);
                     if ($cumple) {
-                        if ($i < 23) { $obligatorios; }
-                        else { $opcionales; }
+                        if ($i < 23) { $obligatorios++; }
+                        else { $opcionales++; }
                     }
                 }
             }
@@ -1381,7 +1381,7 @@ class Main extends CI_Controller{
                 $spreadsheet = PHPExcel_IOFactory::load('archivos/Plantilla.xlsx');
                 $spreadsheet->setActiveSheetIndex(0);
                 $hoja = $spreadsheet->getActiveSheet();
-                for ($i = 0; $i < 32; $i) {
+                for ($i = 0; $i < 32; $i++) {
                     // Mapeo inmutable: los campos celda del cliente no se ejecutan.
                     $fila = $i < 23 ? 10 + $i : 36 + ($i - 23);
                     $cumple = filter_var($criterios[$i]['cumplo'] ?? false, FILTER_VALIDATE_BOOLEAN);
