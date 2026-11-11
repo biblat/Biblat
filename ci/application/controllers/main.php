@@ -827,6 +827,11 @@ class Main extends CI_Controller{
         }
         
         public function createPlantilla(){
+			if (!filter_var($_POST['completo'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+                $this->procesarAvancePreevaluacion();
+                return;
+            }
+			
             $spreadsheet = PHPExcel_IOFactory::load("archivos/Plantilla.xlsx");
            
             $spreadsheet->setActiveSheetIndex(0);
@@ -1036,6 +1041,9 @@ class Main extends CI_Controller{
                     $registro['url_revista'] = $_POST['url'] ?? '';
                     $registro['detalle'] = $enviado ?
                         'Correo aceptado por mail()' : 'mail() devolvió false';
+					$registro['archivo_drive'] = 'Preevaluacion_'.($_POST['issn'] ?? '').'.xlsx';
+                    $registro['id_drive'] = $result[1] ?? '';
+                    $registro['estado_correo'] = $correoAceptado ? 'Aceptado por mail()' : 'Rechazado por mail()';
                     $this->guardarBitacoraPostulacion($registro, 'postulacion_procesada');
                 }
 				
@@ -1136,6 +1144,8 @@ class Main extends CI_Controller{
         }
         
         public function setDocumentsDrive($docx, $xlsx){
+			$fileDocId = null;
+            $fileXlsxId = null;
             //$client = $this->getClientGoogle();
             $client = $this->getClientGoogle2();
             $service = new Google_Service_Drive($client);
@@ -1216,12 +1226,13 @@ class Main extends CI_Controller{
         }
 
         protected function guardarBitacoraPostulacion($datos, $eventoForzado = ''){
-            $permitidos = array(
-                'formulario_habilitado','datos_revista','formulario_invalido',
-                'intento_postulacion','error_postulacion','postulacion_procesada'
-            );
-            $evento = $eventoForzado !== '' ? $eventoForzado :
-                $this->datoBitacora($datos, 'evento', 40);
+             $permitidos = array(
+                 'formulario_habilitado','datos_revista','formulario_invalido',
+                'intento_postulacion','error_postulacion','postulacion_procesada',
+                'intento_avance','avance_procesado','error_avance'
+             );
+             $evento = $eventoForzado !== '' ? $eventoForzado :
+                 $this->datoBitacora($datos, 'evento', 40);
             $sesion = $this->datoBitacora($datos, 'sesion', 80);
             if(!in_array($evento, $permitidos, true) ||
                !preg_match('/^[a-zA-Z0-9_-]{12,80}$/', $sesion)){
@@ -1229,13 +1240,19 @@ class Main extends CI_Controller{
             }
             // No se acepta que el navegador declare un resultado definitivo.
             if($eventoForzado === '' && in_array($evento,
-                    array('postulacion_procesada'), true)){
+                    array('postulacion_procesada','intento_avance','avance_procesado','error_avance'), true)){
                 return false;
             }
-            // Evita almacenar intentos que nunca habilitaron el formulario.
-            if((int)($datos['obligatorios'] ?? 0) !== 23 ||
-               (int)($datos['opcionales'] ?? 0) < 5){
-                return false;
+            $obligatorios = (int)($datos['obligatorios'] ?? 0);
+            $opcionales = (int)($datos['opcionales'] ?? 0);
+            $esAvance = in_array($evento,
+                array('intento_avance','avance_procesado','error_avance'), true);
+            if ($esAvance) {
+                // Excepción: solamente cuando el editor solicita su avance sin calificar.
+                if ($obligatorios >= 23 && $opcionales >= 5) { return false; }
+            } else {
+                // Todos los demás eventos siguen exigiendo el formulario habilitado.
+                if ($obligatorios !== 23 || $opcionales < 5) { return false; }
             }
             $sheetId = trim((string) $this->config->item('bitacora_postulaciones_spreadsheet_id'));
             if($sheetId === ''){
@@ -1263,7 +1280,10 @@ class Main extends CI_Controller{
                 $this->datoBitacora($datos,'criterio_actual',3),
                 $this->datoBitacora($datos,'campos_capturados',3),
                 $this->datoBitacora($datos,'apta',1),
-                $this->datoBitacora($datos,'detalle',180)
+                $this->datoBitacora($datos,'detalle',180),
+                $this->datoBitacora($datos,'archivo_drive',250),
+                $this->datoBitacora($datos,'id_drive',150),
+                $this->datoBitacora($datos,'estado_correo',80)
             );
             try {
                 $credenciales = trim((string) $this->config->item('bitacora_postulaciones_credentials_path'));
@@ -1279,13 +1299,162 @@ class Main extends CI_Controller{
                     'values' => array($fila)
                 ));
                 $servicio->spreadsheets_values->append(
-                    $sheetId, "'BitacoraPostulaciones'!A:T", $cuerpo,
+                    $sheetId, "'BitacoraPostulaciones'!A:W", $cuerpo,
                     array('valueInputOption'=>'RAW', 'insertDataOption'=>'INSERT_ROWS')
                 );
                 return true;
             } catch (Throwable $e) {
                 log_message('error', 'BitacoraPostulaciones: '.$e->getMessage());
                 return false;
+            }
+        }
+		
+		          /**
+         * Procesa exclusivamente un avance insuficiente solicitado por correo.
+         * Crea un XLSX con la hoja de criterios, lo guarda también en Drive y
+         * registra ambos resultados en la misma bitácora de postulaciones.
+         */
+        protected function procesarAvancePreevaluacion(){
+            $correo = trim((string)($this->input->post('correo', FALSE) ?? ''));
+            $issn = strtoupper(trim((string)($this->input->post('issn', FALSE) ?? '')));
+            $titulo = trim((string)($this->input->post('nombre_revista', FALSE) ?? ''));
+            $criterios = $this->input->post('criterio', FALSE);
+            $sesion = trim((string)($this->input->post('bitacora_sesion', FALSE) ?? ''));
+            $directorio = null;
+            $rutaArchivo = null;
+            $obligatorios = 0;
+            $opcionales = 0;
+
+            // Los conteos se calculan en PHP desde los 32 criterios enviados.
+            // No confiar en un total declarado por el navegador.
+            $criteriosValidos = is_array($criterios) && count($criterios) === 32;
+            if ($criteriosValidos) {
+                for ($i = 0; $i < 32; $i) {
+                    if (!isset($criterios[$i]) || !is_array($criterios[$i])) {
+                        $criteriosValidos = false;
+                        break;
+                    }
+                    $cumple = filter_var($criterios[$i]['cumplo'] ?? false, FILTER_VALIDATE_BOOLEAN);
+                    if ($cumple) {
+                        if ($i < 23) { $obligatorios; }
+                        else { $opcionales; }
+                    }
+                }
+            }
+            $bitacora = array(
+                'sesion' => $sesion,
+                'secuencia' => $this->input->post('secuencia', FALSE) ?? 1,
+                'origen' => $this->input->post('origen', FALSE) ?? '',
+                'url_oai' => $this->input->post('url_oai', FALSE) ?? '',
+                'revista' => $titulo,
+                'issn' => $issn,
+                'correo' => $correo,
+                'obligatorios' => $obligatorios,
+                'opcionales' => $opcionales,
+                'total' => $obligatorios + $opcionales,
+                'criterio_actual' => $this->input->post('criterio_actual', FALSE) ?? '',
+                'campos_capturados' => (int)($issn !== '') + (int)($titulo !== '') + (int)($correo !== ''),
+                'apta' => 0,
+            );
+            $this->guardarBitacoraPostulacion($bitacora, 'intento_avance');
+
+            $error = '';
+            if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+                $error = 'Correo electrónico inválido';
+            } elseif (!preg_match('/^[0-9]{4}-[0-9]{3}[0-9X]$/', $issn)) {
+                $error = 'ISSN inválido; formato requerido XXXX-XXXX';
+            } elseif (!$criteriosValidos) {
+                $error = 'No se recibieron los 32 criterios';
+            } elseif ($obligatorios === 23 && $opcionales >= 5) {
+                $error = 'La revista cumple los requisitos y debe usar el formulario de postulación';
+            }
+            if ($error !== '') {
+                $bitacora['detalle'] = $error;
+                $this->guardarBitacoraPostulacion($bitacora, 'error_avance');
+                $this->output->set_status_header(422)
+                    ->set_content_type('application/json', 'utf-8')
+                    ->set_output(json_encode(array('ok' => false, 'error' => $error)));
+                return;
+            }
+
+            try {
+                $spreadsheet = PHPExcel_IOFactory::load('archivos/Plantilla.xlsx');
+                $spreadsheet->setActiveSheetIndex(0);
+                $hoja = $spreadsheet->getActiveSheet();
+                for ($i = 0; $i < 32; $i) {
+                    // Mapeo inmutable: los campos celda del cliente no se ejecutan.
+                    $fila = $i < 23 ? 10 + $i : 36 + ($i - 23);
+                    $cumple = filter_var($criterios[$i]['cumplo'] ?? false, FILTER_VALIDATE_BOOLEAN);
+                    $hoja->setCellValue('D'.$fila, $cumple ? 1 : 0);
+                }
+                while ($spreadsheet->getSheetCount() > 1) {
+                    $spreadsheet->removeSheetByIndex($spreadsheet->getSheetCount() - 1);
+                }
+                $spreadsheet->setActiveSheetIndex(0);
+
+                // Directorio único: múltiples avances del mismo ISSN no se pisan.
+                $directorio = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR)
+                    . DIRECTORY_SEPARATOR . 'biblat_avance_' . bin2hex(random_bytes(8));
+                if (!mkdir($directorio, 0700)) {
+                    throw new RuntimeException('No se pudo crear directorio temporal');
+                }
+                $nombreArchivo = 'Postulación_avance_' . $issn . '.xlsx';
+                $rutaArchivo = $directorio . DIRECTORY_SEPARATOR . $nombreArchivo;
+                $writer = PHPExcel_IOFactory::createWriter($spreadsheet, 'Excel2007');
+                $writer->save($rutaArchivo);
+
+                // Reutiliza la carpeta de hojas XLSX de la postulación completa.
+                $driveId = '';
+                try {
+                    $archivosDrive = $this->setDocumentsDrive(null, $rutaArchivo);
+                    $driveId = isset($archivosDrive[1]) ? (string)$archivosDrive[1] : '';
+                } catch (Throwable $e) {
+                    log_message('error', 'Drive avance postulacion: '.$e->getMessage());
+                }
+
+                $mensaje = 'Estimado(a) editor(a):<br><br>'
+                    . 'Adjunto encontrará el resultado de la preevaluación de su revista. '
+                    . 'Actualmente no reúne todos los criterios para la postulación formal. '
+                    . 'Los criterios marcados con cero indican los aspectos pendientes de cumplimiento.'
+                    . '<br><br>Puede revisar los criterios y volver a realizar la preevaluación cuando lo desee.'
+                    . '<br><br>Saludos.<br>Comité de Evaluación de Publicaciones Periódicas '
+                    . 'para CLASE, PERIÓDICA y Catálogo SERIUNAM.';
+                $correoAceptado = (bool)$this->multi_attach_mail(
+                    $correo, 'Avance de preevaluación de revista', $mensaje,
+                    'biblat_comite@dgb.unam.mx',
+                    'Comité de Evaluación de Publicaciones Periódicas',
+                    array($rutaArchivo), true
+                );
+
+                $bitacora['archivo_drive'] = $nombreArchivo;
+                $bitacora['id_drive'] = $driveId;
+                $bitacora['estado_correo'] = $correoAceptado ? 'Aceptado por mail()' : 'Rechazado por mail()';
+                $bitacora['detalle'] = 'Avance Excel: ' . ($driveId !== '' ? 'guardado en Drive' : 'error en Drive')
+                    . '; correo: ' . ($correoAceptado ? 'aceptado' : 'rechazado');
+                $this->guardarBitacoraPostulacion($bitacora, 'avance_procesado');
+                if (!$correoAceptado || $driveId === '') {
+                    $this->guardarBitacoraPostulacion($bitacora, 'error_avance');
+                }
+
+                $this->output->set_status_header($correoAceptado ? 200 : 502)
+                    ->set_content_type('application/json', 'utf-8')
+                    ->set_output(json_encode(array(
+                        'ok' => $correoAceptado,
+                        'correo_aceptado' => $correoAceptado,
+                        'drive_guardado' => $driveId !== '',
+                        'drive_id' => $driveId,
+                        'archivo' => $nombreArchivo
+                    )));
+            } catch (Throwable $e) {
+                log_message('error', 'Error al procesar avance de preevaluacion: '.$e->getMessage());
+                $bitacora['detalle'] = 'Error al generar el archivo o procesar el avance';
+                $this->guardarBitacoraPostulacion($bitacora, 'error_avance');
+                $this->output->set_status_header(500)
+                    ->set_content_type('application/json', 'utf-8')
+                    ->set_output(json_encode(array('ok' => false, 'error' => 'No fue posible generar el avance')));
+            } finally {
+                if ($rutaArchivo !== null && is_file($rutaArchivo)) { @unlink($rutaArchivo); }
+                if ($directorio !== null && is_dir($directorio)) { @rmdir($directorio); }
             }
         }
         
