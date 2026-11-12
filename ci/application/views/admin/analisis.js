@@ -11874,6 +11874,10 @@ $(class_av.ready);
         };
         $('#' + MODAL_ID + ' .pc-fragmento-origen').text(termino);
         $('#' + MODAL_ID + ' .pc-fragmento-palabras').empty();
+        // El modal se reutiliza; su botón pudo quedarse mostrando el estado
+        // de la consulta anterior, porque al cerrar estado pasa a null.
+        $('#' + MODAL_ID + ' .pc-fragmento-usar')
+            .text('Usar palabra clave').prop('disabled', true);
         renderSeleccion();
         $('#' + MODAL_ID).addClass('abierto').attr('aria-hidden', 'false');
         // No cambiar el hash, el scrollTop ni el foco de los campos del artículo.
@@ -11884,6 +11888,10 @@ $(class_av.ready);
     function cerrar() {
         var $origen = estado && estado.$origen;
         $('#' + MODAL_ID).removeClass('abierto').attr('aria-hidden', 'true');
+        // El éxito de la petición llama a cerrar() ANTES de su .always().
+        // Por ello, restaurar el texto aquí además de hacerlo al abrir.
+        $('#' + MODAL_ID + ' .pc-fragmento-usar')
+            .text('Usar palabra clave').prop('disabled', true);
         estado = null;
         if ($origen && $origen.length && document.contains($origen[0])) {
             try { $origen[0].focus({preventScroll: true}); } catch (e) { /* sin desplazamiento */ }
