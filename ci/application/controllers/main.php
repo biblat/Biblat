@@ -915,9 +915,9 @@ class Main extends CI_Controller{
             
             $writer = PHPExcel_IOFactory::createWriter($spreadsheet, 'Excel2007');
             if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN))
-                $writer->save('Preevaluacion_'.$_POST['issn'].'.xlsx');
+                $writer->save('archivos/Preevaluacion_'.$_POST['issn'].'.xlsx');
             else
-                $writer->save('Preevaluacion_'.$_POST['correo'].'.xlsx');
+                $writer->save('archivos/Preevaluacion_'.$_POST['correo'].'.xlsx');
             
             $name = basename('CartaDePostulacion', '.php');
             $source = "archivos/{$name}.docx";
@@ -972,7 +972,7 @@ class Main extends CI_Controller{
                     }
                 }
                 $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($documento, "Word2007");
-                $objWriter->save("CartaDePostulacion_".$_POST['issn'].".docx");
+                $objWriter->save("archivos/CartaDePostulacion_".$_POST['issn'].".docx");
             }
             
             if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
@@ -1030,9 +1030,9 @@ class Main extends CI_Controller{
                     );
             
             if(filter_var($_POST['completo'], FILTER_VALIDATE_BOOLEAN)){
-                $result = $this->setDocumentsDrive("CartaDePostulacion_".$_POST['issn'].".docx", 'Preevaluacion_'.$_POST['issn'].'.xlsx');
-                unlink("CartaDePostulacion_".$_POST['issn'].".docx");
-                unlink('Preevaluacion_'.$_POST['issn'].'.xlsx');
+                $result = $this->setDocumentsDrive("archivos/CartaDePostulacion_".$_POST['issn'].".docx", 'archivos/Preevaluacion_'.$_POST['issn'].'.xlsx');
+                unlink("archivos/CartaDePostulacion_".$_POST['issn'].".docx");
+                unlink('archivos/Preevaluacion_'.$_POST['issn'].'.xlsx');
 				
 				if(!empty($_POST['bitacora_sesion'])){
                     $registro = $_POST;
@@ -1050,7 +1050,7 @@ class Main extends CI_Controller{
                 echo('{"docx":"'.$result[0].'", "xlsx":"'.$result[1].'"}');
             }
             else
-                unlink('Preevaluacion_'.$_POST['correo'].'.xlsx');
+                unlink('archivos/Preevaluacion_'.$_POST['correo'].'.xlsx');
 
         }
 
@@ -1155,7 +1155,7 @@ class Main extends CI_Controller{
             
             if (file_exists($docx)) {
                 $file = new Google_Service_Drive_DriveFile();
-                $file->setName($docx);
+                $file->setName(str_replace("archivos/","",$docx));
                 $file->setParents(array($folderIddocx));
                 $file->setMimeType('application/vnd.openxmlformats-officedocument.wordprocessingml.document');
                         
@@ -1174,7 +1174,7 @@ class Main extends CI_Controller{
             
             if (file_exists($xlsx)) {
                 $file = new Google_Service_Drive_DriveFile();
-                $file->setName($xlsx);
+                $file->setName(str_replace("archivos/","",$docx));
                 $file->setParents(array($folderIdxlsx));
                 $file->setMimeType('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
                         
@@ -1399,7 +1399,7 @@ class Main extends CI_Controller{
                     throw new RuntimeException('No se pudo crear directorio temporal');
                 }
                 $nombreArchivo = 'Postulación_avance_' . $issn . '.xlsx';
-                $rutaArchivo = $directorio . DIRECTORY_SEPARATOR . $nombreArchivo;
+                $rutaArchivo = 'archivos/' . $nombreArchivo;
                 $writer = PHPExcel_IOFactory::createWriter($spreadsheet, 'Excel2007');
                 $writer->save($rutaArchivo);
 
