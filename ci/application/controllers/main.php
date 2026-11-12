@@ -1174,7 +1174,7 @@ class Main extends CI_Controller{
             
             if (file_exists($xlsx)) {
                 $file = new Google_Service_Drive_DriveFile();
-                $file->setName(str_replace("archivos/","",$docx));
+                $file->setName(str_replace("archivos/","",$xlsx));
                 $file->setParents(array($folderIdxlsx));
                 $file->setMimeType('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
                         
