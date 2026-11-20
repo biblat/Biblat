@@ -437,320 +437,333 @@ class Datos extends REST_Controller {
                     group by r.asignado
                     ";
 					
-					$query='
+			$query='
 
-                    WITH catalogador_humano AS (
-
-                    /* =========================================================
-                     * PRIMER CATALOGADOR HUMANO
-                     *
-                     * OJS / SciELO / EDITOR pueden aparecer una o varias veces
-                     * antes de que una persona trabaje el registro.
-                     * ========================================================= */
-                    SELECT
-                        c.sistema,
-                        c.nombre,
-                        c.fecha,
-                        c.id,
-
-                        ROW_NUMBER() OVER (
-                            PARTITION BY c.sistema
-                            ORDER BY c.fecha, c.id
-                        ) AS orden
-
-                    FROM catalogador c
-
-                    WHERE c.nombre NOT IN (\'OJS\', \'SciELO\', \'EDITOR\')
-                ),
-
-                primer_humano AS (
-
-                    SELECT
-                        sistema,
-                        nombre,
-                        fecha
-                    FROM catalogador_humano
-                    WHERE orden = 1
-                ),
-
-                normal AS (
-
-                    SELECT DISTINCT
-                        a.sistema,
-
-                        /* =====================================================
-                         * ANALISTA
-                         * ===================================================== */
-                        CASE
-
-                            /* Proceso actual:
-                             * si article.asignado existe, ése es el responsable.
-                             */
-                            WHEN a.asignado IS NOT NULL
-                                THEN a.asignado
-
-                            /* Procesados / históricos:
-                             * usar primer catalogador humano.
-                             */
-                            WHEN a.estatus IN (\'P\', \'C\', \'B\')
-                                 OR a.estatus IS NULL
-                                THEN ph.nombre
-
-                            /* A/R sin asignado:
-                             * conserva la lógica anterior.
-                             */
-                            ELSE c.nombre
-
-                        END AS analista,
-
-                        CASE
-                            WHEN a.estatus IN (\'P\', \'C\', \'B\')
-                                 OR a.estatus IS NULL
-                                THEN ph.nombre
-                            ELSE c.nombre
-                        END AS nombre,
-
-                        a.estatus,
-                        a."estatusPC",
-                        a."fechaAsignado",
-                        a."fechaAsignadoPC",
-
-                        true AS es_normal,
-                        false AS es_pc
-
-                    FROM article a
-
-                    INNER JOIN catalogador c
-                        ON c.sistema = a.sistema
-
-                    /*
-                     * LEFT JOIN porque un registro A/R recién cosechado
-                     * puede todavía no tener catalogador humano.
-                     */
-                    LEFT JOIN primer_humano ph
-                        ON ph.sistema = a.sistema
-
-                    WHERE
-                    (
-                        /* =====================================================
-                         * REGISTROS EN ANÁLISIS NORMAL
-                         * ===================================================== */
-                        (
-                            c.nombre IN (\'OJS\', \'SciELO\', \'EDITOR\')
-
-                            AND a.estatus IN (\'A\', \'R\') AND
-
-                            '.$txtAnioPH.'
-                        )
-
-                        OR
-
-                        /* =====================================================
-                         * ANALIZADOS / PENDIENTES PC / NO INDIZABLES
-                         *
-                         * El año se determina con la fecha del PRIMER
-                         * catalogador humano.
-                         * ===================================================== */
-                        (
-                            a.estatus IN (\'P\', \'C\', \'B\')
-
-                            AND ph.nombre IS NOT NULL AND
-
-                            '.$txtAnioPH.'
-
-                            /*
-                             * Si alguna vez fue "Para corrección",
-                             * no se contabiliza como producción normal.
-                             */
-                            AND NOT EXISTS (
-                                SELECT 1
-                                FROM bitacora b
-                                WHERE b.sistema = a.sistema
-                                  AND b.movimiento = \'Para corrección\'
-                            )
-                        )
-
-                        OR
-
-                        /* =====================================================
-                         * REGISTROS HISTÓRICOS
-                         *
-                         * Antes no se actualizaban estatus ni asignado.
-                         * Se atribuyen al primer catalogador humano.
-                         * ===================================================== */
-                        (
-                            a.estatus IS NULL
-
-                            AND a.asignado IS NULL
-
-                            AND ph.nombre IS NOT NULL AND
-
-                            '.$txtAnioPH.'
-
-                            /*
-                             * La misma regla de correcciones también debe
-                             * aplicarse a los completados históricos.
-                             */
-                            AND NOT EXISTS (
-                                SELECT 1
-                                FROM bitacora b
-                                WHERE b.sistema = a.sistema
-                                  AND b.movimiento = \'Para corrección\'
-                            )
-                        )
-                    )
-                ),
-
-                pc AS (
-
-                    /*
-                     * =========================================================
-                     * ASIGNACIONES DE PALABRAS CLAVE
-                     *
-                     * No hacemos JOIN con catalogador.
-                     * Un artículo histórico puede asignarse posteriormente
-                     * exclusivamente para PC.
-                     * ========================================================= */
-                    SELECT
-                        a.sistema,
-                        a."asignadoPC" AS analista,
-                        a."asignadoPC" AS nombre,
-                        a.estatus,
-                        a."estatusPC",
-                        a."fechaAsignado",
-                        a."fechaAsignadoPC",
-
-                        false AS es_normal,
-                        true AS es_pc
-
-                    FROM article a
-
-                    WHERE
-                        a."asignadoPC" IS NOT NULL
-                        AND a."estatusPC" IN (\'A\', \'R\', \'C\')
-                ),
-
-                asignaciones AS (
-
-                    SELECT * FROM normal
-
-                    UNION ALL
-
-                    SELECT * FROM pc
-                ),
-
-                registros AS (
-
-                    /*
-                     * Si el mismo analista tiene el análisis normal y PC
-                     * del mismo artículo, TOTAL lo cuenta una sola vez.
-                     */
-                    SELECT
-                        sistema,
-                        analista,
-
-                        MAX(nombre) AS nombre,
-                        MAX(estatus) AS estatus,
-                        MAX("estatusPC") AS "estatusPC",
-
-                        MAX("fechaAsignado") AS "fechaAsignado",
-                        MAX("fechaAsignadoPC") AS "fechaAsignadoPC",
-
-                        BOOL_OR(es_normal) AS es_normal,
-                        BOOL_OR(es_pc) AS es_pc
-
-                    FROM asignaciones
-
-                    WHERE analista IS NOT NULL
-
-                    GROUP BY
-                        sistema,
-                        analista
-                )
+            WITH base AS (
 
                 SELECT
-                    r.analista,
-                    MAX(r.nombre) AS nombre,
+                    a.sistema,
+                    a.asignado,
+                    a.estatus,
+                    a."estatusPC",
+                    a."fechaAsignado",
+                    a."fechaAsignadoPC",
 
-                    /* =========================================================
-                     * TOTAL DE ARTÍCULOS ASIGNADOS
-                     * ========================================================= */
-                    COUNT(*) AS total,
+                    ph.nombre AS primer_humano,
+                    ph.fecha AS fecha_produccion,
 
-                    /* =========================================================
-                     * EN REVISIÓN
-                     * ========================================================= */
-                    COUNT(*) FILTER (
-                        WHERE r.es_normal
-                          AND r.estatus = \'R\'
-                    ) AS revision,
+                    /* Identificar procedencia de cosecha */
+                    EXISTS (
+                        SELECT 1
+                        FROM catalogador c
+                        WHERE c.sistema = a.sistema
+                          AND c.nombre IN (
+                              \'OJS\', \'SciELO\', \'EDITOR\'
+                          )
+                    ) AS tiene_origen_cosecha,
 
-                    /* =========================================================
-                     * PENDIENTE PALABRAS CLAVE
-                     *
-                     * P = análisis normal terminado pero PC pendiente.
-                     * A/R en PC = asignación PC todavía pendiente/en revisión.
-                     * ========================================================= */
-                    COUNT(*) FILTER (
-                        WHERE
-                            (
-                                r.es_normal
-                                AND r.estatus = \'P\'
-                            )
-                            OR
-                            (
-                                r.es_pc
-                                AND r."estatusPC" IN (\'A\', \'R\')
-                            )
-                    ) AS pendiente_pc,
+                    /* Identificar completados posteriormente
+                       devueltos a revisión */
+                    EXISTS (
+                        SELECT 1
+                        FROM bitacora bt
+                        WHERE bt.sistema = a.sistema
+                          AND bt.movimiento = \'Completado\'
+                    ) AS tuvo_completado
 
-                    /* =========================================================
-                     * COMPLETADOS - PROCESO ACTUAL
-                     *
-                     * fechaAsignado existe.
-                     * ========================================================= */
-                    COUNT(*) FILTER (
-                        WHERE r.es_normal
-                          AND (
-                                r.estatus = \'C\'
-                                OR r.estatus IS NULL
-                              )
-                          AND r."fechaAsignado" IS NOT NULL
-                    ) AS completados,
+                FROM article a
 
-                    /* =========================================================
-                     * COMPLETADOS HISTÓRICOS / MANUALES
-                     *
-                     * fechaAsignado no existía en el proceso anterior.
-                     * ========================================================= */
-                    COUNT(*) FILTER (
-                        WHERE r.es_normal
-                          AND (
-                                r.estatus = \'C\'
-                                OR r.estatus IS NULL
-                              )
-                          AND r."fechaAsignado" IS NULL
-                    ) AS completados_manual,
+                /* ============================================
+                 * PRIMER CATALOGADOR HUMANO
+                 *
+                 * Responsable y fecha de producción original.
+                 * ============================================ */
+                INNER JOIN LATERAL (
+                    SELECT
+                        c.nombre,
+                        c.fecha
+                    FROM catalogador c
+                    WHERE c.sistema = a.sistema
+                      AND c.nombre NOT IN (
+                          \'OJS\', \'SciELO\', \'EDITOR\'
+                      )
+                    ORDER BY c.fecha, c.id
+                    LIMIT 1
+                ) ph ON TRUE
 
-                    /* =========================================================
-                     * NO INDIZABLES
-                     * ========================================================= */
-                    COUNT(*) FILTER (
-                        WHERE r.es_normal
-                          AND r.estatus = \'B\'
-                    ) AS borrados,
+                WHERE
+                    (
+                        a.sistema LIKE \'CLA%\'
+                        OR a.sistema LIKE \'PER%\'
+                    )
+                    AND '.$txtAnioPH.'
+            ),
 
-                    /* =========================================================
-                     * PRODUCCIÓN DE PALABRAS CLAVE
-                     * ========================================================= */
-                    COUNT(*) FILTER (
-                        WHERE r.es_pc
-                          AND r."estatusPC" = \'C\'
-                    ) AS completados_pc
+            /* ================================================
+             * PRODUCCIÓN ORIGINAL
+             *
+             * Siempre se atribuye al primer catalogador humano.
+             *
+             * No importa si actualmente otro analista
+             * tiene asignado el artículo para corrección.
+             *
+             * P y B se conservan para sus indicadores,
+             * pero NO cuentan como completados.
+             * ================================================ */
+            normal_original AS (
 
-                FROM registros r
+                SELECT
+                    b.sistema,
 
-                GROUP BY r.analista
+                    b.primer_humano AS analista,
+                    b.primer_humano AS nombre,
+
+                    b.estatus,
+                    b."estatusPC",
+                    b."fechaAsignado",
+                    b."fechaAsignadoPC",
+
+                    TRUE AS es_normal,
+                    FALSE AS es_pc,
+
+                    (
+                        b.estatus = \'C\'
+
+                        OR (
+                            b.estatus IS NULL
+                            AND b.asignado IS NULL
+                        )
+
+                        OR (
+                            b.estatus IN (\'A\', \'R\')
+                            AND b.tuvo_completado
+                        )
+                    ) AS es_produccion,
+
+                    (b.estatus = \'P\') AS es_pendiente_normal,
+                    (b.estatus = \'B\') AS es_borrado,
+
+                    FALSE AS es_revision
+
+                FROM base b
+
+                WHERE
+                    b.estatus IN (\'P\', \'C\', \'B\')
+
+                    OR (
+                        b.estatus IS NULL
+                        AND b.asignado IS NULL
+                    )
+
+                    OR (
+                        b.estatus IN (\'A\', \'R\')
+                        AND b.tuvo_completado
+                    )
+            ),
+
+            /* ================================================
+             * ASIGNACIONES ACTUALES / REVISIÓN
+             *
+             * Se atribuyen al analista asignado.
+             *
+             * No generan crédito de producción original.
+             * ================================================ */
+            normal_revision AS (
+
+                SELECT
+                    b.sistema,
+
+                    b.asignado AS analista,
+                    b.asignado AS nombre,
+
+                    b.estatus,
+                    b."estatusPC",
+                    b."fechaAsignado",
+                    b."fechaAsignadoPC",
+
+                    TRUE AS es_normal,
+                    FALSE AS es_pc,
+
+                    FALSE AS es_produccion,
+                    FALSE AS es_pendiente_normal,
+                    FALSE AS es_borrado,
+
+                    (b.estatus = \'R\') AS es_revision
+
+                FROM base b
+
+                WHERE
+                    b.estatus IN (\'A\', \'R\')
+                    AND b.asignado IS NOT NULL
+                    AND b.tiene_origen_cosecha
+            ),
+
+            /* ================================================
+             * PALABRAS CLAVE
+             *
+             * Conserva el comportamiento anterior.
+             * No requiere movimientos de catalogador.
+             * ================================================ */
+            pc AS (
+
+                SELECT
+                    a.sistema,
+
+                    a."asignadoPC" AS analista,
+                    a."asignadoPC" AS nombre,
+
+                    a.estatus,
+                    a."estatusPC",
+                    a."fechaAsignado",
+                    a."fechaAsignadoPC",
+
+                    FALSE AS es_normal,
+                    TRUE AS es_pc,
+
+                    FALSE AS es_produccion,
+                    FALSE AS es_pendiente_normal,
+                    FALSE AS es_borrado,
+                    FALSE AS es_revision
+
+                FROM article a
+
+                WHERE
+                    a."asignadoPC" IS NOT NULL
+
+                    AND a."estatusPC" IN (\'A\', \'R\', \'C\')
+            ),
+
+            /* ================================================
+             * REUNIR PRODUCCIÓN Y ASIGNACIONES
+             * ================================================ */
+            asignaciones AS (
+
+                SELECT * FROM normal_original
+
+                UNION ALL
+
+                SELECT * FROM normal_revision
+
+                UNION ALL
+
+                SELECT * FROM pc
+            ),
+
+            /* ================================================
+             * AGRUPAR POR SISTEMA Y ANALISTA
+             *
+             * El mismo artículo cuenta una sola vez
+             * en TOTAL para cada analista.
+             *
+             * Las banderas permiten distinguir producción,
+             * revisión, pendientes y palabras clave.
+             * ================================================ */
+            registros AS (
+
+                SELECT
+                    sistema,
+                    analista,
+
+                    MAX(nombre) AS nombre,
+                    MAX(estatus) AS estatus,
+                    MAX("estatusPC") AS "estatusPC",
+
+                    MAX("fechaAsignado") AS "fechaAsignado",
+                    MAX("fechaAsignadoPC") AS "fechaAsignadoPC",
+
+                    BOOL_OR(es_normal) AS es_normal,
+                    BOOL_OR(es_pc) AS es_pc,
+
+                    BOOL_OR(es_produccion) AS es_produccion,
+
+                    BOOL_OR(es_pendiente_normal)
+                        AS es_pendiente_normal,
+
+                    BOOL_OR(es_borrado) AS es_borrado,
+                    BOOL_OR(es_revision) AS es_revision
+
+                FROM asignaciones
+
+                WHERE analista IS NOT NULL
+
+                GROUP BY
+                    sistema,
+                    analista
+            )
+
+            SELECT
+                r.analista,
+
+                MAX(r.nombre) AS nombre,
+
+                /* ============================================
+                 * TOTAL DE REGISTROS
+                 * ============================================ */
+                COUNT(*) AS total,
+
+                /* ============================================
+                 * EN REVISIÓN
+                 *
+                 * Se atribuye al responsable actual.
+                 * ============================================ */
+                COUNT(*) FILTER (
+                    WHERE r.es_revision
+                ) AS revision,
+
+                /* ============================================
+                 * PENDIENTES DE PALABRAS CLAVE
+                 * ============================================ */
+                COUNT(*) FILTER (
+                    WHERE
+                        r.es_pendiente_normal
+
+                        OR (
+                            r.es_pc
+                            AND r."estatusPC" IN (\'A\', \'R\')
+                        )
+                ) AS pendiente_pc,
+
+                /* ============================================
+                 * COMPLETADOS CON FECHA DE ASIGNACIÓN
+                 *
+                 * Producción del primer humano.
+                 * ============================================ */
+                COUNT(*) FILTER (
+                    WHERE
+                        r.es_produccion
+                        AND r."fechaAsignado" IS NOT NULL
+                ) AS completados,
+
+                /* ============================================
+                 * COMPLETADOS SIN FECHA DE ASIGNACIÓN
+                 *
+                 * Producción del primer humano.
+                 * ============================================ */
+                COUNT(*) FILTER (
+                    WHERE
+                        r.es_produccion
+                        AND r."fechaAsignado" IS NULL
+                ) AS completados_manual,
+
+                /* ============================================
+                 * NO INDIZABLES
+                 * ============================================ */
+                COUNT(*) FILTER (
+                    WHERE r.es_borrado
+                ) AS borrados,
+
+                /* ============================================
+                 * PALABRAS CLAVE COMPLETADAS
+                 * ============================================ */
+                COUNT(*) FILTER (
+                    WHERE
+                        r.es_pc
+                        AND r."estatusPC" = \'C\'
+                ) AS completados_pc
+
+            FROM registros r
+
+            GROUP BY r.analista
 
                     ';
             
