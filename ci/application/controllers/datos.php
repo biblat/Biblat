@@ -526,6 +526,8 @@ class Datos extends REST_Controller {
                     TRUE AS es_normal,
                     FALSE AS es_pc,
 
+                    (b.estatus IS NOT NULL AND b.asignado IS NOT NULL) AS manual_valido,
+
                     (
                         b.estatus = \'C\'
 
@@ -584,6 +586,8 @@ class Datos extends REST_Controller {
                     TRUE AS es_normal,
                     FALSE AS es_pc,
 
+                    FALSE AS manual_valido,
+
                     FALSE AS es_produccion,
                     FALSE AS es_pendiente_normal,
                     FALSE AS es_borrado,
@@ -619,6 +623,8 @@ class Datos extends REST_Controller {
 
                     FALSE AS es_normal,
                     TRUE AS es_pc,
+
+                    FALSE AS manual_valido,
 
                     FALSE AS es_produccion,
                     FALSE AS es_pendiente_normal,
@@ -673,6 +679,7 @@ class Datos extends REST_Controller {
 
                     BOOL_OR(es_normal) AS es_normal,
                     BOOL_OR(es_pc) AS es_pc,
+                    BOOL_OR(manual_valido) AS manual_valido,
 
                     BOOL_OR(es_produccion) AS es_produccion,
 
@@ -743,6 +750,7 @@ class Datos extends REST_Controller {
                     WHERE
                         r.es_produccion
                         AND r."fechaAsignado" IS NULL
+                        AND r.manual_valido
                 ) AS completados_manual,
 
                 /* ============================================
@@ -856,76 +864,85 @@ class Datos extends REST_Controller {
                 ";
 				
 			$query = "
-                        WITH catalogador_humano AS (
-                            SELECT
-                                c.sistema,
-                                c.nombre,
-                                c.fecha,
-                                c.id,
-                                ROW_NUMBER() OVER (
-                                    PARTITION BY c.sistema
-                                    ORDER BY c.fecha, c.id
-                                ) AS orden
-                            FROM catalogador c
-                            WHERE c.nombre NOT IN ('OJS', 'SciELO', 'EDITOR')
-                        ),
+                WITH catalogador_humano AS (
+                    SELECT
+                        c.sistema,
+                        c.nombre,
+                        c.fecha,
+                        c.id,
+                        ROW_NUMBER() OVER (
+                            PARTITION BY c.sistema
+                            ORDER BY c.fecha, c.id
+                        ) AS orden
+                    FROM catalogador c
+                    WHERE c.nombre NOT IN ('OJS', 'SciELO', 'EDITOR')
+                ),
 
-                        responsable AS (
-                            SELECT
-                                sistema,
-                                nombre,
-                                fecha
-                            FROM catalogador_humano
-                            WHERE orden = 1
-                        ),
+                responsable AS (
+                    SELECT
+                        sistema,
+                        nombre,
+                        fecha
+                    FROM catalogador_humano
+                    WHERE orden = 1
+                ),
 
-                        registros_validos AS (
-                            SELECT
-                                r.sistema,
-                                r.nombre,
-                                r.fecha
-                            FROM responsable r
+                registros_validos AS (
+                    SELECT
+                        r.sistema,
+                        r.nombre,
+                        r.fecha
+                    FROM responsable r
 
-                            INNER JOIN article a
-                                ON a.sistema = r.sistema
+                    INNER JOIN article a
+                        ON a.sistema = r.sistema
 
-                            WHERE ".$txtAnioR."
+                    WHERE ".$txtAnioR."
 
-                              /* =====================================================
-                               * COMPLETADOS DEL PROCESO ACTUAL
-                               * O REGISTROS HISTÓRICOS
-                               * ===================================================== */
-                              AND (
-                                    a.estatus = 'C'
+                      AND (
+                          a.sistema LIKE 'CLA%'
+                          OR a.sistema LIKE 'PER%'
+                      )
 
-                                    OR
+                      /* Producción original: mismo criterio que avance por usuario */
+                      AND (
+                          a.estatus = 'C'
 
-                                    (
-                                        a.estatus IS NULL
-                                        AND a.asignado IS NULL
-                                    )
-                                  )
+                          OR (
+                              a.estatus IS NULL
+                              AND a.asignado IS NULL
+                          )
 
-                              /* =====================================================
-                               * NO CONTABILIZAR SI EN ALGÚN MOMENTO
-                               * FUE ENVIADO PARA CORRECCIÓN
-                               * ===================================================== */
-                              AND NOT EXISTS (
+                          OR (
+                              a.estatus IN ('A', 'R')
+                              AND EXISTS (
                                   SELECT 1
                                   FROM bitacora b
                                   WHERE b.sistema = r.sistema
-                                    AND b.movimiento = 'Para corrección'
+                                    AND b.movimiento = 'Completado'
                               )
-                        )
+                          )
+                      )
 
-                        SELECT
-                            EXTRACT(MONTH FROM fecha) AS mes,
-                            COUNT(*) AS total
-                        FROM registros_validos
-                        GROUP BY EXTRACT(MONTH FROM fecha)
-                        ORDER BY mes
+                      /* Solo los completados manuales exigen
+                         que el artículo tenga estatus y asignado. */
+                      AND (
+                          a.\"fechaAsignado\" IS NOT NULL
+                          OR (
+                              a.\"fechaAsignado\" IS NULL
+                              AND a.estatus IS NOT NULL
+                              AND a.asignado IS NOT NULL
+                          )
+                      )
+                )
 
-                    ";
+                SELECT
+                    EXTRACT(MONTH FROM fecha) AS mes,
+                    COUNT(*) AS total
+                FROM registros_validos
+                GROUP BY EXTRACT(MONTH FROM fecha)
+                ORDER BY mes
+            ";
             
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);
