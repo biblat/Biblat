@@ -2978,4 +2978,117 @@ class Datos extends REST_Controller {
 
             $this->response($query->result_array(), 200);
         }
+		
+		/* ============================================================
+         * AVANCE DE PALABRAS CLAVE RETROACTIVAS
+         *
+         * /datos/avance_pc_retro/2026      -> resumen anual por analista
+         * /datos/avance_pc_retro/2026/11   -> noviembre de 2026
+         *
+         * Fecha original: primer "Completado" normal registrado;
+         * en ausencia de este movimiento, primer catalogador humano
+         * de registros históricos o terminados (estimación).
+         * Fecha de producción PC: primer "Completado PC" en bitácora.
+         * Un sistema aparece sólo una vez, aunque se reabra después.
+         * ============================================================ */
+        public function avance_pc_retro_get($anio=null, $mes=null){
+            $this->load->database('prueba');
+
+            $anio = ($anio === null) ? (int)date('Y') : (int)$anio;
+            $mes = ($mes === null || $mes === '') ? null : (int)$mes;
+
+            if ($anio < 2019 || $anio > 2100 || ($mes !== null && ($mes < 1 || $mes > 12))) {
+                $this->response(array('mensaje'=>'Periodo no válido'), 400);
+                return;
+            }
+
+            if ($mes === null) {
+                $inicio = sprintf('%04d-01-01', $anio);
+                $fin = sprintf('%04d-01-01', $anio + 1);
+            } else {
+                $inicio = sprintf('%04d-%02d-01', $anio, $mes);
+                $fin = date('Y-m-d', strtotime($inicio . ' +1 month'));
+            }
+
+            $sql = <<<'SQL'
+                WITH primer_cierre_pc AS (
+                    SELECT DISTINCT ON (b.sistema)
+                        b.sistema,
+                        CASE
+                            WHEN UPPER(BTRIM(b.usuario)) = 'JAVIER' THEN 'VJAVIER'
+                            ELSE UPPER(BTRIM(b.usuario))
+                        END AS analista,
+                        b.fecha AS fecha_pc
+                    FROM bitacora b
+                    WHERE b.movimiento = 'Completado PC'
+                      AND b.usuario IS NOT NULL
+                      AND BTRIM(b.usuario) <> ''
+                    ORDER BY b.sistema, b.fecha ASC, b.usuario ASC
+                ),
+                pc_periodo AS (
+                    SELECT sistema, analista, fecha_pc
+                    FROM primer_cierre_pc
+                    WHERE fecha_pc >= ?::date
+                      AND fecha_pc < ?::date
+                ),
+                candidatos AS (
+                    SELECT
+                        p.sistema,
+                        p.analista,
+                        p.fecha_pc,
+                        original.fecha AS fecha_original,
+                        humano.fecha AS fecha_primera_humana,
+                        a.estatus,
+                        a.asignado
+                    FROM pc_periodo p
+                    INNER JOIN article a ON a.sistema = p.sistema
+                    LEFT JOIN LATERAL (
+                        SELECT MIN(b.fecha) AS fecha
+                        FROM bitacora b
+                        WHERE b.sistema = p.sistema
+                          AND b.movimiento = 'Completado'
+                    ) original ON TRUE
+                    LEFT JOIN LATERAL (
+                        SELECT c.fecha
+                        FROM catalogador c
+                        WHERE c.sistema = p.sistema
+                          AND c.nombre NOT IN ('OJS', 'SciELO', 'EDITOR')
+                        ORDER BY c.id ASC
+                        LIMIT 1
+                    ) humano ON TRUE
+                    WHERE (a.sistema LIKE 'CLA%' OR a.sistema LIKE 'PER%')
+                ),
+                retroactivos AS (
+                    SELECT *
+                    FROM candidatos
+                    WHERE analista NOT IN ('OJS', 'SciELO', 'EDITOR')
+                      AND (
+                          /* Cierre original documentado antes del corte. */
+                          fecha_original < DATE '2026-11-01'
+                          OR (
+                              /* Registros antiguos sin evento explícito:
+                                 fecha del primer humano como estimación. */
+                              fecha_original IS NULL
+                              AND fecha_primera_humana < DATE '2026-11-01'
+                              AND (
+                                  (estatus IS NULL AND asignado IS NULL)
+                                  OR estatus = 'C'
+                              )
+                          )
+                      )
+                )
+                SELECT
+                    analista,
+                    COUNT(*) FILTER (WHERE sistema LIKE 'CLA%') AS clase,
+                    COUNT(*) FILTER (WHERE sistema LIKE 'PER%') AS periodica,
+                    COUNT(*) AS total,
+                    COUNT(*) FILTER (WHERE fecha_original IS NULL) AS aproximados
+                FROM retroactivos
+                GROUP BY analista
+                ORDER BY analista
+SQL;
+
+            $query = $this->db->query($sql, array($inicio, $fin));
+            $this->response($query->result_array(), 200);
+        }
 }
