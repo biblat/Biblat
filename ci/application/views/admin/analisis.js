@@ -2694,6 +2694,14 @@ class_av = {
                         #url1, #url2, #tipourl1, #tipourl2').prop('disabled', soloLectura ? true : false);
                 }
 
+                /*
+                 * Al pasar de un artículo terminado (o consultado desde el ojo)
+                 * a otro editable, #es-corporativo conserva el disabled anterior
+                 * si no se restablece de forma explícita. Reponerlo por artículo,
+                 * sin habilitar la edición de registros P/C/B o de sólo lectura.
+                 */
+                $('#es-corporativo').prop('disabled', soloLectura || normal_bloqueado);
+
                 if(!normal_bloqueado || soloLectura){
                     class_av.var.autoresJSON = resp_autores[0].map(function(item){
                                                                         return {

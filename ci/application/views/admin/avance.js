@@ -8,6 +8,7 @@ class_av = {
         analistasJSON: [],
         avance_por_mes: [],
         avance_pc: [],
+        solicitud_pc_retro: 0,
         init: true,
         url_oai: '',
         data: '',
@@ -111,6 +112,7 @@ class_av = {
             if(cons.rol.val == 'Administrador' || cons.pal_cla.val == '1'){
                 class_av.setTablaPC(class_av.var.avance_pc);
             }
+                class_av.cargarPCRetro(class_av.var.anio);
             if(cons.rol.val == 'Administrador'){
                 $('.avance-mes, #avance-actual').css('cursor', 'pointer');
                 class_av.control_admin();
@@ -123,9 +125,9 @@ class_av = {
     },
     ready: function(){
         loading.start();
-        class_av.initClient();
         var anio = (new Date(Date.now())).getFullYear();
         class_av.var.anio = anio;
+        class_av.initClient();
         class_av.var.meta_departamento = {
             '2024': 30000,
             '2025': 30958,
@@ -172,6 +174,7 @@ class_av = {
                         if(cons.rol.val == 'Administrador' || cons.pal_cla.val == '1'){
                             class_av.setTablaPC(class_av.var.avance_pc);
                         }
+                class_av.cargarPCRetro(class_av.var.anio);
                         if(cons.rol.val == 'Administrador'){
                             $('.avance-mes').show();
                             $('.avance-mes, #avance-actual').css('cursor', 'pointer');
@@ -208,6 +211,7 @@ class_av = {
                 if(cons.rol.val == 'Administrador' || cons.pal_cla.val == '1'){
                     class_av.setTablaPC(class_av.var.avance_pc);
                 }
+                class_av.cargarPCRetro(class_av.var.anio);
                 if(cons.rol.val == 'Administrador'){
                     $('.avance-mes').show();
                     $('.avance-mes, #avance-actual').css('cursor', 'pointer');
@@ -241,6 +245,7 @@ class_av = {
                 class_av.setTablaProdPC(resp_produccionpc[0]);
                 class_av.setGraficaProd();
                 class_av.setGraficaProdPC();
+                class_av.cargarPCRetro(anio, mes);
                 loading.end();
             });
         });
@@ -280,6 +285,7 @@ class_av = {
                         if(cons.rol.val == 'Administrador' || cons.pal_cla.val == '1'){
                             class_av.setTablaPC(class_av.var.avance_pc);
                         }
+                class_av.cargarPCRetro(class_av.var.anio);
                         if(cons.rol.val == 'Administrador'){
                             $('.avance-mes').show();
                             $('.avance-mes, #avance-actual').css('cursor', 'pointer');
@@ -315,6 +321,7 @@ class_av = {
                 if(cons.rol.val == 'Administrador' || cons.pal_cla.val == '1'){
                     class_av.setTablaPC(class_av.var.avance_pc);
                 }
+                class_av.cargarPCRetro(class_av.var.anio);
                 if(cons.rol.val == 'Administrador'){
                     $('.avance-mes').show();
                     $('.avance-mes, #avance-actual').css('cursor', 'pointer');
@@ -348,6 +355,7 @@ class_av = {
                 if(cons.pal_cla.val == '1'){
                     class_av.setTablaProdPCAnalista(resp_produccionpc[0]);
                 }
+                class_av.cargarPCRetro(anio, mes);
                 loading.end();
             });
         });
@@ -355,6 +363,106 @@ class_av = {
            class_av.ready();
         });
     },
+    /* ============================================================
+     * PRODUCCIÓN RETROACTIVA DE PALABRAS CLAVE
+     * No altera el avance normal ni las gráficas de tiempos.
+     * ============================================================ */
+    cargarPCRetro: function(anio, mes){
+        var $contenedor = $('#div_tablaPCRetro');
+        if (!$contenedor.length) return;
+
+        if (cons.rol.val !== 'Administrador' && cons.pal_cla.val !== '1') {
+            $contenedor.empty();
+            return;
+        }
+
+        anio = Number(anio) || (new Date()).getFullYear();
+        mes = mes == null ? null : Number(mes);
+
+        var solicitud = ++class_av.var.solicitud_pc_retro;
+        var url = '/datos/avance_pc_retro/' + anio + (mes ? '/' + mes : '');
+
+        $contenedor.html('<h4>Palabras clave retroactivas</h4><p>Consultando registros...</p>');
+
+        $.ajax({url: url, dataType: 'json', cache: false})
+            .done(function(data){
+                if (solicitud !== class_av.var.solicitud_pc_retro) return;
+                class_av.setTablaPCRetro(data, anio, mes);
+            })
+            .fail(function(){
+                if (solicitud !== class_av.var.solicitud_pc_retro) return;
+                $contenedor.html(
+                    '<h4>Palabras clave retroactivas</h4>' +
+                    '<p class="text-danger">No fue posible recuperar el conteo retroactivo.</p>'
+                );
+            });
+    },
+
+    setTablaPCRetro: function(data, anio, mes){
+        data = Array.isArray(data) ? data : [];
+        var mesTexto = mes ? (class_utils.cons.meses[mes] || ('Mes ' + mes)) + ' de ' : '';
+        var periodo = mesTexto + anio;
+        var sumaCLA = 0, sumaPER = 0, sumaAproximados = 0;
+        var $contenedor = $('#div_tablaPCRetro').empty();
+
+        $('<h4>').text('Palabras clave retroactivas').appendTo($contenedor);
+        $('<p>').addClass('text-muted').text(
+            'Artículos cuyo análisis fue completado antes del 01/11/2026'
+        ).appendTo($contenedor);
+
+        var $tabla = $('<table>')
+            .attr('id', 'tbl_analistasPCRetro')
+            .addClass('display responsive nowrap')
+            .css({width: '100%', fontSize: '11px'});
+        $tabla.append(
+            '<thead><tr>' +
+            '<th>Analista</th><th>CLASE</th><th>PERIÓDICA</th><th>Total</th>' +
+            '</tr></thead>'
+        );
+        var $tbody = $('<tbody>');
+
+        data.forEach(function(r){
+            var cla = Number(r.clase) || 0;
+            var per = Number(r.periodica) || 0;
+            sumaCLA += cla;
+            sumaPER += per;
+            sumaAproximados += Number(r.aproximados) || 0;
+
+            var $tr = $('<tr>');
+            $('<td>').text(r.analista || '').appendTo($tr);
+            $('<td>').text(cla).appendTo($tr);
+            $('<td>').text(per).appendTo($tr);
+            $('<td>').text(cla + per).appendTo($tr);
+            $tbody.append($tr);
+        });
+
+        $tabla.append($tbody);
+        var $tfoot = $('<tfoot>').append($('<tr>')
+            .append($('<th>').text('Total del departamento'))
+            .append($('<th>').text(sumaCLA))
+            .append($('<th>').text(sumaPER))
+            .append($('<th>').text(sumaCLA + sumaPER)));
+        $tabla.append($tfoot);
+        $contenedor.append($tabla);
+
+//        if (sumaAproximados > 0) {
+//            $('<p>').addClass('text-muted').css('fontSize', '11px')
+//                .text('Aviso: ' + sumaAproximados +
+//                      ' artículo(s) no tienen cierre normal en bitácora; ' +
+//                      'se utilizó la fecha del primer movimiento humano como aproximación.')
+//                .appendTo($contenedor);
+//        }
+
+        class_utils.setTabla('tbl_analistasPCRetro', {
+            dom: 'Bfrtip',
+            buttons: [],
+            order: [[0, 'asc']],
+            bLengthChange: false,
+            paging: false,
+            autoWidth: true
+        });
+    },
+
     setTabla: function(data){
         var tbody = '';
         var total_departamento = class_av.var.meta_departamento[class_av.var.anio] ?? 999999999999; //class_av.var.meta_departamento[class_av.var.anio]; //30958;

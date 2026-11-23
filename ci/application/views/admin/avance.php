@@ -1,6 +1,6 @@
 <style>
     #avance-actual{
-        transition: font-size 0.3s ease; 
+        transition: font-size 0.3s ease;
     }
     .avance-mes{
         transition: font-size 0.3s ease;
@@ -11,7 +11,7 @@
     .avance-mes:hover{
         font-size: 15px;
     }
-    
+
 @keyframes firework {
   0% { transform: translate(var(--x), var(--initialY)); width: var(--initialSize); opacity: 1; }
   50% { width: 0.5vmin; opacity: 1; }
@@ -21,9 +21,8 @@
 /* @keyframes fireworkPseudo {
   0% { transform: translate(-50%, -50%); width: var(--initialSize); opacity: 1; }
   50% { width: 0.5vmin; opacity: 1; }
-  100% { width: var(--finalSize); opacity: 0; }
-}
- */
+  100% { width: var(--initialSize); opacity: 0; }
+} */
 .firework,
 .firework2,
 .firework3,
@@ -50,19 +49,18 @@
   transform: translate(-50%, var(--y));
   width: var(--initialSize);
   aspect-ratio: 1;
-  background: 
+  background:
     /*
     radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 0% 0%,
     radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 100% 0%,
     radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 100% 100%,
     radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 0% 100%,
     */
-    
     radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 50% 0%,
     radial-gradient(circle, var(--color2) var(--particleSize), #0000 0) 100% 50%,
     radial-gradient(circle, var(--color3) var(--particleSize), #0000 0) 50% 100%,
     radial-gradient(circle, var(--color4) var(--particleSize), #0000 0) 0% 50%,
-    
+
     /* bottom right */
     radial-gradient(circle, var(--color5) var(--particleSize), #0000 0) 80% 90%,
     radial-gradient(circle, var(--color6) var(--particleSize), #0000 0) 95% 90%,
@@ -70,7 +68,7 @@
     radial-gradient(circle, var(--color2) var(--particleSize), #0000 0) 100% 60%,
     radial-gradient(circle, var(--color3) var(--particleSize), #0000 0) 55% 80%,
     radial-gradient(circle, var(--color4) var(--particleSize), #0000 0) 70% 77%,
-    
+
     /* bottom left */
     radial-gradient(circle, var(--color5) var(--particleSize), #0000 0) 22% 90%,
     radial-gradient(circle, var(--color6) var(--particleSize), #0000 0) 45% 90%,
@@ -79,7 +77,7 @@
     radial-gradient(circle, var(--color3) var(--particleSize), #0000 0) 31% 80%,
     radial-gradient(circle, var(--color4) var(--particleSize), #0000 0) 28% 77%,
     radial-gradient(circle, var(--color5) var(--particleSize), #0000 0) 13% 72%,
-    
+
     /* top left */
     radial-gradient(circle, var(--color6) var(--particleSize), #0000 0) 80% 10%,
     radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 95% 14%,
@@ -88,7 +86,7 @@
     radial-gradient(circle, var(--color4) var(--particleSize), #0000 0) 85% 27%,
     radial-gradient(circle, var(--color5) var(--particleSize), #0000 0) 77% 37%,
     radial-gradient(circle, var(--color6) var(--particleSize), #0000 0) 60% 7%,
-    
+
     /* top right */
     radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 22% 14%,
     radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 45% 20%,
@@ -96,8 +94,7 @@
     radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 10% 29%,
     radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 31% 37%,
     radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 28% 7%,
-    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 13% 42%
-    ;
+    radial-gradient(circle, var(--color1) var(--particleSize), #0000 0) 13% 42%;
   background-size: var(--initialSize) var(--initialSize);
   background-repeat: no-repeat;
 }
@@ -106,18 +103,17 @@
   --x: -50%;
   --y: -50%;
   --initialY: -50%;
-/*   transform: translate(-20vmin, -2vmin) rotate(40deg) scale(1.3) rotateY(40deg); */
+  /* transform: translate(-20vmin, -2vmin) rotate(40deg) scale(1.3) rotateY(40deg); */
   transform: translate(-50%, -50%) rotate(40deg) scale(1.3) rotateY(40deg);
-/*   animation: fireworkPseudo 2s infinite; */
+  /* animation: fireworkPseudo 2s infinite; */
 }
 
 .firework3 {
   --x: -50%;
   --y: -50%;
   --initialY: -50%;
-/*   transform: translate(44vmin, -50%) rotate(170deg) scale(1.15) rotateY(-30deg); */
+  /* transform: translate(44vmin, -50%) rotate(170deg) scale(1.15) rotateY(-30deg); */
   transform: translate(-50%, -50%) rotate(170deg) scale(1.15) rotateY(-30deg);
-/*   animation: fireworkPseudo 2s infinite; */
 }
 
 .firework2 {
@@ -132,7 +128,7 @@
   --color3: fuchsia;
   --color4: orchid;
   --color5: plum;
-  --color6: lavender;  
+  --color6: lavender;
   --finalSize: 40vmin;
   left: 30%;
   top: 60%;
@@ -159,8 +155,7 @@
   animation-delay: -0.3s;
 }
 
-/*TEXTO PARPADEA*/
-
+/* TEXTO PARPADEA */
 .text {
   font-size:28px;
   font-family:helvetica;
@@ -169,125 +164,116 @@
   text-transform:uppercase;
 }
 .parpadea {
-  
   animation-name: parpadeo;
   animation-duration: 1s;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
-
   -webkit-animation-name:parpadeo;
   -webkit-animation-duration: 1s;
   -webkit-animation-timing-function: linear;
   -webkit-animation-iteration-count: infinite;
 }
-
-@-moz-keyframes parpadeo{  
+@-moz-keyframes parpadeo {
   0% { opacity: 1.0; }
   50% { opacity: 0.0; }
   100% { opacity: 1.0; }
 }
-
-@-webkit-keyframes parpadeo {  
+@-webkit-keyframes parpadeo {
   0% { opacity: 1.0; }
   50% { opacity: 0.0; }
-   100% { opacity: 1.0; }
-}
-
-@keyframes parpadeo {  
-  0% { opacity: 1.0; }
-   50% { opacity: 0.0; }
   100% { opacity: 1.0; }
 }
-
+@keyframes parpadeo {
+  0% { opacity: 1.0; }
+  50% { opacity: 0.0; }
+  100% { opacity: 1.0; }
+}
 </style>
 
 <script>
-    const cons =    { 
-                        rol: Object.freeze( { val: '<?php echo $rol; ?>'}),
-                        pal_cla: Object.freeze( { val: '<?php echo $pal_cla; ?>'})
-                    };
+    const cons = {
+        rol: Object.freeze({ val: '<?php echo $rol; ?>' }),
+        pal_cla: Object.freeze({ val: '<?php echo $pal_cla; ?>' })
+    };
 </script>
 
-    <!--<div class="row"><br></div>-->
-    <!--<center><button type="button" class="btn btn-warning" id="btn-anio" style="width:160px;border-radius:5px">Ver año anterior</button></center>-->
-    
+<!-- <div class="row"><br></div> -->
+<!-- <center><button type="button" class="btn btn-warning" id="btn-anio" style="width:160px;border-radius:5px">Ver año anterior</button></center> -->
 <div class="row"><br></div>
-
 <div class="row">
-<div class="col-xs-12" id="div-anio" style="">
-    <center>
-        <div class="btn-group" role="group">
-        <!-- Split button -->
-        <div class="btn-group">
-            <button type="button" class="btn btn-warning" id="btn-filtro-anio" style="width:160px;border-radius:5px">2026</button>
-            <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-radius:5px">
-            <span class="caret"></span>
-            <span class="sr-only">Toggle Dropdown</span>
-            </button>
-            <ul class="dropdown-menu" style="border-radius:5px">
-                <li><a class="li-filtro-anio" id="2026">2026</a></li>
-                <li><a class="li-filtro-anio" id="2025">2025</a></li>
-                <li><a class="li-filtro-anio" id="2024">2024</a></li>
-                <li><a class="li-filtro-anio" id="2023">2023</a></li>
-                <li><a class="li-filtro-anio" id="2022">2022</a></li>
-                <li><a class="li-filtro-anio" id="2021">2021</a></li>
-                <li><a class="li-filtro-anio" id="2020">2020</a></li>
-                <li><a class="li-filtro-anio" id="2019">2019</a></li>
-            </ul>
-        </div>
-        </div>
-    </center>
-</div>
+    <div class="col-xs-12" id="div-anio" style="">
+        <center>
+            <div class="btn-group" role="group">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-warning" id="btn-filtro-anio" style="width:160px;border-radius:5px">2026</button>
+                    <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-radius:5px">
+                        <span class="caret"></span>
+                        <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu" style="border-radius:5px">
+                        <li><a class="li-filtro-anio" id="2026">2026</a></li>
+                        <li><a class="li-filtro-anio" id="2025">2025</a></li>
+                        <li><a class="li-filtro-anio" id="2024">2024</a></li>
+                        <li><a class="li-filtro-anio" id="2023">2023</a></li>
+                        <li><a class="li-filtro-anio" id="2022">2022</a></li>
+                        <li><a class="li-filtro-anio" id="2021">2021</a></li>
+                        <li><a class="li-filtro-anio" id="2020">2020</a></li>
+                        <li><a class="li-filtro-anio" id="2019">2019</a></li>
+                    </ul>
+                </div>
+            </div>
+        </center>
+    </div>
 </div>
 
 <div class="row"><br></div>
 <div class="row"><br></div>
-
 <center><div class="row" id="meta_departamento"></div></center>
 <div class="row"><br></div>
 <div class="row"><br></div>
-<div class="progress esperado">
-  
+<div class="progress esperado"></div>
+<div class="row">
+    <div class="col-sm-12">
+        <center id="avance-actual"><b>Avance:</b> <span id="avance_total"></span> Registros</center>
+    </div>
 </div>
-<div class="row"><div class="col-sm-12"><center id="avance-actual"><b>Avance:</b> <span id='avance_total'></span> Registros</center></div></div>
 <center><div id="conseguida" class="row texto parpadea" style="display:none"><b>¡ Meta Superada !</b></div></center>
 <br>
-<div class="progress" style='height: 40px'>
-  
-</div>
+<div class="progress" style="height: 40px"></div>
 
+<!-- <center><button id="12" type="button" class="btn btn-warning avance-mes" style="width:160px;border-radius:5px;display:none">Ver diciembre</button></center> -->
 <div class="row">
     <div class="col-sm-12">
-        <div id="div_tabla" style="display:block">
-        </div>
+        <div id="div_tabla" style="display:block"></div>
+    </div>
+</div>
+
+<!--div class="row"><br><br></div>
+<div class="row">
+    <div class="col-sm-12">
+        <div id="div_tablaPC" style="display:block"></div>
+    </div>
+</div-->
+
+<!-- NUEVA TABLA: producción retroactiva de palabras clave -->
+<div class="row"><br><br></div>
+<div class="row">
+    <div class="col-sm-12">
+        <div id="div_tablaPCRetro" style="display:block"></div>
     </div>
 </div>
 
 <div class="row"><br><br></div>
-
 <div class="row">
     <div class="col-sm-12">
-        <div id="div_tablaPC" style="display:block">
-        </div>
+        <div id="div_tiempos" style="display:block"></div>
     </div>
 </div>
 
 <div class="row"><br><br></div>
-
 <div class="row">
     <div class="col-sm-12">
-        <div id="div_tiempos" style="display:block">
-        </div>
+        <div id="div_tiemposPC" style="display:block"></div>
     </div>
 </div>
-
-<div class="row"><br><br></div>
-
-<div class="row">
-    <div class="col-sm-12">
-        <div id="div_tiemposPC" style="display:block">
-        </div>
-    </div>
-</div>
-
 <div class="row"><br></div>
