@@ -276,14 +276,15 @@ class Generic_model extends CI_Model {
 		}
 	}
 	
-	public function update_estatus($tabla, $arr_where, $data){
-		//$this->load->database('prueba');
-		$this->load->database();
-		$this->db->trans_start();
-		$usuario = $this->session->userdata('usu_base');
-		
-		foreach ($data as $value){
-				foreach ($arr_where as $aw){
+	/* ANTES PALABRAS CLAVE
+        public function update_estatus($tabla, $arr_where, $data){
+            $this->load->database('prueba');
+            $this->db->trans_start();
+            $usuario = $this->session->userdata('usu_base');
+            $value2 = array();
+            
+            foreach ($data as $value){
+                    foreach ($arr_where as $aw){
                         //No actualiza al usuario en article
                         if(isset($value[$aw]) && $aw !== 'usuario'){
                             $array[$aw] = $value[$aw];
@@ -302,21 +303,221 @@ class Generic_model extends CI_Model {
                     
                     $this->db->where($array);
                     $this->db->update($tabla, $value2);
-				
-				$query = 'insert into catalogador (
-						"sistema","id","nombre","nivel","fecha","hora"
-						) values('.
-						"'".$value['sistema']."',".
-						"(select max(id)+1 from catalogador where sistema='".$value['sistema']."'),".
-						"'".$usuario."',".
-						"10,".
-						"NOW()::timestamp::date,".
-						"LOCALTIME(0))";
-				
-				$query = $this->db->query($query);
+                    
+                    $query = 'insert into catalogador (
+                            "sistema","id","nombre","nivel","fecha","hora"
+                            ) values('.
+                            "'".$value['sistema']."',".
+                            "(select max(id)+1 from catalogador where sistema='".$value['sistema']."'),".
+                            "'".$usuario."',".
+                            "10,".
+                            "NOW()::timestamp::date,".
+                            "LOCALTIME(0))";
+                    
+                    $query = $this->db->query($query);
+            }
+            
+            $this->db->trans_complete();
+        }
+        */
+        
+	public function update_estatus($tabla, $arr_where, $data){
+		$this->load->database();
+		$this->db->trans_start();
+
+		$usuario_sesion = $this->session->userdata('usu_base');
+
+		foreach($data as $value){
+			$array = array();
+			$value2 = array();
+			$usuario = $usuario_sesion;
+
+			foreach($arr_where as $aw){
+				if(isset($value[$aw]) && $aw !== 'usuario'){
+					$array[$aw] = $value[$aw];
+				}
+			}
+
+			if(isset($value['usuario']) && $value['usuario'] === 'EDITOR'){
+				$usuario = 'EDITOR';
+			}
+
+			$es_movimiento_pc = array_key_exists('estatusPC', $value);
+			$promueve_p_a_c = false;
+			$analista_normal_promocion = null;
+
+			/*
+			 * Antes del UPDATE necesitamos saber si esta acción PC está convirtiendo
+			 * específicamente un P en C y quién debe conservar el crédito normal.
+			 */
+			if($es_movimiento_pc && isset($value['estatus']) && $value['estatus'] === 'C' && isset($value['sistema'])){
+				$q_actual = $this->db->query(
+					'SELECT estatus, asignado FROM article WHERE sistema = ? LIMIT 1',
+					array($value['sistema'])
+				);
+				if($q_actual && $q_actual->num_rows() > 0){
+					$actual = $q_actual->row_array();
+					if((string)$actual['estatus'] === 'P'){
+						$promueve_p_a_c = true;
+						$analista_normal_promocion = isset($actual['asignado']) ? trim((string)$actual['asignado']) : '';
+					}
+				}
+			}
+
+			foreach($value as $v => $val){
+				if($v !== 'usuario'){
+					$value2[$v] = $val;
+				}
+			}
+
+			$this->db->where($array);
+
+			/*
+			 * Normalización de asignación PC durante la transición.
+			 *
+			 * - Si asignadoPC está vacío, se hereda `asignado` (si existe) y sólo
+			 *   como último respaldo se usa el usuario de sesión.
+			 * - Si fechaAsignadoPC está vacía y PC corresponde al mismo responsable
+			 *   normal, se copia fechaAsignado. NO se usa la fecha de hoy.
+			 * - Si PC ya estaba explícitamente asignada a otra persona y le falta
+			 *   fecha, entonces sí se usa hoy como respaldo.
+			 *
+			 * Así los registros legados quedan equivalentes a una asignación integrada,
+			 * mientras que futuras asignaciones históricas conservarán una fecha PC
+			 * distinta y podrán identificarse como trabajo exclusivo de palabras.
+			 */
+			if($es_movimiento_pc && $usuario !== '' && $usuario !== 'EDITOR' && isset($value['sistema'])){
+				$q_asig = $this->db->query(
+					'SELECT asignado, "asignadoPC", "fechaAsignado", "fechaAsignadoPC" '.
+					'FROM article WHERE sistema = ? LIMIT 1',
+					array($value['sistema'])
+				);
+
+				if($q_asig && $q_asig->num_rows() > 0){
+					$ra = $q_asig->row_array();
+					$normal = isset($ra['asignado']) ? trim((string)$ra['asignado']) : '';
+					$pc = isset($ra['asignadoPC']) ? trim((string)$ra['asignadoPC']) : '';
+					$fecha_normal = !empty($ra['fechaAsignado']) ? substr((string)$ra['fechaAsignado'], 0, 10) : '';
+					$fecha_pc = !empty($ra['fechaAsignadoPC']) ? substr((string)$ra['fechaAsignadoPC'], 0, 10) : '';
+
+					$pc_nuevo = $pc;
+					if($pc_nuevo === ''){
+						$pc_nuevo = ($normal !== '') ? $normal : $usuario;
+						$this->db->set('asignadoPC', $pc_nuevo);
+					}
+
+					if($fecha_pc === ''){
+						if($normal !== '' && $pc_nuevo === $normal){
+							// Legado integrado: copiar fecha normal si existe; si es NULL,
+							// se conserva NULL para no inventar una fecha histórica.
+							if($fecha_normal !== ''){
+								$this->db->set('fechaAsignadoPC', $fecha_normal);
+							}
+						}else{
+							// Asignación PC explícita sin fecha: respaldo seguro.
+							$this->db->set('fechaAsignadoPC', 'NOW()::timestamp::date', false);
+						}
+					}
+				}
+			}
+
+			$actualizado = $this->db->update($tabla, $value2);
+			$filas_actualizadas = $actualizado ? $this->db->affected_rows() : 0;
+
+			if(!$actualizado){
+				$this->db->trans_rollback();
+				return false;
+			}
+
+			$sistema = isset($value['sistema']) ? (string)$value['sistema'] : '';
+			if($sistema === ''){
+				continue;
+			}
+
+			// Sólo al completar PC (C), no al guardar en revisión (R),
+			// reabrir o completar únicamente el análisis normal.
+			if($tabla === 'article' && $es_movimiento_pc && $value['estatusPC'] === 'C'){
+				if($filas_actualizadas < 1 || !$this->registra_catalogo_pc_cambios($sistema)){
+					$this->db->trans_rollback();
+					return false;
+				}
+			}
+
+			if(!$es_movimiento_pc){
+				// Movimiento normal: conserva la conducta histórica.
+				$this->insert_catalogador_estado_pcflujo($sistema, $usuario);
+			}elseif($promueve_p_a_c){
+				/*
+				 * P -> C provocado por PC: fecha nueva, crédito del analista normal.
+				 * Si por alguna inconsistencia no hubiera asignado, usamos el último
+				 * catalogador normal como respaldo y nunca asignadoPC.
+				 */
+				$nombre = $analista_normal_promocion;
+				if($nombre === ''){
+					$q_nombre = $this->db->query(
+						"SELECT nombre FROM catalogador WHERE sistema = ? AND nombre NOT IN ('OJS','SciELO','EDITOR') ORDER BY id DESC LIMIT 1",
+						array($sistema)
+					);
+					if($q_nombre && $q_nombre->num_rows() > 0){
+						$nombre = trim((string)$q_nombre->row()->nombre);
+					}
+				}
+				if($nombre !== ''){
+					$this->insert_catalogador_estado_pcflujo($sistema, $nombre);
+				}
+			}
 		}
-		
-		$this->db->trans_complete();
+
+		return $this->db->trans_complete();
+	}
+        
+	/*
+	 * Catálogo inmediato: una fila por término persistido en article.
+	 * Se ejecuta dentro de la transacción de update_estatus().
+	 * Se conservan grafía y acentos, incluidas las subdisciplinas guardadas
+	 * como palabras clave. Reabrir y completar puede sumar otra ocurrencia.
+	 */
+	private function registra_catalogo_pc_cambios($sistema){
+		$catalogos = array(
+			'palabras_clave_cambios' => '"palabraClave"',
+			'keywords_cambios' => '"keyword"'
+		);
+
+		foreach($catalogos as $tabla => $campo){
+			// Tabla y campo provienen exclusivamente del arreglo fijo anterior.
+			// Los campos de article contienen arreglos JSON; NULL y JSON null
+			// se tratan como arreglos vacíos (keywords en inglés son opcionales).
+			$sql = "INSERT INTO {$tabla} (palabra)
+					SELECT p.valor
+					FROM article a
+					CROSS JOIN LATERAL jsonb_array_elements_text(
+						CASE WHEN jsonb_typeof(a.{$campo}::jsonb) = 'array'
+							 THEN a.{$campo}::jsonb
+							 ELSE '[]'::jsonb END
+					) AS p(valor)
+					WHERE a.sistema = ?
+					  AND a.\"estatusPC\" = 'C'
+					  AND p.valor IS NOT NULL
+					  AND btrim(p.valor) <> ''";
+
+			if(!$this->db->query($sql, array($sistema))){
+				return false;
+			}
+		}
+
+		return true;
+	}
+        
+	private function insert_catalogador_estado_pcflujo($sistema, $nombre){
+		$sistema = (string)$sistema;
+		$nombre = (string)$nombre;
+		if($sistema === '' || $nombre === '') return;
+
+		$this->db->query(
+			'INSERT INTO catalogador ("sistema","id","nombre","nivel","fecha","hora") '.
+			'VALUES (?, (SELECT COALESCE(MAX(id),0)+1 FROM catalogador WHERE sistema=?), ?, 10, NOW()::timestamp::date, LOCALTIME(0))',
+			array($sistema, $sistema, $nombre)
+		);
 	}
    
 	public function insert($tabla, $data){

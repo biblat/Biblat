@@ -1441,7 +1441,7 @@ class_av = {
             url: (idioma === 'eng') ? "<?=site_url('datos/keywords_buscar');?>" : "<?=site_url('datos/palabras_buscar');?>",
             dataType: 'json',
             delay: 300,
-            cache: true,
+            cache: false,
             data: function(params){ return {q: params.term || '', limit: 100}; },
             processResults: function(data){
                 var filas = Array.isArray(data) ? data : [];
@@ -2571,6 +2571,7 @@ class_av = {
             $('#accordion').hide();
             
             class_av.var.sistema = sistema;
+			class_av.var.catalogo_pc_sistema = null;
             // Recuperar título/revista desde el objeto del artículo, sin usar
             // separadores en atributos HTML ni depender de la longitud del título.
             var registroTitulo = class_utils.find_prop(

@@ -1529,7 +1529,7 @@ class Datos extends REST_Controller {
             $data = array();
             $this->load->database();
             $query = "
-                        select valor, num from mvpalabrasclave
+                        select valor, num from vpalabrasclave
             ";
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);  
@@ -1539,7 +1539,7 @@ class Datos extends REST_Controller {
             $data = array();
             $this->load->database();
             $query = "
-                        select valor, num from mvkeywords
+                        select valor, num from vkeywords
             ";
             $query = $this->db->query($query);
             $this->response($query->result_array(), 200);  
@@ -2458,27 +2458,27 @@ class Datos extends REST_Controller {
         }
 
         public function palabras_buscar_get(){
-            $this->catalogo_pc_buscar('mvpalabrasclave');
+            $this->catalogo_pc_buscar('vpalabrasclave');
         }
 
         public function keywords_buscar_get(){
-            $this->catalogo_pc_buscar('mvkeywords');
+            $this->catalogo_pc_buscar('vkeywords');
         }
 
         public function palabras_resolver_post(){
-            $this->catalogo_pc_resolver('mvpalabrasclave');
+            $this->catalogo_pc_resolver('vpalabrasclave');
         }
 
         public function keywords_resolver_post(){
-            $this->catalogo_pc_resolver('mvkeywords');
+            $this->catalogo_pc_resolver('vkeywords');
         }
 
         public function palabras_pagina_get(){
-            $this->catalogo_pc_pagina('mvpalabrasclave');
+            $this->catalogo_pc_pagina('vpalabrasclave');
         }
 
         public function keywords_pagina_get(){
-            $this->catalogo_pc_pagina('mvkeywords');
+            $this->catalogo_pc_pagina('vkeywords');
         }
         
         public function palabras_ia_sistemas_post(){
