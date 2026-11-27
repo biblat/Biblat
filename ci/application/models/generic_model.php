@@ -472,19 +472,22 @@ class Generic_model extends CI_Model {
 	}
         
 	/*
-	 * Catálogo inmediato: una fila por término persistido en article.
+	 * Catálogo inmediato: una fila por término persistido en article
+	 * que todavía no existe en su vista materializada.
 	 * Se ejecuta dentro de la transacción de update_estatus().
 	 * Se conservan grafía y acentos, incluidas las subdisciplinas guardadas
 	 * como palabras clave. Reabrir y completar puede sumar otra ocurrencia.
 	 */
 	private function registra_catalogo_pc_cambios($sistema){
 		$catalogos = array(
-			'palabras_clave_cambios' => '"palabraClave"',
-			'keywords_cambios' => '"keyword"'
+			'palabras_clave_cambios' => array('campo' => '"palabraClave"', 'vista' => 'mvpalabrasclave'),
+			'keywords_cambios' => array('campo' => '"keyword"', 'vista' => 'mvkeywords')
 		);
 
-		foreach($catalogos as $tabla => $campo){
-			// Tabla y campo provienen exclusivamente del arreglo fijo anterior.
+		foreach($catalogos as $tabla => $config){
+			$campo = $config['campo'];
+			$vista = $config['vista'];
+			// Tabla, campo y vista provienen exclusivamente del arreglo fijo anterior.
 			// Los campos de article contienen arreglos JSON; NULL y JSON null
 			// se tratan como arreglos vacíos (keywords en inglés son opcionales).
 			$sql = "INSERT INTO {$tabla} (palabra)
@@ -498,7 +501,12 @@ class Generic_model extends CI_Model {
 					WHERE a.sistema = ?
 					  AND a.\"estatusPC\" = 'C'
 					  AND p.valor IS NOT NULL
-					  AND btrim(p.valor) <> ''";
+					  AND btrim(p.valor) <> ''
+					  AND NOT EXISTS (
+						  SELECT 1
+						  FROM {$vista} mv
+						  WHERE mv.valor = p.valor
+					  )";
 
 			if(!$this->db->query($sql, array($sistema))){
 				return false;
